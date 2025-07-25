@@ -101,6 +101,12 @@ export default defineConfig(({ command, mode }) => {
           '**/@blocknote/core/src/fonts/**',
         ],
       },
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000',
+          changeOrigin: true,
+        },
+      },
     },
 
     plugins: [
