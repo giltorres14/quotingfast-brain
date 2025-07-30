@@ -21,6 +21,15 @@ Route::get('/', function () {
     return response()->json([
         'success' => true,
         'message' => 'Welcome to The Brain - Laravel API is running!',
+        'debug_info' => [
+            'laravel_version' => app()->version(),
+            'environment' => app()->environment(),
+            'routes_cached' => app()->routesAreCached(),
+            'config_cached' => app()->configurationIsCached(),
+            'debug_mode' => config('app.debug'),
+            'app_url' => config('app.url'),
+            'document_root' => $_SERVER['DOCUMENT_ROOT'] ?? 'unknown',
+        ],
         'endpoints' => [
             '/test' => 'Basic functionality test',
             '/test-lead-data' => 'Lead data test',
