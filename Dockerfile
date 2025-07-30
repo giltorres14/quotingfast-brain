@@ -28,6 +28,22 @@ COPY brain/ .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
+# Set production environment variables
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+ENV APP_URL=https://lobster-app-rsicc.ondigitalocean.app
+ENV DB_CONNECTION=sqlite
+ENV DB_DATABASE=/var/www/html/database/database.sqlite
+
+# Create SQLite database file
+RUN touch /var/www/html/database/database.sqlite
+
+# Generate Laravel application key and optimize
+RUN php artisan key:generate --force \
+    && php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache
+
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
