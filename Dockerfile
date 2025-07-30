@@ -38,8 +38,11 @@ ENV DB_DATABASE=/var/www/html/database/database.sqlite
 # Create SQLite database file
 RUN touch /var/www/html/database/database.sqlite
 
-# Generate Laravel application key and optimize
+# Generate Laravel application key and clear/optimize
 RUN php artisan key:generate --force \
+    && php artisan route:clear \
+    && php artisan config:clear \
+    && php artisan cache:clear \
     && php artisan config:cache
 
 # Set proper permissions
