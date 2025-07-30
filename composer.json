@@ -1,0 +1,11 @@
+{
+    "name": "quotingfast/brain",
+    "description": "QuotingFast Brain - Laravel API for lead management",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.1"
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

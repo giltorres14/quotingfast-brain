@@ -25,6 +25,9 @@ WORKDIR /var/www/html
 # Copy the Laravel application from brain directory
 COPY brain/ .
 
+# Allow composer to run as root
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
