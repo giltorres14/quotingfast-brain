@@ -41,7 +41,6 @@ RUN touch /var/www/html/database/database.sqlite
 # Generate Laravel application key and optimize
 RUN php artisan key:generate --force \
     && php artisan config:cache \
-    && php artisan route:cache \
     && php artisan view:cache
 
 # Set proper permissions
