@@ -1,0 +1,25 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+RUN npm ci --only=production
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S parcelvoy -u 1001
+
+# Set ownership
+RUN chown -R parcelvoy:nodejs /app
+USER parcelvoy
+
+EXPOSE 3001
+
+CMD ["npm", "start"]
