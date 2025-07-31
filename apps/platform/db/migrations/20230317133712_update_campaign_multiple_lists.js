@@ -17,7 +17,7 @@ exports.up = async function(knex) {
     // Only update if list_ids column exists and list_id still exists
     const hasListId = await knex.schema.hasColumn('campaigns', 'list_id')
     if (hasListIds && hasListId) {
-        await knex.raw('UPDATE campaigns SET list_ids = CONCAT("[", campaigns.list_id, "]") WHERE list_ids IS NULL')
+        await knex.raw('UPDATE campaigns SET list_ids = CONCAT(\'[\', campaigns.list_id, \']\') WHERE list_ids IS NULL')
     }
     
     // Only drop if list_id column still exists
