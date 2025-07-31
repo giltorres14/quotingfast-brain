@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=18.0.0"
+    "node": "18.x",
+    "npm": "9.x"
   },
   "workspaces": [
     "apps/*"
@@ -12,8 +13,10 @@
     "lerna": "~6.6.1"
   },
   "scripts": {
-    "start": "node test-server.js",
-    "build": "echo 'Node.js build complete'",
+    "start": "cd apps/platform && npm start",
+    "build": "cd apps/platform && npm run build",
+    "postinstall": "cd apps/platform && npm install",
+    "heroku-postbuild": "cd apps/platform && npm install && npm run build",
     "lint": "lerna run lint",
     "test": "lerna run test",
     "docker:build": "lerna run docker:build",

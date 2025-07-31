@@ -72,6 +72,13 @@ class Lead extends Model
         'vin',
         'insurance_company',
         'coverage_type',
+        'assigned_to',
+        'client_id',
+        'status',
+        'estimated_value',
+        'contacted_at',
+        'qualified_at',
+        'notes',
     ];
 
     protected $casts = [
@@ -91,6 +98,9 @@ class Lead extends Model
         'no_accidents' => 'boolean',
         'no_claims' => 'boolean',
         'exclusive_flag' => 'boolean',
+        'estimated_value' => 'decimal:2',
+        'contacted_at' => 'datetime',
+        'qualified_at' => 'datetime',
     ];
 
     protected $dates = [
@@ -147,5 +157,32 @@ class Lead extends Model
             );
         }
         return $this->phone;
+    }
+
+    // User relationships
+    public function assignedUser()
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(User::class, 'client_id');
+    }
+
+    // Additional scopes for user management
+    public function scopeForClient($query, $clientId)
+    {
+        return $query->where('client_id', $clientId);
+    }
+
+    public function scopeAssignedTo($query, $userId)
+    {
+        return $query->where('assigned_to', $userId);
+    }
+
+    public function scopeByStatus($query, $status)
+    {
+        return $query->where('status', $status);
     }
 } 
