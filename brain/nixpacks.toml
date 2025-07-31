@@ -3,12 +3,21 @@ nixPkgs = ["php81", "php81Packages.composer", "nodejs_18"]
 
 [phases.install]
 cmds = [
-  "composer install --no-dev --optimize-autoloader --no-scripts --no-plugins",
-  "composer dump-autoload --optimize --no-scripts"
+  "mkdir -p /tmp/composer-cache",
+  "composer install --no-dev --optimize-autoloader --no-cache",
+  "composer dump-autoload --optimize"
 ]
 
 [phases.build]
-cmds = ["echo 'Build completed - skipping Laravel artisan commands'"]
+cmds = [
+  "mkdir -p bootstrap/cache",
+  "mkdir -p storage/logs",
+  "mkdir -p storage/framework/cache",
+  "mkdir -p storage/framework/sessions",
+  "mkdir -p storage/framework/views",
+  "chmod -R 775 storage bootstrap/cache",
+  "php artisan key:generate --force"
+]
 
 [start]
-cmd = "php artisan config:clear && php artisan cache:clear && php artisan serve --host=0.0.0.0 --port=$PORT"
+cmd = "php artisan config:cache && php artisan route:cache && php artisan serve --host=0.0.0.0 --port=$PORT"
