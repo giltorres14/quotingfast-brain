@@ -2,51 +2,6 @@
 name = "laravel-brain"
 source = "brain"
 
-[services.build]
-builder = "nixpacks"
-
-[services.deploy]
-healthcheckPath = "/"
-healthcheckTimeout = 300
-restartPolicyType = "on_failure"
-
-[services.variables]
-APP_ENV = "production"
-APP_DEBUG = "false"
-APP_KEY = "base64:$(openssl rand -base64 32)"
-APP_URL = "https://${{RAILWAY_PUBLIC_DOMAIN}}"
-DB_CONNECTION = "pgsql"
-DB_HOST = "${{PGHOST}}"
-DB_PORT = "${{PGPORT}}"
-DB_DATABASE = "${{PGDATABASE}}"
-DB_USERNAME = "${{PGUSER}}"
-DB_PASSWORD = "${{PGPASSWORD}}"
-CACHE_DRIVER = "file"
-SESSION_DRIVER = "file"
-QUEUE_CONNECTION = "sync"
-
 [[services]]
 name = "parcelvoy-platform"
 source = "apps/platform"
-
-[services.build]
-builder = "nixpacks"
-buildCommand = "npm ci && npm run build"
-startCommand = "npm start"
-
-[services.deploy]
-healthcheckPath = "/api/health"
-healthcheckTimeout = 300
-restartPolicyType = "on_failure"
-
-[services.variables]
-NODE_ENV = "production"
-PORT = "3001"
-API_SECRET = "parcelvoy-secret-key-2025"
-JWT_SECRET = "jwt-secret-key-2025"
-DATABASE_URL = "${{DATABASE_URL}}"
-DB_HOST = "${{PGHOST}}"
-DB_PORT = "${{PGPORT}}"
-DB_DATABASE = "${{PGDATABASE}}"
-DB_USERNAME = "${{PGUSER}}"
-DB_PASSWORD = "${{PGPASSWORD}}"
