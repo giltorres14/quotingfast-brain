@@ -22,14 +22,13 @@ services:
         generateValue: true
     healthCheckPath: /api/health
 
-  # Laravel Brain Lead Management - NEW PHP SERVICE
+  # Laravel Brain Lead Management - DOCKER SERVICE
   - type: web
     name: quotingfast-brain
-    env: php
+    env: docker
     region: oregon
     plan: starter
-    buildCommand: cd brain && composer install --no-dev --optimize-autoloader && php artisan key:generate --force && mkdir -p storage/framework/{cache,sessions,views} && mkdir -p storage/logs && mkdir -p bootstrap/cache
-    startCommand: cd brain && php -S 0.0.0.0:$PORT -t public
+    dockerfilePath: ./brain/Dockerfile.render
     envVars:
       - key: APP_ENV
         value: production
