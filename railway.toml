@@ -1,0 +1,17 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cd brain && php artisan serve --host=0.0.0.0 --port=$PORT"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+[[services]]
+name = "quotingfast-brain"
+source = "brain"
+
+[services.variables]
+APP_ENV = "production"
+APP_DEBUG = "false"
+APP_KEY = "base64:Ck7Rt1uiy5WGbrTFj1HBjymbBoA6zqih"
