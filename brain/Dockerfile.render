@@ -13,25 +13,19 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy composer files from brain directory
-COPY brain/composer.json brain/composer.lock ./
+# Copy everything first, then move brain contents to root
+COPY . /tmp/app
+RUN cp -r /tmp/app/brain/* . && rm -rf /tmp/app
 
-# Install dependencies (without problematic flags)
-RUN composer install --no-dev --optimize-autoloader
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Copy application code from brain directory
-COPY brain/ .
-
-# Create Laravel directories
-RUN mkdir -p storage/framework/{cache,sessions,views} \
-    && mkdir -p storage/logs \
-    && mkdir -p bootstrap/cache
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
+# Create Laravel directories and set permissions
+RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
     && chmod -R 755 storage bootstrap/cache
 
-# Create basic .env file with defaults
+# Create .env file with production defaults
 RUN echo "APP_NAME=QuotingFast" > .env \
     && echo "APP_ENV=production" >> .env \
     && echo "APP_DEBUG=false" >> .env \
@@ -42,16 +36,21 @@ RUN echo "APP_NAME=QuotingFast" > .env \
     && echo "SESSION_DRIVER=file" >> .env \
     && echo "QUEUE_CONNECTION=sync" >> .env
 
-# Generate Laravel app key
-RUN php artisan key:generate --force
+# Generate app key and clear caches
+RUN php artisan key:generate --force \
+    && php artisan config:clear \
+    && php artisan cache:clear
 
-# Configure Apache
+# Configure Apache for Laravel
 RUN echo '<VirtualHost *:80>\n\
     DocumentRoot /var/www/html/public\n\
     <Directory /var/www/html/public>\n\
         AllowOverride All\n\
         Require all granted\n\
+        DirectoryIndex index.php\n\
     </Directory>\n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
 </VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
