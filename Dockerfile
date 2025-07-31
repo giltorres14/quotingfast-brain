@@ -46,11 +46,11 @@ ENV APP_KEY=base64:le+1ceIdu/c0cXfW1TyldipruKEviBuiZYB2Z74vJhE=
 RUN mkdir -p /var/www/html/database \
     && touch /var/www/html/database/database.sqlite
 
-# Generate Laravel application key and clear/optimize
-RUN php artisan key:generate --force \
-    && php artisan route:clear \
+# Ensure APP_KEY is set in .env file, then optimize Laravel
+RUN echo "APP_KEY=base64:le+1ceIdu/c0cXfW1TyldipruKEviBuiZYB2Z74vJhE=" >> .env \
     && php artisan config:clear \
     && php artisan cache:clear \
+    && php artisan route:clear \
     && php artisan config:cache
 
 # Set proper permissions
@@ -58,8 +58,10 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Create storage directories if they don't exist
-RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views
+# Create Laravel storage directories with proper structure
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views \
+    && mkdir -p storage/app/public \
+    && mkdir -p bootstrap/cache
 
 # Enable Apache modules
 RUN a2enmod rewrite
