@@ -63,10 +63,12 @@ RUN echo '#!/bin/bash' > /usr/local/bin/start.sh && \
     echo 'set -e' >> /usr/local/bin/start.sh && \
     echo 'echo "Starting Laravel application..."' >> /usr/local/bin/start.sh && \
     echo 'php artisan key:generate --force' >> /usr/local/bin/start.sh && \
+    echo 'php artisan filament:install --panels' >> /usr/local/bin/start.sh && \
     echo 'php artisan migrate --force' >> /usr/local/bin/start.sh && \
     echo 'php artisan config:clear' >> /usr/local/bin/start.sh && \
     echo 'php artisan route:clear' >> /usr/local/bin/start.sh && \
     echo 'php artisan view:clear' >> /usr/local/bin/start.sh && \
+    echo 'php artisan route:cache' >> /usr/local/bin/start.sh && \
     echo 'echo "Laravel setup complete, starting Apache..."' >> /usr/local/bin/start.sh && \
     echo 'apache2-foreground' >> /usr/local/bin/start.sh && \
     chmod +x /usr/local/bin/start.sh
