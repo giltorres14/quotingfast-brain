@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "cd brain && php artisan serve --host=0.0.0.0 --port=$PORT"
+startCommand = "cd brain && php artisan config:clear && php artisan cache:clear && php artisan serve --host=0.0.0.0 --port=$PORT"
 healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
@@ -15,3 +15,7 @@ source = "brain"
 APP_ENV = "production"
 APP_DEBUG = "false"
 APP_KEY = "base64:Ck7Rt1uiy5WGbrTFj1HBjymbBoA6zqih"
+APP_NAME = "QuotingFast Brain"
+CACHE_DRIVER = "file"
+SESSION_DRIVER = "file"
+QUEUE_CONNECTION = "sync"
