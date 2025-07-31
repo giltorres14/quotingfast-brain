@@ -1,13 +1,5 @@
-# --------------> The frontend compiler image
-FROM node:18 AS frontend_compile
-WORKDIR /usr/src/app/apps/ui
-COPY ../../tsconfig.base.json /usr/src/app/
-COPY ../../apps/ui ./
-RUN npm ci
-RUN npm run build
-
-# --------------> The backend compiler image
-FROM node:18 AS backend_compile
+# --------------> The compiler image
+FROM node:18 AS compile
 WORKDIR /usr/src/app
 
 # Copy package files first
@@ -36,12 +28,10 @@ ENV NODE_ENV="production"
 WORKDIR /usr/src/app
 
 # Copy built application and dependencies
-COPY --from=backend_compile /usr/src/app/package*.json ./
-COPY --from=backend_compile /usr/src/app/build ./build
-COPY --from=backend_compile /usr/src/app/db ./db
-COPY --from=backend_compile /usr/src/app/public ./public
-# Copy the frontend build to public directory (this is the key fix!)
-COPY --from=frontend_compile /usr/src/app/apps/ui/build ./public
+COPY --from=compile /usr/src/app/package*.json ./
+COPY --from=compile /usr/src/app/build ./build
+COPY --from=compile /usr/src/app/db ./db
+COPY --from=compile /usr/src/app/public ./public
 
 # Install only production dependencies
 RUN npm ci --omit=dev && \
