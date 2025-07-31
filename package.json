@@ -15,7 +15,6 @@
   "scripts": {
     "start": "cd apps/platform && npm start",
     "build": "cd apps/platform && npm run build",
-    "postinstall": "cd apps/platform && npm install",
     "heroku-postbuild": "cd apps/platform && npm install && npm run build",
     "lint": "lerna run lint",
     "test": "lerna run test",
