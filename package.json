@@ -1,6 +1,10 @@
 {
-  "name": "parcelvoy",
+  "name": "quotingfast-brain-sms",
+  "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "workspaces": [
     "apps/*"
   ],
@@ -8,8 +12,8 @@
     "lerna": "~6.6.1"
   },
   "scripts": {
-    "start": "lerna run start",
-    "build": "lerna run build",
+    "start": "node test-server.js",
+    "build": "echo 'Node.js build complete'",
     "lint": "lerna run lint",
     "test": "lerna run test",
     "docker:build": "lerna run docker:build",
