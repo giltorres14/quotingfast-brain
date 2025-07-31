@@ -1,10 +1,10 @@
 [[services]]
 name = "parcelvoy-platform"
-source = "apps/platform"
+source = "."
 
 [services.build]
 builder = "dockerfile"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "apps/platform/Dockerfile"
 
 [services.deploy]
 healthcheckPath = "/api/health"
