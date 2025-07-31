@@ -1,15 +1,15 @@
-[build]
-builder = "dockerfile"
-dockerfilePath = "brain/Dockerfile"
-
-[deploy]
-healthcheckPath = "/"
-healthcheckTimeout = 300
-restartPolicyType = "on_failure"
-
 [[services]]
 name = "quotingfast-brain"
 source = "brain"
+
+[services.build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[services.deploy]
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
 
 [services.variables]
 APP_ENV = "production"
@@ -19,3 +19,21 @@ APP_NAME = "QuotingFast Brain"
 CACHE_DRIVER = "file"
 SESSION_DRIVER = "file"
 QUEUE_CONNECTION = "sync"
+
+[[services]]
+name = "parcelvoy-platform"
+source = "apps/platform"
+
+[services.build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[services.deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+[services.variables]
+NODE_ENV = "production"
+PORT = "3001"
+API_SECRET = "your-api-secret-key"
