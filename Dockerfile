@@ -25,21 +25,26 @@ WORKDIR /var/www/html
 # Copy the Laravel application from brain directory
 COPY brain/ .
 
+# Ensure .env file is present (copy from brain if needed)
+COPY brain/.env .env
+
 # Allow composer to run as root
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Set production environment variables
+# Set production environment variables BEFORE running artisan commands
 ENV APP_ENV=production
 ENV APP_DEBUG=false
 ENV APP_URL=https://lobster-app-rsicc.ondigitalocean.app
 ENV DB_CONNECTION=sqlite
 ENV DB_DATABASE=/var/www/html/database/database.sqlite
+ENV APP_KEY=base64:le+1ceIdu/c0cXfW1TyldipruKEviBuiZYB2Z74vJhE=
 
-# Create SQLite database file
-RUN touch /var/www/html/database/database.sqlite
+# Create SQLite database file and directory
+RUN mkdir -p /var/www/html/database \
+    && touch /var/www/html/database/database.sqlite
 
 # Generate Laravel application key and clear/optimize
 RUN php artisan key:generate --force \
