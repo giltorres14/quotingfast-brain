@@ -1,0 +1,47 @@
+# --------------> The compiler image
+FROM node:18 AS compile
+WORKDIR /usr/src/app
+
+# Copy package files first
+COPY package*.json ./
+
+# Create a standalone TypeScript config that doesn't extend anything
+RUN printf '{\n  "compilerOptions": {\n    "target": "es2022",\n    "module": "commonjs",\n    "moduleResolution": "node",\n    "baseUrl": "./src",\n    "outDir": "./build",\n    "esModuleInterop": true,\n    "forceConsistentCasingInFileNames": true,\n    "strict": true,\n    "skipLibCheck": true,\n    "allowSyntheticDefaultImports": true,\n    "experimentalDecorators": true,\n    "emitDecoratorMetadata": true,\n    "pretty": true,\n    "sourceMap": true,\n    "allowJs": true,\n    "noEmit": false,\n    "declaration": true,\n    "typeRoots": [\n      "node_modules/@types",\n      "@types"\n    ]\n  },\n  "include": [\n    "./src/**/*",\n    "@types"\n  ],\n  "exclude": [\n    "node_modules",\n    "./**/*.spec.ts",\n    "./**/__mocks__/*"\n  ]\n}' > tsconfig.json
+
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci
+
+# Copy source code (excluding the original tsconfig.json)
+COPY src ./src
+COPY @types ./@types
+COPY db ./db
+COPY public ./public
+COPY .env.example ./.env.example
+
+# Build the application
+RUN npm run build
+
+# --------------> The production image  
+FROM node:18-alpine
+RUN apk add --no-cache dumb-init python3 make g++
+ENV NODE_ENV="production"
+WORKDIR /usr/src/app
+
+# Copy built application and dependencies
+COPY --from=compile /usr/src/app/package*.json ./
+COPY --from=compile /usr/src/app/build ./build
+COPY --from=compile /usr/src/app/db ./db
+COPY --from=compile /usr/src/app/public ./public
+
+# Install only production dependencies
+RUN npm ci --omit=dev && \
+    apk del python3 make g++ && \
+    rm -rf /home/node/.npm/_logs
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+USER nodejs
+
+EXPOSE 3001
+CMD ["dumb-init", "node", "build/boot.js"]

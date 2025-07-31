@@ -1,0 +1,14 @@
+# Ignore the Laravel/PHP brain directory to prevent PHP detection
+brain/
+*.php
+composer.json.backup
+
+# Ignore other non-Node.js directories
+docs/
+.github/
+.git/
+.vscode/
+
+# Keep only apps/platform for Node.js deployment
+!apps/
+!apps/platform/
