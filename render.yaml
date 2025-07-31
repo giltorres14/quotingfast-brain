@@ -1,7 +1,7 @@
 services:
-  # Parcelvoy SMS/Email Platform
+  # Parcelvoy SMS/Email Platform - NEW
   - type: web
-    name: parcelvoy-platform
+    name: parcelvoy-sms
     env: node
     region: oregon
     plan: starter
@@ -14,7 +14,7 @@ services:
         value: 10000
       - key: DATABASE_URL
         fromDatabase:
-          name: parcelvoy-db
+          name: quotingfast-db
           property: connectionString
       - key: API_SECRET
         generateValue: true
@@ -22,9 +22,9 @@ services:
         generateValue: true
     healthCheckPath: /api/health
 
-  # Laravel Brain Lead Management - SIMPLIFIED PHP APPROACH
+  # Laravel Brain Lead Management - NEW PHP SERVICE
   - type: web
-    name: laravel-brain
+    name: quotingfast-brain
     env: php
     region: oregon
     plan: starter
@@ -39,7 +39,7 @@ services:
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
-          name: parcelvoy-db
+          name: quotingfast-db
           property: connectionString
       - key: DB_CONNECTION
         value: pgsql
@@ -54,8 +54,8 @@ services:
     healthCheckPath: /
 
 databases:
-  - name: parcelvoy-db
-    databaseName: parcelvoy_production
-    user: parcelvoy_user
+  - name: quotingfast-db
+    databaseName: quotingfast_production
+    user: quotingfast_user
     region: oregon
     plan: starter
