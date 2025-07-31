@@ -1,0 +1,24 @@
+import { CustomException } from 'src/utils/custom-exception';
+
+export class TwentyORMException extends CustomException {
+  constructor(
+    message: string,
+    code: TwentyORMExceptionCode,
+    { userFriendlyMessage }: { userFriendlyMessage?: string } = {},
+  ) {
+    super(message, code, userFriendlyMessage);
+  }
+}
+
+export enum TwentyORMExceptionCode {
+  METADATA_VERSION_MISMATCH = 'METADATA_VERSION_MISMATCH',
+  WORKSPACE_SCHEMA_NOT_FOUND = 'WORKSPACE_SCHEMA_NOT_FOUND',
+  ROLES_PERMISSIONS_VERSION_NOT_FOUND = 'ROLES_PERMISSIONS_VERSION_NOT_FOUND',
+  FEATURE_FLAG_MAP_VERSION_NOT_FOUND = 'FEATURE_FLAG_MAP_VERSION_NOT_FOUND',
+  USER_WORKSPACE_ROLE_MAP_VERSION_NOT_FOUND = 'USER_WORKSPACE_ROLE_MAP_VERSION_NOT_FOUND',
+  MALFORMED_METADATA = 'MALFORMED_METADATA',
+  WORKSPACE_NOT_FOUND = 'WORKSPACE_NOT_FOUND',
+  CONNECT_RECORD_NOT_FOUND = 'CONNECT_RECORD_NOT_FOUND',
+  CONNECT_NOT_ALLOWED = 'CONNECT_NOT_ALLOWED',
+  CONNECT_UNIQUE_CONSTRAINT_ERROR = 'CONNECT_UNIQUE_CONSTRAINT_ERROR',
+}
