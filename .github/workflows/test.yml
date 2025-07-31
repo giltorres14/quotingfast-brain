@@ -1,0 +1,98 @@
+name: Test
+
+on: pull_request
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+        
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Node Install
+      run: |
+        npm install
+    - name: Lint
+      run: |
+        npm run lint
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    services:
+      mysql:
+        image: mysql:8.0.27
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'true'
+          MYSQL_DATABASE: 'parcelvoy'
+        ports:
+          - 3306:3306
+        options: >-
+          --tmpfs="/var/lib/mysql"
+          --health-cmd="mysqladmin ping" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=3
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Node 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+
+    - name: Cache NPM
+      uses: actions/cache@v4
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install Dependencies
+      run: npm install && npm install --save-dev
+
+    - name: 'Run Jest Tests'
+      run: npm run test -- --scope=@parcelvoy/platform
+      env:
+        NODE_ENV: test
+        APP_SECRET: testing
+        DB_CLIENT: mysql2
+        DB_DATABASE: parcelvoy
+        DB_USERNAME: root
+        DB_PORT: 3306
+        BASE_URL: https://parcelvoy.com
+        AUTH_DRIVER: basic
+        QUEUE_DRIVER: memory
+        STORAGE_DRIVER: s3
+
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Node Install
+      run: |
+        npm install
+    - name: Build
+      run: |
+        npm run build
