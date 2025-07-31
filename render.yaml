@@ -2,7 +2,7 @@ services:
   - type: web
     name: parcelvoy
     env: docker
-    repo: https://github.com/giltorres/quotingfast-brain.git
+    repo: https://github.com/giltorres14/quotingfast-brain.git
     dockerfilePath: ./docker/Dockerfile.render
     dockerContext: .
     autoDeploy: false
