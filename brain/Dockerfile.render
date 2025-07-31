@@ -13,13 +13,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy composer files from brain directory
+# Copy composer files
 COPY composer.json composer.lock ./
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-cache
+# Install dependencies (without problematic flags)
+RUN composer install --no-dev --optimize-autoloader
 
-# Copy application code from brain directory
+# Copy application code
 COPY . .
 
 # Create Laravel directories
@@ -31,8 +31,19 @@ RUN mkdir -p storage/framework/{cache,sessions,views} \
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 storage bootstrap/cache
 
-# Generate Laravel app key if needed
-RUN php artisan key:generate --force || true
+# Create basic .env file with defaults
+RUN echo "APP_NAME=QuotingFast" > .env \
+    && echo "APP_ENV=production" >> .env \
+    && echo "APP_DEBUG=false" >> .env \
+    && echo "APP_KEY=" >> .env \
+    && echo "LOG_CHANNEL=errorlog" >> .env \
+    && echo "DB_CONNECTION=pgsql" >> .env \
+    && echo "CACHE_DRIVER=file" >> .env \
+    && echo "SESSION_DRIVER=file" >> .env \
+    && echo "QUEUE_CONNECTION=sync" >> .env
+
+# Generate Laravel app key
+RUN php artisan key:generate --force
 
 # Configure Apache
 RUN echo '<VirtualHost *:80>\n\
