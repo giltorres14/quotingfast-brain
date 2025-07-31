@@ -22,13 +22,14 @@ services:
         generateValue: true
     healthCheckPath: /api/health
 
-  # Laravel Brain Lead Management
+  # Laravel Brain Lead Management - SIMPLIFIED PHP APPROACH
   - type: web
     name: laravel-brain
-    env: docker
+    env: php
     region: oregon
     plan: starter
-    dockerfilePath: ./brain/Dockerfile.render
+    buildCommand: cd brain && composer install --no-dev --optimize-autoloader && php artisan key:generate --force && mkdir -p storage/framework/{cache,sessions,views} && mkdir -p storage/logs && mkdir -p bootstrap/cache
+    startCommand: cd brain && php -S 0.0.0.0:$PORT -t public
     envVars:
       - key: APP_ENV
         value: production
@@ -40,6 +41,16 @@ services:
         fromDatabase:
           name: parcelvoy-db
           property: connectionString
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: LOG_CHANNEL
+        value: errorlog
+      - key: CACHE_DRIVER
+        value: file
+      - key: SESSION_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
     healthCheckPath: /
 
 databases:
