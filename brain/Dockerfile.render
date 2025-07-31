@@ -14,8 +14,8 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . .
+# Copy Laravel application files from brain directory
+COPY brain/ .
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
