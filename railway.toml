@@ -1,7 +1,0 @@
-[[services]]
-name = "laravel-brain"
-source = "brain"
-
-[[services]]
-name = "parcelvoy-platform"
-source = "apps/platform"
