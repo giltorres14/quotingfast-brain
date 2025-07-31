@@ -1,25 +1,27 @@
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci --only=production
+
+# Install all dependencies (including dev for build)
+RUN npm ci
 
 # Copy source code
 COPY . .
 
-# Build the application
+# Build TypeScript
 RUN npm run build
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S parcelvoy -u 1001
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
 
-# Set ownership
-RUN chown -R parcelvoy:nodejs /app
-USER parcelvoy
+# Set environment
+ENV NODE_ENV=production
 
-EXPOSE 3001
+# Expose port
+EXPOSE 10000
 
-CMD ["npm", "start"]
+# Start the application
+CMD ["node", "build/boot.js"]
