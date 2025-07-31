@@ -1,2 +1,2 @@
-web: cd brain && php artisan serve --host=0.0.0.0 --port=$PORT
-worker: cd apps/platform && npm start
+web: cd brain && php -S 0.0.0.0:$PORT -t public/
+release: cd brain && php artisan migrate --force

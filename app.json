@@ -1,12 +1,11 @@
 {
-  "name": "QuotingFast Lead Management Platform",
-  "description": "Complete lead management system with SMS/Email marketing automation",
+  "name": "QuotingFast Lead Management",
+  "description": "Laravel lead management system",
   "repository": "https://github.com/giltorres14/quotingfast-brain",
-  "logo": "https://node-js-sample.herokuapp.com/node.png",
-  "keywords": ["laravel", "php", "lead-management", "sms", "email-marketing", "parcelvoy"],
-  "image": "heroku/php",
+  "keywords": ["laravel", "php", "lead-management"],
+  "stack": "heroku-22",
   "addons": [
-    "heroku-postgresql:mini"
+    "heroku-postgresql:essential-0"
   ],
   "env": {
     "APP_ENV": {
@@ -21,13 +20,13 @@
       "description": "Laravel application key",
       "generator": "secret"
     },
-    "APP_URL": {
-      "description": "Application URL",
-      "value": "https://your-app-name.herokuapp.com"
-    },
     "DB_CONNECTION": {
       "description": "Database connection type",
       "value": "pgsql"
+    },
+    "LOG_CHANNEL": {
+      "description": "Logging channel",
+      "value": "errorlog"
     },
     "CACHE_DRIVER": {
       "description": "Cache driver",
@@ -40,30 +39,6 @@
     "QUEUE_CONNECTION": {
       "description": "Queue connection",
       "value": "sync"
-    },
-    "TWILIO_ACCOUNT_SID": {
-      "description": "Twilio Account SID for SMS",
-      "value": "YOUR_TWILIO_ACCOUNT_SID"
-    },
-    "TWILIO_AUTH_TOKEN": {
-      "description": "Twilio Auth Token",
-      "value": "YOUR_TWILIO_AUTH_TOKEN"
-    },
-    "TWILIO_PHONE_NUMBER": {
-      "description": "Twilio Phone Number",
-      "value": "+18445117954"
-    },
-    "NODE_ENV": {
-      "description": "Node.js environment for Parcelvoy",
-      "value": "production"
-    },
-    "API_SECRET": {
-      "description": "API secret for Parcelvoy",
-      "generator": "secret"
-    },
-    "JWT_SECRET": {
-      "description": "JWT secret for authentication",
-      "generator": "secret"
     }
   },
   "formation": {
@@ -75,12 +50,9 @@
   "buildpacks": [
     {
       "url": "heroku/php"
-    },
-    {
-      "url": "heroku/nodejs"
     }
   ],
   "scripts": {
-    "postdeploy": "cd brain && php artisan migrate --force && php artisan key:generate"
+    "postdeploy": "cd brain && php artisan migrate --force"
   }
 }
