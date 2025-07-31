@@ -8,6 +8,7 @@ services:
     rootDir: apps/platform
     buildCommand: npm install && npm run build
     startCommand: npm start
+    nodeVersion: 18
     envVars:
       - key: NODE_ENV
         value: production
