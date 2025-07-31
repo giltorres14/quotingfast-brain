@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Lead;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -134,5 +135,14 @@ Route::post('/webhook.php', function (Request $request) {
         ], 400);
     }
 }); 
+
+// Dashboard routes (requires authentication)
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/api/dashboard', [DashboardController::class, 'api'])->name('api.dashboard');
+
+// Auth routes placeholder (you can add Laravel Breeze/UI later)
+Route::get('/login', function() {
+    return response()->json(['message' => 'Please implement authentication UI']);
+})->name('login');
 
  
