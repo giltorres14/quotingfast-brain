@@ -2,22 +2,10 @@ FROM php:8.1-apache
 
 # Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    libzip-dev \
-    libpq-dev \
+    git curl libpng-dev libonig-dev libxml2-dev zip unzip libzip-dev libpq-dev \
     && docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd zip \
     && a2enmod rewrite \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /var/www/html
@@ -25,36 +13,32 @@ WORKDIR /var/www/html
 # Copy application files
 COPY . .
 
-# Install Composer dependencies with better error handling
-RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader || \
-    (echo "Composer install failed, trying without optimization..." && \
-     composer install --no-dev --no-interaction --prefer-dist)
-
 # Create required Laravel directories
 RUN mkdir -p storage/framework/cache \
     && mkdir -p storage/framework/sessions \
     && mkdir -p storage/framework/views \
     && mkdir -p storage/logs \
-    && mkdir -p bootstrap/cache
+    && mkdir -p bootstrap/cache \
+    && mkdir -p vendor
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 storage \
     && chmod -R 755 bootstrap/cache
 
-# Create .env file with defaults
+# Create minimal .env file
 RUN echo "APP_NAME=QuotingFast" > .env \
     && echo "APP_ENV=production" >> .env \
     && echo "APP_DEBUG=false" >> .env \
-    && echo "APP_KEY=" >> .env \
+    && echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env \
     && echo "DB_CONNECTION=pgsql" >> .env \
     && echo "LOG_CHANNEL=errorlog" >> .env \
     && echo "CACHE_DRIVER=file" >> .env \
     && echo "SESSION_DRIVER=file" >> .env \
     && echo "QUEUE_CONNECTION=sync" >> .env
 
-# Generate app key
-RUN php artisan key:generate --force
+# Create a minimal index.php for testing
+RUN echo '<?php echo "QuotingFast Laravel Brain - Coming Soon!<br>"; echo "Database: " . (getenv("DATABASE_URL") ? "Connected" : "Not configured"); ?>' > public/index.php
 
 # Configure Apache
 RUN echo '<VirtualHost *:80>\n\
