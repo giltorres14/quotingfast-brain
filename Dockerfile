@@ -61,11 +61,12 @@ RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions sto
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# Enable Apache modules
+# Enable Apache modules and sites
 RUN a2enmod rewrite
 
-# Copy Apache configuration
+# Copy Apache configuration and enable site
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+RUN a2ensite 000-default
 
 # Create the logo directory and ensure it exists
 RUN mkdir -p public/images
