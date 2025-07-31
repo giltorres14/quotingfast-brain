@@ -14,7 +14,7 @@ services:
         value: 10000
       - key: DATABASE_URL
         fromDatabase:
-          name: quotingfast-db
+          name: parcelvoy-db
           property: connectionString
       - key: API_SECRET
         generateValue: true
@@ -39,7 +39,7 @@ services:
         generateValue: true
       - key: DATABASE_URL
         fromDatabase:
-          name: quotingfast-db
+          name: parcelvoy-db
           property: connectionString
       - key: DB_CONNECTION
         value: pgsql
@@ -53,9 +53,4 @@ services:
         value: sync
     healthCheckPath: /
 
-databases:
-  - name: quotingfast-db
-    databaseName: quotingfast_production
-    user: quotingfast_user
-    region: oregon
-    plan: starter
+# Using existing parcelvoy-db database - no need to create a new one
