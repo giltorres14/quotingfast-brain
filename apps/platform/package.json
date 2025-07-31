@@ -58,7 +58,8 @@
     "sqs-consumer": "^7.0.0"
   },
   "scripts": {
-    "start": "nodemon",
+    "start": "node build/boot.js",
+    "start:dev": "nodemon",
     "build": "tsc --build",
     "lint": "eslint --ext .ts --max-warnings 0 src/",
     "test": "jest --forceExit --runInBand --testTimeout 10000",
