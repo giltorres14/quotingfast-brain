@@ -18,39 +18,18 @@ RUN mkdir -p storage/framework/cache \
     && mkdir -p storage/framework/sessions \
     && mkdir -p storage/framework/views \
     && mkdir -p storage/logs \
-    && mkdir -p bootstrap/cache \
-    && mkdir -p vendor
+    && mkdir -p bootstrap/cache
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 storage \
     && chmod -R 755 bootstrap/cache
 
-# Create minimal .env file
-RUN echo "APP_NAME=QuotingFast" > .env \
-    && echo "APP_ENV=production" >> .env \
-    && echo "APP_DEBUG=false" >> .env \
-    && echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env \
-    && echo "DB_CONNECTION=pgsql" >> .env \
-    && echo "LOG_CHANNEL=errorlog" >> .env \
-    && echo "CACHE_DRIVER=file" >> .env \
-    && echo "SESSION_DRIVER=file" >> .env \
-    && echo "QUEUE_CONNECTION=sync" >> .env
-
-# Create a minimal index.php for testing
-RUN echo '<?php echo "QuotingFast Laravel Brain - Coming Soon!<br>"; echo "Database: " . (getenv("DATABASE_URL") ? "Connected" : "Not configured"); ?>' > public/index.php
+# Create simple .env file
+RUN printf "APP_NAME=QuotingFast\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_KEY=base64:$(openssl rand -base64 32)\nDB_CONNECTION=pgsql\nLOG_CHANNEL=errorlog\nCACHE_DRIVER=file\nSESSION_DRIVER=file\nQUEUE_CONNECTION=sync\n" > .env
 
 # Configure Apache
-RUN echo '<VirtualHost *:80>\n\
-    DocumentRoot /var/www/html/public\n\
-    <Directory /var/www/html/public>\n\
-        AllowOverride All\n\
-        Require all granted\n\
-        DirectoryIndex index.php\n\
-    </Directory>\n\
-    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
-</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+RUN printf '<VirtualHost *:80>\n    DocumentRoot /var/www/html/public\n    <Directory /var/www/html/public>\n        AllowOverride All\n        Require all granted\n        DirectoryIndex index.php\n    </Directory>\n    ErrorLog ${APACHE_LOG_DIR}/error.log\n    CustomLog ${APACHE_LOG_DIR}/access.log combined\n</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
 CMD ["apache2-foreground"]
