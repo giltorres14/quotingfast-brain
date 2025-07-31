@@ -53,15 +53,13 @@ RUN echo "APP_KEY=base64:le+1ceIdu/c0cXfW1TyldipruKEviBuiZYB2Z74vJhE=" >> .env \
     && php artisan route:clear \
     && php artisan config:cache
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
-
-# Create Laravel storage directories with proper structure
+# Create Laravel storage directories and set permissions in one step
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views \
     && mkdir -p storage/app/public \
-    && mkdir -p bootstrap/cache
+    && mkdir -p bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
 
 # Enable Apache modules
 RUN a2enmod rewrite
