@@ -64,9 +64,10 @@ RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions sto
 # Enable Apache modules and sites
 RUN a2enmod rewrite
 
-# Copy Apache configuration and enable site
-COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
-RUN a2ensite 000-default
+# Disable default Apache site and copy our configuration
+RUN a2dissite 000-default || true
+COPY docker/apache.conf /etc/apache2/sites-available/laravel.conf
+RUN a2ensite laravel
 
 # Create the logo directory and ensure it exists
 RUN mkdir -p public/images
