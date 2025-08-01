@@ -128,15 +128,61 @@ const createEssentialTables = async (db: Database) => {
             )
         `)
         
+        console.log('📋 Creating admins table...')
+        await db.raw(`
+            CREATE TABLE IF NOT EXISTS admins (
+                id SERIAL PRIMARY KEY,
+                first_name VARCHAR(255) NOT NULL,
+                last_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                deleted_at TIMESTAMP
+            )
+        `)
+        
+        console.log('📋 Creating project_admins table...')
+        await db.raw(`
+            CREATE TABLE IF NOT EXISTS project_admins (
+                id SERIAL PRIMARY KEY,
+                project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+                admin_id INTEGER NOT NULL REFERENCES admins(id) ON DELETE CASCADE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                deleted_at TIMESTAMP
+            )
+        `)
+        
         console.log('📋 Creating users table...')
         await db.raw(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
-                external_id VARCHAR(255),
+                project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+                anonymous_id VARCHAR(255),
+                external_id VARCHAR(255) NOT NULL,
                 email VARCHAR(255),
-                project_id INTEGER REFERENCES projects(id),
+                phone VARCHAR(64),
+                data JSON,
+                devices JSON,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(project_id, external_id),
+                UNIQUE(project_id, anonymous_id)
+            )
+        `)
+        
+        console.log('📋 Creating project_api_keys table...')
+        await db.raw(`
+            CREATE TABLE IF NOT EXISTS project_api_keys (
+                id SERIAL PRIMARY KEY,
+                project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+                value VARCHAR(255) NOT NULL UNIQUE,
+                scope VARCHAR(20),
+                name VARCHAR(255) NOT NULL,
+                description VARCHAR(2048),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                deleted_at TIMESTAMP
             )
         `)
         
@@ -173,39 +219,26 @@ export default async (config: DatabaseConfig) => {
         console.log('📡 Creating database connection...')
         const db = connect(config)
         
-        console.log('🔄 Running database migrations...')
+        console.log('🔄 Creating complete essential database tables...')
+        await createEssentialTables(db)
         
-        // Check if we have existing tables but no migration tracking
-        const hasProjects = await db.schema.hasTable('projects')
-        const hasOrganizations = await db.schema.hasTable('organizations') 
-        const hasMigrations = await db.schema.hasTable('migrations')
+        console.log('📝 Marking essential migrations as completed...')
+        // Mark the essential migrations that created our tables as completed
+        const essentialMigrations = [
+            '0_init.js',  // Created projects, users, admins, project_admins, project_api_keys tables
+            '20230514192033_add_organization.js'  // Created organizations table
+        ]
         
-        if (hasProjects && hasOrganizations && hasMigrations) {
-            console.log('🔍 Detected existing tables with manual creation...')
-            
-            // Check if migrations table is empty (no tracking)
-            const migrationCount = await db('migrations').count('* as count').first()
-            
-            if (migrationCount && migrationCount.count === '0') {
-                console.log('📝 Marking essential migrations as completed...')
-                
-                // Mark the essential migrations that created our existing tables as completed
-                const essentialMigrations = [
-                    '0_init.js',  // Created projects, users tables
-                    '20230514192033_add_organization.js'  // Created organizations table
-                ]
-                
-                for (const migration of essentialMigrations) {
-                    await db('migrations').insert({
-                        name: migration,
-                        batch: 1,
-                        migration_time: new Date()
-                    })
-                    console.log(`✅ Marked ${migration} as completed`)
-                }
-            }
+        for (const migration of essentialMigrations) {
+            await db.raw(`
+                INSERT INTO migrations (name, batch, migration_time) 
+                VALUES (?, 1, CURRENT_TIMESTAMP) 
+                ON CONFLICT (name) DO NOTHING
+            `, [migration])
+            console.log(`✅ Marked ${migration} as completed`)
         }
         
+        console.log('🔄 Running remaining database migrations...')
         await migrate(config, db)
         
         console.log('✅ Database connection and migrations completed!')
