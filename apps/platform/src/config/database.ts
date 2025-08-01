@@ -173,10 +173,10 @@ export default async (config: DatabaseConfig) => {
         console.log('📡 Creating database connection...')
         const db = connect(config)
         
-        console.log('🔄 Running database migrations...')
-        await migrate(config, db)
+        console.log('🔄 Creating essential database tables...')
+        await createEssentialTables(db)
         
-        console.log('✅ Database connection and migrations completed!')
+        console.log('✅ Database connection and essential tables created!')
         return db
     } catch (error: any) {
 
