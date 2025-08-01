@@ -1,9 +1,14 @@
 FROM php:8.3-apache
 
-# Install system dependencies and PostgreSQL development libraries
+# Install system dependencies, PostgreSQL development libraries, and Composer
 RUN apt-get update && apt-get install -y \
     libpq-dev \
+    git \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install PostgreSQL PHP extensions
 RUN docker-php-ext-install pdo_pgsql pgsql
@@ -14,8 +19,18 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
+# Copy composer files first for better caching
+COPY brain/composer.json brain/composer.lock* ./
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
 # Copy Laravel application files from brain directory
 COPY brain/ .
+
+# Generate optimized autoloader and run post-install scripts
+RUN composer dump-autoload --optimize && \
+    composer run-script post-autoload-dump
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
