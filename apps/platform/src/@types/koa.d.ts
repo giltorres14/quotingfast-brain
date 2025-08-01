@@ -4,7 +4,7 @@ declare module 'koa' {
   interface DefaultState {}
   interface DefaultContext {}
   
-  interface Context {
+  export interface Context {
     request: any;
     response: any;
     state: any;
@@ -14,14 +14,17 @@ declare module 'koa' {
     [key: string]: any;
   }
   
-  interface Application {
+  export interface Application {
     use(middleware: (ctx: Context, next: () => Promise<any>) => any): Application;
     listen(port: number, callback?: () => void): any;
     callback(): (req: IncomingMessage, res: ServerResponse) => void;
     [key: string]: any;
   }
   
-  class Application {}
-  
-  export = Application;
+  export default class Koa implements Application {
+    use(middleware: (ctx: Context, next: () => Promise<any>) => any): Application;
+    listen(port: number, callback?: () => void): any;
+    callback(): (req: IncomingMessage, res: ServerResponse) => void;
+    [key: string]: any;
+  }
 }
