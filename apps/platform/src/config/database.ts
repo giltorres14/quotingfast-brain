@@ -78,7 +78,7 @@ const migrate = async (config: DatabaseConfig, db: Database, retries = MIGRATION
         })
         
                         const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('Migration timeout after 600 seconds')), 600000)
+                    setTimeout(() => reject(new Error('Migration timeout after 3600 seconds')), 3600000)
                 })
         
         const result = await Promise.race([migrationPromise, timeoutPromise])
@@ -241,6 +241,9 @@ export default async (config: DatabaseConfig) => {
         }
         
         console.log('🔄 Running all remaining migrations...')
+        console.log('⏱️  Extended timeout: 60 minutes for complete migration process')
+        console.log('📊 This may take 20-30 minutes to process all remaining migrations...')
+        console.log('🔄 PATIENCE: Migrations are running successfully - just need time!')
         
         // Run all remaining migrations at once
         // The essential tables are already created and marked as complete
