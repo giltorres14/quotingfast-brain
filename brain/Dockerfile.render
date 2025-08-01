@@ -19,6 +19,9 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
+# Set Laravel application key for encryption
+ENV APP_KEY=base64:duG47cob+xamE/vqPKxphK94zxuIXiOMiI76p/7UVWQ=
+
 # Copy Laravel application files from brain directory
 COPY brain/ .
 
