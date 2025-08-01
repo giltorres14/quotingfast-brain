@@ -153,9 +153,10 @@ const createEssentialTables = async (db: Database) => {
             )
         `)
         
-        console.log('📋 Creating users table...')
+        console.log('📋 Recreating users table with complete schema...')
+        await db.raw(`DROP TABLE IF EXISTS users CASCADE`)
         await db.raw(`
-            CREATE TABLE IF NOT EXISTS users (
+            CREATE TABLE users (
                 id SERIAL PRIMARY KEY,
                 project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
                 anonymous_id VARCHAR(255),
