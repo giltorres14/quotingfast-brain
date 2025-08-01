@@ -54,6 +54,20 @@ const migrate = async (config: DatabaseConfig, db: Database, retries = MIGRATION
         migrationDirs.forEach(dir => process.stdout.write(`  - ${dir}\n`))
         
         process.stdout.write('🚀 Starting migration process...\n')
+        
+        // Get list of pending migrations first
+        const pending = await db.migrate.list({
+            directory: migrationDirs,
+            tableName: 'migrations',
+            loadExtensions: ['.js', '.ts'],
+        })
+        
+        process.stdout.write(`📋 Found ${pending[1].length} pending migrations:\n`)
+        pending[1].forEach((migration: string) => {
+            process.stdout.write(`  - ${migration}\n`)
+        })
+        
+        process.stdout.write('🔄 Running all migrations...\n')
         const result = await db.migrate.latest({
             directory: migrationDirs,
             tableName: 'migrations',
