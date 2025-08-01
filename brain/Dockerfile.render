@@ -27,6 +27,10 @@ RUN rm -rf vendor && \
     composer install --no-dev --optimize-autoloader --no-scripts && \
     composer dump-autoload --no-scripts
 
+# WORKAROUND: Create dummy symfony/clock file to satisfy autoloader
+RUN mkdir -p vendor/symfony/clock/Resources && \
+    echo "<?php // Dummy file to satisfy autoloader" > vendor/symfony/clock/Resources/now.php
+
 # CRITICAL: Clear Laravel cache directories AND force clean service provider cache
 RUN rm -rf bootstrap/cache/*.php && \
     rm -rf storage/framework/cache/* && \
