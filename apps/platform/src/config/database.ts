@@ -99,10 +99,9 @@ export default async (config: DatabaseConfig) => {
         const db = connect(config)
         
         console.log('🔄 Running database migrations...')
-        console.log('⚠️  TEMPORARILY SKIPPING MIGRATIONS FOR DEBUGGING')
-        // await migrate(config, db)
+        await migrate(config, db)
         
-        console.log('✅ Database connection successful! (migrations skipped)')
+        console.log('✅ Database connection and migration successful!')
         return db
     } catch (error: any) {
 
