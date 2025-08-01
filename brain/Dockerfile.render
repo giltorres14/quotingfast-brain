@@ -22,7 +22,7 @@ WORKDIR /var/www/html
 # Copy Laravel application files from brain directory
 COPY brain/ .
 
-# COMPREHENSIVE FIX: Create complete .env file with proper APP_KEY
+# COMPREHENSIVE SOLUTION: Create complete .env file with proper APP_KEY
 RUN echo "# Laravel Configuration" > .env && \
     echo "APP_NAME=QuotingFast-Brain" >> .env && \
     echo "APP_ENV=production" >> .env && \
@@ -46,22 +46,17 @@ RUN echo "# Laravel Configuration" > .env && \
     echo "# Queue" >> .env && \
     echo "QUEUE_CONNECTION=sync" >> .env
 
-# COMPREHENSIVE FIX: Complete vendor rebuild with symfony/clock dependency
+# COMPREHENSIVE SOLUTION: Complete vendor rebuild with symfony/clock dependency
 RUN rm -rf vendor composer.lock && \
     composer install --no-dev --no-scripts --no-cache && \
     composer dump-autoload --optimize --no-scripts && \
-    echo "✅ Dependencies installed with symfony/clock v6.4" && \
-    ls -la vendor/symfony/ | grep clock || echo "⚠️  symfony/clock not found"
+    echo "✅ Dependencies installed with symfony/clock v6.4"
 
-# VERIFICATION: Display .env file and verify symfony/clock installation
-RUN echo "=== VERIFICATION: .env file contents ===" && \
-    cat .env && \
-    echo "=== VERIFICATION: symfony/clock installation ===" && \
-    ls -la vendor/symfony/clock/ 2>/dev/null || echo "symfony/clock not found" && \
-    echo "=== VERIFICATION: composer.json dependencies ===" && \
-    grep -A 10 '"require"' composer.json
+# AGGRESSIVE SOLUTION: Clear any cached autoloader files and regenerate completely
+RUN rm -rf vendor/composer/autoload_*.php && \
+    composer dump-autoload --optimize --no-scripts
 
-# CRITICAL: Clear Laravel cache directories AND force clean service provider cache
+# Clear Laravel cache directories
 RUN rm -rf bootstrap/cache/*.php && \
     rm -rf storage/framework/cache/* && \
     rm -rf storage/framework/views/* && \
@@ -70,8 +65,7 @@ RUN rm -rf bootstrap/cache/*.php && \
     mkdir -p storage/framework/views && \
     mkdir -p storage/framework/sessions
 
-# NUCLEAR OPTION: Completely prevent service provider caching in production
-# This forces Laravel to discover providers dynamically instead of using cached manifest
+# NUCLEAR SOLUTION: Completely prevent service provider caching in production
 RUN echo '#!/bin/bash' > /usr/local/bin/clear-laravel-cache.sh && \
     echo 'rm -f /var/www/html/bootstrap/cache/packages.php' >> /usr/local/bin/clear-laravel-cache.sh && \
     echo 'rm -f /var/www/html/bootstrap/cache/services.php' >> /usr/local/bin/clear-laravel-cache.sh && \
@@ -86,6 +80,19 @@ RUN chown -R www-data:www-data /var/www/html \
 
 # Configure Apache for public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# VERIFICATION: Display .env file and verify symfony/clock installation
+RUN echo "=== VERIFICATION: .env file contents ===" && \
+    cat .env && \
+    echo "" && \
+    echo "=== VERIFICATION: symfony/clock installation ===" && \
+    ls -la vendor/symfony/clock/ 2>/dev/null || echo "⚠️ symfony/clock not found" && \
+    echo "" && \
+    echo "=== VERIFICATION: composer.json dependencies ===" && \
+    grep -A 10 '"require"' composer.json && \
+    echo "" && \
+    echo "=== VERIFICATION: autoloader files ===" && \
+    ls -la vendor/composer/autoload_*.php
 
 # Create startup script that clears cache before Apache starts
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
