@@ -28,8 +28,8 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Copy Laravel application files from brain directory
 COPY brain/ .
 
-# Generate optimized autoloader (skip post-install scripts that require dev dependencies)
-RUN composer dump-autoload --optimize
+# Generate autoloader without triggering post-install scripts
+RUN composer dump-autoload --no-scripts
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
