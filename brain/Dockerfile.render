@@ -19,11 +19,17 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
-# Set Laravel application key for encryption
-ENV APP_KEY=base64:duG47cob+xamE/vqPKxphK94zxuIXiOMiI76p/7UVWQ=
-
 # Copy Laravel application files from brain directory
 COPY brain/ .
+
+# Create .env file with proper APP_KEY
+RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
+    echo "APP_ENV=production" >> .env && \
+    echo "APP_KEY=base64:duG47cob+xamE/vqPKxphK94zxuIXiOMiI76p/7UVWQ=" >> .env && \
+    echo "APP_DEBUG=false" >> .env && \
+    echo "APP_URL=https://quotingfast-brain.onrender.com" >> .env && \
+    echo "LOG_CHANNEL=stack" >> .env && \
+    echo "DB_CONNECTION=pgsql" >> .env
 
 # Remove any existing vendor directory and install fresh dependencies
 RUN rm -rf vendor && \
