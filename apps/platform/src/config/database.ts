@@ -186,9 +186,10 @@ const createEssentialTables = async (db: Database) => {
             )
         `)
         
-        console.log('📋 Creating migrations table...')
+        console.log('📋 Recreating migrations table with UNIQUE constraint...')
+        await db.raw(`DROP TABLE IF EXISTS migrations`)
         await db.raw(`
-            CREATE TABLE IF NOT EXISTS migrations (
+            CREATE TABLE migrations (
                 id SERIAL PRIMARY KEY,
                 name VARCHAR(255) NOT NULL UNIQUE,
                 batch INTEGER NOT NULL,
