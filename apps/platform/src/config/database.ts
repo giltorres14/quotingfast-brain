@@ -42,16 +42,30 @@ const connect = (config: DatabaseConfig, withDB = true) => {
 
 const migrate = async (config: DatabaseConfig, db: Database, retries = MIGRATION_RETRIES): Promise<void> => {
     try {
-        return await db.migrate.latest({
-            directory: [
-                path.resolve(__dirname, '../../db/migrations'),
-                ...config.migrationPaths,
-            ],
+        process.stdout.write('🔍 Checking current migration status...\n')
+        const completed = await db.migrate.currentVersion()
+        process.stdout.write(`📋 Current migration version: ${completed}\n`)
+        
+        process.stdout.write('📂 Migration directories:\n')
+        const migrationDirs = [
+            path.resolve(__dirname, '../../db/migrations'),
+            ...config.migrationPaths,
+        ]
+        migrationDirs.forEach(dir => process.stdout.write(`  - ${dir}\n`))
+        
+        process.stdout.write('🚀 Starting migration process...\n')
+        const result = await db.migrate.latest({
+            directory: migrationDirs,
             tableName: 'migrations',
             loadExtensions: ['.js', '.ts'],
         })
+        
+        process.stdout.write(`✅ Migration completed! Batch: ${result[0]}, Migrations: ${JSON.stringify(result[1])}\n`)
+        return result
     } catch (error: any) {
+        process.stdout.write(`❌ Migration error: ${error.message}\n`)
         if (error?.name === 'MigrationLocked' && retries > 0) {
+            process.stdout.write(`🔒 Migration locked, retrying... (${retries} retries left)\n`)
             --retries
             await sleep((MIGRATION_RETRIES - retries) * 1000)
             return await migrate(config, db, retries)
