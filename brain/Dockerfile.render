@@ -22,23 +22,44 @@ WORKDIR /var/www/html
 # Copy Laravel application files from brain directory
 COPY brain/ .
 
-# Create .env file with proper APP_KEY
-RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
+# COMPREHENSIVE FIX: Create complete .env file with proper APP_KEY
+RUN echo "# Laravel Configuration" > .env && \
+    echo "APP_NAME=QuotingFast-Brain" >> .env && \
     echo "APP_ENV=production" >> .env && \
     echo "APP_KEY=base64:duG47cob+xamE/vqPKxphK94zxuIXiOMiI76p/7UVWQ=" >> .env && \
     echo "APP_DEBUG=false" >> .env && \
     echo "APP_URL=https://quotingfast-brain.onrender.com" >> .env && \
+    echo "APP_TIMEZONE=UTC" >> .env && \
+    echo "" >> .env && \
+    echo "# Logging" >> .env && \
     echo "LOG_CHANNEL=stack" >> .env && \
-    echo "DB_CONNECTION=pgsql" >> .env
+    echo "LOG_LEVEL=error" >> .env && \
+    echo "" >> .env && \
+    echo "# Database" >> .env && \
+    echo "DB_CONNECTION=pgsql" >> .env && \
+    echo "" >> .env && \
+    echo "# Cache & Session" >> .env && \
+    echo "CACHE_DRIVER=file" >> .env && \
+    echo "SESSION_DRIVER=file" >> .env && \
+    echo "SESSION_LIFETIME=120" >> .env && \
+    echo "" >> .env && \
+    echo "# Queue" >> .env && \
+    echo "QUEUE_CONNECTION=sync" >> .env
 
-# Remove any existing vendor directory and install fresh dependencies
-RUN rm -rf vendor && \
-    composer install --no-dev --no-scripts && \
-    composer dump-autoload --optimize --no-scripts
+# COMPREHENSIVE FIX: Complete vendor rebuild with symfony/clock dependency
+RUN rm -rf vendor composer.lock && \
+    composer install --no-dev --no-scripts --no-cache && \
+    composer dump-autoload --optimize --no-scripts && \
+    echo "✅ Dependencies installed with symfony/clock v6.4" && \
+    ls -la vendor/symfony/ | grep clock || echo "⚠️  symfony/clock not found"
 
-# AGGRESSIVE FIX: Clear any cached autoloader files and regenerate completely
-RUN rm -rf vendor/composer/autoload_*.php && \
-    composer dump-autoload --optimize --no-scripts
+# VERIFICATION: Display .env file and verify symfony/clock installation
+RUN echo "=== VERIFICATION: .env file contents ===" && \
+    cat .env && \
+    echo "=== VERIFICATION: symfony/clock installation ===" && \
+    ls -la vendor/symfony/clock/ 2>/dev/null || echo "symfony/clock not found" && \
+    echo "=== VERIFICATION: composer.json dependencies ===" && \
+    grep -A 10 '"require"' composer.json
 
 # CRITICAL: Clear Laravel cache directories AND force clean service provider cache
 RUN rm -rf bootstrap/cache/*.php && \
