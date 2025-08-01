@@ -246,7 +246,7 @@ export default async (config: DatabaseConfig) => {
         // The essential tables are already created and marked as complete
         // This will only run the migrations that haven't been marked as complete yet
         const result = await db.migrate.latest({
-            directory: './apps/platform/db/migrations',
+            directory: './db/migrations',
             tableName: 'migrations',
             loadExtensions: ['.js', '.ts'],
             disableTransactions: false
@@ -256,7 +256,7 @@ export default async (config: DatabaseConfig) => {
         
         // Verify all migrations are complete
         const pendingMigrations = await db.migrate.list({
-            directory: './apps/platform/db/migrations',
+            directory: './db/migrations',
             tableName: 'migrations',
             loadExtensions: ['.js', '.ts']
         })
