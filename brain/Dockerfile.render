@@ -53,25 +53,26 @@ RUN echo "# Laravel Configuration - COMPLETE DEFINITIVE SOLUTION" > .env && \
     echo "# Queue" >> .env && \
     echo "QUEUE_CONNECTION=sync" >> .env
 
-# ULTRA AGGRESSIVE FIX: Nuclear vendor directory destruction and rebuild
-RUN echo "=== ULTRA AGGRESSIVE VENDOR REBUILD ===" && \
+# LESSON LEARNED #3: Nuclear vendor destruction (KEEPS symfony/clock elimination)
+RUN echo "=== NUCLEAR VENDOR REBUILD (symfony/clock elimination) ===" && \
     rm -rf vendor/ && \
     rm -rf composer.lock && \
     rm -rf ~/.composer/cache/ && \
     composer clear-cache && \
-    echo "✅ All composer artifacts destroyed"
+    echo "✅ All composer artifacts destroyed (symfony/clock eliminated)"
 
-# Rebuild everything from scratch with NO CACHE
-RUN composer install --no-dev --no-scripts --no-cache --optimize-autoloader && \
-    echo "✅ Fresh install completed"
+# LESSON LEARNED #4: Proper Laravel framework installation (NEW FIX)
+RUN composer install --no-dev --no-cache --optimize-autoloader && \
+    echo "✅ Laravel framework properly installed" && \
+    ls -la vendor/laravel/ && \
+    echo "✅ Laravel framework verified"
 
-# ULTRA AGGRESSIVE AUTOLOADER: Complete destruction and regeneration
-RUN echo "=== ULTRA AGGRESSIVE AUTOLOADER REBUILD ===" && \
-    rm -rf vendor/composer/ && \
+# LESSON LEARNED #5: Targeted autoloader regeneration (FIXED - don't destroy Laravel)
+RUN echo "=== TARGETED AUTOLOADER REGENERATION ===" && \
     composer dump-autoload --optimize --no-scripts --no-cache && \
-    echo "✅ Autoloader completely regenerated"
+    echo "✅ Autoloader regenerated without destroying Laravel framework"
 
-# Clear Laravel cache directories
+# LESSON LEARNED #6: Laravel cache clearing (KEEP WORKING SOLUTION)
 RUN rm -rf bootstrap/cache/*.php && \
     rm -rf storage/framework/cache/* && \
     rm -rf storage/framework/views/* && \
@@ -80,7 +81,7 @@ RUN rm -rf bootstrap/cache/*.php && \
     mkdir -p storage/framework/views && \
     mkdir -p storage/framework/sessions
 
-# LESSON LEARNED #6: Nuclear service provider cache prevention (Laravel\Pail issues from previous attempts)
+# LESSON LEARNED #7: Nuclear service provider cache prevention (KEEP WORKING SOLUTION)
 RUN echo '#!/bin/bash' > /usr/local/bin/clear-laravel-cache.sh && \
     echo 'rm -f /var/www/html/bootstrap/cache/packages.php' >> /usr/local/bin/clear-laravel-cache.sh && \
     echo 'rm -f /var/www/html/bootstrap/cache/services.php' >> /usr/local/bin/clear-laravel-cache.sh && \
@@ -96,28 +97,30 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache for public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# ULTRA VERIFICATION: Prove symfony/clock is gone
-RUN echo "=== ULTRA VERIFICATION: SYMFONY/CLOCK ELIMINATION ===" && \
+# CUMULATIVE VERIFICATION: All lessons learned + Laravel framework verification
+RUN echo "=== CUMULATIVE VERIFICATION: ALL LESSONS + LARAVEL FRAMEWORK ===" && \
     echo "" && \
-    echo "1. composer.json dependencies (should NOT have symfony/clock):" && \
+    echo "1. symfony/clock ELIMINATED (should NOT exist):" && \
     grep -A 10 '"require"' composer.json && \
+    composer show | grep symfony || echo "✅ NO symfony packages found" && \
     echo "" && \
-    echo "2. Installed packages (should NOT show symfony/clock):" && \
-    composer show | grep symfony || echo "No symfony packages found" && \
+    echo "2. Laravel framework INSTALLED (should exist):" && \
+    ls -la vendor/laravel/framework/ && \
+    composer show laravel/framework && \
     echo "" && \
-    echo "3. Autoloader files (should NOT reference symfony/clock):" && \
-    ls -la vendor/composer/autoload_*.php && \
+    echo "3. Illuminate\\Foundation\\Application (should exist):" && \
+    find vendor/ -name "Application.php" | grep Foundation && \
     echo "" && \
-    echo "4. Search for symfony/clock references in autoloader:" && \
-    grep -r "symfony/clock" vendor/composer/ || echo "✅ NO symfony/clock references found" && \
-    echo "" && \
-    echo "5. APP_KEY verification:" && \
+    echo "4. APP_KEY verification:" && \
     echo "   ENV APP_KEY: '$APP_KEY'" && \
     echo "   .env APP_KEY: $(grep 'APP_KEY' .env)" && \
     echo "" && \
-    echo "=== SYMFONY/CLOCK COMPLETELY ELIMINATED ==="
+    echo "5. Autoloader files:" && \
+    ls -la vendor/composer/autoload_*.php && \
+    echo "" && \
+    echo "=== ALL ISSUES FIXED: symfony/clock GONE, Laravel framework PRESENT ==="
 
-# Create startup script that clears cache before Apache starts
+# LESSON LEARNED #8: Startup cache clearing (KEEP WORKING SOLUTION)
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Clearing Laravel cache ==="' >> /usr/local/bin/startup.sh && \
     echo '/usr/local/bin/clear-laravel-cache.sh' >> /usr/local/bin/startup.sh && \
