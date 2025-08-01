@@ -174,6 +174,38 @@ export default async (config: DatabaseConfig) => {
         const db = connect(config)
         
         console.log('🔄 Running database migrations...')
+        
+        // Check if we have existing tables but no migration tracking
+        const hasProjects = await db.schema.hasTable('projects')
+        const hasOrganizations = await db.schema.hasTable('organizations') 
+        const hasMigrations = await db.schema.hasTable('migrations')
+        
+        if (hasProjects && hasOrganizations && hasMigrations) {
+            console.log('🔍 Detected existing tables with manual creation...')
+            
+            // Check if migrations table is empty (no tracking)
+            const migrationCount = await db('migrations').count('* as count').first()
+            
+            if (migrationCount && migrationCount.count === '0') {
+                console.log('📝 Marking essential migrations as completed...')
+                
+                // Mark the essential migrations that created our existing tables as completed
+                const essentialMigrations = [
+                    '0_init.js',  // Created projects, users tables
+                    '20230514192033_add_organization.js'  // Created organizations table
+                ]
+                
+                for (const migration of essentialMigrations) {
+                    await db('migrations').insert({
+                        name: migration,
+                        batch: 1,
+                        migration_time: new Date()
+                    })
+                    console.log(`✅ Marked ${migration} as completed`)
+                }
+            }
+        }
+        
         await migrate(config, db)
         
         console.log('✅ Database connection and migrations completed!')
