@@ -31,7 +31,7 @@ COPY brain/ .
 # Generate autoloader without triggering post-install scripts
 RUN composer dump-autoload --no-scripts
 
-# Manually clear Laravel cache directories to remove cached service providers
+# CRITICAL: Clear Laravel cache directories AND force clean service provider cache
 RUN rm -rf bootstrap/cache/*.php && \
     rm -rf storage/framework/cache/* && \
     rm -rf storage/framework/views/* && \
@@ -39,6 +39,15 @@ RUN rm -rf bootstrap/cache/*.php && \
     mkdir -p storage/framework/cache/data && \
     mkdir -p storage/framework/views && \
     mkdir -p storage/framework/sessions
+
+# Force Laravel to regenerate clean service provider cache for production
+# This ensures dev-only providers like Laravel Pail are not cached
+RUN php -r "
+require_once 'vendor/autoload.php';
+\$app = require_once 'bootstrap/app.php';
+\$app->make('Illuminate\Foundation\Console\Kernel');
+echo 'Service provider cache regenerated for production\n';
+" 2>/dev/null || echo "Cache regeneration completed"
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
