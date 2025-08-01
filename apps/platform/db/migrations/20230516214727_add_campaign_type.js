@@ -4,12 +4,12 @@ exports.up = async function(knex) {
     
     if (!hasTypeColumn) {
         await knex.schema.table('campaigns', function(table) {
-            table.string('type', 255).after('id')
+            table.string('type', 255)
         })
     }
     
     // Only update if we have rows that need updating
-    await knex.raw('UPDATE campaigns SET type = IF(list_ids IS NULL, \'trigger\', \'blast\') WHERE type IS NULL')
+    await knex.raw('UPDATE campaigns SET type = CASE WHEN list_ids IS NULL THEN \'trigger\' ELSE \'blast\' END WHERE type IS NULL')
 }
 
 exports.down = async function(knex) {
