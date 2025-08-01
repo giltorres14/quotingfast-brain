@@ -8,6 +8,9 @@
     "strict": false,
     "skipLibCheck": true,
     "noEmitOnError": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
     "typeRoots": [
       "node_modules/@types",
       "@types",
