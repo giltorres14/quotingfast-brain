@@ -28,8 +28,9 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # Copy Laravel application files from brain directory
 COPY brain/ .
 
-# Generate autoloader without triggering post-install scripts
-RUN composer dump-autoload --no-scripts
+# Reinstall dependencies with updated composer.json and regenerate autoloader
+RUN composer install --no-dev --optimize-autoloader --no-scripts && \
+    composer dump-autoload --no-scripts
 
 # CRITICAL: Clear Laravel cache directories AND force clean service provider cache
 RUN rm -rf bootstrap/cache/*.php && \
