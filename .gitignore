@@ -104,3 +104,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md

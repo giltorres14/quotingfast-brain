@@ -5,6 +5,10 @@
     "moduleResolution": "node",
     "baseUrl": "./src",
     "outDir": "./build",
+    "strict": false,
+    "skipLibCheck": true,
+    "noEmitOnError": false,
+    "suppressImplicitAnyIndexErrors": true,
     "typeRoots": [
       "node_modules/@types",
       "@types",

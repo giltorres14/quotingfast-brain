@@ -2,5 +2,6 @@
     "eslint.workingDirectories": [
         "./apps/ui", 
         "./apps/platform"
-    ]
+    ],
+    "nxConsole.generateAiAgentRules": true
 }

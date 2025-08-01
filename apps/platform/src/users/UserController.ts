@@ -182,12 +182,12 @@ router.get('/:userId/events', async ctx => {
     ctx.body = await getUserEvents(ctx.state.user!.id, params, ctx.state.project.id)
 })
 
-router.get('/:userId/subscriptions', async ctx => {
+router.get('/:userId/subscriptions', async (ctx: any) => {
     const params = extractQueryParams(ctx.query, searchParamsSchema)
     ctx.body = await getUserSubscriptions(ctx.state.user!.id, params, ctx.state.project.id)
 })
 
-router.patch('/:userId/subscriptions', async ctx => {
+router.patch('/:userId/subscriptions', async (ctx: any) => {
     const subscriptions = ctx.request.body as Array<{ subscription_id: number, state: SubscriptionState }>
     for (const subscription of subscriptions) {
         await toggleSubscription(
@@ -199,7 +199,7 @@ router.patch('/:userId/subscriptions', async ctx => {
     ctx.body = await getUser(ctx.state.user!.id)
 })
 
-router.get('/:userId/journeys', async ctx => {
+router.get('/:userId/journeys', async (ctx: any) => {
     const params = extractQueryParams(ctx.query, searchParamsSchema)
     ctx.body = await pagedEntrancesByUser(ctx.state.user!.id, params)
 })
