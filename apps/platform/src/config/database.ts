@@ -77,9 +77,9 @@ const migrate = async (config: DatabaseConfig, db: Database, retries = MIGRATION
             loadExtensions: ['.js', '.ts'],
         })
         
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error('Migration timeout after 60 seconds')), 60000)
-        })
+                        const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Migration timeout after 300 seconds')), 300000)
+                })
         
         const result = await Promise.race([migrationPromise, timeoutPromise])
         
