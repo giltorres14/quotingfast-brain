@@ -70,15 +70,30 @@ const createDatabase = async (config: DatabaseConfig, db: Database) => {
 
 export default async (config: DatabaseConfig) => {
 
+    console.log('🔗 Attempting database connection...')
+    console.log('Database config:', {
+        host: config.host,
+        port: config.port,
+        database: config.database,
+        user: config.user,
+        // Don't log password for security
+    })
+
     // Attempt to connect & migrate
     try {
+        console.log('📡 Creating database connection...')
         const db = connect(config)
+        
+        console.log('🔄 Running database migrations...')
         await migrate(config, db)
+        
+        console.log('✅ Database connection and migration successful!')
         return db
     } catch (error: any) {
 
         // For PostgreSQL, we assume the database exists
         // (Render provides the database for us)
+        console.error('❌ Database connection/migration failed:', error.message)
         logger.error(error, 'database error')
         throw error
     }
