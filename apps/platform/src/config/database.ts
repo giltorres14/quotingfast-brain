@@ -240,48 +240,31 @@ export default async (config: DatabaseConfig) => {
             console.log(`✅ Marked ${migration} as completed`)
         }
         
-        console.log('🔄 Running migrations in batches of 15...')
+        console.log('🔄 Running all remaining migrations...')
         
-        // Get current batch number from migrations table
-        const currentBatchResult = await db('migrations').max('batch as max_batch').first()
-        let currentBatch = (currentBatchResult?.max_batch || 0) + 1
+        // Run all remaining migrations at once
+        // The essential tables are already created and marked as complete
+        // This will only run the migrations that haven't been marked as complete yet
+        const result = await db.migrate.latest({
+            directory: './apps/platform/db/migrations',
+            tableName: 'migrations',
+            loadExtensions: ['.js', '.ts'],
+            disableTransactions: false
+        })
         
-        // Run migrations in batches of 15
-        const batchSize = 15
-        const maxBatches = 4
+        console.log(`✅ Migration completed! Applied ${result[1].length} new migrations`)
         
-        for (let batchNum = 1; batchNum <= maxBatches; batchNum++) {
-            console.log(`🚀 Running migration batch ${batchNum}/${maxBatches} (up to ${batchSize} migrations)...`)
-            
-            try {
-                const result = await db.migrate.latest({
-                    directory: './apps/platform/db/migrations',
-                    tableName: 'migrations',
-                    loadExtensions: ['.js', '.ts'],
-                    disableTransactions: false,
-                    batchSize: batchSize
-                })
-                
-                console.log(`✅ Batch ${batchNum} completed! Applied ${result[1].length} migrations`)
-                
-                // Check if we're done
-                const pendingMigrations = await db.migrate.list({
-                    directory: './apps/platform/db/migrations',
-                    tableName: 'migrations',
-                    loadExtensions: ['.js', '.ts']
-                })
-                
-                if (pendingMigrations[1].length === 0) {
-                    console.log('✅ All migrations completed!')
-                    break
-                }
-                
-                console.log(`📋 ${pendingMigrations[1].length} migrations remaining for next batch`)
-                
-            } catch (error) {
-                console.log(`❌ Batch ${batchNum} failed:`, error.message)
-                throw error
-            }
+        // Verify all migrations are complete
+        const pendingMigrations = await db.migrate.list({
+            directory: './apps/platform/db/migrations',
+            tableName: 'migrations',
+            loadExtensions: ['.js', '.ts']
+        })
+        
+        if (pendingMigrations[1].length === 0) {
+            console.log('🎉 All migrations completed successfully!')
+        } else {
+            console.log(`📋 ${pendingMigrations[1].length} migrations still pending`)
         }
         
         console.log('✅ Database connection and migrations completed!')
