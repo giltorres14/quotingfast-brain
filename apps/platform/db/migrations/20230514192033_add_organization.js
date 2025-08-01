@@ -14,7 +14,7 @@ exports.up = async function(knex) {
             .inTable('organizations')
             .onDelete('CASCADE')
             .unsigned()
-            .after('id')
+
     })
 
     await knex.schema.table('admins', function(table) {
@@ -23,7 +23,7 @@ exports.up = async function(knex) {
             .inTable('organizations')
             .onDelete('CASCADE')
             .unsigned()
-            .after('id')
+
     })
 
     const admins = await knex('admins').count({ count: '*' }).first()

@@ -6,10 +6,10 @@ exports.up = async function(knex) {
     if (!hasExclusionListIds || !hasListIds) {
         await knex.schema.table('campaigns', function(table) {
             if (!hasExclusionListIds) {
-                table.json('exclusion_list_ids').after('list_id')
+                table.json('exclusion_list_ids')
             }
             if (!hasListIds) {
-                table.json('list_ids').after('list_id')
+                table.json('list_ids')
             }
         })
     }
@@ -17,7 +17,7 @@ exports.up = async function(knex) {
     // Only update if list_ids column exists and list_id still exists
     const hasListId = await knex.schema.hasColumn('campaigns', 'list_id')
     if (hasListIds && hasListId) {
-        await knex.raw('UPDATE campaigns SET list_ids = CONCAT(\'[\', campaigns.list_id, \']\') WHERE list_ids IS NULL')
+        await knex.raw('UPDATE campaigns SET list_ids = \'[\' || campaigns.list_id || \']\' WHERE list_ids IS NULL')
     }
     
     // Only drop if list_id column still exists
@@ -36,7 +36,7 @@ exports.down = async function(knex) {
             .references('id')
             .inTable('lists')
             .onDelete('CASCADE')
-            .after('project_id')
+
         table.dropColumn('list_ids')
         table.dropColumn('exclusion_list_ids')
     })

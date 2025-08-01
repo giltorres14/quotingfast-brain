@@ -4,8 +4,8 @@ exports.up = async function(knex) {
     })
     await knex.schema.table('lists', function(table) {
         table.renameColumn('rules', 'rule')
-        table.string('state', 25).after('name')
-        table.string('type', 25).after('name')
+        table.string('state', 25)
+        table.string('type', 25)
     })
 }
 

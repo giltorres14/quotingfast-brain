@@ -1,6 +1,6 @@
 exports.up = async function(knex) {
     await knex.schema.table('providers', function(table) {
-        table.string('rate_interval', 12).defaultTo('second').after('rate_limit')
+        table.string('rate_interval', 12).defaultTo('second')
     })
 }
 

@@ -27,10 +27,10 @@ exports.up = function(knex) {
                 .references('id')
                 .inTable('providers')
                 .onDelete('CASCADE')
-                .after('channel')
+
             table.boolean('send_in_user_timezone')
                 .defaultTo(0)
-                .after('send_at')
+
             table.dropForeign('template_id')
             table.dropColumn('template_id')
             table.timestamp('deleted_at').nullable()
@@ -48,7 +48,7 @@ exports.up = function(knex) {
                 .onDelete('CASCADE')
         })
         .table('users', function(table) {
-            table.string('timezone', 50).after('devices')
+            table.string('timezone', 50)
         })
         .table('providers', function(table) {
             table.renameColumn('name', 'type')

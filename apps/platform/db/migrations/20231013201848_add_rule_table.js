@@ -55,7 +55,7 @@ exports.up = async function(knex) {
             .references('id')
             .inTable('rules')
             .onDelete('SET NULL')
-            .after('rule')
+
     })
 
     const lists = await knex('lists').select('*')

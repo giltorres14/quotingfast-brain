@@ -1,9 +1,9 @@
 exports.up = async function(knex) {
     await knex.schema.table('user_list', function(table) {
-        table.integer('version').after('event_id').defaultTo(0).index()
+        table.integer('version').defaultTo(0).index()
     })
     await knex.schema.table('lists', function(table) {
-        table.integer('version').after('users_count').defaultTo(0)
+        table.integer('version').defaultTo(0)
     })
 }
 
