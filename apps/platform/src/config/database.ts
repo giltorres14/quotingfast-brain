@@ -63,16 +63,25 @@ const migrate = async (config: DatabaseConfig, db: Database, retries = MIGRATION
         })
         
         process.stdout.write(`📋 Found ${pending[1].length} pending migrations:\n`)
-        pending[1].forEach((migration: string) => {
-            process.stdout.write(`  - ${migration}\n`)
+        pending[1].forEach((migration: any) => {
+            const migrationName = typeof migration === 'string' ? migration : migration.file || migration.name || 'unknown'
+            process.stdout.write(`  - ${migrationName}\n`)
         })
         
-        process.stdout.write('🔄 Running all migrations...\n')
-        const result = await db.migrate.latest({
+        process.stdout.write('🔄 Running migrations with timeout...\n')
+        
+        // Run migrations with a timeout to prevent infinite hang
+        const migrationPromise = db.migrate.latest({
             directory: migrationDirs,
             tableName: 'migrations',
             loadExtensions: ['.js', '.ts'],
         })
+        
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Migration timeout after 60 seconds')), 60000)
+        })
+        
+        const result = await Promise.race([migrationPromise, timeoutPromise])
         
         process.stdout.write(`✅ Migration completed! Batch: ${result[0]}, Migrations: ${JSON.stringify(result[1])}\n`)
         return result
