@@ -22,6 +22,9 @@ WORKDIR /var/www/html
 # Copy Laravel application files from brain directory
 COPY brain/ .
 
+# CRITICAL FIX: Unset APP_KEY environment variable so .env file takes precedence
+ENV APP_KEY=""
+
 # COMPREHENSIVE SOLUTION: Create complete .env file with proper APP_KEY
 RUN echo "# Laravel Configuration" > .env && \
     echo "APP_NAME=QuotingFast-Brain" >> .env && \
@@ -88,11 +91,10 @@ RUN echo "=== VERIFICATION: .env file contents ===" && \
     echo "=== VERIFICATION: symfony/clock installation ===" && \
     ls -la vendor/symfony/clock/ 2>/dev/null || echo "⚠️ symfony/clock not found" && \
     echo "" && \
-    echo "=== VERIFICATION: composer.json dependencies ===" && \
-    grep -A 10 '"require"' composer.json && \
-    echo "" && \
-    echo "=== VERIFICATION: autoloader files ===" && \
-    ls -la vendor/composer/autoload_*.php
+    echo "=== VERIFICATION: APP_KEY environment variable ===" && \
+    echo "ENV APP_KEY: $APP_KEY" && \
+    echo "=== VERIFICATION: .env APP_KEY ===" && \
+    grep "APP_KEY" .env
 
 # Create startup script that clears cache before Apache starts
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
