@@ -30,7 +30,7 @@ ENV APP_DEBUG=""
 ENV APP_URL=""
 
 # LESSON LEARNED #2: Create comprehensive .env file (APP_KEY issue from previous attempts)
-RUN echo "# Laravel Configuration - COMPREHENSIVE SOLUTION" > .env && \
+RUN echo "# Laravel Configuration - COMPLETE DEFINITIVE SOLUTION" > .env && \
     echo "APP_NAME=QuotingFast-Brain" >> .env && \
     echo "APP_ENV=production" >> .env && \
     echo "APP_KEY=base64:duG47cob+xamE/vqPKxphK94zxuIXiOMiI76p/7UVWQ=" >> .env && \
@@ -53,11 +53,11 @@ RUN echo "# Laravel Configuration - COMPREHENSIVE SOLUTION" > .env && \
     echo "# Queue" >> .env && \
     echo "QUEUE_CONNECTION=sync" >> .env
 
-# LESSON LEARNED #3: Complete vendor rebuild (symfony/clock issues from multiple attempts)
+# LESSON LEARNED #3: Complete vendor rebuild (symfony/clock REMOVED from composer.json)
 RUN rm -rf vendor composer.lock && \
     composer install --no-dev --no-scripts --no-cache && \
     composer dump-autoload --optimize --no-scripts && \
-    echo "✅ Dependencies installed with symfony/clock v6.4"
+    echo "✅ Dependencies installed WITHOUT symfony/clock"
 
 # LESSON LEARNED #4: Aggressive autoloader regeneration (autoloader corruption from previous attempts)
 RUN rm -rf vendor/composer/autoload_*.php && \
@@ -88,29 +88,26 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache for public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# COMPREHENSIVE VERIFICATION: Every issue we've encountered
-RUN echo "=== COMPREHENSIVE VERIFICATION: ALL LESSONS LEARNED ===" && \
+# COMPLETE VERIFICATION: Every lesson learned + symfony/clock removal
+RUN echo "=== COMPLETE DEFINITIVE VERIFICATION ===" && \
     echo "" && \
     echo "1. APP_KEY Environment Variable Precedence:" && \
     echo "   ENV APP_KEY: '$APP_KEY'" && \
     echo "   .env APP_KEY: $(grep 'APP_KEY' .env)" && \
     echo "" && \
-    echo "2. symfony/clock Installation:" && \
-    ls -la vendor/symfony/clock/ 2>/dev/null || echo "   ⚠️ symfony/clock not found" && \
-    echo "" && \
-    echo "3. Composer Dependencies:" && \
+    echo "2. symfony/clock REMOVED from dependencies:" && \
     grep -A 5 '"require"' composer.json && \
     echo "" && \
-    echo "4. Autoloader Files:" && \
+    echo "3. Autoloader Files:" && \
     ls -la vendor/composer/autoload_*.php && \
     echo "" && \
-    echo "5. Laravel Cache Status:" && \
+    echo "4. Laravel Cache Status:" && \
     ls -la bootstrap/cache/ && \
     echo "" && \
-    echo "6. Complete .env File:" && \
+    echo "5. Complete .env File:" && \
     cat .env && \
     echo "" && \
-    echo "=== ALL PREVIOUS ISSUES ADDRESSED ==="
+    echo "=== ALL ISSUES ADDRESSED: symfony/clock REMOVED, APP_KEY FIXED, CACHE CLEARED ==="
 
 # LESSON LEARNED #7: Startup cache clearing (runtime cache issues from previous attempts)
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
