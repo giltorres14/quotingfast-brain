@@ -40,9 +40,15 @@ RUN rm -rf bootstrap/cache/*.php && \
     mkdir -p storage/framework/views && \
     mkdir -p storage/framework/sessions
 
-# Force Laravel to regenerate clean service provider cache for production
-# This ensures dev-only providers like Laravel Pail are not cached
-RUN php -r "require_once 'vendor/autoload.php'; \$app = require_once 'bootstrap/app.php'; \$app->make('Illuminate\\Foundation\\Console\\Kernel'); echo 'Service provider cache regenerated for production\n';" 2>/dev/null || echo "Cache regeneration completed"
+# NUCLEAR OPTION: Completely prevent service provider caching in production
+# This forces Laravel to discover providers dynamically instead of using cached manifest
+RUN echo '#!/bin/bash' > /usr/local/bin/clear-laravel-cache.sh && \
+    echo 'rm -f /var/www/html/bootstrap/cache/packages.php' >> /usr/local/bin/clear-laravel-cache.sh && \
+    echo 'rm -f /var/www/html/bootstrap/cache/services.php' >> /usr/local/bin/clear-laravel-cache.sh && \
+    echo 'rm -f /var/www/html/bootstrap/cache/config.php' >> /usr/local/bin/clear-laravel-cache.sh && \
+    chmod +x /usr/local/bin/clear-laravel-cache.sh && \
+    /usr/local/bin/clear-laravel-cache.sh && \
+    echo "Service provider cache completely disabled - Laravel will discover providers dynamically"
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
@@ -51,5 +57,12 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache for public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
+# Create startup script that clears cache before Apache starts
+RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
+    echo '/usr/local/bin/clear-laravel-cache.sh' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Laravel cache cleared on startup"' >> /usr/local/bin/startup.sh && \
+    echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
+    chmod +x /usr/local/bin/startup.sh
+
 EXPOSE 80
-CMD ["apache2-foreground"]
+CMD ["/usr/local/bin/startup.sh"]
