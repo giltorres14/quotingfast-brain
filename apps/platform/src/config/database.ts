@@ -32,15 +32,9 @@ const connect = (config: DatabaseConfig, withDB = true) => {
         connection = removeKey('database', connection)
     }
     return knex({
-        client: 'mysql2',
+        client: 'pg',
         connection: {
             ...connection,
-            typeCast(field: any, next: any) {
-                if (field.type === 'TINY' && field.length === 1) {
-                    return field.string() === '1'
-                }
-                return next()
-            },
         },
         asyncStackTraces: true,
     })
@@ -83,20 +77,9 @@ export default async (config: DatabaseConfig) => {
         return db
     } catch (error: any) {
 
-        // Check if error is related to DB not existing
-        if (error?.errno === 1049) {
-
-            // Connect without database and create it
-            let db = connect(config, false)
-            await createDatabase(config, db)
-
-            // Reconnect using new database
-            db = connect(config)
-            await migrate(config, db)
-            return db
-        } else {
-            logger.error(error, 'database error')
-            throw error
-        }
+        // For PostgreSQL, we assume the database exists
+        // (Render provides the database for us)
+        logger.error(error, 'database error')
+        throw error
     }
 }
