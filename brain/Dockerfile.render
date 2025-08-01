@@ -31,10 +31,14 @@ COPY brain/ .
 # Generate autoloader without triggering post-install scripts
 RUN composer dump-autoload --no-scripts
 
-# Clear Laravel caches to remove any cached service providers
-RUN php artisan config:clear || true && \
-    php artisan cache:clear || true && \
-    php artisan view:clear || true
+# Manually clear Laravel cache directories to remove cached service providers
+RUN rm -rf bootstrap/cache/*.php && \
+    rm -rf storage/framework/cache/* && \
+    rm -rf storage/framework/views/* && \
+    rm -rf storage/framework/sessions/* && \
+    mkdir -p storage/framework/cache/data && \
+    mkdir -p storage/framework/views && \
+    mkdir -p storage/framework/sessions
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
