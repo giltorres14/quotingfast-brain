@@ -190,7 +190,7 @@ const createEssentialTables = async (db: Database) => {
         await db.raw(`
             CREATE TABLE IF NOT EXISTS migrations (
                 id SERIAL PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
+                name VARCHAR(255) NOT NULL UNIQUE,
                 batch INTEGER NOT NULL,
                 migration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
