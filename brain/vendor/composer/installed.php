@@ -3,7 +3,7 @@
         'name' => 'laravel-brain/webhook-app',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'c2fc3bf6fc1eab0eea14c6232311494da9512f1b',
+        'reference' => 'bd4f367c2e7bea73db3c9dc0ef907b82cd21f13b',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -481,7 +481,7 @@
         'laravel-brain/webhook-app' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'c2fc3bf6fc1eab0eea14c6232311494da9512f1b',
+            'reference' => 'bd4f367c2e7bea73db3c9dc0ef907b82cd21f13b',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
