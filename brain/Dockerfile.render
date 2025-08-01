@@ -42,12 +42,7 @@ RUN rm -rf bootstrap/cache/*.php && \
 
 # Force Laravel to regenerate clean service provider cache for production
 # This ensures dev-only providers like Laravel Pail are not cached
-RUN php -r "
-require_once 'vendor/autoload.php';
-\$app = require_once 'bootstrap/app.php';
-\$app->make('Illuminate\Foundation\Console\Kernel');
-echo 'Service provider cache regenerated for production\n';
-" 2>/dev/null || echo "Cache regeneration completed"
+RUN php -r "require_once 'vendor/autoload.php'; \$app = require_once 'bootstrap/app.php'; \$app->make('Illuminate\\Foundation\\Console\\Kernel'); echo 'Service provider cache regenerated for production\n';" 2>/dev/null || echo "Cache regeneration completed"
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
