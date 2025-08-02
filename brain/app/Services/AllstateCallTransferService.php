@@ -78,63 +78,74 @@ class AllstateCallTransferService
      */
     private function mapLeadToAllstateFormat(Lead $lead): array
     {
-        // Extract driver and vehicle info (assuming first driver/vehicle)
+        // Extract driver and vehicle info from real LQF structure
         $drivers = is_array($lead->drivers) ? $lead->drivers : [];
         $vehicles = is_array($lead->vehicles) ? $lead->vehicles : [];
+        $currentPolicy = is_array($lead->current_policy) ? $lead->current_policy : [];
+        $requestedPolicy = is_array($lead->requested_policy) ? $lead->requested_policy : [];
         $primaryDriver = $drivers[0] ?? [];
-        $primaryVehicle = $vehicles[0] ?? [];
+
+        // Calculate years at address from months_at_residence
+        $yearsAtAddress = isset($primaryDriver['months_at_residence']) 
+            ? max(1, round($primaryDriver['months_at_residence'] / 12, 1))
+            : 2;
 
         return [
             // Required fields
             'vertical' => 'auto-insurance',
-            'external_id' => $lead->id,
+            'external_id' => $lead->external_lead_id ?? $lead->id,
             
-            // Location information
+            // Location information (from contact data)
             'city' => $lead->city ?? 'Unknown',
-            'state' => $lead->state ?? 'CA', // Default to CA for testing
-            'zipcode' => $lead->zip ?? $lead->zip_code ?? '90210',
+            'state' => $lead->state ?? 'CA',
+            'zipcode' => $lead->zip_code ?? '90210',
             'country' => 'USA',
             
-            // Personal information
+            // Personal information (from contact data)
             'first_name' => $lead->first_name ?? $this->extractFirstName($lead->name),
             'last_name' => $lead->last_name ?? $this->extractLastName($lead->name),
             'email' => $lead->email ?? '',
             'home_phone' => $this->formatPhoneNumber($lead->phone ?? ''),
-            'dob' => $lead->birth_date ? $lead->birth_date->format('Y-m-d') : '1990-01-01',
+            'dob' => $primaryDriver['birth_date'] ?? '1990-01-01',
             
             // Address information
             'address1' => $lead->address ?? 'Address not provided',
-            'years_at_address' => '2', // Default value
-            'residence_status' => $this->mapResidenceStatus($lead->residence_type ?? 'own'),
+            'years_at_address' => (string)$yearsAtAddress,
+            'residence_status' => $this->mapResidenceStatus($primaryDriver['residence_type'] ?? 'own'),
             
-            // Insurance information
-            'currently_insured' => true, // Assume insured
-            'current_insurance_company' => $this->mapInsuranceCompany($lead->insurance_company ?? 'other'),
-            'desired_coverage_type' => $this->mapCoverageType($lead->coverage_type ?? 'BASIC'),
-            'policy_start' => now()->subYears(2)->format('Y-m-d'),
-            'policy_expiration' => now()->addMonths(6)->format('Y-m-d'),
+            // Insurance information (from current_policy)
+            'currently_insured' => !empty($currentPolicy),
+            'current_insurance_company' => $this->mapInsuranceCompany($currentPolicy['insurance_company'] ?? 'other'),
+            'desired_coverage_type' => $this->mapCoverageType($requestedPolicy['coverage_type'] ?? 'BASIC'),
+            'policy_start' => $currentPolicy['insured_since'] ?? now()->subYears(2)->format('Y-m-d'),
+            'policy_expiration' => $currentPolicy['expiration_date'] ?? now()->addMonths(6)->format('Y-m-d'),
             
             // Contact preferences
             'best_contact_time' => '18:00', // 6 PM default
-            'tcpa' => true, // Assume TCPA consent
+            'tcpa' => $lead->tcpa_compliant ?? true,
             
             // Technical information
             'ip_address' => $lead->ip_address ?? request()->ip(),
             'user_agent' => $lead->user_agent ?? request()->userAgent(),
             
             // Lead quality indicators
-            'exclusive' => $lead->exclusive_flag ?? true,
-            'self_credit_rating' => 'good', // Default value
+            'exclusive' => true, // LQF leads are typically exclusive
+            'self_credit_rating' => $this->mapCreditRating($primaryDriver),
             
-            // Driver information
+            // Driver information (mapped from real LQF structure)
             'drivers' => $this->mapDrivers($drivers, $lead),
             
-            // Vehicle information  
+            // Vehicle information (mapped from real LQF structure)
             'vehicles' => $this->mapVehicles($vehicles, $lead),
             
             // Additional metadata
-            'bundle_insurance' => true, // Assume interest in bundling
-            'insured_since' => '2020-01-01', // Default value
+            'bundle_insurance' => true,
+            'insured_since' => $currentPolicy['insured_since'] ?? '2020-01-01',
+            
+            // LQF specific data
+            'lead_source' => 'leadsquotingfast',
+            'campaign_id' => $lead->campaign_id,
+            'sell_price' => $lead->sell_price,
         ];
     }
 
@@ -163,10 +174,16 @@ class AllstateCallTransferService
         }
 
         return array_map(function($driver) {
+            // Count violations, accidents, and claims for risk assessment
+            $violations = $driver['major_violations'] ?? [];
+            $accidents = $driver['accidents'] ?? [];
+            $claims = $driver['claims'] ?? [];
+            $tickets = $driver['tickets'] ?? [];
+
             return [
                 'first_name' => $driver['first_name'] ?? 'Unknown',
                 'last_name' => $driver['last_name'] ?? 'Driver',
-                'dob' => $driver['dob'] ?? '1990-01-01',
+                'dob' => $driver['birth_date'] ?? '1990-01-01',
                 'gender' => $this->mapGender($driver['gender'] ?? 'M'),
                 'marital_status' => $this->mapMaritalStatus($driver['marital_status'] ?? 'single'),
                 'education' => $this->mapEducation($driver['education'] ?? 'HS'),
@@ -174,9 +191,26 @@ class AllstateCallTransferService
                 'license_state' => $driver['license_state'] ?? 'CA',
                 'license_status' => $this->mapLicenseStatus($driver['license_status'] ?? 'valid'),
                 'age_licensed' => $driver['age_licensed'] ?? 18,
-                'sr22_required' => $driver['sr22_required'] ?? false,
+                'sr22_required' => $driver['requires_sr22'] ?? false,
                 'bankruptcy' => $driver['bankruptcy'] ?? false,
-                'license_suspended' => $driver['license_suspended'] ?? false,
+                'license_suspended' => $driver['license_ever_suspended'] ?? false,
+                
+                // Additional LQF-specific driver data
+                'months_at_employer' => $driver['months_at_employer'] ?? 12,
+                'months_at_residence' => $driver['months_at_residence'] ?? 24,
+                'residence_type' => $driver['residence_type'] ?? 'own',
+                
+                // Risk indicators from LQF data
+                'violation_count' => count($violations),
+                'accident_count' => count($accidents),
+                'claim_count' => count($claims),
+                'ticket_count' => count($tickets),
+                'has_major_violations' => !empty($violations),
+                'has_at_fault_accidents' => $this->hasAtFaultAccidents($accidents),
+                
+                // Most recent violation/accident for underwriting
+                'most_recent_violation' => $this->getMostRecentViolation($violations),
+                'most_recent_accident' => $this->getMostRecentAccident($accidents),
             ];
         }, $drivers);
     }
@@ -205,11 +239,30 @@ class AllstateCallTransferService
                 'year' => $vehicle['year'] ?? 2020,
                 'make' => $vehicle['make'] ?? 'Toyota',
                 'model' => $vehicle['model'] ?? 'Camry',
+                'submodel' => $vehicle['submodel'] ?? '',
                 'vin' => $vehicle['vin'] ?? '',
-                'ownership' => $vehicle['ownership'] ?? 'own',
-                'primary_use' => $vehicle['primary_use'] ?? 'commute',
+                'ownership' => $this->mapOwnership($vehicle['ownership'] ?? 'own'),
+                'primary_use' => $this->mapPrimaryUse($vehicle['primary_use'] ?? 'commute'),
                 'annual_miles' => $vehicle['annual_miles'] ?? 12000,
-                'garage_status' => $vehicle['garage_status'] ?? 'garage',
+                'garage_status' => $this->mapGarageStatus($vehicle['garage'] ?? 'garage'),
+                
+                // Additional LQF vehicle data
+                'one_way_distance' => $vehicle['one_way_distance'] ?? 10,
+                'weekly_commute_days' => $vehicle['weekly_commute_days'] ?? 5,
+                'collision_deductible' => $vehicle['collision_deductible'] ?? '500',
+                'comprehensive_deductible' => $vehicle['comprehensive_deductible'] ?? '500',
+                
+                // Safety features from LQF
+                'airbags' => $vehicle['airbags'] ?? true,
+                'abs' => $vehicle['abs'] ?? true,
+                'automatic_seat_belts' => $vehicle['automatic_seat_belts'] ?? false,
+                'four_wheel_drive' => $vehicle['four_wheel_drive'] ?? false,
+                'alarm' => $vehicle['alarm'] ?? 'none',
+                
+                // Vehicle condition indicators  
+                'salvaged' => $vehicle['salvaged'] ?? false,
+                'rental' => $vehicle['rental'] ?? false,
+                'towing' => $vehicle['towing'] ?? false,
             ];
         }, $vehicles);
     }
@@ -364,11 +417,115 @@ class AllstateCallTransferService
     private function mapLicenseStatus(string $status): string
     {
         $mapping = [
+            'active' => 'valid',
             'valid' => 'valid',
             'suspended' => 'suspended',
             'expired' => 'expired',
             'permit' => 'permit',
+            'temporary' => 'permit',
+            'international' => 'valid', // Treat international as valid
         ];
         return $mapping[strtolower($status)] ?? 'valid';
+    }
+
+    /**
+     * Map credit rating based on driver profile
+     */
+    private function mapCreditRating(array $driver): string
+    {
+        // Simple risk assessment based on driver history
+        $riskFactors = 0;
+        
+        if ($driver['bankruptcy'] ?? false) $riskFactors += 2;
+        if ($driver['license_ever_suspended'] ?? false) $riskFactors += 1;
+        if (count($driver['major_violations'] ?? []) > 0) $riskFactors += 1;
+        if (count($driver['accidents'] ?? []) > 1) $riskFactors += 1;
+        
+        if ($riskFactors >= 3) return 'poor';
+        if ($riskFactors >= 1) return 'fair';
+        return 'good';
+    }
+
+    /**
+     * Check if driver has at-fault accidents
+     */
+    private function hasAtFaultAccidents(array $accidents): bool
+    {
+        foreach ($accidents as $accident) {
+            if ($accident['at_fault'] ?? false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get most recent violation for underwriting
+     */
+    private function getMostRecentViolation(array $violations): ?string
+    {
+        if (empty($violations)) return null;
+        
+        usort($violations, function($a, $b) {
+            return strtotime($b['violation_date'] ?? '1900-01-01') - strtotime($a['violation_date'] ?? '1900-01-01');
+        });
+        
+        return $violations[0]['description'] ?? null;
+    }
+
+    /**
+     * Get most recent accident for underwriting
+     */
+    private function getMostRecentAccident(array $accidents): ?string
+    {
+        if (empty($accidents)) return null;
+        
+        usort($accidents, function($a, $b) {
+            return strtotime($b['accident_date'] ?? '1900-01-01') - strtotime($a['accident_date'] ?? '1900-01-01');
+        });
+        
+        return $accidents[0]['description'] ?? null;
+    }
+
+    /**
+     * Map vehicle ownership
+     */
+    private function mapOwnership(string $ownership): string
+    {
+        $mapping = [
+            'own' => 'own',
+            'lease' => 'lease',
+            'finance' => 'finance',
+            'financed' => 'finance',
+        ];
+        return $mapping[strtolower($ownership)] ?? 'own';
+    }
+
+    /**
+     * Map primary vehicle use
+     */
+    private function mapPrimaryUse(string $use): string
+    {
+        $mapping = [
+            'commute work' => 'commute',
+            'commute school' => 'commute',
+            'pleasure' => 'pleasure',
+            'business' => 'business',
+        ];
+        return $mapping[strtolower($use)] ?? 'commute';
+    }
+
+    /**
+     * Map garage status
+     */
+    private function mapGarageStatus(string $garage): string
+    {
+        $mapping = [
+            'full garage' => 'garage',
+            'carport' => 'carport',
+            'on street' => 'street',
+            'no cover' => 'street',
+        ];
+        return $mapping[strtolower($garage)] ?? 'garage';
     }
 }
