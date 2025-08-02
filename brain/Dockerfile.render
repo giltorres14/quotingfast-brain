@@ -84,11 +84,6 @@ RUN echo '#!/bin/bash' > /usr/local/bin/clear-laravel-cache.sh && \
     /usr/local/bin/clear-laravel-cache.sh && \
     echo "Service provider cache prevention enabled"
 
-# CUMULATIVE LESSON #8: Copy business logic from original brain (if any exists)
-COPY brain/routes/ routes/ 2>/dev/null || echo "No custom routes to copy"
-COPY brain/app/Http/Controllers/ app/Http/Controllers/ 2>/dev/null || echo "No custom controllers to copy"
-COPY brain/resources/views/ resources/views/ 2>/dev/null || echo "No custom views to copy"
-
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
@@ -96,7 +91,7 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache for public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# CUMULATIVE LESSON #9: Comprehensive verification of fresh installation
+# CUMULATIVE LESSON #8: Comprehensive verification of fresh installation
 RUN echo "=== COMPREHENSIVE VERIFICATION: FRESH LARAVEL + ALL LESSONS ===" && \
     echo "1. Laravel framework verification:" && \
     php -r "require 'vendor/autoload.php'; new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo '✅ Laravel Application works\n';" && \
@@ -110,7 +105,7 @@ RUN echo "=== COMPREHENSIVE VERIFICATION: FRESH LARAVEL + ALL LESSONS ===" && \
     echo "" && \
     echo "✅ FRESH LARAVEL WITH ALL CUMULATIVE LESSONS VERIFIED"
 
-# CUMULATIVE LESSON #10: Enhanced startup with all learned cache clearing
+# CUMULATIVE LESSON #9: Enhanced startup with all learned cache clearing
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Fresh Laravel with all lessons learned ==="' >> /usr/local/bin/startup.sh && \
     echo '/usr/local/bin/clear-laravel-cache.sh' >> /usr/local/bin/startup.sh && \
