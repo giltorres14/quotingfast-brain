@@ -4,11 +4,9 @@ FROM php:8.3-apache
 RUN echo "Docker build timestamp: $(date)" && \
     echo "=== FORCING COMPLETE DOCKER REBUILD ==="
 
-# Install system dependencies, PostgreSQL development libraries, SQLite development libraries, and Composer
+# Install system dependencies, PostgreSQL development libraries, and Composer
 RUN apt-get update && apt-get install -y \
     libpq-dev \
-    libsqlite3-dev \
-    sqlite3 \
     git \
     unzip \
     procps \
@@ -17,8 +15,8 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install database PHP extensions (PostgreSQL + SQLite)
-RUN docker-php-ext-install pdo_pgsql pgsql pdo_sqlite
+# Install PostgreSQL PHP extensions
+RUN docker-php-ext-install pdo_pgsql pgsql
 
 # Enable Apache rewrite module (mod_negotiation may not exist in php:8.3-apache)
 RUN a2enmod rewrite && \
@@ -77,9 +75,8 @@ RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
     echo "LOG_CHANNEL=stack" >> .env && \
     echo "LOG_LEVEL=error" >> .env && \
     echo "" >> .env && \
-    echo "# Database - Use PostgreSQL for production persistence" >> .env && \
+    echo "# Database" >> .env && \
     echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "# PostgreSQL connection will be set via Render environment variables at runtime" >> .env && \
     echo "" >> .env && \
     echo "# Cache & Session" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
@@ -211,13 +208,6 @@ RUN echo "=== VERIFYING LARAVEL APP_KEY ===" && \
     grep "APP_KEY=" .env && \
     echo "✅ Laravel APP_KEY verified"
 
-# DATABASE SETUP: PostgreSQL for production persistence
-RUN echo "=== DATABASE SETUP ===" && \
-    echo "Configuring PostgreSQL connection..." && \
-    echo "Database will be connected via environment variables on Render" && \
-    echo "Migrations will run on first startup to avoid connection issues during build" && \
-    echo "✅ Database configuration completed"
-
 # CUMULATIVE LESSON #8: Enhanced startup with Docker debugging
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP DEBUG: Environment check ==="' >> /usr/local/bin/startup.sh && \
@@ -230,19 +220,6 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'export APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/APP_KEY=.*/APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+\/nnQgxG8jNi3Iw=/" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "Current APP_KEY: $(grep APP_KEY .env)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: POSTGRESQL DATABASE SETUP ==="' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Database connection: $DB_CONNECTION"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Database host: $DB_HOST"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Database URL: $DATABASE_URL"' >> /usr/local/bin/startup.sh && \
-    echo 'if [ ! -z "$DATABASE_URL" ]; then' >> /usr/local/bin/startup.sh && \
-    echo '  echo "=== FORCING DATABASE CONNECTION FROM DATABASE_URL ==="' >> /usr/local/bin/startup.sh && \
-    echo '  export DB_CONNECTION=pgsql' >> /usr/local/bin/startup.sh && \
-    echo '  sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=pgsql/" .env' >> /usr/local/bin/startup.sh && \
-    echo '  echo "Database connection forced to PostgreSQL"' >> /usr/local/bin/startup.sh && \
-    echo 'fi' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Running database migrations..."' >> /usr/local/bin/startup.sh && \
-    echo 'php artisan migrate --force --no-interaction || echo "Migration failed - will retry on first request"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "✅ Database migrations completed"' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
