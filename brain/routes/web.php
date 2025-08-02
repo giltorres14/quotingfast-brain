@@ -38,6 +38,7 @@ Route::get('/', function () {
             '/webhook/ringba' => 'Ringba webhook (POST)',
             '/webhook/vici' => 'Vici webhook (POST)',
             '/webhook/twilio' => 'Twilio webhook (POST)',
+            '/webhook/allstate' => 'Allstate call transfer webhook (POST)',
             '/webhook/status' => 'Webhook status monitoring (GET)',
             '/api/webhooks' => 'Webhook dashboard API (GET)'
         ],
@@ -443,6 +444,104 @@ Route::post('/webhook/twilio', function (Request $request) {
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
+// Allstate call transfer webhook endpoint
+Route::post('/webhook/allstate', function (Request $request) {
+    try {
+        Log::info('Allstate webhook received', [
+            'payload' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        $data = $request->all();
+        
+        if (empty($data)) {
+            throw new Exception('Invalid data received');
+        }
+        
+        // Store the lead first
+        $contact = isset($data['contact']) ? $data['contact'] : $data;
+        
+        $leadData = [
+            'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
+            'first_name' => $contact['first_name'] ?? null,
+            'last_name' => $contact['last_name'] ?? null,
+            'phone' => $contact['phone'] ?? 'Unknown',
+            'email' => $contact['email'] ?? null,
+            'address' => $contact['address'] ?? null,
+            'city' => $contact['city'] ?? null,
+            'state' => $contact['state'] ?? 'CA', // Default to CA for Allstate testing
+            'zip_code' => $contact['zip_code'] ?? null,
+            'birth_date' => isset($contact['birth_date']) ? $contact['birth_date'] : null,
+            'source' => 'allstate_ready',
+            'type' => 'call_transfer',
+            'received_at' => now(),
+            'joined_at' => now(),
+            // Insurance-specific fields
+            'insurance_company' => $contact['current_insurance'] ?? null,
+            'coverage_type' => $contact['coverage_type'] ?? 'basic',
+            'vehicle_year' => $contact['vehicle_year'] ?? null,
+            'vehicle_make' => $contact['vehicle_make'] ?? null,
+            'vehicle_model' => $contact['vehicle_model'] ?? null,
+            'drivers' => isset($contact['drivers']) ? json_encode($contact['drivers']) : null,
+            'vehicles' => isset($contact['vehicles']) ? json_encode($contact['vehicles']) : null,
+            'payload' => json_encode($data),
+        ];
+        
+        $lead = Lead::create($leadData);
+        
+        Log::info('Allstate-ready lead stored successfully', [
+            'lead_id' => $lead->id,
+            'name' => $lead->name
+        ]);
+        
+        // Immediately attempt to transfer to Allstate
+        $transferService = new \App\Services\AllstateCallTransferService();
+        $transferResult = $transferService->transferCall($lead);
+        
+        if ($transferResult['success']) {
+            Log::info('Lead successfully transferred to Allstate', [
+                'lead_id' => $lead->id,
+                'transfer_result' => $transferResult
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Lead received and transferred to Allstate successfully',
+                'lead_id' => $lead->id,
+                'source' => 'allstate_ready',
+                'transfer_status' => 'transferred',
+                'allstate_response' => $transferResult['allstate_response'] ?? null,
+                'timestamp' => now()->toISOString()
+            ], 201);
+        } else {
+            Log::warning('Lead stored but Allstate transfer failed', [
+                'lead_id' => $lead->id,
+                'transfer_error' => $transferResult['error'] ?? 'Unknown error'
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Lead received but Allstate transfer failed',
+                'lead_id' => $lead->id,
+                'source' => 'allstate_ready',
+                'transfer_status' => 'failed',
+                'transfer_error' => $transferResult['error'] ?? 'Unknown error',
+                'timestamp' => now()->toISOString()
+            ], 201);
+        }
+        
+    } catch (Exception $e) {
+        Log::error('Allstate webhook error', ['error' => $e->getMessage()]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'source' => 'allstate_ready',
+            'timestamp' => now()->toISOString()
+        ], 400);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
 // Webhook status/monitoring endpoint
 Route::get('/webhook/status', function () {
     $webhooks = [
@@ -469,6 +568,13 @@ Route::get('/webhook/status', function () {
             'description' => 'Twilio SMS/Voice webhook',
             'fields' => ['From', 'To', 'Body', 'MessageSid', 'CallSid'],
             'active' => true
+        ],
+        'allstate' => [
+            'endpoint' => '/webhook/allstate',
+            'description' => 'Allstate call transfer webhook - auto-transfers leads',
+            'fields' => ['contact', 'drivers', 'vehicles', 'insurance_info'],
+            'active' => true,
+            'auto_transfer' => true
         ]
     ];
     

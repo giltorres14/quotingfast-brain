@@ -156,6 +156,19 @@ class DashboardController extends Controller
                     'last_received' => Lead::where('source', 'twilio')->latest()->first()?->created_at,
                     'active' => true,
                     'description' => 'SMS/Voice webhook integration'
+                ],
+                'allstate' => [
+                    'name' => 'Allstate',
+                    'endpoint' => '/webhook/allstate',
+                    'total_leads' => Lead::where('source', 'allstate_ready')->count(),
+                    'today_leads' => Lead::where('source', 'allstate_ready')->whereDate('created_at', today())->count(),
+                    'last_received' => Lead::where('source', 'allstate_ready')->latest()->first()?->created_at,
+                    'transferred_leads' => Lead::where('source', 'allstate_ready')->where('status', 'transferred_to_allstate')->count(),
+                    'failed_transfers' => Lead::where('source', 'allstate_ready')->where('status', 'transfer_failed')->count(),
+                    'transfer_success_rate' => $this->calculateTransferSuccessRate(),
+                    'active' => true,
+                    'auto_transfer' => true,
+                    'description' => 'Auto-transfer leads to Allstate Lead Marketplace'
                 ]
             ],
             'recent_activity' => Lead::with(['assignedUser'])
@@ -175,5 +188,23 @@ class DashboardController extends Controller
             'data' => $webhookStats,
             'timestamp' => now()->toISOString()
         ]);
+    }
+
+    /**
+     * Calculate Allstate transfer success rate
+     */
+    private function calculateTransferSuccessRate(): float
+    {
+        $totalAllstateLeads = Lead::where('source', 'allstate_ready')->count();
+        
+        if ($totalAllstateLeads === 0) {
+            return 0.0;
+        }
+        
+        $successfulTransfers = Lead::where('source', 'allstate_ready')
+            ->where('status', 'transferred_to_allstate')
+            ->count();
+        
+        return round(($successfulTransfers / $totalAllstateLeads) * 100, 2);
     }
 } 
