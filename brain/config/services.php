@@ -44,10 +44,18 @@ return [
 
     'vici' => [
         'api_key' => env('VICI_API_KEY', 'mock'),
-        'api_url' => env('VICI_API_URL', 'https://vici-server.com/api'),
+        'api_url' => env('VICI_API_URL', 'https://philli.callix.ai/vicidial/api'),
+        'server_ip' => env('VICI_SERVER_IP', '37.27.138.222'),
+        'web_server' => env('VICI_WEB_SERVER', 'philli.callix.ai'),
         'test_mode' => env('VICI_TEST_MODE', true),
-        'default_campaign' => env('VICI_DEFAULT_CAMPAIGN', 'BRAIN_LEADS'),
-        'default_list' => env('VICI_DEFAULT_LIST', 'BRAIN_LIST'),
+        'default_campaign' => env('VICI_DEFAULT_CAMPAIGN', 'Autodial'),
+        'default_list' => env('VICI_DEFAULT_LIST', '101'),
+        // Database connection - PRODUCTION CREDENTIALS
+        'mysql_host' => env('VICI_MYSQL_HOST', '37.27.138.222'),
+        'mysql_db' => env('VICI_MYSQL_DB', 'asterisk'),
+        'mysql_user' => env('VICI_MYSQL_USER', 'Superman'),
+        'mysql_pass' => env('VICI_MYSQL_PASS', '8ZDWGAAQRD'),
+        'mysql_port' => env('VICI_MYSQL_PORT', 3306),
     ],
 
 ];
