@@ -595,6 +595,44 @@ Route::get('/webhook/status', function () {
     ]);
 });
 
+// Vici database connection test endpoint
+Route::get('/test/vici-db', function () {
+    try {
+        $host = '37.27.138.222';
+        $db = 'asterisk';
+        $user = 'Superman';
+        $pass = '8ZDWGAAQRD';
+        $port = 3306;
+        
+        $dsn = "mysql:host={$host};dbname={$db};port={$port};charset=utf8mb4";
+        $pdo = new PDO($dsn, $user, $pass, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_TIMEOUT => 10,
+        ]);
+        
+        // Test query
+        $stmt = $pdo->query("SELECT COUNT(*) as total FROM vicidial_list WHERE list_id = '101'");
+        $result = $stmt->fetch();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Vici database connection successful',
+            'host' => $host,
+            'database' => $db,
+            'list_101_leads' => $result['total'],
+            'timestamp' => now()->toISOString()
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'host' => $host ?? 'unknown',
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
+});
+
 // Database connection test endpoint
 Route::get('/test/db', function () {
     try {
