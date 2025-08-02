@@ -38,16 +38,19 @@ RUN echo "=== DOCKER ENVIRONMENT DEBUG ===" && \
     echo "Composer version: $(composer --version)" && \
     echo "=== ENVIRONMENT VERIFIED ==="
 
-# CUMULATIVE LESSON #1: Fresh Laravel installation with Docker debugging
-RUN echo "=== FRESH LARAVEL INSTALLATION WITH DOCKER DEBUG ===" && \
-    composer create-project laravel/laravel . --no-dev --prefer-dist --no-cache && \
-    echo "✅ Fresh Laravel 12 installed" && \
+# CUMULATIVE LESSON #1: Copy existing Laravel application and install dependencies
+COPY . /var/www/html/
+RUN echo "=== USING EXISTING LARAVEL APPLICATION WITH DOCKER DEBUG ===" && \
+    composer install --no-dev --prefer-dist --no-cache --optimize-autoloader && \
+    echo "✅ Existing Laravel application dependencies installed" && \
     echo "=== POST-INSTALL VERIFICATION ===" && \
     ls -la && \
     echo "Vendor directory:" && \
     ls -la vendor/ | head -5 && \
     echo "Laravel framework:" && \
-    ls -la vendor/laravel/framework/ | head -3
+    ls -la vendor/laravel/framework/ | head -3 && \
+    echo "Routes verification:" && \
+    ls -la routes/
 
 # CUMULATIVE LESSON #2: Force .env precedence over ALL Render environment variables
 ENV APP_KEY=""
@@ -56,13 +59,15 @@ ENV APP_ENV=""
 ENV APP_DEBUG=""
 ENV APP_URL=""
 
-# CUMULATIVE LESSON #3: Create comprehensive .env file (APP_KEY lesson learned)
-RUN echo "# Laravel Configuration - FRESH WITH DOCKER DEBUG" > .env && \
+# CUMULATIVE LESSON #3: Use existing .env and ensure production settings
+RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
+    cp .env.example .env.backup && \
+    echo "# Laravel Configuration - PRODUCTION WITH DOCKER DEBUG" > .env && \
     echo "APP_NAME=QuotingFast-Brain" >> .env && \
     echo "APP_ENV=production" >> .env && \
     echo "APP_KEY=base64:duG47cob+xamE/vqPKxphK94zxuIXiOMiI76p/7UVWQ=" >> .env && \
     echo "APP_DEBUG=false" >> .env && \
-    echo "APP_URL=https://quotingfast-brain.onrender.com" >> .env && \
+    echo "APP_URL=https://quotingfast-brain-v2.onrender.com" >> .env && \
     echo "APP_TIMEZONE=UTC" >> .env && \
     echo "" >> .env && \
     echo "# Logging" >> .env && \
@@ -78,7 +83,8 @@ RUN echo "# Laravel Configuration - FRESH WITH DOCKER DEBUG" > .env && \
     echo "SESSION_LIFETIME=120" >> .env && \
     echo "" >> .env && \
     echo "# Queue" >> .env && \
-    echo "QUEUE_CONNECTION=sync" >> .env
+    echo "QUEUE_CONNECTION=sync" >> .env && \
+    echo "✅ Production .env configured"
 
 # CUMULATIVE LESSON #4: Ensure symfony/clock is NOT in dependencies (MAJOR VICTORY MAINTAINED)
 RUN echo "=== ENSURING SYMFONY/CLOCK ELIMINATION (VICTORY MAINTAINED) ===" && \
@@ -128,8 +134,8 @@ RUN echo "=== SETTING PERMISSIONS WITH DEBUG ===" && \
 # Configure Apache for public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# DOCKER DEBUG: Comprehensive verification with detailed output
-RUN echo "=== COMPREHENSIVE DOCKER + LARAVEL VERIFICATION ===" && \
+# DOCKER DEBUG: Comprehensive verification with detailed output INCLUDING ROUTES
+RUN echo "=== COMPREHENSIVE DOCKER + LARAVEL + ROUTES VERIFICATION ===" && \
     echo "1. Working directory verification:" && \
     pwd && \
     echo "2. Laravel framework file verification:" && \
@@ -145,8 +151,12 @@ RUN echo "=== COMPREHENSIVE DOCKER + LARAVEL VERIFICATION ===" && \
     echo "7. APP_KEY verification:" && \
     echo "   ENV APP_KEY: '$APP_KEY'" && \
     echo "   .env APP_KEY: $(grep 'APP_KEY' .env)" && \
+    echo "8. Routes verification:" && \
+    echo "   Routes directory: $(ls -la routes/)" && \
+    echo "   Web routes file: $(ls -la routes/web.php)" && \
+    echo "   Routes content preview: $(head -10 routes/web.php)" && \
     echo "" && \
-    echo "✅ ALL DOCKER + LARAVEL VERIFICATION PASSED"
+    echo "✅ ALL DOCKER + LARAVEL + ROUTES VERIFICATION PASSED"
 
 # CUMULATIVE LESSON #8: Enhanced startup with Docker debugging
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
