@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y \
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install PostgreSQL PHP extensions
-RUN docker-php-ext-install pdo_pgsql pgsql
+# Install database PHP extensions (PostgreSQL + SQLite)
+RUN docker-php-ext-install pdo_pgsql pgsql pdo_sqlite sqlite3
 
 # Enable Apache rewrite module (mod_negotiation may not exist in php:8.3-apache)
 RUN a2enmod rewrite && \
@@ -208,6 +208,19 @@ RUN echo "=== VERIFYING LARAVEL APP_KEY ===" && \
     grep "APP_KEY=" .env && \
     echo "✅ Laravel APP_KEY verified"
 
+# DATABASE SETUP: Ensure SQLite database is ready
+RUN echo "=== DATABASE SETUP ===" && \
+    echo "Creating database directory if needed:" && \
+    mkdir -p database && \
+    echo "Setting database permissions:" && \
+    chmod 755 database && \
+    echo "Ensuring SQLite database file exists:" && \
+    touch database/database.sqlite && \
+    chmod 664 database/database.sqlite && \
+    echo "Running database migrations:" && \
+    php artisan migrate --force --no-interaction && \
+    echo "✅ Database setup completed"
+
 # CUMULATIVE LESSON #8: Enhanced startup with Docker debugging
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP DEBUG: Environment check ==="' >> /usr/local/bin/startup.sh && \
@@ -220,6 +233,11 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'export APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/APP_KEY=.*/APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+\/nnQgxG8jNi3Iw=/" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "Current APP_KEY: $(grep APP_KEY .env)"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP: FORCING SQLITE DATABASE ==="' >> /usr/local/bin/startup.sh && \
+    echo 'export DB_CONNECTION=sqlite' >> /usr/local/bin/startup.sh && \
+    echo 'export DB_DATABASE=/var/www/html/database/database.sqlite' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Database connection forced to: $DB_CONNECTION"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Database file: $DB_DATABASE"' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
