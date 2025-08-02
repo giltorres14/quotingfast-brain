@@ -52,12 +52,12 @@ RUN echo "=== USING EXISTING LARAVEL APPLICATION WITH DOCKER DEBUG ===" && \
     echo "Routes verification:" && \
     ls -la routes/
 
-# CUMULATIVE LESSON #2: Force .env precedence over ALL Render environment variables
-ENV APP_KEY=""
-ENV APP_NAME=""
-ENV APP_ENV=""
-ENV APP_DEBUG=""
-ENV APP_URL=""
+# CUMULATIVE LESSON #2: Force .env precedence over ALL Render environment variables  
+ENV APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="
+ENV APP_NAME="QuotingFast-Brain"
+ENV APP_ENV="production"
+ENV APP_DEBUG="false"
+ENV APP_URL="https://quotingfast-brain-v2.onrender.com"
 
 # CUMULATIVE LESSON #3: Use existing .env and ensure production settings
 RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
@@ -193,6 +193,10 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "Laravel Application.php exists: $(ls -la vendor/laravel/framework/src/Illuminate/Foundation/Application.php)"' >> /usr/local/bin/startup.sh && \
     echo '/usr/local/bin/clear-laravel-cache.sh' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Cache cleared ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP: FORCING CORRECT APP_KEY ==="' >> /usr/local/bin/startup.sh && \
+    echo 'export APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="' >> /usr/local/bin/startup.sh && \
+    echo 'sed -i "s/APP_KEY=.*/APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+\/nnQgxG8jNi3Iw=/" .env' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Current APP_KEY: $(grep APP_KEY .env)"' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
