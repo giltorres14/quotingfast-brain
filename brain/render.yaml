@@ -24,11 +24,11 @@ services:
         fromDatabase:
           name: brain-postgres
           property: port
-      - key: DB_NAME
+      - key: DB_DATABASE
         fromDatabase:
           name: brain-postgres
           property: database
-      - key: DB_USER
+      - key: DB_USERNAME
         fromDatabase:
           name: brain-postgres
           property: user
