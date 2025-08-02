@@ -156,6 +156,9 @@ RUN echo "=== CONFIGURING APACHE FOR LARAVEL ===" && \
     echo "=== APACHE CONFIG VERIFICATION ===" && \
     echo "Apache sites-available/000-default.conf:" && \
     cat /etc/apache2/sites-available/000-default.conf && \
+    echo "=== RELOADING APACHE CONFIGURATION ===" && \
+    service apache2 reload && \
+    echo "✅ Apache configuration reloaded" && \
     echo "=== LARAVEL PUBLIC DIRECTORY CHECK ===" && \
     ls -la /var/www/html/public/ && \
     echo "=== .HTACCESS CHECK ===" && \
