@@ -36,7 +36,7 @@ return [
     ],
 
     'allstate' => [
-        'api_key' => env('ALLSTATE_API_KEY', 'test-api-key'),
+        'api_key' => env('ALLSTATE_API_KEY', 'mock'),
         'test_mode' => env('ALLSTATE_TEST_MODE', true),
         'production_url' => 'https://api.allstateleadmarketplace.com/v2',
         'test_url' => 'https://int.allstateleadmarketplace.com/v2',
