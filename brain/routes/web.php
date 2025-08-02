@@ -71,6 +71,35 @@ Route::get('/test-lead-data', function () {
     ]);
 });
 
+// Simple POST test endpoint for Brain Lead Flow (bypasses CSRF)
+Route::post('/test-lead-data', function (Request $request) {
+    try {
+        // Log the incoming request for debugging
+        Log::info('Test lead data received from Brain UI', [
+            'data' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lead data received successfully!',
+            'received_data' => $request->all(),
+            'timestamp' => now()->toISOString()
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Test lead data failed', [
+            'error' => $e->getMessage(),
+            'request_data' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to process lead data',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
 // LeadsQuotingFast webhook endpoint
 Route::post('/webhook.php', function (Request $request) {
     try {
