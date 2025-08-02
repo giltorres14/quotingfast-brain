@@ -131,8 +131,13 @@ RUN echo "=== SETTING PERMISSIONS WITH DEBUG ===" && \
     ls -la vendor/autoload.php && \
     ls -la vendor/laravel/framework/src/Illuminate/Foundation/Application.php
 
-# Configure Apache for public directory
-RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+# Configure Apache for Laravel public directory with proper .htaccess support
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf && \
+    sed -i 's|AllowOverride None|AllowOverride All|g' /etc/apache2/apache2.conf && \
+    echo "<Directory /var/www/html/public>" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "    AllowOverride All" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "    Require all granted" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "</Directory>" >> /etc/apache2/sites-available/000-default.conf
 
 # DOCKER DEBUG: Comprehensive verification with detailed output INCLUDING ROUTES
 RUN echo "=== COMPREHENSIVE DOCKER + LARAVEL + ROUTES VERIFICATION ===" && \
