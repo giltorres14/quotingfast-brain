@@ -49,6 +49,73 @@ Route::get('/test', function () {
     ]);
 });
 
+// IMMEDIATE TEST ENDPOINT - No CSRF, works right now
+Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
+    try {
+        $data = $request->method() === 'GET' ? [] : $request->all();
+        
+        Log::info('Test webhook called', [
+            'method' => $request->method(),
+            'data' => $data,
+            'headers' => $request->headers->all()
+        ]);
+        
+        if ($request->method() === 'POST' && !empty($data)) {
+            // Try to create a lead if data provided
+            $contact = $data['contact'] ?? $data;
+            
+            $leadData = [
+                'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Test Lead',
+                'first_name' => $contact['first_name'] ?? 'Test',
+                'last_name' => $contact['last_name'] ?? 'Lead',
+                'phone' => $contact['phone'] ?? '555-000-0000',
+                'email' => $contact['email'] ?? 'test@example.com',
+                'address' => $contact['address'] ?? null,
+                'city' => $contact['city'] ?? null,
+                'state' => $contact['state'] ?? 'Unknown',
+                'zip_code' => $contact['zip_code'] ?? null,
+                'source' => 'test-webhook',
+                'type' => 'test',
+                'received_at' => now(),
+                'joined_at' => now(),
+                'drivers' => json_encode($data['data']['drivers'] ?? []),
+                'vehicles' => json_encode($data['data']['vehicles'] ?? []),
+                'current_policy' => json_encode($data['data']['requested_policy'] ?? null),
+                'payload' => json_encode($data),
+            ];
+            
+            $lead = App\Models\Lead::create($leadData);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'TEST: Lead received and stored successfully!',
+                'lead_id' => $lead->id,
+                'name' => $leadData['name'],
+                'method' => $request->method(),
+                'data_received' => !empty($data),
+                'timestamp' => now()->toISOString()
+            ], 201);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Test webhook is working!',
+            'method' => $request->method(),
+            'ready_for_leads' => true,
+            'timestamp' => now()->toISOString()
+        ]);
+        
+    } catch (Exception $e) {
+        Log::error('Test webhook error', ['error' => $e->getMessage()]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
 // Quick test to verify lead data is accessible
 Route::get('/test-lead-data', function () {
     $lead = App\Models\Lead::find(4); // Pairlee Witting
