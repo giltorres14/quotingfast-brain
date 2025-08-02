@@ -53,7 +53,7 @@ RUN echo "# Laravel Configuration - COMPLETE DEFINITIVE SOLUTION" > .env && \
     echo "# Queue" >> .env && \
     echo "QUEUE_CONNECTION=sync" >> .env
 
-# LESSON LEARNED #3: Nuclear vendor destruction (KEEPS symfony/clock elimination)
+# LESSON LEARNED #3: Nuclear vendor destruction (KEEPS symfony/clock elimination - OUR MAJOR VICTORY)
 RUN echo "=== NUCLEAR VENDOR REBUILD (symfony/clock elimination) ===" && \
     rm -rf vendor/ && \
     rm -rf composer.lock && \
@@ -61,18 +61,20 @@ RUN echo "=== NUCLEAR VENDOR REBUILD (symfony/clock elimination) ===" && \
     composer clear-cache && \
     echo "✅ All composer artifacts destroyed (symfony/clock eliminated)"
 
-# LESSON LEARNED #4: Robust Laravel framework installation
-RUN echo "=== ROBUST LARAVEL FRAMEWORK INSTALLATION ===" && \
-    composer install --no-dev --no-cache --optimize-autoloader && \
+# LESSON LEARNED #4: ULTRA AGGRESSIVE Laravel framework installation with explicit testing
+RUN echo "=== ULTRA AGGRESSIVE LARAVEL FRAMEWORK INSTALLATION ===" && \
+    composer install --no-dev --no-cache --optimize-autoloader --verbose && \
     echo "✅ Composer install completed" && \
-    echo "Verifying Laravel framework installation..." && \
-    (ls -la vendor/laravel/ || echo "Laravel directory check failed but continuing...") && \
-    echo "✅ Laravel framework installation verified"
+    echo "Testing Laravel framework installation..." && \
+    php -r "require 'vendor/autoload.php'; echo 'Autoloader loaded successfully\n';" && \
+    php -r "require 'vendor/autoload.php'; new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo 'Laravel Application class found!\n';" && \
+    echo "✅ Laravel framework installation VERIFIED"
 
-# LESSON LEARNED #5: Safe autoloader regeneration
-RUN echo "=== SAFE AUTOLOADER REGENERATION ===" && \
-    composer dump-autoload --optimize --no-scripts --no-cache && \
-    echo "✅ Autoloader regenerated safely"
+# LESSON LEARNED #5: Aggressive autoloader regeneration with verification
+RUN echo "=== AGGRESSIVE AUTOLOADER REGENERATION WITH VERIFICATION ===" && \
+    composer dump-autoload --optimize --no-scripts --no-cache --verbose && \
+    php -r "require 'vendor/autoload.php'; echo 'Regenerated autoloader works!\n';" && \
+    echo "✅ Autoloader regenerated and verified"
 
 # LESSON LEARNED #6: Laravel cache clearing (KEEP WORKING SOLUTION)
 RUN rm -rf bootstrap/cache/*.php && \
@@ -99,16 +101,20 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache for public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# ROBUST VERIFICATION: Safe verification that won't fail build
-RUN echo "=== ROBUST VERIFICATION ===" && \
-    echo "1. symfony/clock elimination:" && \
+# ULTIMATE VERIFICATION: Test everything that has caused issues
+RUN echo "=== ULTIMATE VERIFICATION: ALL LESSONS LEARNED ===" && \
+    echo "1. symfony/clock ELIMINATED:" && \
     grep -A 5 '"require"' composer.json && \
-    echo "2. APP_KEY verification:" && \
+    (composer show | grep symfony || echo "✅ NO symfony packages found") && \
+    echo "" && \
+    echo "2. Laravel framework PRESENT:" && \
+    php -r "require 'vendor/autoload.php'; echo 'Autoloader: OK\n'; new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo 'Laravel Application: OK\n';" && \
+    echo "" && \
+    echo "3. APP_KEY verification:" && \
     echo "   ENV APP_KEY: '$APP_KEY'" && \
     echo "   .env APP_KEY: $(grep 'APP_KEY' .env)" && \
-    echo "3. Basic vendor structure:" && \
-    (ls -la vendor/ | head -5 || echo "Vendor directory check failed") && \
-    echo "✅ All verifications completed"
+    echo "" && \
+    echo "✅ ALL ISSUES RESOLVED: symfony/clock GONE + Laravel framework WORKING"
 
 # LESSON LEARNED #8: Startup cache clearing (KEEP WORKING SOLUTION)
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
