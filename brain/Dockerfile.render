@@ -4,9 +4,11 @@ FROM php:8.3-apache
 RUN echo "Docker build timestamp: $(date)" && \
     echo "=== FORCING COMPLETE DOCKER REBUILD ==="
 
-# Install system dependencies, PostgreSQL development libraries, and Composer
+# Install system dependencies, PostgreSQL development libraries, SQLite development libraries, and Composer
 RUN apt-get update && apt-get install -y \
     libpq-dev \
+    libsqlite3-dev \
+    sqlite3 \
     git \
     unzip \
     procps \
