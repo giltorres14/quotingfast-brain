@@ -1,57 +1,49 @@
 services:
-  # Parcelvoy SMS/Email Platform - NEW
   - type: web
-    name: parcelvoy-sms
-    env: node
-    region: oregon
-    plan: starter
-    rootDir: apps/platform
-    buildCommand: rm -rf node_modules package-lock.json && npm install && npm install --save-dev @types/koa && npm run build
-    startCommand: npm start
-    nodeVersion: 18
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: DATABASE_URL
-        fromDatabase:
-          name: parcelvoy-db
-          property: connectionString
-      - key: API_SECRET
-        generateValue: true
-      - key: JWT_SECRET
-        generateValue: true
-    healthCheckPath: /api/health
-
-  # Laravel Brain Lead Management - DOCKER SERVICE (FRESH INFRASTRUCTURE)
-  - type: web
-    name: quotingfast-brain-v2
+    name: brain-api
     env: docker
-    region: virginia
-    plan: starter
-    dockerfilePath: ./brain/Dockerfile.render
+    dockerfilePath: ./Dockerfile.render
+    plan: free
+    region: ohio
+    branch: main
+    healthCheckPath: /
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
-      - key: PORT
-        value: 80
-      - key: DATABASE_URL
-        fromDatabase:
-          name: parcelvoy-db
-          property: connectionString
+      - key: LOG_LEVEL
+        value: error
       - key: DB_CONNECTION
         value: pgsql
-      - key: LOG_CHANNEL
-        value: errorlog
-      - key: CACHE_DRIVER
-        value: file
-      - key: SESSION_DRIVER
-        value: file
-      - key: QUEUE_CONNECTION
-        value: sync
-    healthCheckPath: /
+      - key: DB_HOST
+        fromDatabase:
+          name: brain-postgres
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: brain-postgres
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: brain-postgres
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: brain-postgres
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: brain-postgres
+          property: password
+      - key: DATABASE_URL
+        fromDatabase:
+          name: brain-postgres
+          property: connectionString
 
-# Using existing parcelvoy-db database - no need to create a new one
+databases:
+  - name: brain-postgres
+    databaseName: brain_production
+    user: brain_user
+    plan: free
+    region: ohio
