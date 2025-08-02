@@ -84,12 +84,7 @@ RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
     echo "" >> .env && \
     echo "# Queue" >> .env && \
     echo "QUEUE_CONNECTION=sync" >> .env && \
-    echo "✅ Production .env configured" && \
-    echo "=== GENERATING PROPER LARAVEL APP_KEY ===" && \
-    php artisan key:generate --force && \
-    echo "✅ Laravel APP_KEY generated successfully" && \
-    echo "Generated APP_KEY:" && \
-    grep "APP_KEY=" .env
+    echo "✅ Production .env configured (APP_KEY will be generated after Laravel setup)"
 
 # CUMULATIVE LESSON #4: Ensure symfony/clock is NOT in dependencies (MAJOR VICTORY MAINTAINED)
 RUN echo "=== ENSURING SYMFONY/CLOCK ELIMINATION (VICTORY MAINTAINED) ===" && \
@@ -174,6 +169,14 @@ RUN echo "=== COMPREHENSIVE DOCKER + LARAVEL + ROUTES VERIFICATION ===" && \
     echo "   Routes content preview: $(head -10 routes/web.php)" && \
     echo "" && \
     echo "✅ ALL DOCKER + LARAVEL + ROUTES VERIFICATION PASSED"
+
+# CUMULATIVE LESSON #7: Generate proper Laravel APP_KEY after all setup is complete
+RUN echo "=== GENERATING PROPER LARAVEL APP_KEY (FINAL STEP) ===" && \
+    php artisan key:generate --force && \
+    echo "✅ Laravel APP_KEY generated successfully" && \
+    echo "Generated APP_KEY:" && \
+    grep "APP_KEY=" .env && \
+    echo "=== APP_KEY GENERATION COMPLETE ==="
 
 # CUMULATIVE LESSON #8: Enhanced startup with Docker debugging
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
