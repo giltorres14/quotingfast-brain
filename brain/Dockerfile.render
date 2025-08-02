@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install database PHP extensions (PostgreSQL + SQLite)
-RUN docker-php-ext-install pdo_pgsql pgsql pdo_sqlite sqlite3
+RUN docker-php-ext-install pdo_pgsql pgsql pdo_sqlite
 
 # Enable Apache rewrite module (mod_negotiation may not exist in php:8.3-apache)
 RUN a2enmod rewrite && \
