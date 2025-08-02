@@ -134,8 +134,12 @@ RUN echo "=== SETTING PERMISSIONS WITH DEBUG ===" && \
 
 # Configure Apache for Laravel public directory with proper .htaccess support  
 RUN echo "=== CONFIGURING APACHE FOR LARAVEL ===" && \
-    echo "Creating simple test file..." && \
-    echo "<?php echo 'Apache is serving from: ' . __DIR__; ?>" > /var/www/html/public/test-apache.php && \
+    echo "Creating debug files in multiple locations..." && \
+    echo "<?php echo 'FOUND: Apache serving from /var/www/html/public - ' . __DIR__; ?>" > /var/www/html/public/test-apache.php && \
+    echo "<?php echo 'FOUND: Apache serving from /var/www/html - ' . __DIR__; ?>" > /var/www/html/test-apache.php && \
+    echo "<?php echo 'FOUND: Apache serving from /var/www - ' . __DIR__; ?>" > /var/www/test-apache.php && \
+    echo "<?php echo 'FOUND: Apache serving from default location - ' . __DIR__; ?>" > /var/www/html/index.php && \
+    echo "Debug files created in multiple locations" && \
     echo "Updating Apache DocumentRoot..." && \
     sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf && \
     sed -i 's|<Directory /var/www/>|<Directory /var/www/html/public/>|g' /etc/apache2/apache2.conf && \
@@ -163,6 +167,12 @@ RUN echo "=== CONFIGURING APACHE FOR LARAVEL ===" && \
     ls -la /var/www/html/public/ && \
     echo "=== .HTACCESS CHECK ===" && \
     ls -la /var/www/html/public/.htaccess && \
+    echo "=== DEBUG FILES VERIFICATION ===" && \
+    echo "Files in /var/www/html/public/:" && \
+    ls -la /var/www/html/public/test-apache.php || echo "Missing from public/" && \
+    echo "Files in /var/www/html/:" && \
+    ls -la /var/www/html/test-apache.php || echo "Missing from html/" && \
+    ls -la /var/www/html/index.php || echo "Missing index.php" && \
 
     echo "✅ Apache configured for Laravel public directory"
 
