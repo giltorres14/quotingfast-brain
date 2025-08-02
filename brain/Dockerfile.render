@@ -79,11 +79,7 @@ RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
     echo "" >> .env && \
     echo "# Database - Use PostgreSQL for production persistence" >> .env && \
     echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DB_HOST=\${DATABASE_URL:-127.0.0.1}" >> .env && \
-    echo "DB_PORT=5432" >> .env && \
-    echo "DB_DATABASE=\${DB_NAME:-brain_production}" >> .env && \
-    echo "DB_USERNAME=\${DB_USER:-postgres}" >> .env && \
-    echo "DB_PASSWORD=\${DB_PASSWORD:-}" >> .env && \
+    echo "# PostgreSQL connection will be set via Render environment variables at runtime" >> .env && \
     echo "" >> .env && \
     echo "# Cache & Session" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
