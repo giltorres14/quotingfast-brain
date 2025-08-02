@@ -595,6 +595,66 @@ Route::get('/webhook/status', function () {
     ]);
 });
 
+// Test Allstate transfer endpoint
+Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
+    try {
+        $lead = App\Models\Lead::find($leadId);
+        
+        if (!$lead) {
+            return response()->json([
+                'success' => false,
+                'error' => "Lead #{$leadId} not found"
+            ], 404);
+        }
+        
+        Log::info('Testing Allstate transfer', [
+            'lead_id' => $lead->id,
+            'lead_name' => $lead->name,
+            'test_endpoint' => true
+        ]);
+        
+        // Attempt to transfer to Allstate
+        $allstateService = new \App\Services\AllstateCallTransferService();
+        $transferResult = $allstateService->transferCall($lead);
+        
+        if ($transferResult['success']) {
+            $lead->update(['status' => 'transferred_to_allstate']);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Allstate transfer test completed successfully',
+                'lead_id' => $lead->id,
+                'lead_name' => $lead->name,
+                'transfer_result' => $transferResult,
+                'timestamp' => now()->toISOString()
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Allstate transfer test failed',
+                'lead_id' => $lead->id,
+                'lead_name' => $lead->name,
+                'error' => $transferResult['error'] ?? 'Unknown error',
+                'transfer_result' => $transferResult,
+                'timestamp' => now()->toISOString()
+            ], 400);
+        }
+        
+    } catch (Exception $e) {
+        Log::error('Allstate transfer test error', [
+            'lead_id' => $leadId,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Internal Server Error: ' . $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
+});
+
 // Dashboard routes (requires authentication)
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/api/dashboard', [DashboardController::class, 'api'])->name('api.dashboard');
