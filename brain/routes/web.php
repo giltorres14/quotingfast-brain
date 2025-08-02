@@ -655,6 +655,82 @@ Route::get('/test/db', function () {
     }
 });
 
+// Agent iframe endpoint - displays full lead data with transfer button
+Route::get('/agent/lead/{leadId}', function ($leadId) {
+    try {
+        $lead = App\Models\Lead::find($leadId);
+
+        if (!$lead) {
+            return response()->view('agent.lead-not-found', ['leadId' => $leadId]);
+        }
+
+        // Get call metrics if available
+        $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
+
+        return response()->view('agent.lead-display', [
+            'lead' => $lead,
+            'callMetrics' => $callMetrics,
+            'transferUrl' => url("/api/transfer/{$leadId}"),
+            'apiBase' => url('/api')
+        ]);
+
+    } catch (Exception $e) {
+        return response()->view('agent.error', [
+            'error' => $e->getMessage(),
+            'leadId' => $leadId
+        ]);
+    }
+});
+
+// API endpoint for transfer button
+Route::post('/api/transfer/{leadId}', function ($leadId) {
+    try {
+        $lead = App\Models\Lead::find($leadId);
+
+        if (!$lead) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Lead not found'
+            ], 404);
+        }
+
+        // Trigger Ringba API call
+        // TODO: Implement RingbaService
+        Log::info('Transfer requested', [
+            'lead_id' => $leadId,
+            'lead_name' => $lead->name,
+            'agent_request' => true
+        ]);
+
+        // Update call metrics
+        $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
+        if ($callMetrics) {
+            $callMetrics->requestTransfer('ringba');
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transfer request initiated',
+            'lead_id' => $leadId,
+            'lead_name' => $lead->name,
+            'status' => 'transfer_requested',
+            'timestamp' => now()->toISOString()
+        ]);
+
+    } catch (Exception $e) {
+        Log::error('Transfer request failed', [
+            'lead_id' => $leadId,
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
+});
+
 // Test Vici lead push endpoint
 Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
     try {
