@@ -43,7 +43,7 @@ return [
     ],
 
     'vici' => [
-        'api_key' => env('VICI_API_KEY', 'mock'),
+        'api_key' => env('VICI_API_KEY', 'production'),
         'api_url' => env('VICI_API_URL', 'https://philli.callix.ai/vicidial/api'),
         'server_ip' => env('VICI_SERVER_IP', '37.27.138.222'),
         'web_server' => env('VICI_WEB_SERVER', 'philli.callix.ai'),
