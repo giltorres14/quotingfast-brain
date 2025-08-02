@@ -1,10 +1,15 @@
 FROM php:8.3-apache
 
+# DOCKER DEBUG: Force complete rebuild by adding timestamp
+RUN echo "Docker build timestamp: $(date)" && \
+    echo "=== FORCING COMPLETE DOCKER REBUILD ==="
+
 # Install system dependencies, PostgreSQL development libraries, and Composer
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     git \
     unzip \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
@@ -16,13 +21,33 @@ RUN docker-php-ext-install pdo_pgsql pgsql
 # Enable Apache rewrite module
 RUN a2enmod rewrite
 
+# DOCKER DEBUG: Clear any potential cached directories
+RUN rm -rf /var/www/html/* && \
+    rm -rf /tmp/* && \
+    echo "=== CLEARED ALL CACHED DIRECTORIES ==="
+
 # Set working directory
 WORKDIR /var/www/html
 
-# CUMULATIVE LESSON #1: Fresh Laravel installation (avoiding corrupted state)
-RUN echo "=== FRESH LARAVEL INSTALLATION WITH ALL LESSONS LEARNED ===" && \
-    composer create-project laravel/laravel . --no-dev --prefer-dist && \
-    echo "✅ Fresh Laravel 12 installed"
+# DOCKER DEBUG: Verify clean environment
+RUN echo "=== DOCKER ENVIRONMENT DEBUG ===" && \
+    echo "Working directory: $(pwd)" && \
+    echo "Directory contents:" && \
+    ls -la && \
+    echo "PHP version: $(php --version)" && \
+    echo "Composer version: $(composer --version)" && \
+    echo "=== ENVIRONMENT VERIFIED ==="
+
+# CUMULATIVE LESSON #1: Fresh Laravel installation with Docker debugging
+RUN echo "=== FRESH LARAVEL INSTALLATION WITH DOCKER DEBUG ===" && \
+    composer create-project laravel/laravel . --no-dev --prefer-dist --no-cache && \
+    echo "✅ Fresh Laravel 12 installed" && \
+    echo "=== POST-INSTALL VERIFICATION ===" && \
+    ls -la && \
+    echo "Vendor directory:" && \
+    ls -la vendor/ | head -5 && \
+    echo "Laravel framework:" && \
+    ls -la vendor/laravel/framework/ | head -3
 
 # CUMULATIVE LESSON #2: Force .env precedence over ALL Render environment variables
 ENV APP_KEY=""
@@ -32,7 +57,7 @@ ENV APP_DEBUG=""
 ENV APP_URL=""
 
 # CUMULATIVE LESSON #3: Create comprehensive .env file (APP_KEY lesson learned)
-RUN echo "# Laravel Configuration - FRESH WITH ALL LESSONS LEARNED" > .env && \
+RUN echo "# Laravel Configuration - FRESH WITH DOCKER DEBUG" > .env && \
     echo "APP_NAME=QuotingFast-Brain" >> .env && \
     echo "APP_ENV=production" >> .env && \
     echo "APP_KEY=base64:duG47cob+xamE/vqPKxphK94zxuIXiOMiI76p/7UVWQ=" >> .env && \
@@ -58,12 +83,20 @@ RUN echo "# Laravel Configuration - FRESH WITH ALL LESSONS LEARNED" > .env && \
 # CUMULATIVE LESSON #4: Ensure symfony/clock is NOT in dependencies (MAJOR VICTORY MAINTAINED)
 RUN echo "=== ENSURING SYMFONY/CLOCK ELIMINATION (VICTORY MAINTAINED) ===" && \
     composer remove symfony/clock --no-scripts || echo "symfony/clock not present (good)" && \
-    grep -v "symfony/clock" composer.json > composer.json.tmp && mv composer.json.tmp composer.json && \
     echo "✅ symfony/clock elimination CONFIRMED"
 
-# CUMULATIVE LESSON #5: Regenerate autoloader without symfony/clock
-RUN echo "=== CLEAN AUTOLOADER GENERATION ===" && \
-    composer dump-autoload --optimize --no-scripts && \
+# DOCKER DEBUG: Aggressive cache clearing and rebuild
+RUN echo "=== AGGRESSIVE DOCKER CACHE CLEARING ===" && \
+    composer clear-cache && \
+    rm -rf ~/.composer/cache/* && \
+    rm -rf /tmp/composer-* && \
+    echo "✅ All composer caches cleared"
+
+# CUMULATIVE LESSON #5: Regenerate autoloader with Docker debugging
+RUN echo "=== AUTOLOADER GENERATION WITH DOCKER DEBUG ===" && \
+    composer dump-autoload --optimize --no-scripts --no-cache && \
+    echo "Autoloader files:" && \
+    ls -la vendor/composer/autoload* && \
     echo "✅ Clean autoloader generated"
 
 # CUMULATIVE LESSON #6: Laravel cache clearing (learned from previous attempts)
@@ -84,30 +117,43 @@ RUN echo '#!/bin/bash' > /usr/local/bin/clear-laravel-cache.sh && \
     /usr/local/bin/clear-laravel-cache.sh && \
     echo "Service provider cache prevention enabled"
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+# Set permissions with debugging
+RUN echo "=== SETTING PERMISSIONS WITH DEBUG ===" && \
+    chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html && \
+    echo "Permissions set - checking key files:" && \
+    ls -la vendor/autoload.php && \
+    ls -la vendor/laravel/framework/src/Illuminate/Foundation/Application.php
 
 # Configure Apache for public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# CUMULATIVE LESSON #8: Comprehensive verification of fresh installation
-RUN echo "=== COMPREHENSIVE VERIFICATION: FRESH LARAVEL + ALL LESSONS ===" && \
-    echo "1. Laravel framework verification:" && \
-    php -r "require 'vendor/autoload.php'; new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo '✅ Laravel Application works\n';" && \
-    echo "" && \
-    echo "2. symfony/clock elimination verification:" && \
-    (composer show | grep symfony || echo "✅ NO symfony packages found") && \
-    echo "" && \
-    echo "3. APP_KEY verification:" && \
+# DOCKER DEBUG: Comprehensive verification with detailed output
+RUN echo "=== COMPREHENSIVE DOCKER + LARAVEL VERIFICATION ===" && \
+    echo "1. Working directory verification:" && \
+    pwd && \
+    echo "2. Laravel framework file verification:" && \
+    ls -la vendor/laravel/framework/src/Illuminate/Foundation/Application.php && \
+    echo "3. Autoloader verification:" && \
+    php -r "require 'vendor/autoload.php'; echo 'Autoloader: OK\n';" && \
+    echo "4. Laravel Application class verification:" && \
+    php -r "require 'vendor/autoload.php'; if (class_exists('Illuminate\\Foundation\\Application')) { echo 'Class exists: OK\n'; } else { echo 'ERROR: Class missing\n'; exit(1); }" && \
+    echo "5. Laravel Application instantiation verification:" && \
+    php -r "require 'vendor/autoload.php'; \$app = new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo 'Instantiation: OK\n';" && \
+    echo "6. symfony/clock elimination verification:" && \
+    (composer show | grep symfony/clock || echo "✅ symfony/clock eliminated") && \
+    echo "7. APP_KEY verification:" && \
     echo "   ENV APP_KEY: '$APP_KEY'" && \
     echo "   .env APP_KEY: $(grep 'APP_KEY' .env)" && \
     echo "" && \
-    echo "✅ FRESH LARAVEL WITH ALL CUMULATIVE LESSONS VERIFIED"
+    echo "✅ ALL DOCKER + LARAVEL VERIFICATION PASSED"
 
-# CUMULATIVE LESSON #9: Enhanced startup with all learned cache clearing
+# CUMULATIVE LESSON #8: Enhanced startup with Docker debugging
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: Fresh Laravel with all lessons learned ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP DEBUG: Environment check ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Working directory: $(pwd)"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Laravel autoloader exists: $(ls -la vendor/autoload.php)"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Laravel Application.php exists: $(ls -la vendor/laravel/framework/src/Illuminate/Foundation/Application.php)"' >> /usr/local/bin/startup.sh && \
     echo '/usr/local/bin/clear-laravel-cache.sh' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Cache cleared ==="' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
