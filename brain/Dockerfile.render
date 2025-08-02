@@ -65,7 +65,7 @@ RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
     echo "# Laravel Configuration - PRODUCTION WITH DOCKER DEBUG" > .env && \
     echo "APP_NAME=QuotingFast-Brain" >> .env && \
     echo "APP_ENV=production" >> .env && \
-    echo "APP_KEY=base64:duG47cob+xamE/vqPKxphK94zxuIXiOMiI76p/7UVWQ=" >> .env && \
+    echo "APP_KEY=" >> .env && \
     echo "APP_DEBUG=false" >> .env && \
     echo "APP_URL=https://quotingfast-brain-v2.onrender.com" >> .env && \
     echo "APP_TIMEZONE=UTC" >> .env && \
@@ -84,7 +84,12 @@ RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
     echo "" >> .env && \
     echo "# Queue" >> .env && \
     echo "QUEUE_CONNECTION=sync" >> .env && \
-    echo "✅ Production .env configured"
+    echo "✅ Production .env configured" && \
+    echo "=== GENERATING PROPER LARAVEL APP_KEY ===" && \
+    php artisan key:generate --force && \
+    echo "✅ Laravel APP_KEY generated successfully" && \
+    echo "Generated APP_KEY:" && \
+    grep "APP_KEY=" .env
 
 # CUMULATIVE LESSON #4: Ensure symfony/clock is NOT in dependencies (MAJOR VICTORY MAINTAINED)
 RUN echo "=== ENSURING SYMFONY/CLOCK ELIMINATION (VICTORY MAINTAINED) ===" && \
