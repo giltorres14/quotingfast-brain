@@ -34,7 +34,12 @@ Route::get('/', function () {
         'endpoints' => [
             '/test' => 'Basic functionality test',
             '/test-lead-data' => 'Lead data test',
-            '/webhook.php' => 'LeadsQuotingFast webhook (POST)'
+            '/webhook.php' => 'LeadsQuotingFast webhook (POST)',
+            '/webhook/ringba' => 'Ringba webhook (POST)',
+            '/webhook/vici' => 'Vici webhook (POST)',
+            '/webhook/twilio' => 'Twilio webhook (POST)',
+            '/webhook/status' => 'Webhook status monitoring (GET)',
+            '/api/webhooks' => 'Webhook dashboard API (GET)'
         ],
         'timestamp' => now()->toISOString()
     ]);
@@ -235,9 +240,250 @@ Route::post('/webhook.php', function (Request $request) {
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]); 
 
+// =============================================================================
+// MULTI-WEBHOOK SYSTEM - Source-Specific Endpoints
+// =============================================================================
+
+// Ringba webhook endpoint (call tracking and routing)
+Route::post('/webhook/ringba', function (Request $request) {
+    try {
+        Log::info('Ringba webhook received', [
+            'payload' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        $data = $request->all();
+        
+        if (empty($data)) {
+            throw new Exception('Invalid data received');
+        }
+        
+        $contact = isset($data['contact']) ? $data['contact'] : $data;
+        
+        $leadData = [
+            'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
+            'first_name' => $contact['first_name'] ?? null,
+            'last_name' => $contact['last_name'] ?? null,
+            'phone' => $contact['phone'] ?? 'Unknown',
+            'email' => $contact['email'] ?? null,
+            'address' => $contact['address'] ?? null,
+            'city' => $contact['city'] ?? null,
+            'state' => $contact['state'] ?? 'Unknown',
+            'zip_code' => $contact['zip_code'] ?? null,
+            'source' => 'ringba',
+            'type' => 'call_tracking',
+            'received_at' => now(),
+            'joined_at' => now(),
+            // Ringba-specific fields
+            'call_duration' => $data['call_duration'] ?? null,
+            'caller_id' => $data['caller_id'] ?? null,
+            'campaign_id' => $data['campaign_id'] ?? null,
+            'tracking_number' => $data['tracking_number'] ?? null,
+            'payload' => json_encode($data),
+        ];
+        
+        $lead = Lead::create($leadData);
+        
+        Log::info('Ringba lead stored successfully', [
+            'lead_id' => $lead->id,
+            'tracking_number' => $data['tracking_number'] ?? 'unknown'
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Ringba lead received and stored successfully',
+            'lead_id' => $lead->id,
+            'source' => 'ringba',
+            'timestamp' => now()->toISOString()
+        ], 201);
+        
+    } catch (Exception $e) {
+        Log::error('Ringba webhook error', ['error' => $e->getMessage()]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'source' => 'ringba',
+            'timestamp' => now()->toISOString()
+        ], 400);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+// Vici webhook endpoint (dialer system)
+Route::post('/webhook/vici', function (Request $request) {
+    try {
+        Log::info('Vici webhook received', [
+            'payload' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        $data = $request->all();
+        
+        if (empty($data)) {
+            throw new Exception('Invalid data received');
+        }
+        
+        $contact = isset($data['contact']) ? $data['contact'] : $data;
+        
+        $leadData = [
+            'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
+            'first_name' => $contact['first_name'] ?? null,
+            'last_name' => $contact['last_name'] ?? null,
+            'phone' => $contact['phone'] ?? 'Unknown',
+            'email' => $contact['email'] ?? null,
+            'address' => $contact['address'] ?? null,
+            'city' => $contact['city'] ?? null,
+            'state' => $contact['state'] ?? 'Unknown',
+            'zip_code' => $contact['zip_code'] ?? null,
+            'source' => 'vici',
+            'type' => 'dialer_system',
+            'received_at' => now(),
+            'joined_at' => now(),
+            // Vici-specific fields
+            'agent_id' => $data['agent_id'] ?? null,
+            'campaign_id' => $data['campaign_id'] ?? null,
+            'call_status' => $data['call_status'] ?? null,
+            'disposition' => $data['disposition'] ?? null,
+            'list_id' => $data['list_id'] ?? null,
+            'payload' => json_encode($data),
+        ];
+        
+        $lead = Lead::create($leadData);
+        
+        Log::info('Vici lead stored successfully', [
+            'lead_id' => $lead->id,
+            'agent_id' => $data['agent_id'] ?? 'unknown',
+            'disposition' => $data['disposition'] ?? 'unknown'
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Vici lead received and stored successfully',
+            'lead_id' => $lead->id,
+            'source' => 'vici',
+            'timestamp' => now()->toISOString()
+        ], 201);
+        
+    } catch (Exception $e) {
+        Log::error('Vici webhook error', ['error' => $e->getMessage()]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'source' => 'vici',
+            'timestamp' => now()->toISOString()
+        ], 400);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+// Twilio webhook endpoint (SMS/Voice)
+Route::post('/webhook/twilio', function (Request $request) {
+    try {
+        Log::info('Twilio webhook received', [
+            'payload' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        $data = $request->all();
+        
+        if (empty($data)) {
+            throw new Exception('Invalid data received');
+        }
+        
+        $contact = isset($data['contact']) ? $data['contact'] : $data;
+        
+        $leadData = [
+            'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
+            'first_name' => $contact['first_name'] ?? null,
+            'last_name' => $contact['last_name'] ?? null,
+            'phone' => $contact['phone'] ?? $data['From'] ?? 'Unknown', // Twilio uses 'From' field
+            'email' => $contact['email'] ?? null,
+            'address' => $contact['address'] ?? null,
+            'city' => $contact['city'] ?? null,
+            'state' => $contact['state'] ?? 'Unknown',
+            'zip_code' => $contact['zip_code'] ?? null,
+            'source' => 'twilio',
+            'type' => 'sms_voice',
+            'received_at' => now(),
+            'joined_at' => now(),
+            // Twilio-specific fields
+            'message_sid' => $data['MessageSid'] ?? $data['CallSid'] ?? null,
+            'from_number' => $data['From'] ?? null,
+            'to_number' => $data['To'] ?? null,
+            'message_body' => $data['Body'] ?? null,
+            'call_status' => $data['CallStatus'] ?? null,
+            'payload' => json_encode($data),
+        ];
+        
+        $lead = Lead::create($leadData);
+        
+        Log::info('Twilio lead stored successfully', [
+            'lead_id' => $lead->id,
+            'from_number' => $data['From'] ?? 'unknown',
+            'message_sid' => $data['MessageSid'] ?? $data['CallSid'] ?? 'unknown'
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Twilio lead received and stored successfully',
+            'lead_id' => $lead->id,
+            'source' => 'twilio',
+            'timestamp' => now()->toISOString()
+        ], 201);
+        
+    } catch (Exception $e) {
+        Log::error('Twilio webhook error', ['error' => $e->getMessage()]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'source' => 'twilio',
+            'timestamp' => now()->toISOString()
+        ], 400);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+// Webhook status/monitoring endpoint
+Route::get('/webhook/status', function () {
+    $webhooks = [
+        'leadsquotingfast' => [
+            'endpoint' => '/webhook.php',
+            'description' => 'LeadsQuotingFast lead capture',
+            'fields' => ['contact', 'drivers', 'vehicles', 'policy'],
+            'active' => true
+        ],
+        'ringba' => [
+            'endpoint' => '/webhook/ringba',
+            'description' => 'Ringba call tracking and routing',
+            'fields' => ['contact', 'call_duration', 'tracking_number', 'campaign_id'],
+            'active' => true
+        ],
+        'vici' => [
+            'endpoint' => '/webhook/vici',
+            'description' => 'Vici dialer system integration',
+            'fields' => ['contact', 'agent_id', 'disposition', 'call_status'],
+            'active' => true
+        ],
+        'twilio' => [
+            'endpoint' => '/webhook/twilio',
+            'description' => 'Twilio SMS/Voice webhook',
+            'fields' => ['From', 'To', 'Body', 'MessageSid', 'CallSid'],
+            'active' => true
+        ]
+    ];
+    
+    return response()->json([
+        'success' => true,
+        'webhooks' => $webhooks,
+        'total_webhooks' => count($webhooks),
+        'timestamp' => now()->toISOString()
+    ]);
+});
+
 // Dashboard routes (requires authentication)
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/api/dashboard', [DashboardController::class, 'api'])->name('api.dashboard');
+Route::get('/api/webhooks', [DashboardController::class, 'webhooks'])->name('api.webhooks');
 
 // Lead capture endpoint for Brain Lead Flow UI
 Route::post('/api/leads', function (Request $request) {

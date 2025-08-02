@@ -80,6 +80,20 @@ class DashboardController extends Controller
             $leads = Lead::where('assigned_user_id', $user->id)->get();
         }
 
+        // Add webhook stats for admin users
+        $webhookStats = [];
+        if ($user->role === 'admin') {
+            $webhookStats = [
+                'total_webhooks' => Lead::count(),
+                'lqf_leads' => Lead::where('source', 'leadsquotingfast')->count(),
+                'ringba_leads' => Lead::where('source', 'ringba')->count(),
+                'vici_leads' => Lead::where('source', 'vici')->count(),
+                'twilio_leads' => Lead::where('source', 'twilio')->count(),
+                'today_leads' => Lead::whereDate('created_at', today())->count(),
+                'recent_activity' => Lead::latest()->take(10)->get(['id', 'name', 'source', 'created_at']),
+            ];
+        }
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -90,8 +104,76 @@ class DashboardController extends Controller
                     'new_leads' => $leads->where('status', 'new')->count(),
                     'qualified_leads' => $leads->where('status', 'qualified')->count(),
                     'won_leads' => $leads->where('status', 'won')->count(),
-                ]
+                ],
+                'webhook_stats' => $webhookStats
             ]
+        ]);
+    }
+
+    // Webhook monitoring endpoint
+    public function webhooks()
+    {
+        $user = Auth::user();
+        
+        if (!$user || $user->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized - Admin access required'], 401);
+        }
+
+        $webhookStats = [
+            'sources' => [
+                'leadsquotingfast' => [
+                    'name' => 'LeadsQuotingFast',
+                    'endpoint' => '/webhook.php',
+                    'total_leads' => Lead::where('source', 'leadsquotingfast')->count(),
+                    'today_leads' => Lead::where('source', 'leadsquotingfast')->whereDate('created_at', today())->count(),
+                    'last_received' => Lead::where('source', 'leadsquotingfast')->latest()->first()?->created_at,
+                    'active' => true,
+                    'description' => 'Auto insurance lead capture'
+                ],
+                'ringba' => [
+                    'name' => 'Ringba',
+                    'endpoint' => '/webhook/ringba',
+                    'total_leads' => Lead::where('source', 'ringba')->count(),
+                    'today_leads' => Lead::where('source', 'ringba')->whereDate('created_at', today())->count(),
+                    'last_received' => Lead::where('source', 'ringba')->latest()->first()?->created_at,
+                    'active' => true,
+                    'description' => 'Call tracking and routing'
+                ],
+                'vici' => [
+                    'name' => 'Vici',
+                    'endpoint' => '/webhook/vici',
+                    'total_leads' => Lead::where('source', 'vici')->count(),
+                    'today_leads' => Lead::where('source', 'vici')->whereDate('created_at', today())->count(),
+                    'last_received' => Lead::where('source', 'vici')->latest()->first()?->created_at,
+                    'active' => true,
+                    'description' => 'Dialer system integration'
+                ],
+                'twilio' => [
+                    'name' => 'Twilio',
+                    'endpoint' => '/webhook/twilio',
+                    'total_leads' => Lead::where('source', 'twilio')->count(),
+                    'today_leads' => Lead::where('source', 'twilio')->whereDate('created_at', today())->count(),
+                    'last_received' => Lead::where('source', 'twilio')->latest()->first()?->created_at,
+                    'active' => true,
+                    'description' => 'SMS/Voice webhook integration'
+                ]
+            ],
+            'recent_activity' => Lead::with(['assignedUser'])
+                ->latest()
+                ->take(20)
+                ->get(['id', 'name', 'phone', 'source', 'type', 'created_at', 'assigned_user_id']),
+            'summary' => [
+                'total_leads' => Lead::count(),
+                'today_leads' => Lead::whereDate('created_at', today())->count(),
+                'active_sources' => Lead::distinct('source')->count('source'),
+                'last_activity' => Lead::latest()->first()?->created_at
+            ]
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $webhookStats,
+            'timestamp' => now()->toISOString()
         ]);
     }
 } 
