@@ -140,6 +140,67 @@ Route::post('/webhook.php', function (Request $request) {
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/api/dashboard', [DashboardController::class, 'api'])->name('api.dashboard');
 
+// Lead capture endpoint for Brain Lead Flow UI
+Route::post('/api/leads', function (Request $request) {
+    try {
+        // Validate the incoming data
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'source' => 'required|string|max:100',
+            'notes' => 'nullable|string|max:1000',
+            'timestamp' => 'nullable|string'
+        ]);
+
+        // Create new lead record
+        $lead = new App\Models\Lead();
+        $lead->name = $validated['name'];
+        $lead->email = $validated['email'];
+        $lead->phone = $validated['phone'];
+        $lead->source = $validated['source'];
+        $lead->notes = $validated['notes'] ?? '';
+        $lead->created_at = now();
+        $lead->updated_at = now();
+        
+        // Save the lead
+        $lead->save();
+
+        // Log successful lead capture
+        Log::info('Lead captured from Brain Lead Flow UI', [
+            'lead_id' => $lead->id,
+            'name' => $lead->name,
+            'email' => $lead->email,
+            'source' => $lead->source
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lead captured successfully!',
+            'lead_id' => $lead->id,
+            'timestamp' => now()->toISOString()
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Validation failed',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        Log::error('Lead capture failed', [
+            'error' => $e->getMessage(),
+            'request_data' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to capture lead',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Auth routes placeholder (you can add Laravel Breeze/UI later)
 Route::get('/login', function() {
     return response()->json(['message' => 'Please implement authentication UI']);
