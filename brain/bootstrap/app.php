@@ -12,13 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Exclude webhook endpoints from CSRF protection
-        $middleware->validateCsrfTokens(except: [
-            '/webhook.php',
-            '/test-webhook',
-            '/api/webhook/*',
-            '/test-lead-data'
-        ]);
+        //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
