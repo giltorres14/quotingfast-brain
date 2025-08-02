@@ -100,7 +100,7 @@ Route::post('/test-lead-data', function (Request $request) {
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
-// LeadsQuotingFast webhook endpoint
+// LeadsQuotingFast webhook endpoint (bypasses CSRF for external API calls)
 Route::post('/webhook.php', function (Request $request) {
     try {
         // Log the incoming request
@@ -145,6 +145,9 @@ Route::post('/webhook.php', function (Request $request) {
         
         Log::info('LeadsQuotingFast lead stored in admin panel successfully', ['lead_id' => $lead->id]);
         
+        // TODO: Trigger SMS via Parcelvoy when lead is received
+        // $this->triggerSMS($lead);
+        
         // Return success response
         return response()->json([
             'success' => true,
@@ -163,7 +166,7 @@ Route::post('/webhook.php', function (Request $request) {
             'timestamp' => now()->toISOString()
         ], 400);
     }
-}); 
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]); 
 
 // Dashboard routes (requires authentication)
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
