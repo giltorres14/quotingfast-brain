@@ -595,6 +595,28 @@ Route::get('/webhook/status', function () {
     ]);
 });
 
+// Database connection test endpoint
+Route::get('/test/db', function () {
+    try {
+        $connection = DB::connection()->getPdo();
+        $dbName = DB::connection()->getDatabaseName();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Database connection successful',
+            'database' => $dbName,
+            'driver' => DB::connection()->getDriverName(),
+            'timestamp' => now()->toISOString()
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
+});
+
 // Test Vici lead push endpoint
 Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
     try {
