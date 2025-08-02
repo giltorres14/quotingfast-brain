@@ -163,12 +163,7 @@ RUN echo "=== CONFIGURING APACHE FOR LARAVEL ===" && \
     ls -la /var/www/html/public/ && \
     echo "=== .HTACCESS CHECK ===" && \
     ls -la /var/www/html/public/.htaccess && \
-    echo "=== DEBUG FILES CHECK ===" && \
-    ls -la /var/www/html/public/*debug* && \
-    echo "=== APACHE DOCUMENT ROOT VERIFICATION ===" && \
-    apache2ctl -S && \
-    echo "=== APACHE SITES ENABLED ===" && \
-    ls -la /etc/apache2/sites-enabled/ && \
+
     echo "✅ Apache configured for Laravel public directory"
 
 # DOCKER DEBUG: Comprehensive verification with detailed output INCLUDING ROUTES
