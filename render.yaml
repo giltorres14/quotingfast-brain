@@ -24,11 +24,11 @@ services:
         generateValue: true
     healthCheckPath: /api/health
 
-  # Laravel Brain Lead Management - DOCKER SERVICE
+  # Laravel Brain Lead Management - DOCKER SERVICE (FRESH INFRASTRUCTURE)
   - type: web
-    name: quotingfast-brain
+    name: quotingfast-brain-v2
     env: docker
-    region: oregon
+    region: virginia
     plan: starter
     dockerfilePath: ./brain/Dockerfile.render
     envVars:
@@ -36,8 +36,6 @@ services:
         value: production
       - key: APP_DEBUG
         value: false
-      - key: APP_KEY
-        generateValue: true
       - key: PORT
         value: 80
       - key: DATABASE_URL
