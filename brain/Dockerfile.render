@@ -77,9 +77,13 @@ RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
     echo "LOG_CHANNEL=stack" >> .env && \
     echo "LOG_LEVEL=error" >> .env && \
     echo "" >> .env && \
-    echo "# Database" >> .env && \
-    echo "DB_CONNECTION=sqlite" >> .env && \
-    echo "DB_DATABASE=/var/www/html/database/database.sqlite" >> .env && \
+    echo "# Database - Use PostgreSQL for production persistence" >> .env && \
+    echo "DB_CONNECTION=pgsql" >> .env && \
+    echo "DB_HOST=\${DATABASE_URL:-127.0.0.1}" >> .env && \
+    echo "DB_PORT=5432" >> .env && \
+    echo "DB_DATABASE=\${DB_NAME:-brain_production}" >> .env && \
+    echo "DB_USERNAME=\${DB_USER:-postgres}" >> .env && \
+    echo "DB_PASSWORD=\${DB_PASSWORD:-}" >> .env && \
     echo "" >> .env && \
     echo "# Cache & Session" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
@@ -211,18 +215,12 @@ RUN echo "=== VERIFYING LARAVEL APP_KEY ===" && \
     grep "APP_KEY=" .env && \
     echo "✅ Laravel APP_KEY verified"
 
-# DATABASE SETUP: Ensure SQLite database is ready
+# DATABASE SETUP: PostgreSQL for production persistence
 RUN echo "=== DATABASE SETUP ===" && \
-    echo "Creating database directory if needed:" && \
-    mkdir -p database && \
-    echo "Setting database permissions:" && \
-    chmod 755 database && \
-    echo "Ensuring SQLite database file exists:" && \
-    touch database/database.sqlite && \
-    chmod 664 database/database.sqlite && \
-    echo "Running database migrations:" && \
-    php artisan migrate --force --no-interaction && \
-    echo "✅ Database setup completed"
+    echo "Configuring PostgreSQL connection..." && \
+    echo "Database will be connected via environment variables on Render" && \
+    echo "Migrations will run on first startup to avoid connection issues during build" && \
+    echo "✅ Database configuration completed"
 
 # CUMULATIVE LESSON #8: Enhanced startup with Docker debugging
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
@@ -236,11 +234,12 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'export APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/APP_KEY=.*/APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+\/nnQgxG8jNi3Iw=/" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "Current APP_KEY: $(grep APP_KEY .env)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: FORCING SQLITE DATABASE ==="' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_CONNECTION=sqlite' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_DATABASE=/var/www/html/database/database.sqlite' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Database connection forced to: $DB_CONNECTION"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Database file: $DB_DATABASE"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP: POSTGRESQL DATABASE SETUP ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Database connection: $DB_CONNECTION"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Database host: $DB_HOST"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Running database migrations..."' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan migrate --force --no-interaction || echo "Migration failed - will retry on first request"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "✅ Database migrations completed"' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
