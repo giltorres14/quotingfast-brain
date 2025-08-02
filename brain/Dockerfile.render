@@ -18,8 +18,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install PostgreSQL PHP extensions
 RUN docker-php-ext-install pdo_pgsql pgsql
 
-# Enable Apache rewrite module
-RUN a2enmod rewrite
+# Enable Apache modules required for Laravel
+RUN a2enmod rewrite && \
+    a2enmod negotiation && \
+    echo "✅ Apache modules enabled: rewrite, negotiation"
 
 # DOCKER DEBUG: Clear any potential cached directories
 RUN rm -rf /var/www/html/* && \
@@ -133,6 +135,8 @@ RUN echo "=== SETTING PERMISSIONS WITH DEBUG ===" && \
 
 # Configure Apache for Laravel public directory with proper .htaccess support
 RUN echo "=== CONFIGURING APACHE FOR LARAVEL ===" && \
+    echo "Setting global DirectoryIndex..." && \
+    echo "DirectoryIndex index.php index.html index.htm" >> /etc/apache2/apache2.conf && \
     echo "Creating simple test file..." && \
     echo "<?php echo 'Apache is serving from: ' . __DIR__; ?>" > /var/www/html/public/test-apache.php && \
     echo "Updating Apache DocumentRoot..." && \
@@ -144,7 +148,7 @@ RUN echo "=== CONFIGURING APACHE FOR LARAVEL ===" && \
     echo "    Options Indexes FollowSymLinks" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    AllowOverride All" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    Require all granted" >> /etc/apache2/sites-available/000-default.conf && \
-    echo "    DirectoryIndex index.php index.html" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "    DirectoryIndex index.php index.html index.htm" >> /etc/apache2/sites-available/000-default.conf && \
     echo "</Directory>" >> /etc/apache2/sites-available/000-default.conf && \
     echo "=== APACHE CONFIG VERIFICATION ===" && \
     echo "Apache sites-available/000-default.conf:" && \
