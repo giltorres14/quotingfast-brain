@@ -595,6 +595,65 @@ Route::get('/webhook/status', function () {
     ]);
 });
 
+// Test Vici lead push endpoint
+Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
+    try {
+        $lead = App\Models\Lead::find($leadId);
+
+        if (!$lead) {
+            return response()->json([
+                'success' => false,
+                'error' => "Lead #{$leadId} not found"
+            ], 404);
+        }
+
+        Log::info('Testing Vici lead push', [
+            'lead_id' => $lead->id,
+            'lead_name' => $lead->name,
+            'test_endpoint' => true
+        ]);
+
+        // Push lead to Vici
+        $viciService = new \App\Services\ViciDialerService();
+        $pushResult = $viciService->pushLead($lead, 'TEST_CAMPAIGN');
+
+        if ($pushResult['success']) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Vici lead push test completed successfully',
+                'lead_id' => $lead->id,
+                'lead_name' => $lead->name,
+                'push_result' => $pushResult,
+                'webhook_url' => url('/webhook/vici'),
+                'timestamp' => now()->toISOString()
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vici lead push test failed',
+                'lead_id' => $lead->id,
+                'lead_name' => $lead->name,
+                'error' => $pushResult['error'] ?? 'Unknown error',
+                'push_result' => $pushResult,
+                'timestamp' => now()->toISOString()
+            ], 400);
+        }
+
+    } catch (Exception $e) {
+        Log::error('Vici lead push test error', [
+            'lead_id' => $leadId,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => 'Internal Server Error: ' . $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
+});
+
 // Test Allstate transfer endpoint
 Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
     try {

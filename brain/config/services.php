@@ -42,4 +42,12 @@ return [
         'test_url' => 'https://int.allstateleadmarketplace.com/v2',
     ],
 
+    'vici' => [
+        'api_key' => env('VICI_API_KEY', 'mock'),
+        'api_url' => env('VICI_API_URL', 'https://vici-server.com/api'),
+        'test_mode' => env('VICI_TEST_MODE', true),
+        'default_campaign' => env('VICI_DEFAULT_CAMPAIGN', 'BRAIN_LEADS'),
+        'default_list' => env('VICI_DEFAULT_LIST', 'BRAIN_LIST'),
+    ],
+
 ];
