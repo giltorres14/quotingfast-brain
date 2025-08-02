@@ -61,20 +61,19 @@ RUN echo "=== NUCLEAR VENDOR REBUILD (symfony/clock elimination) ===" && \
     composer clear-cache && \
     echo "✅ All composer artifacts destroyed (symfony/clock eliminated)"
 
-# LESSON LEARNED #4: ULTRA AGGRESSIVE Laravel framework installation with explicit testing
-RUN echo "=== ULTRA AGGRESSIVE LARAVEL FRAMEWORK INSTALLATION ===" && \
+# LESSON LEARNED #4: Laravel framework installation with build-time verification
+RUN echo "=== LARAVEL FRAMEWORK INSTALLATION WITH BUILD VERIFICATION ===" && \
     composer install --no-dev --no-cache --optimize-autoloader --verbose && \
     echo "✅ Composer install completed" && \
-    echo "Testing Laravel framework installation..." && \
-    php -r "require 'vendor/autoload.php'; echo 'Autoloader loaded successfully\n';" && \
-    php -r "require 'vendor/autoload.php'; new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo 'Laravel Application class found!\n';" && \
-    echo "✅ Laravel framework installation VERIFIED"
+    echo "Build-time Laravel test..." && \
+    php -r "require 'vendor/autoload.php'; new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo 'Build: Laravel Application OK\n';" && \
+    echo "✅ Build-time Laravel framework VERIFIED"
 
-# LESSON LEARNED #5: Aggressive autoloader regeneration with verification
-RUN echo "=== AGGRESSIVE AUTOLOADER REGENERATION WITH VERIFICATION ===" && \
+# LESSON LEARNED #5: Autoloader regeneration with build verification
+RUN echo "=== AUTOLOADER REGENERATION WITH BUILD VERIFICATION ===" && \
     composer dump-autoload --optimize --no-scripts --no-cache --verbose && \
-    php -r "require 'vendor/autoload.php'; echo 'Regenerated autoloader works!\n';" && \
-    echo "✅ Autoloader regenerated and verified"
+    php -r "require 'vendor/autoload.php'; echo 'Build: Regenerated autoloader OK\n';" && \
+    echo "✅ Build-time autoloader verified"
 
 # LESSON LEARNED #6: Laravel cache clearing (KEEP WORKING SOLUTION)
 RUN rm -rf bootstrap/cache/*.php && \
@@ -101,26 +100,43 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache for public directory
 RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# ULTIMATE VERIFICATION: Test everything that has caused issues
-RUN echo "=== ULTIMATE VERIFICATION: ALL LESSONS LEARNED ===" && \
+# NEW LESSON LEARNED #8: Create runtime autoloader debugging script
+RUN echo '#!/bin/bash' > /usr/local/bin/debug-autoloader.sh && \
+    echo 'echo "=== RUNTIME AUTOLOADER DEBUGGING ==="' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'echo "Current working directory: $(pwd)"' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'echo "Checking vendor/autoload.php..."' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'ls -la vendor/autoload.php || echo "ERROR: vendor/autoload.php missing!"' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'echo "Checking Laravel framework..."' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'ls -la vendor/laravel/framework/ | head -3 || echo "ERROR: Laravel framework missing!"' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'echo "Testing autoloader at runtime..."' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'php -r "require \"vendor/autoload.php\"; echo \"Runtime: Autoloader loaded OK\\n\";" || echo "ERROR: Autoloader failed at runtime!"' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'echo "Testing Laravel Application class at runtime..."' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'php -r "require \"vendor/autoload.php\"; new Illuminate\\\\Foundation\\\\Application(realpath(__DIR__)); echo \"Runtime: Laravel Application OK\\n\";" || echo "ERROR: Laravel Application failed at runtime!"' >> /usr/local/bin/debug-autoloader.sh && \
+    echo 'echo "=== END RUNTIME DEBUGGING ==="' >> /usr/local/bin/debug-autoloader.sh && \
+    chmod +x /usr/local/bin/debug-autoloader.sh
+
+# BUILD VERIFICATION: Test everything we know has caused issues
+RUN echo "=== BUILD VERIFICATION: ALL LESSONS LEARNED ===" && \
     echo "1. symfony/clock ELIMINATED:" && \
     grep -A 5 '"require"' composer.json && \
     (composer show | grep symfony || echo "✅ NO symfony packages found") && \
     echo "" && \
-    echo "2. Laravel framework PRESENT:" && \
-    php -r "require 'vendor/autoload.php'; echo 'Autoloader: OK\n'; new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo 'Laravel Application: OK\n';" && \
+    echo "2. Laravel framework at BUILD TIME:" && \
+    php -r "require 'vendor/autoload.php'; new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo 'Build verification: Laravel OK\n';" && \
     echo "" && \
     echo "3. APP_KEY verification:" && \
     echo "   ENV APP_KEY: '$APP_KEY'" && \
     echo "   .env APP_KEY: $(grep 'APP_KEY' .env)" && \
     echo "" && \
-    echo "✅ ALL ISSUES RESOLVED: symfony/clock GONE + Laravel framework WORKING"
+    echo "✅ BUILD VERIFICATION COMPLETE"
 
-# LESSON LEARNED #8: Startup cache clearing (KEEP WORKING SOLUTION)
+# LESSON LEARNED #9: Enhanced startup with runtime debugging
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Clearing Laravel cache ==="' >> /usr/local/bin/startup.sh && \
     echo '/usr/local/bin/clear-laravel-cache.sh' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Laravel cache cleared ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP: Running runtime autoloader debugging ==="' >> /usr/local/bin/startup.sh && \
+    echo '/usr/local/bin/debug-autoloader.sh' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
