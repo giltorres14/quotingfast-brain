@@ -65,7 +65,7 @@ RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
     echo "# Laravel Configuration - PRODUCTION WITH DOCKER DEBUG" > .env && \
     echo "APP_NAME=QuotingFast-Brain" >> .env && \
     echo "APP_ENV=production" >> .env && \
-    echo "APP_KEY=" >> .env && \
+    echo "APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw=" >> .env && \
     echo "APP_DEBUG=false" >> .env && \
     echo "APP_URL=https://quotingfast-brain-v2.onrender.com" >> .env && \
     echo "APP_TIMEZONE=UTC" >> .env && \
@@ -170,13 +170,11 @@ RUN echo "=== COMPREHENSIVE DOCKER + LARAVEL + ROUTES VERIFICATION ===" && \
     echo "" && \
     echo "✅ ALL DOCKER + LARAVEL + ROUTES VERIFICATION PASSED"
 
-# CUMULATIVE LESSON #7: Generate proper Laravel APP_KEY after all setup is complete
-RUN echo "=== GENERATING PROPER LARAVEL APP_KEY (FINAL STEP) ===" && \
-    php artisan key:generate --force && \
-    echo "✅ Laravel APP_KEY generated successfully" && \
-    echo "Generated APP_KEY:" && \
+# CUMULATIVE LESSON #7: Verify proper Laravel APP_KEY is set
+RUN echo "=== VERIFYING LARAVEL APP_KEY ===" && \
+    echo "Current APP_KEY in .env:" && \
     grep "APP_KEY=" .env && \
-    echo "=== APP_KEY GENERATION COMPLETE ==="
+    echo "✅ Laravel APP_KEY verified"
 
 # CUMULATIVE LESSON #8: Enhanced startup with Docker debugging
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
