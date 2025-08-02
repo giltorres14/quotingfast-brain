@@ -18,10 +18,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install PostgreSQL PHP extensions
 RUN docker-php-ext-install pdo_pgsql pgsql
 
-# Enable Apache modules required for Laravel
+# Enable Apache rewrite module (mod_negotiation may not exist in php:8.3-apache)
 RUN a2enmod rewrite && \
-    a2enmod negotiation && \
-    echo "✅ Apache modules enabled: rewrite, negotiation"
+    echo "✅ Apache rewrite module enabled"
 
 # DOCKER DEBUG: Clear any potential cached directories
 RUN rm -rf /var/www/html/* && \
@@ -133,10 +132,8 @@ RUN echo "=== SETTING PERMISSIONS WITH DEBUG ===" && \
     ls -la vendor/autoload.php && \
     ls -la vendor/laravel/framework/src/Illuminate/Foundation/Application.php
 
-# Configure Apache for Laravel public directory with proper .htaccess support
+# Configure Apache for Laravel public directory with proper .htaccess support  
 RUN echo "=== CONFIGURING APACHE FOR LARAVEL ===" && \
-    echo "Setting global DirectoryIndex..." && \
-    echo "DirectoryIndex index.php index.html index.htm" >> /etc/apache2/apache2.conf && \
     echo "Creating simple test file..." && \
     echo "<?php echo 'Apache is serving from: ' . __DIR__; ?>" > /var/www/html/public/test-apache.php && \
     echo "Updating Apache DocumentRoot..." && \
