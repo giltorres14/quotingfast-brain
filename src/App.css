@@ -1,0 +1,82 @@
+@import '~antd/dist/reset.css';
+
+.App {
+  text-align: center;
+}
+
+/* Custom styles for better UX */
+.ant-layout-header {
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+  top: 0;
+}
+
+.ant-layout-content {
+  margin-top: 64px;
+}
+
+.ant-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.ant-statistic-title {
+  font-weight: 500;
+}
+
+.ant-form-item-label > label {
+  font-weight: 500;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .ant-layout-content {
+    padding: 16px !important;
+  }
+  
+  .ant-card {
+    margin-bottom: 16px;
+  }
+}
+
+/* Animation for form submission */
+.ant-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+/* Success message styling */
+.ant-message {
+  z-index: 2000;
+}
+
+/* Chart responsiveness */
+.recharts-responsive-container {
+  font-size: 12px;
+}
+
+/* Table improvements */
+.ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: 600;
+}
+
+.ant-tag {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* Status indicators */
+.status-online {
+  color: #52c41a;
+}
+
+.status-offline {
+  color: #f5222d;
+}
+
+.status-checking {
+  color: #faad14;
+}
