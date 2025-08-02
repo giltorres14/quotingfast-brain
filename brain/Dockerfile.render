@@ -233,6 +233,13 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: POSTGRESQL DATABASE SETUP ==="' >> /usr/local/bin/startup.sh && \
     echo 'echo "Database connection: $DB_CONNECTION"' >> /usr/local/bin/startup.sh && \
     echo 'echo "Database host: $DB_HOST"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Database URL: $DATABASE_URL"' >> /usr/local/bin/startup.sh && \
+    echo 'if [ ! -z "$DATABASE_URL" ]; then' >> /usr/local/bin/startup.sh && \
+    echo '  echo "=== FORCING DATABASE CONNECTION FROM DATABASE_URL ==="' >> /usr/local/bin/startup.sh && \
+    echo '  export DB_CONNECTION=pgsql' >> /usr/local/bin/startup.sh && \
+    echo '  sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=pgsql/" .env' >> /usr/local/bin/startup.sh && \
+    echo '  echo "Database connection forced to PostgreSQL"' >> /usr/local/bin/startup.sh && \
+    echo 'fi' >> /usr/local/bin/startup.sh && \
     echo 'echo "Running database migrations..."' >> /usr/local/bin/startup.sh && \
     echo 'php artisan migrate --force --no-interaction || echo "Migration failed - will retry on first request"' >> /usr/local/bin/startup.sh && \
     echo 'echo "✅ Database migrations completed"' >> /usr/local/bin/startup.sh && \
