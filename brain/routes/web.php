@@ -243,8 +243,21 @@ Route::post('/webhook.php', function (Request $request) {
             Log::error('Failed to send lead to Vici', ['error' => $viciError->getMessage(), 'lead_id' => $leadId]);
         }
         
-        // Store lead data in cache for iframe testing (fallback if DB fails)
-        Cache::put("lead_data_{$leadId}", $leadData, now()->addHours(24));
+        // Store lead data in file cache for iframe testing (fallback if DB fails)
+        try {
+            Cache::put("lead_data_{$leadId}", $leadData, now()->addHours(24));
+        } catch (Exception $cacheError) {
+            // File-based fallback if cache also fails
+            $cacheDir = storage_path('app/lead_cache');
+            if (!file_exists($cacheDir)) {
+                mkdir($cacheDir, 0755, true);
+            }
+            file_put_contents(
+                "{$cacheDir}/{$leadId}.json", 
+                json_encode(array_merge($leadData, ['cached_at' => now()->toISOString()]))
+            );
+            Log::info('Lead stored in file cache', ['lead_id' => $leadId]);
+        }
         
         Log::info('LeadsQuotingFast lead processed successfully', ['lead_id' => $leadId]);
         
@@ -700,10 +713,22 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             
             // If database failed, try to get from cache (for recent LQF leads)
             if (!$lead) {
-                $cachedData = Cache::get("lead_data_{$leadId}");
-                if ($cachedData) {
-                    $lead = (object) array_merge($cachedData, ['id' => $leadId]);
-                    Log::info('Lead found in cache', ['lead_id' => $leadId]);
+                try {
+                    $cachedData = Cache::get("lead_data_{$leadId}");
+                    if ($cachedData) {
+                        $lead = (object) array_merge($cachedData, ['id' => $leadId]);
+                        Log::info('Lead found in cache', ['lead_id' => $leadId]);
+                    }
+                } catch (Exception $cacheError) {
+                    // Try file cache fallback
+                    $cacheFile = storage_path("app/lead_cache/{$leadId}.json");
+                    if (file_exists($cacheFile)) {
+                        $cachedData = json_decode(file_get_contents($cacheFile), true);
+                        if ($cachedData) {
+                            $lead = (object) array_merge($cachedData, ['id' => $leadId]);
+                            Log::info('Lead found in file cache', ['lead_id' => $leadId]);
+                        }
+                    }
                 }
             }
         }
