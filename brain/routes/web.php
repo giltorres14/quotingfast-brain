@@ -1137,9 +1137,10 @@ Route::get('/login', function() {
 
 // Vici integration function (shared between webhooks)
 function sendToViciList101($leadData, $leadId) {
-    // Your Vici API configuration
+    // Your Vici API configuration (with firewall-aware endpoint)
     $viciConfig = [
         'server' => env('VICI_SERVER', 'philli.callix.ai'),
+        'api_endpoint' => env('VICI_API_ENDPOINT', '/vicidial/non_agent_api.php'), // Can be updated for firewall
         'user' => env('VICI_API_USER', 'apiuser'),
         'pass' => env('VICI_API_PASS', 'UZPATJ59GJAVKG8ES6'),
         'list_id' => 101,
@@ -1175,7 +1176,7 @@ function sendToViciList101($leadData, $leadId) {
     try {
         Log::info('Attempting Vici API call with vendor_id: TB_API', ['vici_data' => $viciData]);
         
-        $response = Http::timeout(30)->post("https://{$viciConfig['server']}/vicidial/non_agent_api.php", $viciData);
+        $response = Http::timeout(30)->post("https://{$viciConfig['server']}{$viciConfig['api_endpoint']}", $viciData);
         
         if ($response->successful()) {
             $responseData = $response->json();
