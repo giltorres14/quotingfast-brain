@@ -658,21 +658,26 @@ Route::get('/test/db', function () {
 // Agent iframe endpoint - displays full lead data with transfer button
 Route::get('/agent/lead/{leadId}', function ($leadId) {
     try {
-        // Try to get lead from database first
-        $lead = null;
-        $callMetrics = null;
-        
-        try {
-            $lead = App\Models\Lead::find($leadId);
-            if ($lead) {
-                $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
+        // For test lead IDs, use mock data directly (no database query)
+        if (str_starts_with($leadId, 'BRAIN_TEST') || str_starts_with($leadId, 'TEST_')) {
+            $lead = null; // Force mock data path
+        } else {
+            // Try to get real lead from database
+            $lead = null;
+            $callMetrics = null;
+            
+            try {
+                $lead = App\Models\Lead::find($leadId);
+                if ($lead) {
+                    $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
+                }
+            } catch (Exception $dbError) {
+                // Database connection failed - use mock data for testing
+                Log::info('Database connection failed, using mock data', ['error' => $dbError->getMessage()]);
             }
-        } catch (Exception $dbError) {
-            // Database connection failed - use mock data for testing
-            Log::info('Database connection failed, using mock data', ['error' => $dbError->getMessage()]);
         }
 
-        // If no lead found in database, create mock data for testing
+        // If no lead found in database or using test ID, create mock data for testing
         if (!$lead) {
             $lead = (object) [
                 'id' => $leadId,
