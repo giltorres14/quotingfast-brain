@@ -1140,8 +1140,8 @@ function sendToViciList101($leadData, $leadId) {
     // Your Vici API configuration
     $viciConfig = [
         'server' => env('VICI_SERVER', 'philli.callix.ai'),
-        'user' => env('VICI_API_USER', 'UploadAPI'),
-        'pass' => env('VICI_API_PASS', 'ZL8aY2MuQM'),
+        'user' => env('VICI_API_USER', 'apiuser'),
+        'pass' => env('VICI_API_PASS', 'UZPATJ59GJAVKG8ES6'),
         'list_id' => 101,
         'phone_code' => '1',
         'source' => 'LQF_API'
