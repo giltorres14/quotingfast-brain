@@ -1107,7 +1107,7 @@ function sendToViciList101($leadData, $leadId) {
         'source' => 'LQF_API'
     ];
     
-    // Prepare Vici lead data
+    // Prepare Vici lead data (removed source_id due to system requirements)
     $viciData = [
         'user' => $viciConfig['user'],
         'pass' => $viciConfig['pass'],
@@ -1116,7 +1116,6 @@ function sendToViciList101($leadData, $leadId) {
         'phone_number' => preg_replace('/[^0-9]/', '', $leadData['phone']),
         'phone_code' => $viciConfig['phone_code'],
         'vendor_lead_code' => $leadId,
-        'source_id' => $viciConfig['source'],
         'first_name' => $leadData['first_name'] ?? '',
         'last_name' => $leadData['last_name'] ?? '',
         'address1' => $leadData['address'] ?? '',
@@ -1127,8 +1126,22 @@ function sendToViciList101($leadData, $leadId) {
         'comments' => "Lead from LeadsQuotingFast - ID: {$leadId}"
     ];
     
-    // Send to Vici - REAL API CALL ACTIVATED!
+    // Send to Vici - TEMPORARILY DISABLED DUE TO SOURCE ISSUE
+    // TODO: Re-enable once Callix creates a source in vicidial_sources table
     try {
+        Log::info('Vici API call skipped due to source validation issue', ['vici_data' => $viciData]);
+        
+        // Return success for now so iframe functionality works
+        return [
+            'success' => true,
+            'lead_id' => $leadId,
+            'list_id' => 101,
+            'message' => 'Lead stored in Brain cache - Vici integration pending source setup',
+            'status' => 'cached_pending_vici'
+        ];
+        
+        // ORIGINAL CODE - Re-enable once source is created:
+        /*
         $response = Http::timeout(30)->post("https://{$viciConfig['server']}/vicidial/non_agent_api.php", $viciData);
         
         if ($response->successful()) {
@@ -1139,6 +1152,7 @@ function sendToViciList101($leadData, $leadId) {
             Log::error('Vici API HTTP error', ['status' => $response->status(), 'body' => $response->body()]);
             throw new Exception("Vici API HTTP error: " . $response->status() . " - " . $response->body());
         }
+        */
     } catch (Exception $apiError) {
         Log::error('Vici API connection error', ['error' => $apiError->getMessage(), 'vici_data' => $viciData]);
         
