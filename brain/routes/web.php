@@ -1958,15 +1958,27 @@ Route::post('/webhook/ringba-decision', function (Request $request) {
     }
 });
 
-// Call Analytics API Routes
-Route::get('/api/analytics/{startDate}/{endDate}', function (Request $request, $startDate, $endDate) {
+// Call Analytics API Routes - SPECIFIC ROUTES FIRST
+Route::get('/api/analytics/quick/{period}', function (Request $request, $period) {
     try {
+        $ranges = \App\Services\CallAnalyticsService::getDateRanges();
+        
+        if (!isset($ranges[$period])) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Invalid period. Available: ' . implode(', ', array_keys($ranges))
+            ], 400);
+        }
+        
+        $range = $ranges[$period];
         $filters = $request->only(['agent_id', 'campaign_id', 'buyer_name']);
         
-        $analytics = \App\Services\CallAnalyticsService::getAnalytics($startDate, $endDate, $filters);
+        $analytics = \App\Services\CallAnalyticsService::getAnalytics($range['start'], $range['end'], $filters);
         
         return response()->json([
             'success' => true,
+            'period' => $period,
+            'period_label' => $range['label'],
             'data' => $analytics,
             'generated_at' => now()->toISOString()
         ]);
@@ -1991,26 +2003,15 @@ Route::get('/analytics', function () {
     return view('analytics.dashboard');
 });
 
-Route::get('/api/analytics/quick/{period}', function (Request $request, $period) {
+// Generic date range route - MUST COME AFTER SPECIFIC ROUTES
+Route::get('/api/analytics/{startDate}/{endDate}', function (Request $request, $startDate, $endDate) {
     try {
-        $ranges = \App\Services\CallAnalyticsService::getDateRanges();
-        
-        if (!isset($ranges[$period])) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Invalid period. Available: ' . implode(', ', array_keys($ranges))
-            ], 400);
-        }
-        
-        $range = $ranges[$period];
         $filters = $request->only(['agent_id', 'campaign_id', 'buyer_name']);
         
-        $analytics = \App\Services\CallAnalyticsService::getAnalytics($range['start'], $range['end'], $filters);
+        $analytics = \App\Services\CallAnalyticsService::getAnalytics($startDate, $endDate, $filters);
         
         return response()->json([
             'success' => true,
-            'period' => $period,
-            'period_label' => $range['label'],
             'data' => $analytics,
             'generated_at' => now()->toISOString()
         ]);
