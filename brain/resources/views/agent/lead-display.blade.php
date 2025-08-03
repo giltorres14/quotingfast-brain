@@ -905,6 +905,11 @@
             @foreach($lead->vehicles as $index => $vehicle)
             <div class="vehicle-card">
                 <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
+                @if(isset($vehicle['vin']) && !empty($vehicle['vin']))
+                <div style="margin-bottom: 8px; padding: 6px; background: #e3f2fd; border-radius: 4px; font-size: 12px;">
+                    <strong>VIN:</strong> <span style="font-family: monospace; font-weight: bold;">{{ $vehicle['vin'] }}</span>
+                </div>
+                @endif
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-label">Primary Use</div>
@@ -1296,6 +1301,30 @@
             }
         }
         
+        // WMI (World Manufacturer Identifier) codes for VIN generation
+        const wmiCodes = {
+            'Toyota': ['4T1', '5TD', '4T3', '2T1', 'JTD', 'JTE'],
+            'Honda': ['1HG', '2HG', '3HG', '19X', 'JHM', 'SHH'],
+            'Ford': ['1FA', '1FB', '1FC', '1FD', '1FT', '3FA'],
+            'Chevrolet': ['1G1', '1GC', '1GB', '2GC', '3GC', 'KL8'],
+            'Nissan': ['1N4', '1N6', '3N1', 'JN1', 'JN8', '5N1'],
+            'BMW': ['WBA', 'WBS', 'WBY', '4US', '5UX', 'WBX'],
+            'Mercedes-Benz': ['WDD', 'WDC', 'WDF', '4JG', '5NP', 'WDJ'],
+            'Audi': ['WAU', 'WA1', 'WUA', 'TRU', '4GC', '4G2'],
+            'Hyundai': ['KMH', 'KMF', 'KMG', '5NP', '5NK', 'KMA'],
+            'Kia': ['KNA', 'KND', 'KNM', '5XY', '5XX', 'KNB'],
+            'Subaru': ['4S3', '4S4', '4S6', 'JF1', 'JF2', '4S1'],
+            'Mazda': ['JM1', 'JM3', '1YV', '4F2', '4F4', 'JMZ'],
+            'Volkswagen': ['WVW', 'WV1', '3VW', '1VW', '9BW', 'WVG'],
+            'Jeep': ['1C4', '1J4', '1J8', '3C4', '3C8', '1C8'],
+            'Ram': ['1C6', '3C6', '3C7', '1D7', '3D7', '1D3'],
+            'GMC': ['1GT', '1GK', '3GT', '2GT', '1GD', '3GD'],
+            'Cadillac': ['1G6', '1GY', '3G6', '1GC', '3GY', '2G6'],
+            'Lexus': ['JTH', '2T2', '4T4', 'JTE', 'JTG', '5TD'],
+            'Acura': ['19U', 'JH4', '2HN', '5J6', '5J8', 'JHM'],
+            'Infiniti': ['JNK', 'JN1', '5N3', '3PC', 'JNR', 'JNZ']
+        };
+
         // Vehicle data for cascading dropdowns
         const vehicleData = {
             2024: {
@@ -1363,9 +1392,15 @@
                         
                         <div style="margin-bottom: 10px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Model:</label>
-                            <select id="vehicleModel" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" disabled>
+                            <select id="vehicleModel" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="generateVINPrefix()" disabled>
                                 <option value="">Select Model...</option>
                             </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">VIN (Vehicle Identification Number):</label>
+                            <input type="text" id="vehicleVIN" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Auto-generated prefix + complete as needed" maxlength="17">
+                            <small style="color: #666; font-size: 11px;">Basic VIN prefix will be generated. Complete the full 17-character VIN if available.</small>
                         </div>
                         
                         <div style="margin-bottom: 10px;">
@@ -1470,6 +1505,50 @@
             }
         }
 
+        function generateVINPrefix() {
+            const year = document.getElementById('vehicleYear').value;
+            const make = document.getElementById('vehicleMake').value;
+            const model = document.getElementById('vehicleModel').value;
+            const vinInput = document.getElementById('vehicleVIN');
+            
+            if (year && make && model && model !== 'Other') {
+                // Get WMI code for the manufacturer
+                const wmiOptions = wmiCodes[make];
+                if (wmiOptions) {
+                    // Use the first WMI code for simplicity
+                    const wmi = wmiOptions[0];
+                    
+                    // Generate basic VIN structure: WMI (3) + VDS (6) + VIS (8)
+                    // For basic VIN, we'll generate WMI + basic pattern
+                    
+                    // Get year code (10th position in VIN)
+                    const yearCode = getVINYearCode(year);
+                    
+                    // Generate a basic VIN prefix with placeholder for completion
+                    // Format: WMI + basic identifier + year code + placeholder
+                    const vinPrefix = wmi + 'XXXXX' + yearCode + 'XXXXXXX';
+                    
+                    vinInput.value = vinPrefix;
+                    vinInput.placeholder = 'Complete the remaining characters if full VIN is available';
+                } else {
+                    vinInput.value = '';
+                    vinInput.placeholder = 'Enter complete VIN (17 characters)';
+                }
+            } else {
+                vinInput.value = '';
+                vinInput.placeholder = 'Auto-generated prefix + complete as needed';
+            }
+        }
+
+        function getVINYearCode(year) {
+            // VIN year codes for 10th position
+            const yearCodes = {
+                '2015': 'F', '2016': 'G', '2017': 'H', '2018': 'J', '2019': 'K',
+                '2020': 'L', '2021': 'M', '2022': 'N', '2023': 'P', '2024': 'R'
+            };
+            return yearCodes[year] || 'X';
+        }
+
         function closeVehicleModal() {
             const modal = document.getElementById('vehicleModal');
             if (modal) {
@@ -1481,6 +1560,7 @@
             const year = document.getElementById('vehicleYear').value;
             const make = document.getElementById('vehicleMake').value;
             let model = document.getElementById('vehicleModel').value;
+            const vin = document.getElementById('vehicleVIN').value;
             const primaryUse = document.getElementById('vehicleUse').value;
             const annualMiles = document.getElementById('vehicleMiles').value;
             const ownership = document.getElementById('vehicleOwnership').value;
@@ -1497,10 +1577,17 @@
                 if (!model) return;
             }
             
+            // Validate VIN if provided (should be 17 characters if complete)
+            if (vin && vin.length > 0 && vin.length !== 17) {
+                const proceed = confirm('VIN should be 17 characters. Continue anyway?');
+                if (!proceed) return;
+            }
+            
             const data = {
                 year: parseInt(year),
                 make: make,
                 model: model,
+                vin: vin || '',
                 primary_use: primaryUse,
                 annual_miles: parseInt(annualMiles),
                 ownership: ownership,

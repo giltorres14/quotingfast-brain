@@ -1492,7 +1492,16 @@ Route::post('/agent/lead/{leadId}/vehicle', function (Request $request, $leadId)
         $lead = \App\Models\Lead::findOrFail($leadId);
         $vehicles = $lead->vehicles ?? [];
         
-        $vehicleData = $request->all();
+        $vehicleData = [
+            'year' => $request->year,
+            'make' => $request->make,
+            'model' => $request->model,
+            'vin' => $request->vin,
+            'primary_use' => $request->primary_use,
+            'annual_miles' => $request->annual_miles,
+            'ownership' => $request->ownership,
+            'garage' => $request->garage
+        ];
         $vehicleIndex = $request->vehicle_index ?? count($vehicles);
         
         if ($vehicleIndex < count($vehicles)) {
