@@ -56,6 +56,41 @@ Route::get('/test', function () {
     ]);
 });
 
+// ViciDial firewall whitelisting endpoint
+Route::post('/vici/whitelist', function () {
+    try {
+        $viciConfig = [
+            'server' => env('VICI_SERVER', 'philli.callix.ai'),
+            'user' => env('VICI_API_USER', 'apiuser'),
+            'pass' => env('VICI_API_PASS', 'UZPATJ59GJAVKG8ES6'),
+        ];
+        
+        Log::info('Manual ViciDial firewall whitelist requested');
+        
+        $firewallAuth = Http::timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
+            'user' => $viciConfig['user'],
+            'pass' => $viciConfig['pass']
+        ]);
+        
+        Cache::put('vici_last_whitelist', time(), 3600);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'ViciDial firewall whitelist completed',
+            'status' => $firewallAuth->status(),
+            'timestamp' => now()->toISOString()
+        ]);
+        
+    } catch (Exception $e) {
+        Log::error('Manual firewall whitelist failed', ['error' => $e->getMessage()]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Firewall whitelist failed: ' . $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
+});
+
 // IMMEDIATE TEST ENDPOINT - No CSRF, works right now
 Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
     try {
@@ -1186,27 +1221,70 @@ function sendToViciList101($leadData, $leadId) {
         'comments' => "Lead from LeadsQuotingFast - Brain ID: {$leadId}, Vici ID: {$viciLeadId}"
     ];
     
-    // Send to Vici - Smart retry with firewall authentication
+    // Send to Vici - Enhanced firewall authentication with proactive whitelisting
     try {
         Log::info('Attempting Vici API call with vendor_id: TB_API', ['vici_data' => $viciData]);
         
-        // Try API call first (assume IP is whitelisted)
+        // Check if we should proactively whitelist (every 30 minutes or if never done)
+        $lastWhitelist = Cache::get('vici_last_whitelist', 0);
+        $shouldProactiveWhitelist = (time() - $lastWhitelist) > 1800; // 30 minutes
+        
+        if ($shouldProactiveWhitelist) {
+            Log::info('Proactive firewall authentication (30min interval)');
+            try {
+                $firewallAuth = Http::timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
+                    'user' => $viciConfig['user'],
+                    'pass' => $viciConfig['pass']
+                ]);
+                Cache::put('vici_last_whitelist', time(), 3600); // Cache for 1 hour
+                Log::info('Proactive firewall authentication completed', ['status' => $firewallAuth->status()]);
+            } catch (Exception $authError) {
+                Log::warning('Proactive firewall auth failed, will retry on API failure', ['error' => $authError->getMessage()]);
+            }
+        }
+        
+        // Try API call first
         $response = Http::timeout(30)->post("https://{$viciConfig['server']}{$viciConfig['api_endpoint']}", $viciData);
         
-        // If API call fails (likely due to firewall), authenticate and retry
-        if (!$response->successful() || strpos($response->body(), 'ERROR') !== false) {
-            Log::info('Initial API call failed, attempting firewall authentication');
+        // Enhanced error detection and retry logic
+        $needsRetry = false;
+        $responseBody = $response->body();
+        
+        if (!$response->successful()) {
+            Log::warning('ViciDial API HTTP error', ['status' => $response->status(), 'body' => $responseBody]);
+            $needsRetry = true;
+        } elseif (stripos($responseBody, 'ERROR') !== false) {
+            Log::warning('ViciDial API returned error', ['response' => $responseBody]);
+            $needsRetry = true;
+        } elseif (stripos($responseBody, 'Invalid Source') !== false) {
+            Log::warning('ViciDial Invalid Source error', ['response' => $responseBody]);
+            $needsRetry = true;
+        } elseif (empty(trim($responseBody)) || stripos($responseBody, '<html') !== false) {
+            Log::warning('ViciDial returned HTML/empty response (likely firewall block)', ['response' => substr($responseBody, 0, 200)]);
+            $needsRetry = true;
+        }
+        
+        // If API call failed, authenticate and retry
+        if ($needsRetry) {
+            Log::info('API call failed, attempting firewall authentication and retry');
             
-            // Authenticate through firewall to whitelist IP
-            $firewallAuth = Http::timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
-                'user' => $viciConfig['user'],
-                'pass' => $viciConfig['pass']
-            ]);
-            
-            Log::info('Firewall authentication completed', ['status' => $firewallAuth->status()]);
-            
-            // Retry API call after firewall authentication
-            $response = Http::timeout(30)->post("https://{$viciConfig['server']}{$viciConfig['api_endpoint']}", $viciData);
+            try {
+                // Authenticate through firewall to whitelist IP
+                $firewallAuth = Http::timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
+                    'user' => $viciConfig['user'],
+                    'pass' => $viciConfig['pass']
+                ]);
+                
+                Cache::put('vici_last_whitelist', time(), 3600); // Update cache
+                Log::info('Emergency firewall authentication completed', ['status' => $firewallAuth->status()]);
+                
+                // Retry API call after firewall authentication
+                $response = Http::timeout(30)->post("https://{$viciConfig['server']}{$viciConfig['api_endpoint']}", $viciData);
+                Log::info('Retry API call completed', ['status' => $response->status(), 'body' => substr($response->body(), 0, 200)]);
+                
+            } catch (Exception $authError) {
+                Log::error('Firewall authentication failed', ['error' => $authError->getMessage()]);
+            }
         }
         
         if ($response->successful()) {
