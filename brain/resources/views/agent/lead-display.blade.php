@@ -783,61 +783,9 @@
         </div>
         @endif
 
-        <!-- Transfer Section -->
-        <div class="section transfer-section">
-            <div class="section-title">🔄 Transfer Lead</div>
-            <p>Ready to transfer this lead to the buyer?</p>
-            <button id="transferBtn" class="transfer-btn" onclick="initiateTransfer()">
-                Transfer to Buyer
-            </button>
-            <div id="transferStatus"></div>
-        </div>
     </div>
 
     <script>
-        // Transfer functionality
-        async function initiateTransfer() {
-            const btn = document.getElementById('transferBtn');
-            const status = document.getElementById('transferStatus');
-            
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
-            status.innerHTML = '';
-            
-            try {
-                const response = await fetch('{{ $transferUrl }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    }
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    status.innerHTML = '<div class="transfer-success">✅ Transfer initiated successfully!</div>';
-                    btn.textContent = 'Transfer Completed';
-                    
-                    // Notify parent window if in iframe
-                    if (window.parent !== window) {
-                        window.parent.postMessage({
-                            type: 'transferComplete',
-                            leadId: {{ $lead->id }},
-                            leadName: '{{ $lead->name }}',
-                            status: 'success'
-                        }, '*');
-                    }
-                } else {
-                    throw new Error(result.error || 'Transfer failed');
-                }
-                
-            } catch (error) {
-                status.innerHTML = '<div class="transfer-error">❌ Transfer failed: ' + error.message + '</div>';
-                btn.disabled = false;
-                btn.textContent = 'Retry Transfer';
-            }
-        }
         
         // Auto-refresh disabled for agent view - no call metrics displayed
         
