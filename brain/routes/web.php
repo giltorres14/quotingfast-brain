@@ -500,7 +500,7 @@ Route::post('/webhook/allstate', function (Request $request) {
             throw new Exception('Invalid data received');
         }
         
-        // Store the lead first
+        // Store the lead first (with database fallback handling)
         $contact = isset($data['contact']) ? $data['contact'] : $data;
         
         $leadData = [
@@ -524,12 +524,24 @@ Route::post('/webhook/allstate', function (Request $request) {
             'vehicle_year' => $contact['vehicle_year'] ?? null,
             'vehicle_make' => $contact['vehicle_make'] ?? null,
             'vehicle_model' => $contact['vehicle_model'] ?? null,
-            'drivers' => isset($contact['drivers']) ? json_encode($contact['drivers']) : null,
-            'vehicles' => isset($contact['vehicles']) ? json_encode($contact['vehicles']) : null,
+            'drivers' => isset($data['drivers']) ? json_encode($data['drivers']) : null,
+            'vehicles' => isset($data['vehicles']) ? json_encode($data['vehicles']) : null,
             'payload' => json_encode($data),
         ];
         
-        $lead = Lead::create($leadData);
+        // Generate unique lead ID for this session
+        $leadId = 'ALLSTATE_' . date('Ymd_His') . '_' . substr(md5($leadData['phone']), 0, 6);
+        
+        // Try to store in database, but continue if it fails
+        $lead = null;
+        try {
+            $lead = Lead::create(array_merge($leadData, ['id' => $leadId]));
+            Log::info('Allstate lead stored in database', ['lead_id' => $leadId]);
+        } catch (Exception $dbError) {
+            Log::warning('Database storage failed for Allstate lead, continuing with transfer', ['error' => $dbError->getMessage()]);
+            // Create a mock lead object for the transfer service
+            $lead = (object) array_merge($leadData, ['id' => $leadId]);
+        }
         
         Log::info('Allstate-ready lead stored successfully', [
             'lead_id' => $lead->id,
