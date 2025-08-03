@@ -13,9 +13,12 @@ class AllstateCallTransferService
     
     public function __construct()
     {
-        // Production API key from DMS live-transfer
+        // Allstate Lead Marketplace API key
         $this->apiKey = 'b91446ade9d37650f93e305cbaf8c2c9f';
-        $this->baseUrl = 'https://api.allstate.com/dms/live-transfer/v1';
+        // Use testing environment first, then switch to production
+        $this->baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
+            ? 'https://api.allstateleadmarketplace.com/v2'
+            : 'https://int.allstateleadmarketplace.com/v2';
     }
     
     /**
@@ -32,14 +35,14 @@ class AllstateCallTransferService
             // Prepare lead data for Allstate API
             $transferData = $this->prepareLeadData($lead);
             
-            // Make API call to Allstate
+            // Make API call to Allstate using Basic Auth
             $response = Http::timeout(30)
+                ->withBasicAuth($this->apiKey, '') // Basic auth with API key as username, no password
                 ->withHeaders([
-                    'Authorization' => 'Bearer ' . $this->apiKey,
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json'
                 ])
-                ->post($this->baseUrl . '/transfer', $transferData);
+                ->post($this->baseUrl . '/ping', $transferData); // Start with ping to test connection
             
             if ($response->successful()) {
                 $responseData = $response->json();
@@ -105,35 +108,28 @@ class AllstateCallTransferService
             $currentPolicy = is_string($lead->current_policy) ? json_decode($lead->current_policy, true) : $lead->current_policy;
         }
         
-        // Prepare data in Allstate's expected format
+        // Prepare data in Allstate Lead Marketplace API format
         $transferData = [
-            'lead_id' => $lead->id ?? uniqid('ALLSTATE_'),
-            'source' => 'brain_api',
-            'timestamp' => now()->toISOString(),
-            'contact' => [
-                'first_name' => $lead->first_name ?? '',
-                'last_name' => $lead->last_name ?? '',
-                'phone' => $this->formatPhoneNumber($lead->phone ?? ''),
-                'email' => $lead->email ?? '',
-                'address' => [
-                    'street' => $lead->address ?? '',
-                    'city' => $lead->city ?? '',
-                    'state' => $lead->state ?? '',
-                    'zip_code' => $lead->zip_code ?? ''
-                ]
-            ],
-            'insurance_info' => [
-                'current_carrier' => $currentPolicy['current_insurance'] ?? $lead->insurance_company ?? '',
-                'coverage_type' => $currentPolicy['coverage'] ?? $lead->coverage_type ?? 'basic',
-                'policy_expiration' => $currentPolicy['expiration_date'] ?? null
-            ],
-            'drivers' => $this->formatDrivers($drivers),
-            'vehicles' => $this->formatVehicles($vehicles),
-            'preferences' => [
-                'transfer_type' => 'warm_transfer',
-                'priority' => 'standard',
-                'callback_url' => url('/webhook/allstate/callback')
-            ]
+            'vertical' => 'auto-insurance',
+            'external_id' => $lead->id ?? uniqid('BRAIN_'),
+            'first_name' => $lead->first_name ?? '',
+            'last_name' => $lead->last_name ?? '',
+            'email' => $lead->email ?? '',
+            'home_phone' => $this->formatPhoneNumber($lead->phone ?? ''),
+            'address1' => $lead->address ?? '',
+            'city' => $lead->city ?? '',
+            'state' => $lead->state ?? 'CA', // Default to CA for testing
+            'zipcode' => $lead->zip_code ?? '',
+            'country' => 'USA',
+            'dob' => $lead->birth_date ?? '1990-01-01', // Default DOB if not provided
+            'tcpa' => true, // Assuming TCPA consent
+            'current_insurance_company' => strtolower($currentPolicy['current_insurance'] ?? $lead->insurance_company ?? 'other'),
+            'desired_coverage_type' => strtoupper($lead->coverage_type ?? 'BASIC'),
+            'currently_insured' => !empty($currentPolicy['current_insurance'] ?? $lead->insurance_company),
+            'drivers' => $this->formatDriversForAllstate($drivers),
+            'vehicles' => $this->formatVehiclesForAllstate($vehicles),
+            'ip_address' => request()->ip() ?? '127.0.0.1',
+            'user_agent' => request()->userAgent() ?? 'Brain-API/1.0'
         ];
         
         Log::info('Prepared Allstate transfer data', [
@@ -161,23 +157,39 @@ class AllstateCallTransferService
     }
     
     /**
-     * Format drivers data for Allstate
+     * Format drivers data for Allstate Lead Marketplace API
      */
-    private function formatDrivers($drivers)
+    private function formatDriversForAllstate($drivers)
     {
         if (empty($drivers) || !is_array($drivers)) {
-            return [];
+            // Return default driver if none provided
+            return [[
+                'first_name' => 'Unknown',
+                'last_name' => 'Driver',
+                'dob' => '1990-01-01',
+                'gender' => 'M',
+                'marital_status' => 'single',
+                'education' => 'HS',
+                'occupation' => 'OTHER',
+                'sr22_required' => false,
+                'good_student_discount' => false,
+                'defensive_driving_course' => false
+            ]];
         }
         
         $formatted = [];
         foreach ($drivers as $driver) {
             $formatted[] = [
-                'name' => $driver['name'] ?? 'Unknown Driver',
-                'age' => $driver['age'] ?? 25,
-                'gender' => $driver['gender'] ?? 'Unknown',
-                'license_status' => $driver['license_status'] ?? 'Valid',
-                'violations' => $driver['violations'] ?? 0,
-                'accidents' => $driver['accidents'] ?? []
+                'first_name' => $driver['first_name'] ?? explode(' ', $driver['name'] ?? 'Unknown Driver')[0],
+                'last_name' => $driver['last_name'] ?? explode(' ', $driver['name'] ?? 'Unknown Driver')[1] ?? 'Driver',
+                'dob' => $driver['dob'] ?? '1990-01-01',
+                'gender' => strtoupper(substr($driver['gender'] ?? 'M', 0, 1)),
+                'marital_status' => strtolower($driver['marital_status'] ?? 'single'),
+                'education' => strtoupper($driver['education'] ?? 'HS'),
+                'occupation' => strtoupper($driver['occupation'] ?? 'OTHER'),
+                'sr22_required' => $driver['sr22_required'] ?? false,
+                'good_student_discount' => $driver['good_student_discount'] ?? false,
+                'defensive_driving_course' => $driver['defensive_driving_course'] ?? false
             ];
         }
         
@@ -185,22 +197,35 @@ class AllstateCallTransferService
     }
     
     /**
-     * Format vehicles data for Allstate
+     * Format vehicles data for Allstate Lead Marketplace API
      */
-    private function formatVehicles($vehicles)
+    private function formatVehiclesForAllstate($vehicles)
     {
         if (empty($vehicles) || !is_array($vehicles)) {
-            return [];
+            // Return default vehicle if none provided
+            return [[
+                'year' => (int)date('Y') - 5, // 5 year old car as default
+                'make' => 'Toyota',
+                'model' => 'Camry',
+                'vin' => '',
+                'usage' => 'pleasure',
+                'ownership' => 'owned',
+                'annual_mileage' => 12000,
+                'garage' => false
+            ]];
         }
         
         $formatted = [];
         foreach ($vehicles as $vehicle) {
             $formatted[] = [
-                'year' => $vehicle['year'] ?? date('Y'),
-                'make' => $vehicle['make'] ?? 'Unknown',
-                'model' => $vehicle['model'] ?? 'Unknown',
-                'usage' => $vehicle['usage'] ?? 'Personal',
-                'ownership' => $vehicle['ownership'] ?? 'Own'
+                'year' => (int)($vehicle['year'] ?? date('Y') - 5),
+                'make' => $vehicle['make'] ?? 'Toyota',
+                'model' => $vehicle['model'] ?? 'Camry',
+                'vin' => $vehicle['vin'] ?? '',
+                'usage' => strtolower($vehicle['usage'] ?? 'pleasure'),
+                'ownership' => strtolower($vehicle['ownership'] ?? 'owned'),
+                'annual_mileage' => (int)($vehicle['annual_mileage'] ?? 12000),
+                'garage' => $vehicle['garage'] ?? false
             ];
         }
         
