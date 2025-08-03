@@ -19,6 +19,15 @@ use App\Http\Controllers\DashboardController;
 */
 
 // Root route
+// Simple test route for deployment verification
+Route::get('/test-deployment', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'New deployment is working!',
+        'timestamp' => now()->toISOString()
+    ]);
+});
+
 Route::get('/', function () {
     return response()->json([
         'success' => true,
@@ -43,7 +52,11 @@ Route::get('/', function () {
             '/webhook/ringba-decision' => 'Ringba buyer decision webhook (POST)',
             '/webhook/ringba-conversion' => 'Ringba conversion tracking webhook (POST)',
             '/webhook/status' => 'Webhook status monitoring (GET)',
-            '/api/webhooks' => 'Webhook dashboard API (GET)'
+            '/api/webhooks' => 'Webhook dashboard API (GET)',
+            '/analytics' => 'Analytics dashboard (GET)',
+            '/api/analytics/quick/{period}' => 'Quick analytics API (GET)',
+            '/api/analytics/{start}/{end}' => 'Custom date range analytics API (GET)',
+            '/api/analytics/date-ranges' => 'Available date ranges API (GET)'
         ],
         'timestamp' => now()->toISOString()
     ]);
