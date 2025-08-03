@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Lead;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\DashboardController;
 
 /*
@@ -663,7 +664,7 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             $lead = null; // Force mock data path
             $isTestLead = true;
         } else {
-            // Try to get real lead from database
+            // Try to get real lead from database or cache
             $lead = null;
             $callMetrics = null;
             $isTestLead = false;
@@ -674,8 +675,17 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                     $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
                 }
             } catch (Exception $dbError) {
-                // Database connection failed - log error but don't use mock data for real leads
-                Log::info('Database connection failed for real lead', ['error' => $dbError->getMessage(), 'lead_id' => $leadId]);
+                // Database connection failed - try cache fallback
+                Log::info('Database connection failed, trying cache', ['error' => $dbError->getMessage(), 'lead_id' => $leadId]);
+            }
+            
+            // If database failed, try to get from cache (for recent LQF leads)
+            if (!$lead) {
+                $cachedData = Cache::get("lead_data_{$leadId}");
+                if ($cachedData) {
+                    $lead = (object) array_merge($cachedData, ['id' => $leadId]);
+                    Log::info('Lead found in cache', ['lead_id' => $leadId]);
+                }
             }
         }
 
