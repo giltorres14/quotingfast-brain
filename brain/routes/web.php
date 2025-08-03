@@ -681,16 +681,22 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
         if (!$lead) {
             $lead = (object) [
                 'id' => $leadId,
-                'name' => 'John TestLead',
-                'phone' => '555-123-4567',
-                'email' => 'john.test@example.com',
-                'address' => '123 Test Street',
+                'name' => 'John ViciTest',
+                'first_name' => 'John',
+                'last_name' => 'ViciTest',
+                'phone' => '555-TEST-123',
+                'email' => 'vici.test@example.com',
+                'address' => '123 Vici Test St',
                 'city' => 'Test City',
                 'state' => 'CA',
                 'zip_code' => '90210',
+                'source' => 'leadsquotingfast', // CRITICAL: This was missing!
+                'type' => 'auto',
+                'received_at' => now(),
+                'joined_at' => now(),
                 'drivers' => json_encode([
                     [
-                        'name' => 'John TestLead',
+                        'name' => 'John ViciTest',
                         'age' => 35,
                         'gender' => 'Male',
                         'accidents' => 0,
@@ -707,10 +713,28 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                         'ownership' => 'Own'
                     ]
                 ]),
-                'requested_policy' => json_encode([
+                'current_policy' => json_encode([
                     'coverage' => 'Full Coverage',
                     'current_insurance' => 'State Farm',
                     'expiration_date' => '2024-12-31'
+                ]),
+                'payload' => json_encode([
+                    'contact' => [
+                        'first_name' => 'John',
+                        'last_name' => 'ViciTest',
+                        'phone' => '555-TEST-123',
+                        'email' => 'vici.test@example.com',
+                        'address' => '123 Vici Test St',
+                        'city' => 'Test City',
+                        'state' => 'CA',
+                        'zip_code' => '90210'
+                    ],
+                    'data' => [
+                        'source' => 'LeadsQuotingFast',
+                        'drivers' => [['name' => 'John ViciTest', 'age' => 35]],
+                        'vehicles' => [['year' => 2020, 'make' => 'Toyota', 'model' => 'Camry']],
+                        'requested_policy' => ['coverage' => 'Full Coverage']
+                    ]
                 ]),
                 'created_at' => now(),
                 'updated_at' => now()
