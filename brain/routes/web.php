@@ -1099,9 +1099,9 @@ Route::get('/login', function() {
 function sendToViciList101($leadData, $leadId) {
     // Your Vici API configuration
     $viciConfig = [
-        'server' => env('VICI_SERVER', 'your-vici-server.com'),
-        'user' => env('VICI_API_USER', 'api_user'),
-        'pass' => env('VICI_API_PASS', 'api_password'),
+        'server' => env('VICI_SERVER', 'philli.callix.ai'),
+        'user' => env('VICI_API_USER', 'UploadAPI'),
+        'pass' => env('VICI_API_PASS', 'ZL8aY2MuQM'),
         'list_id' => 101,
         'phone_code' => '1',
         'source' => 'LQF_API'
@@ -1127,24 +1127,29 @@ function sendToViciList101($leadData, $leadId) {
         'comments' => "Lead from LeadsQuotingFast - ID: {$leadId}"
     ];
     
-    // Send to Vici (commented out for testing - replace with your actual Vici API endpoint)
-    /*
-    $response = Http::timeout(30)->post("https://{$viciConfig['server']}/vicidial/non_agent_api.php", $viciData);
-    
-    if ($response->successful()) {
-        return $response->json();
-    } else {
-        throw new Exception("Vici API error: " . $response->body());
+    // Send to Vici - REAL API CALL ACTIVATED!
+    try {
+        $response = Http::timeout(30)->post("https://{$viciConfig['server']}/vicidial/non_agent_api.php", $viciData);
+        
+        if ($response->successful()) {
+            $responseData = $response->json();
+            Log::info('Vici lead submission successful', ['vici_response' => $responseData, 'vici_data' => $viciData]);
+            return $responseData;
+        } else {
+            Log::error('Vici API HTTP error', ['status' => $response->status(), 'body' => $response->body()]);
+            throw new Exception("Vici API HTTP error: " . $response->status() . " - " . $response->body());
+        }
+    } catch (Exception $apiError) {
+        Log::error('Vici API connection error', ['error' => $apiError->getMessage(), 'vici_data' => $viciData]);
+        
+        // Fallback - still return success but log the error
+        return [
+            'success' => false,
+            'lead_id' => $leadId,
+            'list_id' => 101,
+            'error' => $apiError->getMessage(),
+            'message' => 'Lead processing completed but Vici API failed - check logs'
+        ];
     }
-    */
-    
-    // For testing - simulate successful Vici response
-    Log::info('Vici lead submission simulated', ['vici_data' => $viciData]);
-    return [
-        'success' => true,
-        'lead_id' => $leadId,
-        'list_id' => 101,
-        'message' => 'Lead added to Vici list 101 (simulated for testing)'
-    ];
 }
  
