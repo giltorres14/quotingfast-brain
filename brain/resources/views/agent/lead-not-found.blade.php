@@ -3,58 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lead Not Found</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Lead Not Found - {{ $leadId }}</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            line-height: 1.4;
             background: #f8f9fa;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
         }
-        
+
         .container {
+            max-width: 100%;
+            height: 100vh;
             background: white;
-            border-radius: 8px;
-            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
             text-align: center;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-width: 400px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        
-        .icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-        
-        h1 {
-            color: #dc3545;
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
             margin-bottom: 8px;
         }
-        
-        p {
-            color: #6c757d;
+
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .icon {
+            font-size: 64px;
+            color: #ffc107;
             margin-bottom: 20px;
         }
-        
-        .lead-id {
+
+        .message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+            max-width: 400px;
+        }
+
+        .lead-info {
             background: #f8f9fa;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-family: monospace;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            min-width: 300px;
+        }
+
+        .lead-info h3 {
             color: #495057;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .lead-info p {
+            color: #6c757d;
+            margin: 5px 0;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .notes-section {
+            margin-top: 20px;
+            text-align: left;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .notes-section textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        .notes-section label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 20px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 200px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="icon">🔍</div>
-        <h1>Lead Not Found</h1>
-        <p>The requested lead could not be found in the system.</p>
-        <div class="lead-id">Lead ID: {{ $leadId }}</div>
+        <div class="header">
+            <h1>⚠️ Lead Not Found</h1>
+            <div class="subtitle">No previous data available for this contact</div>
+        </div>
+
+        <div class="content">
+            <div class="icon">🔍</div>
+            
+            <div class="message">
+                This phone number is not in our system. This could be a new lead, cold call, or the lead data hasn't been synced yet.
+            </div>
+
+            <div class="lead-info">
+                <h3>Call Information</h3>
+                <p><strong>Lead ID:</strong> {{ $leadId }}</p>
+                <p><strong>Status:</strong> No previous data found</p>
+                <p><strong>Action:</strong> Manual qualification required</p>
+            </div>
+
+            <div class="notes-section">
+                <label for="agent-notes">Agent Notes (Optional):</label>
+                <textarea id="agent-notes" placeholder="Add any notes about this call..."></textarea>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-success" onclick="transferToRingba()">
+                    🔄 Transfer to Buyer
+                </button>
+                
+                <button class="btn btn-secondary" onclick="addManualLead()">
+                    📝 Create Lead Record
+                </button>
+                
+                <button class="btn btn-primary" onclick="refreshData()">
+                    🔄 Refresh Data
+                </button>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function transferToRingba() {
+            const notes = document.getElementById('agent-notes').value;
+            
+            fetch('{{ $transferUrl }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    lead_id: '{{ $leadId }}',
+                    agent_notes: notes,
+                    transfer_reason: 'unknown_lead_qualified'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Transfer request sent to Ringba successfully!');
+                } else {
+                    alert('❌ Transfer failed: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Transfer error:', error);
+                alert('❌ Transfer failed: Network error');
+            });
+        }
+
+        function addManualLead() {
+            const notes = document.getElementById('agent-notes').value;
+            
+            // This would integrate with your lead creation system
+            fetch('{{ $apiBase }}/leads/manual', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    lead_id: '{{ $leadId }}',
+                    source: 'vici_manual',
+                    agent_notes: notes,
+                    phone: 'unknown', // Vici would provide this
+                    status: 'manual_entry'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Lead record created successfully!');
+                    location.reload(); // Refresh to show the new lead data
+                } else {
+                    alert('❌ Failed to create lead: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Create lead error:', error);
+                alert('❌ Failed to create lead: Network error');
+            });
+        }
+
+        function refreshData() {
+            location.reload();
+        }
+
+        // Auto-refresh every 30 seconds in case lead data comes in
+        setInterval(function() {
+            location.reload();
+        }, 30000);
+    </script>
 </body>
 </html>

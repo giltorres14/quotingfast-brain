@@ -661,10 +661,12 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
         // For test lead IDs, use mock data directly (no database query)
         if (str_starts_with($leadId, 'BRAIN_TEST') || str_starts_with($leadId, 'TEST_')) {
             $lead = null; // Force mock data path
+            $isTestLead = true;
         } else {
             // Try to get real lead from database
             $lead = null;
             $callMetrics = null;
+            $isTestLead = false;
             
             try {
                 $lead = App\Models\Lead::find($leadId);
@@ -672,13 +674,21 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                     $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
                 }
             } catch (Exception $dbError) {
-                // Database connection failed - use mock data for testing
-                Log::info('Database connection failed, using mock data', ['error' => $dbError->getMessage()]);
+                // Database connection failed - log error but don't use mock data for real leads
+                Log::info('Database connection failed for real lead', ['error' => $dbError->getMessage(), 'lead_id' => $leadId]);
             }
         }
 
-        // If no lead found in database or using test ID, create mock data for testing
-        if (!$lead) {
+        // Handle different scenarios
+        if (!$lead && !$isTestLead) {
+            // Real lead not found - show "Lead Not Found" page
+            return response()->view('agent.lead-not-found', [
+                'leadId' => $leadId,
+                'apiBase' => url('/api'),
+                'transferUrl' => url("/api/transfer/{$leadId}")
+            ]);
+        } elseif (!$lead && $isTestLead) {
+            // Test lead - create mock data for testing
             $lead = (object) [
                 'id' => $leadId,
                 'name' => 'John ViciTest',
