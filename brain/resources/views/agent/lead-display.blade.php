@@ -860,11 +860,21 @@
                     </div>
                     <div class="info-item">
                         <div class="info-label">Gender</div>
-                        <div class="info-value">{{ $driver['gender'] ?? 'Not provided' }}</div>
+                        <div class="info-value">
+                            {{ $driver['gender'] ?? 'Not provided' }}
+                            @if(isset($driver['gender']) && !in_array($driver['gender'], ['M', 'F', 'Male', 'Female']))
+                                <span style="font-size: 10px; color: #6c757d; margin-left: 8px;">(imported data)</span>
+                            @endif
+                        </div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Marital Status</div>
-                        <div class="info-value">{{ $driver['marital_status'] ?? 'Not provided' }}</div>
+                        <div class="info-value">
+                            {{ $driver['marital_status'] ?? 'Not provided' }}
+                            @if(isset($driver['marital_status']) && !in_array($driver['marital_status'], ['Single', 'Married', 'Divorced', 'Widowed', 'Separated']))
+                                <span style="font-size: 10px; color: #6c757d; margin-left: 8px;">(imported data)</span>
+                            @endif
+                        </div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">License State</div>
@@ -885,7 +895,10 @@
                                     @foreach($driver['violations'] as $violationIndex => $violation)
                                         <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #ffeaa7;">
                                             <strong>Violation {{ $violationIndex + 1 }}:</strong><br>
-                                            <strong>Type:</strong> {{ $violation['violation_type'] ?? 'Not specified' }}<br>
+                                            <strong>Type:</strong> {{ $violation['violation_type'] ?? 'Not specified' }}
+                                            @if(isset($violation['violation_type']) && !in_array($violation['violation_type'], ['Speeding', 'DUI/DWI', 'Reckless Driving', 'Running Red Light', 'Stop Sign Violation', 'Improper Lane Change', 'Following Too Closely', 'Failure to Yield', 'Careless Driving']))
+                                                <span style="font-size: 9px; color: #6c757d;">(imported)</span>
+                                            @endif<br>
                                             <strong>Date:</strong> {{ $violation['violation_date'] ?? 'Not specified' }}<br>
                                             @if(isset($violation['description']))
                                                 <strong>Description:</strong> {{ $violation['description'] }}<br>
@@ -1348,7 +1361,7 @@
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Violation Type *:</label>
-                            <select id="violationType" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                            <select id="violationType" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="handleOtherSelection(this, 'violationTypeOther')" required>
                                 <option value="">Select Violation Type...</option>
                                 <option value="Speeding">Speeding</option>
                                 <option value="DUI/DWI">DUI/DWI</option>
@@ -1359,8 +1372,9 @@
                                 <option value="Following Too Closely">Following Too Closely</option>
                                 <option value="Failure to Yield">Failure to Yield</option>
                                 <option value="Careless Driving">Careless Driving</option>
-                                <option value="Other">Other</option>
+                                <option value="Other">Other (specify below)</option>
                             </select>
+                            <input type="text" id="violationTypeOther" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; display: none;" placeholder="Specify violation type...">
                         </div>
                         
                         <div style="margin-bottom: 15px;">
@@ -1411,7 +1425,7 @@
         }
         
         async function saveViolation(driverIndex) {
-            const violationType = document.getElementById('violationType').value;
+            const violationType = getSelectedValue(document.getElementById('violationType'), 'violationTypeOther');
             const violationDate = document.getElementById('violationDate').value;
             const violationState = document.getElementById('violationState').value;
             const description = document.getElementById('violationDescription').value;
@@ -1476,7 +1490,7 @@
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Accident Type *:</label>
-                            <select id="accidentType" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                            <select id="accidentType" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="handleOtherSelection(this, 'accidentTypeOther')" required>
                                 <option value="">Select Accident Type...</option>
                                 <option value="Rear-end">Rear-end</option>
                                 <option value="Side impact">Side impact</option>
@@ -1486,8 +1500,9 @@
                                 <option value="Backing/Parking">Backing/Parking</option>
                                 <option value="Hit and run">Hit and run</option>
                                 <option value="Rollover">Rollover</option>
-                                <option value="Other">Other</option>
+                                <option value="Other">Other (specify below)</option>
                             </select>
+                            <input type="text" id="accidentTypeOther" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; display: none;" placeholder="Specify accident type...">
                         </div>
                         
                         <div style="margin-bottom: 15px;">
@@ -1537,7 +1552,7 @@
         
         async function saveAccident(driverIndex) {
             const accidentDate = document.getElementById('accidentDate').value;
-            const accidentType = document.getElementById('accidentType').value;
+            const accidentType = getSelectedValue(document.getElementById('accidentType'), 'accidentTypeOther');
             const atFault = document.getElementById('accidentAtFault').value;
             const damageAmount = document.getElementById('accidentDamageAmount').value;
             const description = document.getElementById('accidentDescription').value;
@@ -1907,6 +1922,74 @@
             showDriverModal();
         }
         
+        // Smart dropdown compatibility functions
+        // These functions handle imported lead data that may not match our dropdown options
+        // - Exact match: Maps imported values to dropdown options when possible
+        // - Partial match: Handles common variations (e.g., "Male" -> "M")
+        // - Other option: Preserves imported data using "Other" + text input
+        // - Display indicators: Shows "(imported data)" for non-standard values
+        function smartSelectOption(selectElement, value, otherInputId = null) {
+            if (!value) return;
+            
+            // Try to find exact match first
+            const exactMatch = Array.from(selectElement.options).find(option => 
+                option.value.toLowerCase() === value.toLowerCase()
+            );
+            
+            if (exactMatch) {
+                selectElement.value = exactMatch.value;
+                return;
+            }
+            
+            // Try partial match for common variations
+            const partialMatch = Array.from(selectElement.options).find(option => 
+                option.text.toLowerCase().includes(value.toLowerCase()) ||
+                value.toLowerCase().includes(option.text.toLowerCase())
+            );
+            
+            if (partialMatch) {
+                selectElement.value = partialMatch.value;
+                return;
+            }
+            
+            // If no match found, select "Other" and populate text input
+            const otherOption = Array.from(selectElement.options).find(option => 
+                option.value === 'Other'
+            );
+            
+            if (otherOption) {
+                selectElement.value = 'Other';
+                if (otherInputId) {
+                    const otherInput = document.getElementById(otherInputId);
+                    if (otherInput) {
+                        otherInput.value = value;
+                        otherInput.style.display = 'block';
+                    }
+                }
+            }
+        }
+        
+        function handleOtherSelection(selectElement, otherInputId) {
+            const otherInput = document.getElementById(otherInputId);
+            if (otherInput) {
+                if (selectElement.value === 'Other') {
+                    otherInput.style.display = 'block';
+                    otherInput.focus();
+                } else {
+                    otherInput.style.display = 'none';
+                    otherInput.value = '';
+                }
+            }
+        }
+        
+        function getSelectedValue(selectElement, otherInputId = null) {
+            if (selectElement.value === 'Other' && otherInputId) {
+                const otherInput = document.getElementById(otherInputId);
+                return otherInput ? otherInput.value : selectElement.value;
+            }
+            return selectElement.value;
+        }
+
         function showDriverModal() {
             const modalHtml = `
                 <div id="driverModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
@@ -1930,22 +2013,25 @@
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Gender:</label>
-                            <select id="driverGender" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <select id="driverGender" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="handleOtherSelection(this, 'driverGenderOther')">
                                 <option value="M">Male</option>
                                 <option value="F">Female</option>
-                                <option value="Other">Other</option>
+                                <option value="Other">Other (specify below)</option>
                             </select>
+                            <input type="text" id="driverGenderOther" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; display: none;" placeholder="Specify gender...">
                         </div>
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Marital Status:</label>
-                            <select id="driverMaritalStatus" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <select id="driverMaritalStatus" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="handleOtherSelection(this, 'driverMaritalStatusOther')">
                                 <option value="Single">Single</option>
                                 <option value="Married">Married</option>
                                 <option value="Divorced">Divorced</option>
                                 <option value="Widowed">Widowed</option>
                                 <option value="Separated">Separated</option>
+                                <option value="Other">Other (specify below)</option>
                             </select>
+                            <input type="text" id="driverMaritalStatusOther" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; display: none;" placeholder="Specify marital status...">
                         </div>
                         
                         <div style="margin-bottom: 15px;">
@@ -1970,18 +2056,20 @@
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">License Status:</label>
-                            <select id="driverLicenseStatus" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <select id="driverLicenseStatus" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="handleOtherSelection(this, 'driverLicenseStatusOther')">
                                 <option value="Valid">Valid</option>
                                 <option value="Suspended">Suspended</option>
                                 <option value="Expired">Expired</option>
                                 <option value="Revoked">Revoked</option>
                                 <option value="Permit">Permit</option>
+                                <option value="Other">Other (specify below)</option>
                             </select>
+                            <input type="text" id="driverLicenseStatusOther" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; display: none;" placeholder="Specify license status...">
                         </div>
                         
                         <div style="margin-bottom: 20px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Years Licensed:</label>
-                            <select id="driverYearsLicensed" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <select id="driverYearsLicensed" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="handleOtherSelection(this, 'driverYearsLicensedOther')">
                                 <option value="1">1 year</option>
                                 <option value="2">2 years</option>
                                 <option value="3">3 years</option>
@@ -1992,7 +2080,9 @@
                                 <option value="8">8 years</option>
                                 <option value="9">9 years</option>
                                 <option value="10">10+ years</option>
+                                <option value="Other">Other (specify below)</option>
                             </select>
+                            <input type="text" id="driverYearsLicensedOther" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px; display: none;" placeholder="Specify years licensed...">
                         </div>
                         
                         <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -2016,11 +2106,11 @@
             const firstName = document.getElementById('driverFirstName').value;
             const lastName = document.getElementById('driverLastName').value;
             const birthDate = document.getElementById('driverBirthDate').value;
-            const gender = document.getElementById('driverGender').value;
-            const maritalStatus = document.getElementById('driverMaritalStatus').value;
+            const gender = getSelectedValue(document.getElementById('driverGender'), 'driverGenderOther');
+            const maritalStatus = getSelectedValue(document.getElementById('driverMaritalStatus'), 'driverMaritalStatusOther');
             const licenseState = document.getElementById('driverLicenseState').value;
-            const licenseStatus = document.getElementById('driverLicenseStatus').value;
-            const yearsLicensed = document.getElementById('driverYearsLicensed').value;
+            const licenseStatus = getSelectedValue(document.getElementById('driverLicenseStatus'), 'driverLicenseStatusOther');
+            const yearsLicensed = getSelectedValue(document.getElementById('driverYearsLicensed'), 'driverYearsLicensedOther');
             
             if (!firstName || !lastName || !birthDate) {
                 alert('Please fill in all required fields (First Name, Last Name, Date of Birth)');
