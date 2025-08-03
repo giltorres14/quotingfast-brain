@@ -496,7 +496,7 @@
         .save-lead-btn:active {
             transform: translateY(0);
         }
-
+        
         @media (max-width: 600px) {
             .container { padding: 8px; }
             .info-grid { grid-template-columns: 1fr; }
@@ -754,10 +754,10 @@
                     <div class="info-label">City, State ZIP</div>
                     <div class="info-value">
                         {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
-                    </div>
                 </div>
             </div>
-            
+        </div>
+
             <!-- Edit Form -->
             <div class="edit-form" id="contact-edit">
                 <label>Phone:</label>
@@ -835,8 +835,8 @@
                     <button class="save-btn" onclick="saveContact()">Save</button>
                     <button class="cancel-btn" onclick="cancelEdit('contact')">Cancel</button>
                 </div>
-            </div>
-        </div>
+                </div>
+                </div>
 
         <!-- Call Metrics removed from agent view - admin only data -->
 
@@ -908,7 +908,7 @@
                     <div class="info-item">
                         <div class="info-label">Accidents</div>
                         <div class="info-value">
-                            @if(isset($driver['accidents']) && count($driver['accidents']) > 0)
+                @if(isset($driver['accidents']) && count($driver['accidents']) > 0)
                                 <span style="color: #dc3545; font-weight: bold;">{{ count($driver['accidents']) }} accident(s)</span>
                                 <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('accidents-{{ $index }}')">View Details</button>
                                 <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
@@ -927,7 +927,7 @@
                                             @if(isset($accident['damage_amount']))
                                                 <strong>Damage Amount:</strong> ${{ number_format($accident['damage_amount']) }}<br>
                                             @endif
-                                        </div>
+                </div>
                                     @endforeach
                                 </div>
                             @elseif(isset($driver['accidents']))
@@ -936,7 +936,7 @@
                             @else
                                 Not provided
                                 <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
-                            @endif
+                @endif
                         </div>
                     </div>
                     <div class="info-item">
@@ -1000,8 +1000,7 @@
         </div>
         @endif
 
-        <!-- Current Policy -->
-        @if($lead->current_policy)
+        <!-- Current Policy - Always Show -->
         <div class="section">
             <div class="section-title insurance">🛡️ Current Insurance <button class="edit-btn" onclick="toggleEdit('insurance')">Edit</button></div>
             <div class="info-grid" id="insurance-display">
@@ -1022,30 +1021,37 @@
                     <div class="info-value">{{ $lead->current_policy['insured_since'] ?? 'Not provided' }}</div>
                 </div>
             </div>
-            <div class="edit-form" id="insurance-edit" style="display: none;">
+            <div class="edit-form" id="insurance-edit" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px;">
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-label">Insurance Company</div>
-                        <input type="text" id="insurance_company" value="{{ $lead->current_policy['insurance_company'] ?? '' }}">
+                        <input type="text" id="insurance_company" value="{{ $lead->current_policy['insurance_company'] ?? '' }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     </div>
                     <div class="info-item">
                         <div class="info-label">Coverage Type</div>
-                        <input type="text" id="coverage_type" value="{{ $lead->current_policy['coverage_type'] ?? '' }}">
+                        <select id="coverage_type" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="">Select Coverage Type...</option>
+                            <option value="Liability Only" {{ ($lead->current_policy['coverage_type'] ?? '') == 'Liability Only' ? 'selected' : '' }}>Liability Only</option>
+                            <option value="Full Coverage" {{ ($lead->current_policy['coverage_type'] ?? '') == 'Full Coverage' ? 'selected' : '' }}>Full Coverage</option>
+                            <option value="Comprehensive" {{ ($lead->current_policy['coverage_type'] ?? '') == 'Comprehensive' ? 'selected' : '' }}>Comprehensive</option>
+                            <option value="Collision" {{ ($lead->current_policy['coverage_type'] ?? '') == 'Collision' ? 'selected' : '' }}>Collision</option>
+                        </select>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Expiration Date</div>
-                        <input type="date" id="expiration_date" value="{{ $lead->current_policy['expiration_date'] ?? '' }}">
+                        <input type="date" id="expiration_date" value="{{ $lead->current_policy['expiration_date'] ?? '' }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     </div>
                     <div class="info-item">
                         <div class="info-label">Insured Since</div>
-                        <input type="date" id="insured_since" value="{{ $lead->current_policy['insured_since'] ?? '' }}">
+                        <input type="date" id="insured_since" value="{{ $lead->current_policy['insured_since'] ?? '' }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                     </div>
                 </div>
-                <button onclick="saveInsurance()">Save</button>
-                <button onclick="cancelEdit('insurance')">Cancel</button>
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button onclick="saveInsurance()" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>
+                    <button onclick="cancelEdit('insurance')" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                </div>
             </div>
         </div>
-        @endif
 
     </div>
 
@@ -1219,10 +1225,10 @@
                     
                     // Save all data to database
                     const saveResponse = await fetch(`/agent/lead/{{ $lead->id }}/save-all`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify(allData)
                     });
@@ -1330,21 +1336,102 @@
             }
         }
         
-        async function addViolation(driverIndex) {
-            const violationType = prompt('Violation Type (e.g., Speeding, DUI, etc.):');
-            if (!violationType) return;
+        function addViolation(driverIndex) {
+            showViolationModal(driverIndex);
+        }
+        
+        function showViolationModal(driverIndex) {
+            const modalHtml = `
+                <div id="violationModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
+                    <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90%; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        <h3 style="margin-top: 0; color: #dc3545; border-bottom: 2px solid #f44336; padding-bottom: 10px;">⚠️ Add Violation</h3>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Violation Type *:</label>
+                            <select id="violationType" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                                <option value="">Select Violation Type...</option>
+                                <option value="Speeding">Speeding</option>
+                                <option value="DUI/DWI">DUI/DWI</option>
+                                <option value="Reckless Driving">Reckless Driving</option>
+                                <option value="Running Red Light">Running Red Light</option>
+                                <option value="Stop Sign Violation">Stop Sign Violation</option>
+                                <option value="Improper Lane Change">Improper Lane Change</option>
+                                <option value="Following Too Closely">Following Too Closely</option>
+                                <option value="Failure to Yield">Failure to Yield</option>
+                                <option value="Careless Driving">Careless Driving</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Violation Date *:</label>
+                            <input type="date" id="violationDate" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">State:</label>
+                            <select id="violationState" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="">Select State...</option>
+                                <option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option><option value="AR">AR</option>
+                                <option value="CA">CA</option><option value="CO">CO</option><option value="CT">CT</option><option value="DE">DE</option>
+                                <option value="FL">FL</option><option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option>
+                                <option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option><option value="KS">KS</option>
+                                <option value="KY">KY</option><option value="LA">LA</option><option value="ME">ME</option><option value="MD">MD</option>
+                                <option value="MA">MA</option><option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option>
+                                <option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option><option value="NV">NV</option>
+                                <option value="NH">NH</option><option value="NJ">NJ</option><option value="NM">NM</option><option value="NY">NY</option>
+                                <option value="NC">NC</option><option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option>
+                                <option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option><option value="SC">SC</option>
+                                <option value="SD">SD</option><option value="TN">TN</option><option value="TX">TX</option><option value="UT">UT</option>
+                                <option value="VT">VT</option><option value="VA">VA</option><option value="WA">WA</option><option value="WV">WV</option>
+                                <option value="WI">WI</option><option value="WY">WY</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Description:</label>
+                            <textarea id="violationDescription" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 60px; resize: vertical;" placeholder="Optional additional details..."></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            <button onclick="closeViolationModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                            <button onclick="saveViolation(${driverIndex})" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Violation</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+        
+        function closeViolationModal() {
+            const modal = document.getElementById('violationModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        async function saveViolation(driverIndex) {
+            const violationType = document.getElementById('violationType').value;
+            const violationDate = document.getElementById('violationDate').value;
+            const violationState = document.getElementById('violationState').value;
+            const description = document.getElementById('violationDescription').value;
             
-            const violationDate = prompt('Violation Date (YYYY-MM-DD):');
-            if (!violationDate) return;
+            if (!violationType || !violationDate) {
+                alert('Please fill in all required fields (Violation Type and Date)');
+                return;
+            }
             
-            const description = prompt('Description (optional):') || '';
-            const state = prompt('State where violation occurred:') || '';
+            // Convert date from YYYY-MM-DD to MM/DD/YYYY for display
+            const dateObj = new Date(violationDate);
+            const formattedDate = (dateObj.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                                dateObj.getDate().toString().padStart(2, '0') + '/' + 
+                                dateObj.getFullYear();
             
             const data = {
                 violation_type: violationType,
-                violation_date: violationDate,
+                violation_date: formattedDate,
                 description: description,
-                state: state
+                state: violationState
             };
             
             try {
@@ -1360,32 +1447,117 @@
                 const result = await response.json();
                 
                 if (result.success) {
+                    closeViolationModal();
                     alert('Violation added successfully!');
                     location.reload();
                 } else {
                     alert('Error: ' + result.error);
                 }
             } catch (error) {
+                console.error('Violation addition error:', error);
                 alert('Error adding violation: ' + error.message);
             }
         }
         
-        async function addAccident(driverIndex) {
-            const accidentDate = prompt('Accident Date (YYYY-MM-DD):');
-            if (!accidentDate) return;
+        function addAccident(driverIndex) {
+            showAccidentModal(driverIndex);
+        }
+        
+        function showAccidentModal(driverIndex) {
+            const modalHtml = `
+                <div id="accidentModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
+                    <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90%; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        <h3 style="margin-top: 0; color: #dc3545; border-bottom: 2px solid #f44336; padding-bottom: 10px;">🚗 Add Accident</h3>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Accident Date *:</label>
+                            <input type="date" id="accidentDate" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Accident Type *:</label>
+                            <select id="accidentType" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                                <option value="">Select Accident Type...</option>
+                                <option value="Rear-end">Rear-end</option>
+                                <option value="Side impact">Side impact</option>
+                                <option value="Head-on">Head-on</option>
+                                <option value="Single vehicle">Single vehicle</option>
+                                <option value="Multi-vehicle">Multi-vehicle</option>
+                                <option value="Backing/Parking">Backing/Parking</option>
+                                <option value="Hit and run">Hit and run</option>
+                                <option value="Rollover">Rollover</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">At Fault:</label>
+                            <select id="accidentAtFault" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="false">No - Not at fault</option>
+                                <option value="true">Yes - At fault</option>
+                                <option value="partial">Partial fault</option>
+                                <option value="unknown">Unknown</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Damage Amount:</label>
+                            <select id="accidentDamageAmount" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="0">No damage</option>
+                                <option value="500">Under $500</option>
+                                <option value="1000">$500 - $1,000</option>
+                                <option value="2500">$1,000 - $2,500</option>
+                                <option value="5000">$2,500 - $5,000</option>
+                                <option value="10000">$5,000 - $10,000</option>
+                                <option value="15000">Over $10,000</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Description:</label>
+                            <textarea id="accidentDescription" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 60px; resize: vertical;" placeholder="Optional additional details..."></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            <button onclick="closeAccidentModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                            <button onclick="saveAccident(${driverIndex})" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Accident</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+        
+        function closeAccidentModal() {
+            const modal = document.getElementById('accidentModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        async function saveAccident(driverIndex) {
+            const accidentDate = document.getElementById('accidentDate').value;
+            const accidentType = document.getElementById('accidentType').value;
+            const atFault = document.getElementById('accidentAtFault').value;
+            const damageAmount = document.getElementById('accidentDamageAmount').value;
+            const description = document.getElementById('accidentDescription').value;
             
-            const accidentType = prompt('Accident Type (e.g., Rear-end, Side impact, etc.):');
-            if (!accidentType) return;
+            if (!accidentDate || !accidentType) {
+                alert('Please fill in all required fields (Accident Date and Type)');
+                return;
+            }
             
-            const description = prompt('Description (optional):') || '';
-            const atFault = confirm('Was the driver at fault?');
-            const damageAmount = prompt('Damage Amount (numbers only, no $ sign):') || '0';
+            // Convert date from YYYY-MM-DD to MM/DD/YYYY for display
+            const dateObj = new Date(accidentDate);
+            const formattedDate = (dateObj.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                                dateObj.getDate().toString().padStart(2, '0') + '/' + 
+                                dateObj.getFullYear();
             
             const data = {
-                accident_date: accidentDate,
+                accident_date: formattedDate,
                 accident_type: accidentType,
                 description: description,
-                at_fault: atFault.toString(),
+                at_fault: atFault,
                 damage_amount: parseFloat(damageAmount) || 0
             };
             
@@ -1402,12 +1574,14 @@
                 const result = await response.json();
                 
                 if (result.success) {
+                    closeAccidentModal();
                     alert('Accident added successfully!');
                     location.reload();
                 } else {
                     alert('Error: ' + result.error);
                 }
             } catch (error) {
+                console.error('Accident addition error:', error);
                 alert('Error adding accident: ' + error.message);
             }
         }
@@ -1729,204 +1903,145 @@
             }
         }
         
-        async function addDriver() {
+                function addDriver() {
             showDriverModal();
         }
-
+        
         function showDriverModal() {
             const modalHtml = `
-                <div id="driverModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center;">
+                <div id="driverModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
                     <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90%; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                        <h3 style="margin-bottom: 20px; color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px;">👤 Add New Driver</h3>
+                        <h3 style="margin-top: 0; color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px;">👤 Add New Driver</h3>
                         
-                        <div id="driverStep1" class="driver-step">
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">First Name:</label>
-                                <input type="text" id="driverFirstName" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Enter first name" required>
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Last Name:</label>
-                                <input type="text" id="driverLastName" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Enter last name" required>
-                            </div>
-                            
-                            <div style="margin-bottom: 20px;">
-                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Date of Birth (MM/DD/YYYY):</label>
-                                <input type="text" id="driverBirthDate" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="MM/DD/YYYY" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}">
-                                <small style="color: #666; font-size: 11px;">Format: MM/DD/YYYY (e.g., 03/15/1985)</small>
-                            </div>
-                            
-                            <div style="display: flex; gap: 10px;">
-                                <button onclick="closeDriverModal()" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
-                                <button onclick="showDriverStep2()" style="flex: 1; padding: 12px; background: #ff9800; color: white; border: none; border-radius: 6px; cursor: pointer;">Next →</button>
-                            </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">First Name *:</label>
+                            <input type="text" id="driverFirstName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
                         </div>
                         
-                        <div id="driverStep2" class="driver-step" style="display: none;">
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Gender:</label>
-                                <select id="driverGender" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="M">Male</option>
-                                    <option value="F">Female</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Marital Status:</label>
-                                <select id="driverMaritalStatus" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="Single">Single</option>
-                                    <option value="Married">Married</option>
-                                    <option value="Divorced">Divorced</option>
-                                    <option value="Widowed">Widowed</option>
-                                    <option value="Separated">Separated</option>
-                                    <option value="Domestic Partnership">Domestic Partnership</option>
-                                </select>
-                            </div>
-                            
-                            <div style="margin-bottom: 20px;">
-                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">State Licensed:</label>
-                                <select id="driverLicenseState" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
-                                    <option value="">Select State...</option>
-                                    <option value="AL">AL - Alabama</option>
-                                    <option value="AK">AK - Alaska</option>
-                                    <option value="AZ">AZ - Arizona</option>
-                                    <option value="AR">AR - Arkansas</option>
-                                    <option value="CA">CA - California</option>
-                                    <option value="CO">CO - Colorado</option>
-                                    <option value="CT">CT - Connecticut</option>
-                                    <option value="DE">DE - Delaware</option>
-                                    <option value="FL">FL - Florida</option>
-                                    <option value="GA">GA - Georgia</option>
-                                    <option value="HI">HI - Hawaii</option>
-                                    <option value="ID">ID - Idaho</option>
-                                    <option value="IL">IL - Illinois</option>
-                                    <option value="IN">IN - Indiana</option>
-                                    <option value="IA">IA - Iowa</option>
-                                    <option value="KS">KS - Kansas</option>
-                                    <option value="KY">KY - Kentucky</option>
-                                    <option value="LA">LA - Louisiana</option>
-                                    <option value="ME">ME - Maine</option>
-                                    <option value="MD">MD - Maryland</option>
-                                    <option value="MA">MA - Massachusetts</option>
-                                    <option value="MI">MI - Michigan</option>
-                                    <option value="MN">MN - Minnesota</option>
-                                    <option value="MS">MS - Mississippi</option>
-                                    <option value="MO">MO - Missouri</option>
-                                    <option value="MT">MT - Montana</option>
-                                    <option value="NE">NE - Nebraska</option>
-                                    <option value="NV">NV - Nevada</option>
-                                    <option value="NH">NH - New Hampshire</option>
-                                    <option value="NJ">NJ - New Jersey</option>
-                                    <option value="NM">NM - New Mexico</option>
-                                    <option value="NY">NY - New York</option>
-                                    <option value="NC">NC - North Carolina</option>
-                                    <option value="ND">ND - North Dakota</option>
-                                    <option value="OH">OH - Ohio</option>
-                                    <option value="OK">OK - Oklahoma</option>
-                                    <option value="OR">OR - Oregon</option>
-                                    <option value="PA">PA - Pennsylvania</option>
-                                    <option value="RI">RI - Rhode Island</option>
-                                    <option value="SC">SC - South Carolina</option>
-                                    <option value="SD">SD - South Dakota</option>
-                                    <option value="TN">TN - Tennessee</option>
-                                    <option value="TX">TX - Texas</option>
-                                    <option value="UT">UT - Utah</option>
-                                    <option value="VT">VT - Vermont</option>
-                                    <option value="VA">VA - Virginia</option>
-                                    <option value="WA">WA - Washington</option>
-                                    <option value="WV">WV - West Virginia</option>
-                                    <option value="WI">WI - Wisconsin</option>
-                                    <option value="WY">WY - Wyoming</option>
-                                </select>
-                            </div>
-                            
-                            <div style="display: flex; gap: 10px;">
-                                <button onclick="showDriverStep1()" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">← Back</button>
-                                <button onclick="saveDriverData()" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">Add Driver</button>
-                            </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Last Name *:</label>
+                            <input type="text" id="driverLastName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Date of Birth (MM/DD/YYYY) *:</label>
+                            <input type="date" id="driverBirthDate" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Gender:</label>
+                            <select id="driverGender" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Marital Status:</label>
+                            <select id="driverMaritalStatus" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Divorced">Divorced</option>
+                                <option value="Widowed">Widowed</option>
+                                <option value="Separated">Separated</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">State Licensed:</label>
+                            <select id="driverLicenseState" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="">Select State...</option>
+                                <option value="AL">AL</option><option value="AK">AK</option><option value="AZ">AZ</option><option value="AR">AR</option>
+                                <option value="CA" selected>CA</option><option value="CO">CO</option><option value="CT">CT</option><option value="DE">DE</option>
+                                <option value="FL">FL</option><option value="GA">GA</option><option value="HI">HI</option><option value="ID">ID</option>
+                                <option value="IL">IL</option><option value="IN">IN</option><option value="IA">IA</option><option value="KS">KS</option>
+                                <option value="KY">KY</option><option value="LA">LA</option><option value="ME">ME</option><option value="MD">MD</option>
+                                <option value="MA">MA</option><option value="MI">MI</option><option value="MN">MN</option><option value="MS">MS</option>
+                                <option value="MO">MO</option><option value="MT">MT</option><option value="NE">NE</option><option value="NV">NV</option>
+                                <option value="NH">NH</option><option value="NJ">NJ</option><option value="NM">NM</option><option value="NY">NY</option>
+                                <option value="NC">NC</option><option value="ND">ND</option><option value="OH">OH</option><option value="OK">OK</option>
+                                <option value="OR">OR</option><option value="PA">PA</option><option value="RI">RI</option><option value="SC">SC</option>
+                                <option value="SD">SD</option><option value="TN">TN</option><option value="TX">TX</option><option value="UT">UT</option>
+                                <option value="VT">VT</option><option value="VA">VA</option><option value="WA">WA</option><option value="WV">WV</option>
+                                <option value="WI">WI</option><option value="WY">WY</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">License Status:</label>
+                            <select id="driverLicenseStatus" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="Valid">Valid</option>
+                                <option value="Suspended">Suspended</option>
+                                <option value="Expired">Expired</option>
+                                <option value="Revoked">Revoked</option>
+                                <option value="Permit">Permit</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Years Licensed:</label>
+                            <select id="driverYearsLicensed" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="1">1 year</option>
+                                <option value="2">2 years</option>
+                                <option value="3">3 years</option>
+                                <option value="4">4 years</option>
+                                <option value="5" selected>5 years</option>
+                                <option value="6">6 years</option>
+                                <option value="7">7 years</option>
+                                <option value="8">8 years</option>
+                                <option value="9">9 years</option>
+                                <option value="10">10+ years</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            <button onclick="closeDriverModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                            <button onclick="saveDriver()" style="padding: 10px 20px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Driver</button>
                         </div>
                     </div>
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
-            
-            // Set default state to lead's state
-            const defaultState = '{{ $lead->state ?? "CA" }}';
-            setTimeout(() => {
-                const stateSelect = document.getElementById('driverLicenseState');
-                if (stateSelect) stateSelect.value = defaultState;
-            }, 100);
         }
-
-        function showDriverStep1() {
-            document.getElementById('driverStep1').style.display = 'block';
-            document.getElementById('driverStep2').style.display = 'none';
-        }
-
-        function showDriverStep2() {
-            const firstName = document.getElementById('driverFirstName').value.trim();
-            const lastName = document.getElementById('driverLastName').value.trim();
-            const birthDate = document.getElementById('driverBirthDate').value.trim();
-            
-            if (!firstName || !lastName) {
-                alert('Please enter both first and last name');
-                return;
-            }
-            
-            if (birthDate && !validateDateFormat(birthDate)) {
-                alert('Please enter date in MM/DD/YYYY format (e.g., 03/15/1985)');
-                return;
-            }
-            
-            document.getElementById('driverStep1').style.display = 'none';
-            document.getElementById('driverStep2').style.display = 'block';
-        }
-
-        function validateDateFormat(dateString) {
-            const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
-            return regex.test(dateString);
-        }
-
+        
         function closeDriverModal() {
             const modal = document.getElementById('driverModal');
             if (modal) {
                 modal.remove();
             }
         }
-
-        async function saveDriverData() {
-            const firstName = document.getElementById('driverFirstName').value.trim();
-            const lastName = document.getElementById('driverLastName').value.trim();
-            const birthDate = document.getElementById('driverBirthDate').value.trim();
+        
+        async function saveDriver() {
+            const firstName = document.getElementById('driverFirstName').value;
+            const lastName = document.getElementById('driverLastName').value;
+            const birthDate = document.getElementById('driverBirthDate').value;
             const gender = document.getElementById('driverGender').value;
             const maritalStatus = document.getElementById('driverMaritalStatus').value;
             const licenseState = document.getElementById('driverLicenseState').value;
+            const licenseStatus = document.getElementById('driverLicenseStatus').value;
+            const yearsLicensed = document.getElementById('driverYearsLicensed').value;
             
-            if (!firstName || !lastName) {
-                alert('Please enter both first and last name');
+            if (!firstName || !lastName || !birthDate) {
+                alert('Please fill in all required fields (First Name, Last Name, Date of Birth)');
                 return;
             }
             
-            if (!licenseState) {
-                alert('Please select a state licensed');
-                return;
-            }
-            
-            if (birthDate && !validateDateFormat(birthDate)) {
-                alert('Please enter date in MM/DD/YYYY format (e.g., 03/15/1985)');
-                return;
-            }
+            // Convert date from YYYY-MM-DD to MM/DD/YYYY for display
+            const dateObj = new Date(birthDate);
+            const formattedDate = (dateObj.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                                dateObj.getDate().toString().padStart(2, '0') + '/' + 
+                                dateObj.getFullYear();
             
             const data = {
                 first_name: firstName,
                 last_name: lastName,
-                birth_date: birthDate,
+                birth_date: formattedDate,
                 gender: gender,
                 marital_status: maritalStatus,
                 license_state: licenseState,
-                license_status: 'Valid',
-                years_licensed: 5,
+                license_status: licenseStatus,
+                years_licensed: parseInt(yearsLicensed),
                 violations: [],
                 accidents: []
             };
@@ -1951,7 +2066,7 @@
                     alert('Error: ' + result.error);
                 }
             } catch (error) {
-                console.error('Error adding driver:', error);
+                console.error('Driver addition error:', error);
                 alert('Error adding driver: ' + error.message);
             }
         }
@@ -2051,7 +2166,7 @@
                 saveBtn.disabled = false;
             }
         }
-
+        
         // Notify parent window that iframe is loaded
         if (window.parent !== window) {
             window.parent.postMessage({

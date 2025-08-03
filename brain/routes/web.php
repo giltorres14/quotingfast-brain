@@ -1385,13 +1385,30 @@ Route::put('/agent/lead/{leadId}/contact', function (Request $request, $leadId) 
 // Route to add/update driver
 Route::post('/agent/lead/{leadId}/driver', function (Request $request, $leadId) {
     try {
-        // Check database connection first
-        \DB::connection()->getPdo();
-        
         $lead = \App\Models\Lead::findOrFail($leadId);
         $drivers = $lead->drivers ?? [];
         
-        $driverData = $request->all();
+        // Validate required fields
+        if (!$request->first_name || !$request->last_name) {
+            return response()->json([
+                'success' => false,
+                'error' => 'First name and last name are required'
+            ], 400);
+        }
+        
+        $driverData = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'birth_date' => $request->birth_date,
+            'gender' => $request->gender ?? 'M',
+            'marital_status' => $request->marital_status ?? 'Single',
+            'license_state' => $request->license_state ?? 'CA',
+            'license_status' => $request->license_status ?? 'Valid',
+            'years_licensed' => (int)($request->years_licensed ?? 5),
+            'violations' => $request->violations ?? [],
+            'accidents' => $request->accidents ?? []
+        ];
+        
         $driverIndex = $request->driver_index ?? count($drivers);
         
         if ($driverIndex < count($drivers)) {
@@ -1410,19 +1427,20 @@ Route::post('/agent/lead/{leadId}/driver', function (Request $request, $leadId) 
             'drivers' => $drivers
         ]);
         
-    } catch (\PDOException $e) {
-        \Log::error('Database connection error when adding driver', [
+    } catch (\Illuminate\Database\QueryException $e) {
+        \Log::error('Database error adding driver', [
             'lead_id' => $leadId,
-            'error' => $e->getMessage()
+            'error' => $e->getMessage(),
+            'code' => $e->getCode()
         ]);
         
         return response()->json([
             'success' => false,
-            'error' => 'Database connection error. Please try again in a moment. If the issue persists, contact support.'
+            'error' => 'Database connection error. Please try again later.'
         ], 503);
         
     } catch (\Exception $e) {
-        \Log::error('Failed to update driver', [
+        \Log::error('Error adding driver', [
             'lead_id' => $leadId,
             'error' => $e->getMessage(),
             'data' => $request->all()
@@ -1509,9 +1527,6 @@ Route::post('/agent/lead/{leadId}/driver/{driverIndex}/accident', function (Requ
 // Route to add/update vehicle
 Route::post('/agent/lead/{leadId}/vehicle', function (Request $request, $leadId) {
     try {
-        // Check database connection first
-        \DB::connection()->getPdo();
-        
         $lead = \App\Models\Lead::findOrFail($leadId);
         $vehicles = $lead->vehicles ?? [];
         
@@ -1543,24 +1558,7 @@ Route::post('/agent/lead/{leadId}/vehicle', function (Request $request, $leadId)
             'vehicles' => $vehicles
         ]);
         
-    } catch (\PDOException $e) {
-        \Log::error('Database connection error when adding vehicle', [
-            'lead_id' => $leadId,
-            'error' => $e->getMessage()
-        ]);
-        
-        return response()->json([
-            'success' => false,
-            'error' => 'Database connection error. Please try again in a moment. If the issue persists, contact support.'
-        ], 503);
-        
     } catch (\Exception $e) {
-        \Log::error('Failed to update vehicle', [
-            'lead_id' => $leadId,
-            'error' => $e->getMessage(),
-            'data' => $request->all()
-        ]);
-        
         return response()->json([
             'success' => false,
             'error' => 'Failed to update vehicle: ' . $e->getMessage()
