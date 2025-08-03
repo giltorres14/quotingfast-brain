@@ -1958,9 +1958,21 @@ Route::post('/webhook/ringba-decision', function (Request $request) {
     }
 });
 
+// Test route to verify routing is working
+Route::get('/api/test-quick/{period}', function ($period) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Route working correctly',
+        'period' => $period,
+        'timestamp' => now()->toISOString()
+    ]);
+});
+
 // Call Analytics API Routes - SPECIFIC ROUTES FIRST
 Route::get('/api/analytics/quick/{period}', function (Request $request, $period) {
     try {
+        Log::info('Analytics quick route called', ['period' => $period, 'url' => $request->fullUrl()]);
+        
         $ranges = \App\Services\CallAnalyticsService::getDateRanges();
         
         if (!isset($ranges[$period])) {
