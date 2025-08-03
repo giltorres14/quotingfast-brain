@@ -1648,6 +1648,32 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
     }
 });
 
+// Validate lead for Allstate enrichment
+Route::get('/agent/lead/{leadId}/validate-allstate', function ($leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        
+        // Perform Allstate validation
+        $validation = \App\Services\AllstateValidationService::validateLeadForEnrichment($lead);
+        $summary = \App\Services\AllstateValidationService::generateValidationSummary($validation);
+        $fieldMapping = \App\Services\AllstateValidationService::getFieldMappingForFrontend();
+        
+        return response()->json([
+            'lead_id' => $leadId,
+            'validation' => $validation,
+            'summary' => $summary,
+            'field_mapping' => $fieldMapping,
+            'required_fields' => \App\Services\AllstateValidationService::getRequiredFields()
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Validation failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
 // Test data normalization for buyers
 Route::get('/test/normalization/{leadId?}', function ($leadId = 'BRAIN_TEST_RINGBA') {
     try {

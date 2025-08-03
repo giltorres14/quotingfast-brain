@@ -504,11 +504,205 @@
             .enrichment-buttons { flex-direction: column; align-items: center; }
             .btn-enrichment { min-width: 200px; }
         }
+        
+        /* Allstate Validation Styles */
+        .validation-error {
+            border: 2px solid #dc3545 !important;
+            background-color: #fff5f5 !important;
+            animation: validationPulse 2s ease-in-out;
+        }
+        
+        .validation-warning {
+            border: 2px solid #ffc107 !important;
+            background-color: #fffbf0 !important;
+        }
+        
+        .validation-success {
+            border: 2px solid #28a745 !important;
+            background-color: #f0fff0 !important;
+        }
+        
+        @keyframes validationPulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+        
+        .validation-tooltip {
+            position: absolute;
+            background: #dc3545;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            z-index: 1000;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .validation-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: #dc3545;
+        }
+        
+        .validation-summary {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1001;
+            max-width: 300px;
+            display: none;
+        }
+        
+        .validation-summary.show {
+            display: block;
+            animation: slideInRight 0.3s ease-out;
+        }
+        
+        .validation-summary.error {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .validation-summary.warning {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .validation-summary.success {
+            border-left: 4px solid #28a745;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .validation-summary h4 {
+            margin: 0 0 8px 0;
+            font-size: 14px;
+        }
+        
+        .validation-summary p {
+            margin: 0 0 8px 0;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .validation-summary ul {
+            margin: 8px 0;
+            padding-left: 16px;
+            font-size: 11px;
+        }
+        
+        .validation-summary li {
+            margin: 2px 0;
+            color: #666;
+        }
+        
+        .validation-close {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .validation-close:hover {
+            color: #333;
+        }
+        
+        .enrichment-blocked {
+            opacity: 0.5;
+            cursor: not-allowed !important;
+            pointer-events: none;
+        }
+        
+        .enrichment-ready {
+            animation: readyPulse 2s infinite;
+        }
+        
+        @keyframes readyPulse {
+            0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+        }
+        
+        .field-status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: 4px;
+        }
+        
+        .field-status-indicator.missing {
+            background: #dc3545;
+        }
+        
+        .field-status-indicator.complete {
+            background: #28a745;
+        }
+        
+        .validation-progress {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 999;
+            font-size: 12px;
+            min-width: 200px;
+        }
+        
+        .validation-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        
+        .validation-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #dc3545, #ffc107, #28a745);
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
     <!-- Save Lead Button -->
     <button class="save-lead-btn" onclick="saveAllLeadData()">💾 Save Lead</button>
+    
+    <!-- Validation Progress Indicator -->
+    <div id="validation-progress" class="validation-progress" style="display: none;">
+        <div>Allstate Readiness: <span id="validation-percentage">0%</span></div>
+        <div class="validation-progress-bar">
+            <div id="validation-progress-fill" class="validation-progress-fill" style="width: 0%"></div>
+        </div>
+        <div id="validation-status">Checking requirements...</div>
+    </div>
+    
+    <!-- Validation Summary Modal -->
+    <div id="validation-summary" class="validation-summary">
+        <button class="validation-close" onclick="closeValidationSummary()">×</button>
+        <h4 id="validation-title">Validation Status</h4>
+        <p id="validation-message">Checking lead requirements...</p>
+        <ul id="validation-details"></ul>
+    </div>
     
     <div class="container">
         <!-- Header - Agent View (No Admin Data) -->
@@ -1072,6 +1266,217 @@
         
         // Auto-refresh disabled for agent view - no call metrics displayed
         
+        // Allstate Validation System
+        let validationData = null;
+        let validationTimer = null;
+        
+        // Initialize validation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            validateAllstateReadiness();
+            // Re-validate when any form field changes
+            document.addEventListener('input', debounceValidation);
+            document.addEventListener('change', debounceValidation);
+        });
+        
+        function debounceValidation() {
+            clearTimeout(validationTimer);
+            validationTimer = setTimeout(validateAllstateReadiness, 1000);
+        }
+        
+        async function validateAllstateReadiness() {
+            try {
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/validate-allstate`);
+                const data = await response.json();
+                
+                validationData = data;
+                updateValidationUI(data);
+                
+            } catch (error) {
+                console.error('Validation error:', error);
+            }
+        }
+        
+        function updateValidationUI(data) {
+            const validation = data.validation;
+            const summary = data.summary;
+            
+            // Update progress indicator
+            const totalFields = Object.keys(data.required_fields.lead).length + 
+                               data.required_fields.drivers.fields ? Object.keys(data.required_fields.drivers.fields).length : 0 +
+                               data.required_fields.vehicles.fields ? Object.keys(data.required_fields.vehicles.fields).length : 0 + 2; // +2 for insurance fields
+            
+            const missingCount = Object.keys(validation.missing_fields).length;
+            const completedCount = Math.max(0, totalFields - missingCount);
+            const percentage = Math.round((completedCount / totalFields) * 100);
+            
+            document.getElementById('validation-percentage').textContent = percentage + '%';
+            document.getElementById('validation-progress-fill').style.width = percentage + '%';
+            document.getElementById('validation-status').textContent = 
+                validation.is_valid ? 'Ready for Allstate!' : `${missingCount} fields missing`;
+            
+            // Show/hide progress indicator
+            const progressEl = document.getElementById('validation-progress');
+            if (missingCount > 0 || !validation.is_valid) {
+                progressEl.style.display = 'block';
+            } else {
+                progressEl.style.display = 'none';
+            }
+            
+            // Highlight missing fields
+            highlightMissingFields(validation.missing_fields, data.field_mapping);
+            
+            // Update enrichment buttons
+            updateEnrichmentButtons(validation.is_valid, summary);
+        }
+        
+        function highlightMissingFields(missingFields, fieldMapping) {
+            // Clear previous highlighting
+            document.querySelectorAll('.validation-error, .validation-warning').forEach(el => {
+                el.classList.remove('validation-error', 'validation-warning');
+            });
+            
+            // Remove existing tooltips
+            document.querySelectorAll('.validation-tooltip').forEach(el => el.remove());
+            
+            // Highlight missing fields
+            Object.keys(missingFields).forEach(fieldPath => {
+                const fieldLabel = missingFields[fieldPath];
+                
+                // Handle lead fields
+                if (fieldPath.startsWith('lead.')) {
+                    const fieldName = fieldPath.replace('lead.', '');
+                    const selectors = fieldMapping[fieldPath] || [`#contact-${fieldName}`, `.contact-info .${fieldName}`];
+                    
+                    selectors.forEach(selector => {
+                        const element = document.querySelector(selector);
+                        if (element) {
+                            element.classList.add('validation-error');
+                            addValidationTooltip(element, fieldLabel);
+                        }
+                    });
+                }
+                
+                // Handle insurance fields
+                if (fieldPath.startsWith('insurance.')) {
+                    const fieldName = fieldPath.replace('insurance.', '');
+                    const selectors = fieldMapping[fieldPath] || [`#${fieldName}`, `.insurance-section .${fieldName}`];
+                    
+                    selectors.forEach(selector => {
+                        const element = document.querySelector(selector);
+                        if (element) {
+                            element.classList.add('validation-error');
+                            addValidationTooltip(element, fieldLabel);
+                        }
+                    });
+                }
+                
+                // Handle driver/vehicle count errors
+                if (fieldPath.includes('.count')) {
+                    const sectionName = fieldPath.split('.')[0];
+                    const sectionElement = document.querySelector(`.${sectionName}-section`);
+                    if (sectionElement) {
+                        sectionElement.classList.add('validation-warning');
+                        addValidationTooltip(sectionElement, fieldLabel);
+                    }
+                }
+                
+                // Handle specific driver/vehicle field errors
+                if (fieldPath.includes('drivers.') && !fieldPath.includes('.count')) {
+                    const parts = fieldPath.split('.');
+                    if (parts.length >= 3) {
+                        const driverIndex = parts[1];
+                        const driverCard = document.querySelector(`.driver-card[data-index="${driverIndex}"]`);
+                        if (driverCard) {
+                            driverCard.classList.add('validation-warning');
+                            addValidationTooltip(driverCard, fieldLabel);
+                        }
+                    }
+                }
+                
+                if (fieldPath.includes('vehicles.') && !fieldPath.includes('.count')) {
+                    const parts = fieldPath.split('.');
+                    if (parts.length >= 3) {
+                        const vehicleIndex = parts[1];
+                        const vehicleCard = document.querySelector(`.vehicle-card[data-index="${vehicleIndex}"]`);
+                        if (vehicleCard) {
+                            vehicleCard.classList.add('validation-warning');
+                            addValidationTooltip(vehicleCard, fieldLabel);
+                        }
+                    }
+                }
+            });
+        }
+        
+        function addValidationTooltip(element, message) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'validation-tooltip';
+            tooltip.textContent = message;
+            
+            element.style.position = 'relative';
+            element.appendChild(tooltip);
+            
+            // Position tooltip
+            setTimeout(() => {
+                const rect = element.getBoundingClientRect();
+                tooltip.style.top = '-30px';
+                tooltip.style.left = '50%';
+                tooltip.style.transform = 'translateX(-50%)';
+            }, 10);
+        }
+        
+        function updateEnrichmentButtons(isValid, summary) {
+            const enrichmentButtons = document.querySelectorAll('.btn-enrichment');
+            
+            enrichmentButtons.forEach(button => {
+                if (isValid) {
+                    button.classList.remove('enrichment-blocked');
+                    button.classList.add('enrichment-ready');
+                    button.title = 'Ready for Allstate enrichment';
+                } else {
+                    button.classList.add('enrichment-blocked');
+                    button.classList.remove('enrichment-ready');
+                    button.title = summary.message || 'Complete required fields first';
+                }
+            });
+        }
+        
+        function showValidationSummary(summary) {
+            const summaryEl = document.getElementById('validation-summary');
+            const titleEl = document.getElementById('validation-title');
+            const messageEl = document.getElementById('validation-message');
+            const detailsEl = document.getElementById('validation-details');
+            
+            titleEl.textContent = summary.title;
+            messageEl.textContent = summary.message;
+            
+            // Clear previous details
+            detailsEl.innerHTML = '';
+            
+            // Add missing field details
+            if (summary.details) {
+                Object.values(summary.details).forEach(detail => {
+                    const li = document.createElement('li');
+                    li.textContent = detail;
+                    detailsEl.appendChild(li);
+                });
+            }
+            
+            // Set appropriate styling
+            summaryEl.className = `validation-summary show ${summary.status}`;
+            
+            // Auto-hide after 10 seconds for success messages
+            if (summary.status === 'success') {
+                setTimeout(() => {
+                    closeValidationSummary();
+                }, 10000);
+            }
+        }
+        
+        function closeValidationSummary() {
+            const summaryEl = document.getElementById('validation-summary');
+            summaryEl.classList.remove('show');
+        }
+        
         // Ringba Qualification Form Logic
         function toggleInsuranceQuestions() {
             const insured = document.getElementById('currently_insured').value;
@@ -1156,6 +1561,43 @@
         }
         
         async function enrichLead(type) {
+            // CRITICAL: Validate for Allstate before allowing enrichment
+            if (type === 'insured') {
+                // Re-validate to get latest status
+                await validateAllstateReadiness();
+                
+                if (!validationData || !validationData.validation.is_valid) {
+                    const summary = validationData ? validationData.summary : {
+                        title: 'Validation Error',
+                        message: 'Unable to validate lead requirements. Please refresh and try again.',
+                        status: 'error',
+                        details: {}
+                    };
+                    
+                    showValidationSummary(summary);
+                    
+                    // Show detailed error
+                    let errorMessage = summary.title + '\n\n' + summary.message;
+                    
+                    if (summary.details && Object.keys(summary.details).length > 0) {
+                        errorMessage += '\n\nMissing Required Fields:';
+                        Object.values(summary.details).forEach(detail => {
+                            errorMessage += '\n• ' + detail;
+                        });
+                    }
+                    
+                    alert(errorMessage);
+                    return;
+                }
+                
+                // Special check for insurance status (Allstate only accepts insured)
+                const currentlyInsured = document.getElementById('currently_insured')?.value || '';
+                if (!currentlyInsured || currentlyInsured.toLowerCase() === 'no') {
+                    alert('❌ ALLSTATE REQUIREMENT ERROR\n\nAllstate only accepts leads that are currently insured.\n\nThis lead shows as uninsured and cannot be enriched to Allstate.\n\nPlease update the insurance status or use a different enrichment option.');
+                    return;
+                }
+            }
+            
             const data = getFormData();
             
             // Ringba enrichment URLs with correct parameter mapping
@@ -1252,6 +1694,15 @@
                     
                     // Open enrichment URL in new tab
                     window.open(enrichmentURL, '_blank');
+                    
+                    // Show success confirmation
+                    const successSummary = {
+                        title: '✅ Enrichment Successful!',
+                        message: `Lead has been successfully enriched to ${type.toUpperCase()} campaign and all data has been saved.`,
+                        status: 'success',
+                        details: {}
+                    };
+                    showValidationSummary(successSummary);
                     
                     // Update button to show it was saved and enriched
                     button.innerHTML = '✅ Saved & Enriched!';
