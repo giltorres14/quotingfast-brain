@@ -694,17 +694,17 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                 'type' => 'auto',
                 'received_at' => now(),
                 'joined_at' => now(),
-                'drivers' => json_encode([
+                'drivers' => [
                     [
                         'name' => 'John ViciTest',
                         'age' => 35,
                         'gender' => 'Male',
-                        'accidents' => 0,
+                        'accidents' => [],
                         'violations' => 1,
                         'license_status' => 'Valid'
                     ]
-                ]),
-                'vehicles' => json_encode([
+                ],
+                'vehicles' => [
                     [
                         'year' => 2020,
                         'make' => 'Toyota',
@@ -712,12 +712,12 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                         'usage' => 'Commute',
                         'ownership' => 'Own'
                     ]
-                ]),
-                'current_policy' => json_encode([
+                ],
+                'current_policy' => [
                     'coverage' => 'Full Coverage',
                     'current_insurance' => 'State Farm',
                     'expiration_date' => '2024-12-31'
-                ]),
+                ],
                 'payload' => json_encode([
                     'contact' => [
                         'first_name' => 'John',
