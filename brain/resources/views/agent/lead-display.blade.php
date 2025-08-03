@@ -747,7 +747,7 @@
                     
                     <div id="insurance_questions" class="conditional-question">
                         <label class="question-label">Who is your current provider?</label>
-                        <select class="question-select" id="current_provider">
+                        <select class="question-select" id="current_provider" onchange="updateInsuranceSection()">
                             <option value="">Select...</option>
                             <option value="state_farm">State Farm</option>
                             <option value="geico">GEICO</option>
@@ -1486,6 +1486,41 @@
                 insuranceQuestions.classList.add('show');
             } else {
                 insuranceQuestions.classList.remove('show');
+            }
+        }
+        
+        // Update bottom insurance section when top provider is selected
+        function updateInsuranceSection() {
+            const currentProvider = document.getElementById('current_provider').value;
+            
+            if (currentProvider) {
+                // Map provider values to display names
+                const providerNames = {
+                    'state_farm': 'State Farm',
+                    'geico': 'GEICO',
+                    'progressive': 'Progressive',
+                    'allstate': 'Allstate',
+                    'farmers': 'Farmers',
+                    'usaa': 'USAA',
+                    'liberty_mutual': 'Liberty Mutual',
+                    'other': 'Other'
+                };
+                
+                const displayName = providerNames[currentProvider] || currentProvider;
+                
+                // Update the display in the bottom insurance section
+                const insuranceDisplay = document.querySelector('#insurance-display .info-item:first-child .info-value');
+                if (insuranceDisplay) {
+                    insuranceDisplay.textContent = displayName;
+                }
+                
+                // Also update the edit form input if it exists
+                const insuranceInput = document.getElementById('insurance_company');
+                if (insuranceInput) {
+                    insuranceInput.value = displayName;
+                }
+                
+                console.log('Updated insurance section:', displayName);
             }
         }
         
