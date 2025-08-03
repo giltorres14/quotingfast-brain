@@ -1730,18 +1730,193 @@
         }
         
         async function addDriver() {
-            const firstName = prompt('First Name:');
-            if (!firstName) return;
+            showDriverModal();
+        }
+
+        function showDriverModal() {
+            const modalHtml = `
+                <div id="driverModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; justify-content: center; align-items: center;">
+                    <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90%; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        <h3 style="margin-bottom: 20px; color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px;">👤 Add New Driver</h3>
+                        
+                        <div id="driverStep1" class="driver-step">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">First Name:</label>
+                                <input type="text" id="driverFirstName" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Enter first name" required>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Last Name:</label>
+                                <input type="text" id="driverLastName" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Enter last name" required>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Date of Birth (MM/DD/YYYY):</label>
+                                <input type="text" id="driverBirthDate" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" placeholder="MM/DD/YYYY" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}">
+                                <small style="color: #666; font-size: 11px;">Format: MM/DD/YYYY (e.g., 03/15/1985)</small>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="closeDriverModal()" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
+                                <button onclick="showDriverStep2()" style="flex: 1; padding: 12px; background: #ff9800; color: white; border: none; border-radius: 6px; cursor: pointer;">Next →</button>
+                            </div>
+                        </div>
+                        
+                        <div id="driverStep2" class="driver-step" style="display: none;">
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Gender:</label>
+                                <select id="driverGender" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Marital Status:</label>
+                                <select id="driverMaritalStatus" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="Single">Single</option>
+                                    <option value="Married">Married</option>
+                                    <option value="Divorced">Divorced</option>
+                                    <option value="Widowed">Widowed</option>
+                                    <option value="Separated">Separated</option>
+                                    <option value="Domestic Partnership">Domestic Partnership</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 5px;">State Licensed:</label>
+                                <select id="driverLicenseState" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                                    <option value="">Select State...</option>
+                                    <option value="AL">AL - Alabama</option>
+                                    <option value="AK">AK - Alaska</option>
+                                    <option value="AZ">AZ - Arizona</option>
+                                    <option value="AR">AR - Arkansas</option>
+                                    <option value="CA">CA - California</option>
+                                    <option value="CO">CO - Colorado</option>
+                                    <option value="CT">CT - Connecticut</option>
+                                    <option value="DE">DE - Delaware</option>
+                                    <option value="FL">FL - Florida</option>
+                                    <option value="GA">GA - Georgia</option>
+                                    <option value="HI">HI - Hawaii</option>
+                                    <option value="ID">ID - Idaho</option>
+                                    <option value="IL">IL - Illinois</option>
+                                    <option value="IN">IN - Indiana</option>
+                                    <option value="IA">IA - Iowa</option>
+                                    <option value="KS">KS - Kansas</option>
+                                    <option value="KY">KY - Kentucky</option>
+                                    <option value="LA">LA - Louisiana</option>
+                                    <option value="ME">ME - Maine</option>
+                                    <option value="MD">MD - Maryland</option>
+                                    <option value="MA">MA - Massachusetts</option>
+                                    <option value="MI">MI - Michigan</option>
+                                    <option value="MN">MN - Minnesota</option>
+                                    <option value="MS">MS - Mississippi</option>
+                                    <option value="MO">MO - Missouri</option>
+                                    <option value="MT">MT - Montana</option>
+                                    <option value="NE">NE - Nebraska</option>
+                                    <option value="NV">NV - Nevada</option>
+                                    <option value="NH">NH - New Hampshire</option>
+                                    <option value="NJ">NJ - New Jersey</option>
+                                    <option value="NM">NM - New Mexico</option>
+                                    <option value="NY">NY - New York</option>
+                                    <option value="NC">NC - North Carolina</option>
+                                    <option value="ND">ND - North Dakota</option>
+                                    <option value="OH">OH - Ohio</option>
+                                    <option value="OK">OK - Oklahoma</option>
+                                    <option value="OR">OR - Oregon</option>
+                                    <option value="PA">PA - Pennsylvania</option>
+                                    <option value="RI">RI - Rhode Island</option>
+                                    <option value="SC">SC - South Carolina</option>
+                                    <option value="SD">SD - South Dakota</option>
+                                    <option value="TN">TN - Tennessee</option>
+                                    <option value="TX">TX - Texas</option>
+                                    <option value="UT">UT - Utah</option>
+                                    <option value="VT">VT - Vermont</option>
+                                    <option value="VA">VA - Virginia</option>
+                                    <option value="WA">WA - Washington</option>
+                                    <option value="WV">WV - West Virginia</option>
+                                    <option value="WI">WI - Wisconsin</option>
+                                    <option value="WY">WY - Wyoming</option>
+                                </select>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button onclick="showDriverStep1()" style="flex: 1; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">← Back</button>
+                                <button onclick="saveDriverData()" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">Add Driver</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
             
-            const lastName = prompt('Last Name:');
-            if (!lastName) return;
+            // Set default state to lead's state
+            const defaultState = '{{ $lead->state ?? "CA" }}';
+            setTimeout(() => {
+                const stateSelect = document.getElementById('driverLicenseState');
+                if (stateSelect) stateSelect.value = defaultState;
+            }, 100);
+        }
+
+        function showDriverStep1() {
+            document.getElementById('driverStep1').style.display = 'block';
+            document.getElementById('driverStep2').style.display = 'none';
+        }
+
+        function showDriverStep2() {
+            const firstName = document.getElementById('driverFirstName').value.trim();
+            const lastName = document.getElementById('driverLastName').value.trim();
+            const birthDate = document.getElementById('driverBirthDate').value.trim();
             
-            const birthDate = prompt('Birth Date (YYYY-MM-DD):');
-            const gender = prompt('Gender (M/F):') || 'M';
-            const maritalStatus = prompt('Marital Status (Single, Married, Divorced, etc.):') || 'Single';
-            const licenseState = prompt('License State:') || '{{ $lead->state ?? "CA" }}';
-            const licenseStatus = prompt('License Status (Valid, Suspended, etc.):') || 'Valid';
-            const yearsLicensed = prompt('Years Licensed:') || '5';
+            if (!firstName || !lastName) {
+                alert('Please enter both first and last name');
+                return;
+            }
+            
+            if (birthDate && !validateDateFormat(birthDate)) {
+                alert('Please enter date in MM/DD/YYYY format (e.g., 03/15/1985)');
+                return;
+            }
+            
+            document.getElementById('driverStep1').style.display = 'none';
+            document.getElementById('driverStep2').style.display = 'block';
+        }
+
+        function validateDateFormat(dateString) {
+            const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+            return regex.test(dateString);
+        }
+
+        function closeDriverModal() {
+            const modal = document.getElementById('driverModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        async function saveDriverData() {
+            const firstName = document.getElementById('driverFirstName').value.trim();
+            const lastName = document.getElementById('driverLastName').value.trim();
+            const birthDate = document.getElementById('driverBirthDate').value.trim();
+            const gender = document.getElementById('driverGender').value;
+            const maritalStatus = document.getElementById('driverMaritalStatus').value;
+            const licenseState = document.getElementById('driverLicenseState').value;
+            
+            if (!firstName || !lastName) {
+                alert('Please enter both first and last name');
+                return;
+            }
+            
+            if (!licenseState) {
+                alert('Please select a state licensed');
+                return;
+            }
+            
+            if (birthDate && !validateDateFormat(birthDate)) {
+                alert('Please enter date in MM/DD/YYYY format (e.g., 03/15/1985)');
+                return;
+            }
             
             const data = {
                 first_name: firstName,
@@ -1750,8 +1925,8 @@
                 gender: gender,
                 marital_status: maritalStatus,
                 license_state: licenseState,
-                license_status: licenseStatus,
-                years_licensed: parseInt(yearsLicensed),
+                license_status: 'Valid',
+                years_licensed: 5,
                 violations: [],
                 accidents: []
             };
@@ -1769,12 +1944,14 @@
                 const result = await response.json();
                 
                 if (result.success) {
+                    closeDriverModal();
                     alert('Driver added successfully!');
                     location.reload();
                 } else {
                     alert('Error: ' + result.error);
                 }
             } catch (error) {
+                console.error('Error adding driver:', error);
                 alert('Error adding driver: ' + error.message);
             }
         }
