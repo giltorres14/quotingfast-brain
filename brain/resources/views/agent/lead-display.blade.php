@@ -382,7 +382,7 @@
         <!-- Ringba Qualification Form -->
         <div class="qualification-form">
             <div class="qualification-header">
-                🎯 Lead Qualification & Ringba Enrichment
+                🎯 Lead Qualification & Ringba Enrichment (Enhanced)
             </div>
             
             <!-- Sticky Lead Info Bubble -->
