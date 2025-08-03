@@ -1172,10 +1172,19 @@ function sendToViciList101($leadData, $leadId) {
         'comments' => "Lead from LeadsQuotingFast - Brain ID: {$leadId}, Vici ID: {$viciLeadId}"
     ];
     
-    // Send to Vici - Testing with hardcoded vendor_id: TB_API
+    // Send to Vici - Two-step process: Firewall auth + API call
     try {
         Log::info('Attempting Vici API call with vendor_id: TB_API', ['vici_data' => $viciData]);
         
+        // Step 1: Authenticate through firewall to whitelist IP
+        $firewallAuth = Http::timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
+            'user' => $viciConfig['user'],
+            'pass' => $viciConfig['pass']
+        ]);
+        
+        Log::info('Firewall authentication attempt', ['status' => $firewallAuth->status()]);
+        
+        // Step 2: Immediately make API call while IP is whitelisted (15-20 sec window)
         $response = Http::timeout(30)->post("https://{$viciConfig['server']}{$viciConfig['api_endpoint']}", $viciData);
         
         if ($response->successful()) {
