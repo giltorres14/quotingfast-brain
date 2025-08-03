@@ -1296,20 +1296,206 @@
             }
         }
         
+        // Vehicle data for cascading dropdowns
+        const vehicleData = {
+            2024: {
+                'Toyota': ['Camry', 'Corolla', 'RAV4', 'Highlander', 'Prius', 'Tacoma', 'Tundra', 'Sienna'],
+                'Honda': ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey', 'Ridgeline', 'Passport', 'HR-V'],
+                'Ford': ['F-150', 'Escape', 'Explorer', 'Mustang', 'Edge', 'Expedition', 'Ranger', 'Bronco'],
+                'Chevrolet': ['Silverado', 'Equinox', 'Malibu', 'Traverse', 'Tahoe', 'Suburban', 'Colorado', 'Blazer'],
+                'Nissan': ['Altima', 'Sentra', 'Rogue', 'Pathfinder', 'Frontier', 'Titan', 'Murano', 'Armada'],
+                'BMW': ['3 Series', '5 Series', 'X3', 'X5', 'X1', 'X7', '7 Series', '4 Series'],
+                'Mercedes-Benz': ['C-Class', 'E-Class', 'GLC', 'GLE', 'A-Class', 'S-Class', 'GLS', 'CLA'],
+                'Audi': ['A4', 'A6', 'Q5', 'Q7', 'A3', 'Q3', 'A8', 'Q8'],
+                'Hyundai': ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Palisade', 'Kona', 'Venue', 'Genesis G90'],
+                'Kia': ['Forte', 'Optima', 'Sorento', 'Telluride', 'Sportage', 'Soul', 'Stinger', 'Carnival']
+            },
+            2023: {
+                'Toyota': ['Camry', 'Corolla', 'RAV4', 'Highlander', 'Prius', 'Tacoma', 'Tundra', 'Sienna'],
+                'Honda': ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey', 'Ridgeline', 'Passport', 'HR-V'],
+                'Ford': ['F-150', 'Escape', 'Explorer', 'Mustang', 'Edge', 'Expedition', 'Ranger', 'Bronco'],
+                'Chevrolet': ['Silverado', 'Equinox', 'Malibu', 'Traverse', 'Tahoe', 'Suburban', 'Colorado', 'Blazer'],
+                'Nissan': ['Altima', 'Sentra', 'Rogue', 'Pathfinder', 'Frontier', 'Titan', 'Murano', 'Armada']
+            },
+            2022: {
+                'Toyota': ['Camry', 'Corolla', 'RAV4', 'Highlander', 'Prius', 'Tacoma', 'Tundra', 'Sienna'],
+                'Honda': ['Civic', 'Accord', 'CR-V', 'Pilot', 'Odyssey', 'Ridgeline', 'Passport', 'HR-V'],
+                'Ford': ['F-150', 'Escape', 'Explorer', 'Mustang', 'Edge', 'Expedition', 'Ranger', 'Bronco'],
+                'Chevrolet': ['Silverado', 'Equinox', 'Malibu', 'Traverse', 'Tahoe', 'Suburban', 'Colorado', 'Blazer'],
+                'Nissan': ['Altima', 'Sentra', 'Rogue', 'Pathfinder', 'Frontier', 'Titan', 'Murano', 'Armada']
+            }
+        };
+
         async function addVehicle() {
-            const year = prompt('Vehicle Year:');
-            if (!year) return;
+            showVehicleModal();
+        }
+
+        function showVehicleModal() {
+            // Create modal HTML with dropdowns
+            const modalHtml = `
+                <div id="vehicleModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+                        <h3 style="margin-bottom: 15px; color: #333;">Add New Vehicle</h3>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Year:</label>
+                            <select id="vehicleYear" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="updateMakes()">
+                                <option value="">Select Year...</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                                <option value="2021">2021</option>
+                                <option value="2020">2020</option>
+                                <option value="2019">2019</option>
+                                <option value="2018">2018</option>
+                                <option value="2017">2017</option>
+                                <option value="2016">2016</option>
+                                <option value="2015">2015</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Make:</label>
+                            <select id="vehicleMake" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="updateModels()" disabled>
+                                <option value="">Select Make...</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Model:</label>
+                            <select id="vehicleModel" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" disabled>
+                                <option value="">Select Model...</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Primary Use:</label>
+                            <select id="vehicleUse" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="Commute">Commute to Work</option>
+                                <option value="Pleasure">Pleasure/Personal</option>
+                                <option value="Business">Business</option>
+                                <option value="Farm">Farm Use</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Annual Miles:</label>
+                            <select id="vehicleMiles" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="5000">Under 5,000</option>
+                                <option value="7500">5,000 - 10,000</option>
+                                <option value="12000" selected>10,000 - 15,000</option>
+                                <option value="17500">15,000 - 20,000</option>
+                                <option value="22500">20,000 - 25,000</option>
+                                <option value="30000">Over 25,000</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Ownership:</label>
+                            <select id="vehicleOwnership" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="Own">Own</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Lease">Lease</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Garage:</label>
+                            <select id="vehicleGarage" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="Yes">Yes - Garaged</option>
+                                <option value="No">No - Street/Driveway</option>
+                                <option value="Carport">Carport</option>
+                            </select>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                            <button onclick="closeVehicleModal()" style="padding: 8px 16px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+                            <button onclick="saveVehicle()" style="padding: 8px 16px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Vehicle</button>
+                        </div>
+                    </div>
+                </div>
+            `;
             
-            const make = prompt('Vehicle Make:');
-            if (!make) return;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function updateMakes() {
+            const year = document.getElementById('vehicleYear').value;
+            const makeSelect = document.getElementById('vehicleMake');
+            const modelSelect = document.getElementById('vehicleModel');
             
-            const model = prompt('Vehicle Model:');
-            if (!model) return;
+            // Clear and disable model dropdown
+            modelSelect.innerHTML = '<option value="">Select Model...</option>';
+            modelSelect.disabled = true;
             
-            const primaryUse = prompt('Primary Use (e.g., Commute, Pleasure, Business):') || 'Commute';
-            const annualMiles = prompt('Annual Miles:') || '12000';
-            const ownership = prompt('Ownership (Own, Lease, Finance):') || 'Own';
-            const garage = prompt('Garage (Yes/No):') || 'No';
+            if (year && vehicleData[year]) {
+                makeSelect.innerHTML = '<option value="">Select Make...</option>';
+                Object.keys(vehicleData[year]).forEach(make => {
+                    makeSelect.innerHTML += `<option value="${make}">${make}</option>`;
+                });
+                makeSelect.disabled = false;
+            } else if (year) {
+                // For years not in our data, show common makes
+                const commonMakes = ['Toyota', 'Honda', 'Ford', 'Chevrolet', 'Nissan', 'BMW', 'Mercedes-Benz', 'Audi', 'Hyundai', 'Kia', 'Subaru', 'Mazda', 'Volkswagen', 'Jeep', 'Ram', 'GMC', 'Cadillac', 'Lexus', 'Acura', 'Infiniti', 'Other'];
+                makeSelect.innerHTML = '<option value="">Select Make...</option>';
+                commonMakes.forEach(make => {
+                    makeSelect.innerHTML += `<option value="${make}">${make}</option>`;
+                });
+                makeSelect.disabled = false;
+            } else {
+                makeSelect.innerHTML = '<option value="">Select Make...</option>';
+                makeSelect.disabled = true;
+            }
+        }
+
+        function updateModels() {
+            const year = document.getElementById('vehicleYear').value;
+            const make = document.getElementById('vehicleMake').value;
+            const modelSelect = document.getElementById('vehicleModel');
+            
+            if (year && make && vehicleData[year] && vehicleData[year][make]) {
+                modelSelect.innerHTML = '<option value="">Select Model...</option>';
+                vehicleData[year][make].forEach(model => {
+                    modelSelect.innerHTML += `<option value="${model}">${model}</option>`;
+                });
+                modelSelect.disabled = false;
+            } else if (year && make) {
+                // Allow manual entry for models not in our data
+                modelSelect.innerHTML = '<option value="">Select Model...</option><option value="Other">Other/Enter Manually</option>';
+                modelSelect.disabled = false;
+            } else {
+                modelSelect.innerHTML = '<option value="">Select Model...</option>';
+                modelSelect.disabled = true;
+            }
+        }
+
+        function closeVehicleModal() {
+            const modal = document.getElementById('vehicleModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        async function saveVehicle() {
+            const year = document.getElementById('vehicleYear').value;
+            const make = document.getElementById('vehicleMake').value;
+            let model = document.getElementById('vehicleModel').value;
+            const primaryUse = document.getElementById('vehicleUse').value;
+            const annualMiles = document.getElementById('vehicleMiles').value;
+            const ownership = document.getElementById('vehicleOwnership').value;
+            const garage = document.getElementById('vehicleGarage').value;
+            
+            if (!year || !make || !model) {
+                alert('Please select Year, Make, and Model');
+                return;
+            }
+            
+            // Handle manual model entry
+            if (model === 'Other') {
+                model = prompt('Enter vehicle model:');
+                if (!model) return;
+            }
             
             const data = {
                 year: parseInt(year),
@@ -1334,6 +1520,7 @@
                 const result = await response.json();
                 
                 if (result.success) {
+                    closeVehicleModal();
                     alert('Vehicle added successfully!');
                     location.reload();
                 } else {
