@@ -1316,4 +1316,41 @@ function sendToViciList101($leadData, $leadId) {
         ];
     }
 }
+
+// Route to save lead qualification data
+Route::post('/agent/lead/{leadId}/qualification', function (Request $request, $leadId) {
+    try {
+        $qualificationData = $request->all();
+        
+        // Add lead_id to the data
+        $qualificationData['lead_id'] = $leadId;
+        
+        // Set enriched_at timestamp
+        $qualificationData['enriched_at'] = now();
+        
+        // Create or update qualification record
+        $qualification = \App\Models\LeadQualification::updateOrCreate(
+            ['lead_id' => $leadId],
+            $qualificationData
+        );
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Qualification data saved successfully',
+            'qualification_id' => $qualification->id
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Failed to save qualification data', [
+            'lead_id' => $leadId,
+            'error' => $e->getMessage(),
+            'data' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to save qualification data: ' . $e->getMessage()
+        ], 500);
+    }
+});
  

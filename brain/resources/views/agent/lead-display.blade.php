@@ -475,18 +475,58 @@
                 <div class="question-group">
                     <label class="question-label">State</label>
                     <select class="question-select" id="state">
-                        <option value="{{ $lead->state ?? '' }}">{{ $lead->state ?? 'Select State...' }}</option>
-                        <option value="AL">Alabama</option>
-                        <option value="AK">Alaska</option>
-                        <option value="AZ">Arizona</option>
-                        <option value="AR">Arkansas</option>
-                        <option value="CA">California</option>
-                        <option value="CO">Colorado</option>
-                        <option value="CT">Connecticut</option>
-                        <option value="DE">Delaware</option>
-                        <option value="FL">Florida</option>
-                        <option value="GA">Georgia</option>
-                        <!-- Add more states as needed -->
+                        <option value="">Select State...</option>
+                        <option value="AL" {{ ($lead->state ?? '') == 'AL' ? 'selected' : '' }}>AL</option>
+                        <option value="AK" {{ ($lead->state ?? '') == 'AK' ? 'selected' : '' }}>AK</option>
+                        <option value="AZ" {{ ($lead->state ?? '') == 'AZ' ? 'selected' : '' }}>AZ</option>
+                        <option value="AR" {{ ($lead->state ?? '') == 'AR' ? 'selected' : '' }}>AR</option>
+                        <option value="CA" {{ ($lead->state ?? '') == 'CA' ? 'selected' : '' }}>CA</option>
+                        <option value="CO" {{ ($lead->state ?? '') == 'CO' ? 'selected' : '' }}>CO</option>
+                        <option value="CT" {{ ($lead->state ?? '') == 'CT' ? 'selected' : '' }}>CT</option>
+                        <option value="DE" {{ ($lead->state ?? '') == 'DE' ? 'selected' : '' }}>DE</option>
+                        <option value="FL" {{ ($lead->state ?? '') == 'FL' ? 'selected' : '' }}>FL</option>
+                        <option value="GA" {{ ($lead->state ?? '') == 'GA' ? 'selected' : '' }}>GA</option>
+                        <option value="HI" {{ ($lead->state ?? '') == 'HI' ? 'selected' : '' }}>HI</option>
+                        <option value="ID" {{ ($lead->state ?? '') == 'ID' ? 'selected' : '' }}>ID</option>
+                        <option value="IL" {{ ($lead->state ?? '') == 'IL' ? 'selected' : '' }}>IL</option>
+                        <option value="IN" {{ ($lead->state ?? '') == 'IN' ? 'selected' : '' }}>IN</option>
+                        <option value="IA" {{ ($lead->state ?? '') == 'IA' ? 'selected' : '' }}>IA</option>
+                        <option value="KS" {{ ($lead->state ?? '') == 'KS' ? 'selected' : '' }}>KS</option>
+                        <option value="KY" {{ ($lead->state ?? '') == 'KY' ? 'selected' : '' }}>KY</option>
+                        <option value="LA" {{ ($lead->state ?? '') == 'LA' ? 'selected' : '' }}>LA</option>
+                        <option value="ME" {{ ($lead->state ?? '') == 'ME' ? 'selected' : '' }}>ME</option>
+                        <option value="MD" {{ ($lead->state ?? '') == 'MD' ? 'selected' : '' }}>MD</option>
+                        <option value="MA" {{ ($lead->state ?? '') == 'MA' ? 'selected' : '' }}>MA</option>
+                        <option value="MI" {{ ($lead->state ?? '') == 'MI' ? 'selected' : '' }}>MI</option>
+                        <option value="MN" {{ ($lead->state ?? '') == 'MN' ? 'selected' : '' }}>MN</option>
+                        <option value="MS" {{ ($lead->state ?? '') == 'MS' ? 'selected' : '' }}>MS</option>
+                        <option value="MO" {{ ($lead->state ?? '') == 'MO' ? 'selected' : '' }}>MO</option>
+                        <option value="MT" {{ ($lead->state ?? '') == 'MT' ? 'selected' : '' }}>MT</option>
+                        <option value="NE" {{ ($lead->state ?? '') == 'NE' ? 'selected' : '' }}>NE</option>
+                        <option value="NV" {{ ($lead->state ?? '') == 'NV' ? 'selected' : '' }}>NV</option>
+                        <option value="NH" {{ ($lead->state ?? '') == 'NH' ? 'selected' : '' }}>NH</option>
+                        <option value="NJ" {{ ($lead->state ?? '') == 'NJ' ? 'selected' : '' }}>NJ</option>
+                        <option value="NM" {{ ($lead->state ?? '') == 'NM' ? 'selected' : '' }}>NM</option>
+                        <option value="NY" {{ ($lead->state ?? '') == 'NY' ? 'selected' : '' }}>NY</option>
+                        <option value="NC" {{ ($lead->state ?? '') == 'NC' ? 'selected' : '' }}>NC</option>
+                        <option value="ND" {{ ($lead->state ?? '') == 'ND' ? 'selected' : '' }}>ND</option>
+                        <option value="OH" {{ ($lead->state ?? '') == 'OH' ? 'selected' : '' }}>OH</option>
+                        <option value="OK" {{ ($lead->state ?? '') == 'OK' ? 'selected' : '' }}>OK</option>
+                        <option value="OR" {{ ($lead->state ?? '') == 'OR' ? 'selected' : '' }}>OR</option>
+                        <option value="PA" {{ ($lead->state ?? '') == 'PA' ? 'selected' : '' }}>PA</option>
+                        <option value="RI" {{ ($lead->state ?? '') == 'RI' ? 'selected' : '' }}>RI</option>
+                        <option value="SC" {{ ($lead->state ?? '') == 'SC' ? 'selected' : '' }}>SC</option>
+                        <option value="SD" {{ ($lead->state ?? '') == 'SD' ? 'selected' : '' }}>SD</option>
+                        <option value="TN" {{ ($lead->state ?? '') == 'TN' ? 'selected' : '' }}>TN</option>
+                        <option value="TX" {{ ($lead->state ?? '') == 'TX' ? 'selected' : '' }}>TX</option>
+                        <option value="UT" {{ ($lead->state ?? '') == 'UT' ? 'selected' : '' }}>UT</option>
+                        <option value="VT" {{ ($lead->state ?? '') == 'VT' ? 'selected' : '' }}>VT</option>
+                        <option value="VA" {{ ($lead->state ?? '') == 'VA' ? 'selected' : '' }}>VA</option>
+                        <option value="WA" {{ ($lead->state ?? '') == 'WA' ? 'selected' : '' }}>WA</option>
+                        <option value="WV" {{ ($lead->state ?? '') == 'WV' ? 'selected' : '' }}>WV</option>
+                        <option value="WI" {{ ($lead->state ?? '') == 'WI' ? 'selected' : '' }}>WI</option>
+                        <option value="WY" {{ ($lead->state ?? '') == 'WY' ? 'selected' : '' }}>WY</option>
+                        <option value="DC" {{ ($lead->state ?? '') == 'DC' ? 'selected' : '' }}>DC</option>
                     </select>
                 </div>
 
@@ -620,6 +660,22 @@
                         <div class="info-value">
                             @if(isset($driver['violations']) && count($driver['violations']) > 0)
                                 <span style="color: #dc3545; font-weight: bold;">{{ count($driver['violations']) }} violation(s)</span>
+                                <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('violations-{{ $index }}')">View Details</button>
+                                <div id="violations-{{ $index }}" class="violation-details" style="display: none; margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; font-size: 11px;">
+                                    @foreach($driver['violations'] as $violationIndex => $violation)
+                                        <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #ffeaa7;">
+                                            <strong>Violation {{ $violationIndex + 1 }}:</strong><br>
+                                            <strong>Type:</strong> {{ $violation['violation_type'] ?? 'Not specified' }}<br>
+                                            <strong>Date:</strong> {{ $violation['violation_date'] ?? 'Not specified' }}<br>
+                                            @if(isset($violation['description']))
+                                                <strong>Description:</strong> {{ $violation['description'] }}<br>
+                                            @endif
+                                            @if(isset($violation['state']))
+                                                <strong>State:</strong> {{ $violation['state'] }}<br>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
                             @elseif(isset($driver['violations']))
                                 <span style="color: #28a745;">Clean record</span>
                             @else
@@ -632,6 +688,25 @@
                         <div class="info-value">
                             @if(isset($driver['accidents']) && count($driver['accidents']) > 0)
                                 <span style="color: #dc3545; font-weight: bold;">{{ count($driver['accidents']) }} accident(s)</span>
+                                <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('accidents-{{ $index }}')">View Details</button>
+                                <div id="accidents-{{ $index }}" class="accident-details" style="display: none; margin-top: 8px; padding: 8px; background: #f8d7da; border-radius: 4px; font-size: 11px;">
+                                    @foreach($driver['accidents'] as $accidentIndex => $accident)
+                                        <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #f5c6cb;">
+                                            <strong>Accident {{ $accidentIndex + 1 }}:</strong><br>
+                                            <strong>Date:</strong> {{ $accident['accident_date'] ?? 'Not specified' }}<br>
+                                            <strong>Type:</strong> {{ $accident['accident_type'] ?? 'Not specified' }}<br>
+                                            @if(isset($accident['description']))
+                                                <strong>Description:</strong> {{ $accident['description'] }}<br>
+                                            @endif
+                                            @if(isset($accident['at_fault']))
+                                                <strong>At Fault:</strong> {{ $accident['at_fault'] ? 'Yes' : 'No' }}<br>
+                                            @endif
+                                            @if(isset($accident['damage_amount']))
+                                                <strong>Damage Amount:</strong> ${{ number_format($accident['damage_amount']) }}<br>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
                             @elseif(isset($driver['accidents']))
                                 <span style="color: #28a745;">No accidents</span>
                             @else
@@ -849,7 +924,7 @@
             return url;
         }
         
-        function enrichLead(type) {
+        async function enrichLead(type) {
             const data = getFormData();
             
             // Ringba enrichment URLs with correct parameter mapping
@@ -886,21 +961,77 @@
             );
             
             if (confirmation) {
-                // Open enrichment URL in new tab
-                window.open(enrichmentURL, '_blank');
-                
-                // Update button to show it was clicked
+                // Get the button that was clicked
                 const button = event.target;
                 const originalText = button.innerHTML;
-                button.innerHTML = '✅ Enriched!';
-                button.style.opacity = '0.7';
-                button.disabled = true;
                 
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.style.opacity = '1';
-                    button.disabled = false;
-                }, 3000);
+                try {
+                    // First, save the qualification data to the database
+                    const qualificationData = {
+                        ...data,
+                        enrichment_type: type,
+                        enrichment_data: {
+                            type: type,
+                            url: enrichmentURL,
+                            timestamp: new Date().toISOString()
+                        }
+                    };
+                    
+                    // Save to database
+                    const saveResponse = await fetch(`/agent/lead/{{ $lead->id }}/qualification`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(qualificationData)
+                    });
+                    
+                    if (!saveResponse.ok) {
+                        throw new Error('Failed to save qualification data');
+                    }
+                    
+                    // Open enrichment URL in new tab
+                    window.open(enrichmentURL, '_blank');
+                    
+                    // Update button to show it was saved and enriched
+                    button.innerHTML = '✅ Saved & Enriched!';
+                    button.style.opacity = '0.7';
+                    button.disabled = true;
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.opacity = '1';
+                        button.disabled = false;
+                    }, 5000);
+                    
+                } catch (error) {
+                    console.error('Error saving qualification data:', error);
+                    alert('Error saving qualification data. Please try again.');
+                    
+                    // Still open enrichment URL even if save failed
+                    window.open(enrichmentURL, '_blank');
+                    
+                    // Update button to show enrichment happened but save failed
+                    button.innerHTML = '⚠️ Enriched (Save Failed)';
+                    button.style.opacity = '0.7';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.opacity = '1';
+                        button.disabled = false;
+                    }, 5000);
+                }
+            }
+        }
+        
+        // Function to toggle violation/accident details
+        function toggleDetails(elementId) {
+            const element = document.getElementById(elementId);
+            if (element.style.display === 'none' || element.style.display === '') {
+                element.style.display = 'block';
+            } else {
+                element.style.display = 'none';
             }
         }
 
