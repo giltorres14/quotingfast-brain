@@ -31,7 +31,7 @@ Route::get('/test-deployment', function () {
 Route::get('/', function () {
     return response()->json([
         'success' => true,
-        'message' => 'Welcome to The Brain - Laravel API with Analytics is running!',
+        'message' => 'The Brain - Analytics Ready!',
         'debug_info' => [
             'laravel_version' => app()->version(),
             'environment' => app()->environment(),
@@ -2026,6 +2026,11 @@ Route::get('/api/analytics/date-ranges', function () {
 // Analytics Dashboard View
 Route::get('/analytics', function () {
     return view('analytics.dashboard');
+});
+
+// Simple Admin Dashboard (No Authentication Required)
+Route::get('/admin', function () {
+    return view('admin.simple-dashboard');
 });
 
 // Generic date range route - MUST COME AFTER SPECIFIC ROUTES
