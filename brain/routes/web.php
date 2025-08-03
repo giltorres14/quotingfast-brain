@@ -740,14 +740,21 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                 'updated_at' => now()
             ];
             
-            // Mock call metrics
+            // Mock call metrics with complete structure
             $callMetrics = (object) [
                 'lead_id' => $leadId,
                 'call_attempts' => 3,
                 'talk_time' => 120,
+                'connected_time' => now()->subMinutes(5), // CRITICAL: This was missing!
                 'status' => 'connected',
                 'agent_id' => 'AGENT001',
-                'created_at' => now()
+                'disposition' => 'qualified',
+                'campaign_id' => 'TEST_CAMPAIGN',
+                'phone_number' => '555-TEST-123',
+                'start_time' => now()->subMinutes(10),
+                'end_time' => now()->subMinutes(2),
+                'created_at' => now(),
+                'updated_at' => now()
             ];
         }
 
