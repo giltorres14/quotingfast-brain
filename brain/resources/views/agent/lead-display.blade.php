@@ -360,6 +360,85 @@
             box-shadow: 0 4px 12px rgba(0,123,255,0.3);
         }
 
+        /* Edit functionality styles */
+        .edit-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .edit-btn:hover {
+            background: #5a6268;
+        }
+
+        .edit-form {
+            display: none;
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .edit-form.show {
+            display: block;
+        }
+
+        .edit-form input, .edit-form select {
+            width: 100%;
+            padding: 6px;
+            margin: 4px 0;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .edit-form label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #495057;
+            margin-top: 8px;
+            display: block;
+        }
+
+        .edit-form-buttons {
+            margin-top: 8px;
+        }
+
+        .save-btn, .cancel-btn, .add-btn {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 3px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .save-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .add-btn {
+            background: #007bff;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .add-btn:hover { background: #0056b3; }
+        .save-btn:hover { background: #1e7e34; }
+        .cancel-btn:hover { background: #5a6268; }
+
         @media (max-width: 600px) {
             .container { padding: 8px; }
             .info-grid { grid-template-columns: 1fr; }
@@ -596,8 +675,8 @@
 
         <!-- Contact Information -->
         <div class="section">
-            <div class="section-title">📞 Contact Information</div>
-            <div class="info-grid">
+            <div class="section-title">📞 Contact Information <button class="edit-btn" onclick="toggleEdit('contact')">Edit</button></div>
+            <div class="info-grid" id="contact-display">
                 <div class="info-item">
                     <div class="info-label">Phone</div>
                     <div class="info-value">{{ $lead->phone ?: 'Not provided' }}</div>
@@ -617,6 +696,85 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Edit Form -->
+            <div class="edit-form" id="contact-edit">
+                <label>Phone:</label>
+                <input type="text" id="edit-phone" value="{{ $lead->phone ?? '' }}" placeholder="Phone number">
+                
+                <label>Email:</label>
+                <input type="email" id="edit-email" value="{{ $lead->email ?? '' }}" placeholder="Email address">
+                
+                <label>Address:</label>
+                <input type="text" id="edit-address" value="{{ $lead->address ?? '' }}" placeholder="Street address">
+                
+                <label>City:</label>
+                <input type="text" id="edit-city" value="{{ $lead->city ?? '' }}" placeholder="City">
+                
+                <label>State:</label>
+                <select id="edit-state">
+                    <option value="">Select State...</option>
+                    <option value="AL" {{ ($lead->state ?? '') == 'AL' ? 'selected' : '' }}>AL</option>
+                    <option value="AK" {{ ($lead->state ?? '') == 'AK' ? 'selected' : '' }}>AK</option>
+                    <option value="AZ" {{ ($lead->state ?? '') == 'AZ' ? 'selected' : '' }}>AZ</option>
+                    <option value="AR" {{ ($lead->state ?? '') == 'AR' ? 'selected' : '' }}>AR</option>
+                    <option value="CA" {{ ($lead->state ?? '') == 'CA' ? 'selected' : '' }}>CA</option>
+                    <option value="CO" {{ ($lead->state ?? '') == 'CO' ? 'selected' : '' }}>CO</option>
+                    <option value="CT" {{ ($lead->state ?? '') == 'CT' ? 'selected' : '' }}>CT</option>
+                    <option value="DE" {{ ($lead->state ?? '') == 'DE' ? 'selected' : '' }}>DE</option>
+                    <option value="FL" {{ ($lead->state ?? '') == 'FL' ? 'selected' : '' }}>FL</option>
+                    <option value="GA" {{ ($lead->state ?? '') == 'GA' ? 'selected' : '' }}>GA</option>
+                    <option value="HI" {{ ($lead->state ?? '') == 'HI' ? 'selected' : '' }}>HI</option>
+                    <option value="ID" {{ ($lead->state ?? '') == 'ID' ? 'selected' : '' }}>ID</option>
+                    <option value="IL" {{ ($lead->state ?? '') == 'IL' ? 'selected' : '' }}>IL</option>
+                    <option value="IN" {{ ($lead->state ?? '') == 'IN' ? 'selected' : '' }}>IN</option>
+                    <option value="IA" {{ ($lead->state ?? '') == 'IA' ? 'selected' : '' }}>IA</option>
+                    <option value="KS" {{ ($lead->state ?? '') == 'KS' ? 'selected' : '' }}>KS</option>
+                    <option value="KY" {{ ($lead->state ?? '') == 'KY' ? 'selected' : '' }}>KY</option>
+                    <option value="LA" {{ ($lead->state ?? '') == 'LA' ? 'selected' : '' }}>LA</option>
+                    <option value="ME" {{ ($lead->state ?? '') == 'ME' ? 'selected' : '' }}>ME</option>
+                    <option value="MD" {{ ($lead->state ?? '') == 'MD' ? 'selected' : '' }}>MD</option>
+                    <option value="MA" {{ ($lead->state ?? '') == 'MA' ? 'selected' : '' }}>MA</option>
+                    <option value="MI" {{ ($lead->state ?? '') == 'MI' ? 'selected' : '' }}>MI</option>
+                    <option value="MN" {{ ($lead->state ?? '') == 'MN' ? 'selected' : '' }}>MN</option>
+                    <option value="MS" {{ ($lead->state ?? '') == 'MS' ? 'selected' : '' }}>MS</option>
+                    <option value="MO" {{ ($lead->state ?? '') == 'MO' ? 'selected' : '' }}>MO</option>
+                    <option value="MT" {{ ($lead->state ?? '') == 'MT' ? 'selected' : '' }}>MT</option>
+                    <option value="NE" {{ ($lead->state ?? '') == 'NE' ? 'selected' : '' }}>NE</option>
+                    <option value="NV" {{ ($lead->state ?? '') == 'NV' ? 'selected' : '' }}>NV</option>
+                    <option value="NH" {{ ($lead->state ?? '') == 'NH' ? 'selected' : '' }}>NH</option>
+                    <option value="NJ" {{ ($lead->state ?? '') == 'NJ' ? 'selected' : '' }}>NJ</option>
+                    <option value="NM" {{ ($lead->state ?? '') == 'NM' ? 'selected' : '' }}>NM</option>
+                    <option value="NY" {{ ($lead->state ?? '') == 'NY' ? 'selected' : '' }}>NY</option>
+                    <option value="NC" {{ ($lead->state ?? '') == 'NC' ? 'selected' : '' }}>NC</option>
+                    <option value="ND" {{ ($lead->state ?? '') == 'ND' ? 'selected' : '' }}>ND</option>
+                    <option value="OH" {{ ($lead->state ?? '') == 'OH' ? 'selected' : '' }}>OH</option>
+                    <option value="OK" {{ ($lead->state ?? '') == 'OK' ? 'selected' : '' }}>OK</option>
+                    <option value="OR" {{ ($lead->state ?? '') == 'OR' ? 'selected' : '' }}>OR</option>
+                    <option value="PA" {{ ($lead->state ?? '') == 'PA' ? 'selected' : '' }}>PA</option>
+                    <option value="RI" {{ ($lead->state ?? '') == 'RI' ? 'selected' : '' }}>RI</option>
+                    <option value="SC" {{ ($lead->state ?? '') == 'SC' ? 'selected' : '' }}>SC</option>
+                    <option value="SD" {{ ($lead->state ?? '') == 'SD' ? 'selected' : '' }}>SD</option>
+                    <option value="TN" {{ ($lead->state ?? '') == 'TN' ? 'selected' : '' }}>TN</option>
+                    <option value="TX" {{ ($lead->state ?? '') == 'TX' ? 'selected' : '' }}>TX</option>
+                    <option value="UT" {{ ($lead->state ?? '') == 'UT' ? 'selected' : '' }}>UT</option>
+                    <option value="VT" {{ ($lead->state ?? '') == 'VT' ? 'selected' : '' }}>VT</option>
+                    <option value="VA" {{ ($lead->state ?? '') == 'VA' ? 'selected' : '' }}>VA</option>
+                    <option value="WA" {{ ($lead->state ?? '') == 'WA' ? 'selected' : '' }}>WA</option>
+                    <option value="WV" {{ ($lead->state ?? '') == 'WV' ? 'selected' : '' }}>WV</option>
+                    <option value="WI" {{ ($lead->state ?? '') == 'WI' ? 'selected' : '' }}>WI</option>
+                    <option value="WY" {{ ($lead->state ?? '') == 'WY' ? 'selected' : '' }}>WY</option>
+                    <option value="DC" {{ ($lead->state ?? '') == 'DC' ? 'selected' : '' }}>DC</option>
+                </select>
+                
+                <label>ZIP Code:</label>
+                <input type="text" id="edit-zip" value="{{ $lead->zip_code ?? '' }}" placeholder="ZIP code">
+                
+                <div class="edit-form-buttons">
+                    <button class="save-btn" onclick="saveContact()">Save</button>
+                    <button class="cancel-btn" onclick="cancelEdit('contact')">Cancel</button>
+                </div>
+            </div>
         </div>
 
         <!-- Call Metrics removed from agent view - admin only data -->
@@ -624,7 +782,7 @@
         <!-- Drivers -->
         @if($lead->drivers && count($lead->drivers) > 0)
         <div class="section">
-            <div class="section-title">👤 Drivers ({{ count($lead->drivers) }})</div>
+            <div class="section-title">👤 Drivers ({{ count($lead->drivers) }}) <button class="add-btn" onclick="addDriver()">Add Driver</button></div>
             @foreach($lead->drivers as $index => $driver)
             <div class="driver-card">
                 <h4>Driver {{ $index + 1 }}: {{ ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '') }}</h4>
@@ -661,6 +819,7 @@
                             @if(isset($driver['violations']) && count($driver['violations']) > 0)
                                 <span style="color: #dc3545; font-weight: bold;">{{ count($driver['violations']) }} violation(s)</span>
                                 <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('violations-{{ $index }}')">View Details</button>
+                                <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
                                 <div id="violations-{{ $index }}" class="violation-details" style="display: none; margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; font-size: 11px;">
                                     @foreach($driver['violations'] as $violationIndex => $violation)
                                         <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #ffeaa7;">
@@ -678,8 +837,10 @@
                                 </div>
                             @elseif(isset($driver['violations']))
                                 <span style="color: #28a745;">Clean record</span>
+                                <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
                             @else
                                 Not provided
+                                <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
                             @endif
                         </div>
                     </div>
@@ -689,6 +850,7 @@
                             @if(isset($driver['accidents']) && count($driver['accidents']) > 0)
                                 <span style="color: #dc3545; font-weight: bold;">{{ count($driver['accidents']) }} accident(s)</span>
                                 <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('accidents-{{ $index }}')">View Details</button>
+                                <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
                                 <div id="accidents-{{ $index }}" class="accident-details" style="display: none; margin-top: 8px; padding: 8px; background: #f8d7da; border-radius: 4px; font-size: 11px;">
                                     @foreach($driver['accidents'] as $accidentIndex => $accident)
                                         <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #f5c6cb;">
@@ -709,8 +871,10 @@
                                 </div>
                             @elseif(isset($driver['accidents']))
                                 <span style="color: #28a745;">No accidents</span>
+                                <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
                             @else
                                 Not provided
+                                <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
                             @endif
                         </div>
                     </div>
@@ -726,12 +890,18 @@
             </div>
             @endforeach
         </div>
+        @else
+        <!-- No Drivers Section -->
+        <div class="section">
+            <div class="section-title">👤 Drivers (0) <button class="add-btn" onclick="addDriver()">Add Driver</button></div>
+            <p style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">No drivers added yet. Click "Add Driver" to add driver information.</p>
+        </div>
         @endif
 
         <!-- Vehicles -->
         @if($lead->vehicles && count($lead->vehicles) > 0)
         <div class="section">
-            <div class="section-title">🚗 Vehicles ({{ count($lead->vehicles) }})</div>
+            <div class="section-title">🚗 Vehicles ({{ count($lead->vehicles) }}) <button class="add-btn" onclick="addVehicle()">Add Vehicle</button></div>
             @foreach($lead->vehicles as $index => $vehicle)
             <div class="vehicle-card">
                 <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
@@ -755,6 +925,12 @@
                 </div>
             </div>
             @endforeach
+        </div>
+        @else
+        <!-- No Vehicles Section -->
+        <div class="section">
+            <div class="section-title">🚗 Vehicles (0) <button class="add-btn" onclick="addVehicle()">Add Vehicle</button></div>
+            <p style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">No vehicles added yet. Click "Add Vehicle" to add vehicle information.</p>
         </div>
         @endif
 
@@ -980,6 +1156,241 @@
                 element.style.display = 'block';
             } else {
                 element.style.display = 'none';
+            }
+        }
+        
+        // Edit functionality
+        function toggleEdit(section) {
+            const display = document.getElementById(section + '-display');
+            const edit = document.getElementById(section + '-edit');
+            
+            if (edit.classList.contains('show')) {
+                edit.classList.remove('show');
+                display.style.display = 'grid';
+            } else {
+                edit.classList.add('show');
+                display.style.display = 'none';
+            }
+        }
+        
+        function cancelEdit(section) {
+            const display = document.getElementById(section + '-display');
+            const edit = document.getElementById(section + '-edit');
+            
+            edit.classList.remove('show');
+            display.style.display = 'grid';
+        }
+        
+        async function saveContact() {
+            const data = {
+                phone: document.getElementById('edit-phone').value,
+                email: document.getElementById('edit-email').value,
+                address: document.getElementById('edit-address').value,
+                city: document.getElementById('edit-city').value,
+                state: document.getElementById('edit-state').value,
+                zip_code: document.getElementById('edit-zip').value
+            };
+            
+            try {
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/contact`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Contact information updated successfully!');
+                    location.reload(); // Refresh to show updated data
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error updating contact information: ' + error.message);
+            }
+        }
+        
+        async function addViolation(driverIndex) {
+            const violationType = prompt('Violation Type (e.g., Speeding, DUI, etc.):');
+            if (!violationType) return;
+            
+            const violationDate = prompt('Violation Date (YYYY-MM-DD):');
+            if (!violationDate) return;
+            
+            const description = prompt('Description (optional):') || '';
+            const state = prompt('State where violation occurred:') || '';
+            
+            const data = {
+                violation_type: violationType,
+                violation_date: violationDate,
+                description: description,
+                state: state
+            };
+            
+            try {
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/driver/${driverIndex}/violation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Violation added successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error adding violation: ' + error.message);
+            }
+        }
+        
+        async function addAccident(driverIndex) {
+            const accidentDate = prompt('Accident Date (YYYY-MM-DD):');
+            if (!accidentDate) return;
+            
+            const accidentType = prompt('Accident Type (e.g., Rear-end, Side impact, etc.):');
+            if (!accidentType) return;
+            
+            const description = prompt('Description (optional):') || '';
+            const atFault = confirm('Was the driver at fault?');
+            const damageAmount = prompt('Damage Amount (numbers only, no $ sign):') || '0';
+            
+            const data = {
+                accident_date: accidentDate,
+                accident_type: accidentType,
+                description: description,
+                at_fault: atFault.toString(),
+                damage_amount: parseFloat(damageAmount) || 0
+            };
+            
+            try {
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/driver/${driverIndex}/accident`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Accident added successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error adding accident: ' + error.message);
+            }
+        }
+        
+        async function addVehicle() {
+            const year = prompt('Vehicle Year:');
+            if (!year) return;
+            
+            const make = prompt('Vehicle Make:');
+            if (!make) return;
+            
+            const model = prompt('Vehicle Model:');
+            if (!model) return;
+            
+            const primaryUse = prompt('Primary Use (e.g., Commute, Pleasure, Business):') || 'Commute';
+            const annualMiles = prompt('Annual Miles:') || '12000';
+            const ownership = prompt('Ownership (Own, Lease, Finance):') || 'Own';
+            const garage = prompt('Garage (Yes/No):') || 'No';
+            
+            const data = {
+                year: parseInt(year),
+                make: make,
+                model: model,
+                primary_use: primaryUse,
+                annual_miles: parseInt(annualMiles),
+                ownership: ownership,
+                garage: garage
+            };
+            
+            try {
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/vehicle`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Vehicle added successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error adding vehicle: ' + error.message);
+            }
+        }
+        
+        async function addDriver() {
+            const firstName = prompt('First Name:');
+            if (!firstName) return;
+            
+            const lastName = prompt('Last Name:');
+            if (!lastName) return;
+            
+            const birthDate = prompt('Birth Date (YYYY-MM-DD):');
+            const gender = prompt('Gender (M/F):') || 'M';
+            const maritalStatus = prompt('Marital Status (Single, Married, Divorced, etc.):') || 'Single';
+            const licenseState = prompt('License State:') || '{{ $lead->state ?? "CA" }}';
+            const licenseStatus = prompt('License Status (Valid, Suspended, etc.):') || 'Valid';
+            const yearsLicensed = prompt('Years Licensed:') || '5';
+            
+            const data = {
+                first_name: firstName,
+                last_name: lastName,
+                birth_date: birthDate,
+                gender: gender,
+                marital_status: maritalStatus,
+                license_state: licenseState,
+                license_status: licenseStatus,
+                years_licensed: parseInt(yearsLicensed),
+                violations: [],
+                accidents: []
+            };
+            
+            try {
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/driver`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Driver added successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error adding driver: ' + error.message);
             }
         }
 

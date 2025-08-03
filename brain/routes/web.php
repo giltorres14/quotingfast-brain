@@ -1353,4 +1353,169 @@ Route::post('/agent/lead/{leadId}/qualification', function (Request $request, $l
         ], 500);
     }
 });
+
+// Route to update lead contact information
+Route::put('/agent/lead/{leadId}/contact', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        
+        $lead->update([
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'address' => $request->address,
+            'city' => $request->city,
+            'state' => $request->state,
+            'zip_code' => $request->zip_code
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Contact information updated successfully',
+            'lead' => $lead
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to update contact information: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Route to add/update driver
+Route::post('/agent/lead/{leadId}/driver', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        $drivers = $lead->drivers ?? [];
+        
+        $driverData = $request->all();
+        $driverIndex = $request->driver_index ?? count($drivers);
+        
+        if ($driverIndex < count($drivers)) {
+            // Update existing driver
+            $drivers[$driverIndex] = array_merge($drivers[$driverIndex] ?? [], $driverData);
+        } else {
+            // Add new driver
+            $drivers[] = $driverData;
+        }
+        
+        $lead->update(['drivers' => $drivers]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Driver updated successfully',
+            'drivers' => $drivers
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to update driver: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Route to add violation to driver
+Route::post('/agent/lead/{leadId}/driver/{driverIndex}/violation', function (Request $request, $leadId, $driverIndex) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        $drivers = $lead->drivers ?? [];
+        
+        if (!isset($drivers[$driverIndex])) {
+            return response()->json(['success' => false, 'error' => 'Driver not found'], 404);
+        }
+        
+        $violations = $drivers[$driverIndex]['violations'] ?? [];
+        $violations[] = [
+            'violation_type' => $request->violation_type,
+            'violation_date' => $request->violation_date,
+            'description' => $request->description,
+            'state' => $request->state
+        ];
+        
+        $drivers[$driverIndex]['violations'] = $violations;
+        $lead->update(['drivers' => $drivers]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Violation added successfully',
+            'violations' => $violations
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to add violation: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Route to add accident to driver
+Route::post('/agent/lead/{leadId}/driver/{driverIndex}/accident', function (Request $request, $leadId, $driverIndex) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        $drivers = $lead->drivers ?? [];
+        
+        if (!isset($drivers[$driverIndex])) {
+            return response()->json(['success' => false, 'error' => 'Driver not found'], 404);
+        }
+        
+        $accidents = $drivers[$driverIndex]['accidents'] ?? [];
+        $accidents[] = [
+            'accident_date' => $request->accident_date,
+            'accident_type' => $request->accident_type,
+            'description' => $request->description,
+            'at_fault' => $request->at_fault === 'true',
+            'damage_amount' => $request->damage_amount
+        ];
+        
+        $drivers[$driverIndex]['accidents'] = $accidents;
+        $lead->update(['drivers' => $drivers]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Accident added successfully',
+            'accidents' => $accidents
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to add accident: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Route to add/update vehicle
+Route::post('/agent/lead/{leadId}/vehicle', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        $vehicles = $lead->vehicles ?? [];
+        
+        $vehicleData = $request->all();
+        $vehicleIndex = $request->vehicle_index ?? count($vehicles);
+        
+        if ($vehicleIndex < count($vehicles)) {
+            // Update existing vehicle
+            $vehicles[$vehicleIndex] = array_merge($vehicles[$vehicleIndex] ?? [], $vehicleData);
+        } else {
+            // Add new vehicle
+            $vehicles[] = $vehicleData;
+        }
+        
+        $lead->update(['vehicles' => $vehicles]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Vehicle updated successfully',
+            'vehicles' => $vehicles
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to update vehicle: ' . $e->getMessage()
+        ], 500);
+    }
+});
  
