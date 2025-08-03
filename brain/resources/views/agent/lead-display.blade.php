@@ -1548,6 +1548,9 @@
             
             // Map values for Ringba enrichment (per your specification)
             const enrichmentData = {
+                // Lead ID for webhook callback
+                lead_id: '{{ $lead->id }}',
+                
                 // Basic info from lead
                 phone: '{{ preg_replace("/[^0-9]/", "", $lead->phone) }}',
                 first_name: '{{ $lead->first_name ?? "" }}',
@@ -1635,13 +1638,13 @@
             
             const data = getFormData();
             
-            // Ringba enrichment URLs with correct parameter mapping
+            // Ringba enrichment URLs with lead_id parameter for webhook callback
             const enrichmentURLs = {
-                insured: 'https://display.ringba.com/enrich/2674154334576444838?phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>',
+                insured: 'https://display.ringba.com/enrich/2674154334576444838?lead_id=<<lead_id>>&phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>',
                 
-                uninsured: 'https://display.ringba.com/enrich/2676487329580844084?phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>',
+                uninsured: 'https://display.ringba.com/enrich/2676487329580844084?lead_id=<<lead_id>>&phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>',
                 
-                homeowner: 'https://display.ringba.com/enrich/2717035800150673197?phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>'
+                homeowner: 'https://display.ringba.com/enrich/2717035800150673197?lead_id=<<lead_id>>&phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>'
             };
             
             const baseURL = enrichmentURLs[type];
