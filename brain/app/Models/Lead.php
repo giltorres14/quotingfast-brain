@@ -133,4 +133,28 @@ class Lead extends Model
     {
         return is_array($this->vehicles) ? count($this->vehicles) : 0;
     }
+
+    /**
+     * Get Vici call metrics relationship
+     */
+    public function viciCallMetrics()
+    {
+        return $this->hasMany(ViciCallMetrics::class);
+    }
+
+    /**
+     * Get lead conversions relationship
+     */
+    public function conversions()
+    {
+        return $this->hasMany(LeadConversion::class);
+    }
+
+    /**
+     * Get latest conversion
+     */
+    public function latestConversion()
+    {
+        return $this->hasOne(LeadConversion::class)->latest();
+    }
 }

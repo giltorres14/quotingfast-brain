@@ -314,6 +314,136 @@ class ViciDialerService
     }
 
     /**
+     * Find or create call metrics record
+     */
+    private function findOrCreateCallMetrics(array $data): ViciCallMetrics
+    {
+        $leadId = $data['lead_id'] ?? null;
+        $viciLeadId = $data['vici_lead_id'] ?? $data['lead_id'] ?? null;
+        $phoneNumber = $data['phone_number'] ?? $data['phone'] ?? null;
+        
+        // Try to find existing record
+        $metrics = ViciCallMetrics::where('lead_id', $leadId)
+            ->orWhere('vici_lead_id', $viciLeadId)
+            ->orWhere('phone_number', $phoneNumber)
+            ->first();
+        
+        if (!$metrics) {
+            $metrics = ViciCallMetrics::create([
+                'lead_id' => $leadId,
+                'vici_lead_id' => $viciLeadId,
+                'campaign_id' => $data['campaign_id'] ?? null,
+                'list_id' => $data['list_id'] ?? null,
+                'agent_id' => $data['agent_id'] ?? null,
+                'phone_number' => $phoneNumber,
+                'call_status' => $data['call_status'] ?? 'UNKNOWN',
+                'disposition' => $data['disposition'] ?? null,
+                'vici_payload' => $data
+            ]);
+        }
+        
+        return $metrics;
+    }
+
+    /**
+     * Update call metrics based on webhook data
+     */
+    private function updateCallMetrics(ViciCallMetrics $metrics, array $data): void
+    {
+        $updates = [];
+        
+        // Update basic fields
+        if (isset($data['call_status'])) {
+            $updates['call_status'] = $data['call_status'];
+        }
+        
+        if (isset($data['disposition'])) {
+            $updates['disposition'] = $data['disposition'];
+        }
+        
+        // Handle call timing
+        if (isset($data['call_time']) || isset($data['start_time'])) {
+            $callTime = $data['call_time'] ?? $data['start_time'];
+            if (!$metrics->first_call_time) {
+                $updates['first_call_time'] = $callTime;
+            }
+            $updates['last_call_time'] = $callTime;
+        }
+        
+        if (isset($data['connected_time']) || $data['call_status'] === 'INCALL') {
+            $updates['connected_time'] = $data['connected_time'] ?? now();
+        }
+        
+        if (isset($data['hangup_time']) || $data['call_status'] === 'PAUSED') {
+            $updates['hangup_time'] = $data['hangup_time'] ?? now();
+        }
+        
+        if (isset($data['call_duration'])) {
+            $updates['call_duration'] = $data['call_duration'];
+        }
+        
+        if (isset($data['talk_time'])) {
+            $updates['talk_time'] = $data['talk_time'];
+        }
+        
+        // Handle transfers
+        if (isset($data['transfer']) && $data['transfer'] === 'Y') {
+            $updates['transfer_requested'] = true;
+            $updates['transfer_time'] = now();
+            $updates['transfer_destination'] = $data['transfer_destination'] ?? 'ringba';
+        }
+        
+        // Add call attempt to history
+        if (isset($data['call_status'])) {
+            $metrics->addCallAttempt([
+                'status' => $data['call_status'],
+                'disposition' => $data['disposition'] ?? null,
+                'duration' => $data['call_duration'] ?? null,
+                'agent_id' => $data['agent_id'] ?? null
+            ]);
+        }
+        
+        // Update payload
+        $updates['vici_payload'] = array_merge($metrics->vici_payload ?? [], $data);
+        
+        if (!empty($updates)) {
+            $metrics->update($updates);
+        }
+    }
+
+    /**
+     * Check if webhook data triggers any actions
+     */
+    private function checkTriggerActions(ViciCallMetrics $metrics, array $data): array
+    {
+        $actions = [];
+        
+        // Check for transfer triggers
+        if ($metrics->transfer_requested && !$metrics->transfer_status) {
+            $actions[] = [
+                'type' => 'transfer_ready',
+                'destination' => $metrics->transfer_destination,
+                'lead_id' => $metrics->lead_id,
+                'metrics_id' => $metrics->id
+            ];
+            
+            // Mark transfer as processed
+            $metrics->update(['transfer_status' => 'processed']);
+        }
+        
+        // Check for conversion tracking setup
+        if ($data['disposition'] === 'SALE' || $data['disposition'] === 'TRANSFER') {
+            $actions[] = [
+                'type' => 'setup_conversion_tracking',
+                'lead_id' => $metrics->lead_id,
+                'disposition' => $data['disposition']
+            ];
+        }
+        
+        return $actions;
+    }
+
+    /**
      * Process webhook data from Vici
      */
     public function processWebhookData(array $data): array

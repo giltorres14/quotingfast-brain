@@ -41,6 +41,7 @@ Route::get('/', function () {
             '/webhook/twilio' => 'Twilio webhook (POST)',
             '/webhook/allstate' => 'Allstate call transfer webhook (POST)',
             '/webhook/ringba-decision' => 'Ringba buyer decision webhook (POST)',
+            '/webhook/ringba-conversion' => 'Ringba conversion tracking webhook (POST)',
             '/webhook/status' => 'Webhook status monitoring (GET)',
             '/api/webhooks' => 'Webhook dashboard API (GET)'
         ],
@@ -1383,6 +1384,86 @@ Route::put('/agent/lead/{leadId}/contact', function (Request $request, $leadId) 
     }
 });
 
+// Enhanced route to update lead contact information with Vici sync
+Route::put('/agent/lead/{leadId}/contact-with-vici-sync', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        
+        // Store original values for comparison
+        $originalData = [
+            'first_name' => $lead->first_name,
+            'last_name' => $lead->last_name,
+            'phone' => $lead->phone,
+            'email' => $lead->email,
+            'address' => $lead->address,
+            'city' => $lead->city,
+            'state' => $lead->state,
+            'zip_code' => $lead->zip_code
+        ];
+        
+        // Update lead in Brain database
+        $updatedData = [
+            'first_name' => $request->first_name ?? $lead->first_name,
+            'last_name' => $request->last_name ?? $lead->last_name,
+            'phone' => $request->phone ?? $lead->phone,
+            'email' => $request->email ?? $lead->email,
+            'address' => $request->address ?? $lead->address,
+            'city' => $request->city ?? $lead->city,
+            'state' => $request->state ?? $lead->state,
+            'zip_code' => $request->zip_code ?? $lead->zip_code
+        ];
+        
+        $lead->update($updatedData);
+        
+        // Check if any basic fields changed that need Vici sync
+        $basicFields = ['first_name', 'last_name', 'phone', 'email', 'address', 'city', 'state', 'zip_code'];
+        $changedFields = [];
+        
+        foreach ($basicFields as $field) {
+            if ($originalData[$field] !== $updatedData[$field]) {
+                $changedFields[$field] = [
+                    'old' => $originalData[$field],
+                    'new' => $updatedData[$field]
+                ];
+            }
+        }
+        
+        $viciSyncResult = null;
+        if (!empty($changedFields)) {
+            try {
+                // Attempt to sync with Vici
+                $viciSyncResult = updateViciLead($leadId, $updatedData, $changedFields);
+                Log::info('Vici lead sync attempted', [
+                    'lead_id' => $leadId,
+                    'changed_fields' => array_keys($changedFields),
+                    'vici_result' => $viciSyncResult
+                ]);
+            } catch (Exception $viciError) {
+                Log::warning('Vici lead sync failed, but Brain update succeeded', [
+                    'lead_id' => $leadId,
+                    'error' => $viciError->getMessage(),
+                    'changed_fields' => array_keys($changedFields)
+                ]);
+                // Don't fail the entire request if Vici sync fails
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Contact information updated successfully',
+            'lead' => $lead,
+            'changed_fields' => array_keys($changedFields),
+            'vici_sync' => $viciSyncResult ? 'success' : 'skipped_or_failed'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to update contact information: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
 // Route to add/update driver
 Route::post('/agent/lead/{leadId}/driver', function (Request $request, $leadId) {
     try {
@@ -1611,17 +1692,66 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
             );
         }
         
-        // Save contact information
+        // Save contact information with Vici sync
+        $viciSyncResult = null;
         if ($request->has('contact')) {
             $contactData = $request->contact;
-            $lead->update([
+            
+            // Store original values for comparison
+            $originalData = [
+                'first_name' => $lead->first_name,
+                'last_name' => $lead->last_name,
+                'phone' => $lead->phone,
+                'email' => $lead->email,
+                'address' => $lead->address,
+                'city' => $lead->city,
+                'state' => $lead->state,
+                'zip_code' => $lead->zip_code
+            ];
+            
+            // Include first_name and last_name in contact updates
+            $updatedData = [
+                'first_name' => $contactData['first_name'] ?? $lead->first_name,
+                'last_name' => $contactData['last_name'] ?? $lead->last_name,
                 'phone' => $contactData['phone'],
                 'email' => $contactData['email'],
                 'address' => $contactData['address'],
                 'city' => $contactData['city'],
                 'state' => $contactData['state'],
                 'zip_code' => $contactData['zip_code']
-            ]);
+            ];
+            
+            $lead->update($updatedData);
+            
+            // Check for changes in basic fields that need Vici sync
+            $basicFields = ['first_name', 'last_name', 'phone', 'email', 'address', 'city', 'state', 'zip_code'];
+            $changedFields = [];
+            
+            foreach ($basicFields as $field) {
+                if ($originalData[$field] !== $updatedData[$field]) {
+                    $changedFields[$field] = [
+                        'old' => $originalData[$field],
+                        'new' => $updatedData[$field]
+                    ];
+                }
+            }
+            
+            // Attempt Vici sync if fields changed
+            if (!empty($changedFields)) {
+                try {
+                    $viciSyncResult = updateViciLead($leadId, $updatedData, $changedFields);
+                    Log::info('Vici sync in save-all', [
+                        'lead_id' => $leadId,
+                        'changed_fields' => array_keys($changedFields),
+                        'result' => $viciSyncResult
+                    ]);
+                } catch (Exception $viciError) {
+                    Log::warning('Vici sync failed in save-all', [
+                        'lead_id' => $leadId,
+                        'error' => $viciError->getMessage()
+                    ]);
+                }
+            }
         }
         
         // Save insurance information
@@ -1633,6 +1763,7 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
         return response()->json([
             'success' => true,
             'message' => 'All lead data saved successfully',
+            'vici_sync' => $viciSyncResult ? 'success' : 'skipped_or_failed',
             'timestamp' => now()->toISOString()
         ]);
     } catch (\Exception $e) {
@@ -1827,6 +1958,71 @@ Route::post('/webhook/ringba-decision', function (Request $request) {
     }
 });
 
+// Call Analytics API Routes
+Route::get('/api/analytics/{startDate}/{endDate}', function (Request $request, $startDate, $endDate) {
+    try {
+        $filters = $request->only(['agent_id', 'campaign_id', 'buyer_name']);
+        
+        $analytics = \App\Services\CallAnalyticsService::getAnalytics($startDate, $endDate, $filters);
+        
+        return response()->json([
+            'success' => true,
+            'data' => $analytics,
+            'generated_at' => now()->toISOString()
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Analytics generation failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+Route::get('/api/analytics/date-ranges', function () {
+    return response()->json([
+        'success' => true,
+        'data' => \App\Services\CallAnalyticsService::getDateRanges()
+    ]);
+});
+
+// Analytics Dashboard View
+Route::get('/analytics', function () {
+    return view('analytics.dashboard');
+});
+
+Route::get('/api/analytics/quick/{period}', function (Request $request, $period) {
+    try {
+        $ranges = \App\Services\CallAnalyticsService::getDateRanges();
+        
+        if (!isset($ranges[$period])) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Invalid period. Available: ' . implode(', ', array_keys($ranges))
+            ], 400);
+        }
+        
+        $range = $ranges[$period];
+        $filters = $request->only(['agent_id', 'campaign_id', 'buyer_name']);
+        
+        $analytics = \App\Services\CallAnalyticsService::getAnalytics($range['start'], $range['end'], $filters);
+        
+        return response()->json([
+            'success' => true,
+            'period' => $period,
+            'period_label' => $range['label'],
+            'data' => $analytics,
+            'generated_at' => now()->toISOString()
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Analytics generation failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
 // Test data normalization for buyers
 Route::get('/test/normalization/{leadId?}', function ($leadId = 'BRAIN_TEST_RINGBA') {
     try {
@@ -1866,6 +2062,102 @@ Route::get('/test/normalization/{leadId?}', function ($leadId = 'BRAIN_TEST_RING
         return response()->json([
             'error' => 'Normalization test failed: ' . $e->getMessage(),
             'lead_id' => $leadId
+        ], 500);
+    }
+});
+
+// Ringba Conversion Tracking Webhook
+Route::post('/webhook/ringba-conversion', function (Request $request) {
+    try {
+        Log::info('Ringba conversion webhook received', [
+            'payload' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        $data = $request->all();
+        
+        // Required fields
+        $leadId = $data['lead_id'] ?? null;
+        $converted = $data['converted'] ?? $data['sale_successful'] ?? false;
+        $callId = $data['call_id'] ?? $data['ringba_call_id'] ?? null;
+        
+        if (!$leadId) {
+            Log::error('Ringba conversion webhook missing lead_id', ['payload' => $data]);
+            return response()->json([
+                'success' => false,
+                'error' => 'lead_id is required'
+            ], 400);
+        }
+        
+        // Find the lead
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        if (!$lead) {
+            Log::error('Lead not found for conversion tracking', [
+                'lead_id' => $leadId,
+                'payload' => $data
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Lead not found'
+            ], 404);
+        }
+        
+        // Find associated Vici call metrics
+        $viciMetrics = \App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
+        
+        // Create or update conversion record
+        $conversion = \App\Models\LeadConversion::updateOrCreate(
+            [
+                'lead_id' => $leadId,
+                'ringba_call_id' => $callId
+            ],
+            [
+                'vici_call_metrics_id' => $viciMetrics?->id,
+                'ringba_campaign_id' => $data['campaign_id'] ?? null,
+                'ringba_publisher_id' => $data['publisher_id'] ?? null,
+                'converted' => $converted === 'yes' || $converted === true || $converted === 1,
+                'conversion_time' => $converted ? now() : null,
+                'buyer_name' => $data['buyer_name'] ?? $data['buyer'] ?? null,
+                'buyer_id' => $data['buyer_id'] ?? null,
+                'conversion_value' => $data['conversion_value'] ?? $data['revenue'] ?? $data['call_revenue'] ?? null,
+                'conversion_type' => $data['conversion_type'] ?? 'sale',
+                'ringba_payload' => $data,
+                'notes' => $data['notes'] ?? null
+            ]
+        );
+        
+        // Calculate timing metrics if we have Vici data
+        if ($viciMetrics && $conversion->converted) {
+            $conversion->calculateTimingMetrics($viciMetrics);
+        }
+        
+        Log::info('Ringba conversion tracked successfully', [
+            'lead_id' => $leadId,
+            'conversion_id' => $conversion->id,
+            'converted' => $conversion->converted,
+            'buyer' => $conversion->buyer_name,
+            'value' => $conversion->conversion_value
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Conversion tracked successfully',
+            'conversion_id' => $conversion->id,
+            'lead_id' => $leadId,
+            'converted' => $conversion->converted,
+            'buyer' => $conversion->buyer_name,
+            'timestamp' => now()->toISOString()
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Ringba conversion webhook error', [
+            'error' => $e->getMessage(),
+            'payload' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Conversion tracking failed: ' . $e->getMessage()
         ], 500);
     }
 });
@@ -1929,6 +2221,162 @@ Route::get('/test/ringba-decision/{leadId?}/{decision?}', function ($leadId = 'B
             'error' => $e->getMessage(),
             'lead_id' => $leadId,
             'decision' => $decision,
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
+// Vici lead update function
+function updateViciLead($leadId, $leadData, $changedFields) {
+    // Vici API configuration
+    $viciConfig = [
+        'server' => env('VICI_SERVER', 'your-vici-server.com'),
+        'user' => env('VICI_API_USER', 'api_user'),
+        'pass' => env('VICI_API_PASS', 'api_password'),
+        'list_id' => env('VICI_LIST_ID', '101'),
+        'phone_code' => '1',
+        'source' => 'BRAIN_UPDATE'
+    ];
+    
+    // Check if Vici integration is properly configured
+    if (!$viciConfig['server'] || $viciConfig['server'] === 'your-vici-server.com') {
+        Log::info('Vici integration not configured, skipping sync', ['lead_id' => $leadId]);
+        return ['status' => 'skipped', 'reason' => 'not_configured'];
+    }
+    
+    // Prepare Vici update data - only include changed fields
+    $viciUpdateData = [
+        'user' => $viciConfig['user'],
+        'pass' => $viciConfig['pass'],
+        'function' => 'update_lead',
+        'vendor_lead_code' => $leadId,  // Use Brain lead ID as vendor code
+        'source_id' => $viciConfig['source']
+    ];
+    
+    // Map Brain fields to Vici fields and only include changed ones
+    $fieldMapping = [
+        'first_name' => 'first_name',
+        'last_name' => 'last_name',
+        'phone' => 'phone_number',
+        'email' => 'email',
+        'address' => 'address1',
+        'city' => 'city',
+        'state' => 'state',
+        'zip_code' => 'postal_code'
+    ];
+    
+    foreach ($changedFields as $brainField => $changeInfo) {
+        if (isset($fieldMapping[$brainField])) {
+            $viciField = $fieldMapping[$brainField];
+            $newValue = $changeInfo['new'];
+            
+            // Special handling for phone number
+            if ($brainField === 'phone') {
+                $newValue = preg_replace('/[^0-9]/', '', $newValue);
+            }
+            
+            $viciUpdateData[$viciField] = $newValue;
+        }
+    }
+    
+    // Add comments about the update
+    $viciUpdateData['comments'] = "Updated from Brain agent interface - Fields: " . implode(', ', array_keys($changedFields));
+    
+    Log::info('Sending Vici update request', [
+        'lead_id' => $leadId,
+        'vici_data' => array_merge($viciUpdateData, ['pass' => '[HIDDEN]']) // Hide password in logs
+    ]);
+    
+    // Send to Vici API
+    try {
+        $response = Http::timeout(30)->post("https://{$viciConfig['server']}/vicidial/non_agent_api.php", $viciUpdateData);
+        
+        if ($response->successful()) {
+            $responseBody = $response->body();
+            Log::info('Vici update response', [
+                'lead_id' => $leadId,
+                'response' => $responseBody
+            ]);
+            
+            // Parse Vici response (usually contains SUCCESS or ERROR)
+            if (strpos($responseBody, 'SUCCESS') !== false) {
+                return [
+                    'status' => 'success',
+                    'response' => $responseBody,
+                    'updated_fields' => array_keys($changedFields)
+                ];
+            } else {
+                throw new Exception("Vici API returned: " . $responseBody);
+            }
+        } else {
+            throw new Exception("Vici API HTTP error: " . $response->status() . " - " . $response->body());
+        }
+    } catch (Exception $e) {
+        Log::error('Vici update failed', [
+            'lead_id' => $leadId,
+            'error' => $e->getMessage()
+        ]);
+        throw $e;
+    }
+}
+
+// Test Vici lead update endpoint
+Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI') {
+    try {
+        // Find the lead first to make sure it exists
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        if (!$lead) {
+            return response()->json([
+                'error' => 'Lead not found for testing',
+                'lead_id' => $leadId,
+                'available_test_lead' => 'BRAIN_TEST_VICI'
+            ], 404);
+        }
+        
+        // Simulate field changes for testing
+        $testChanges = [
+            'first_name' => [
+                'old' => $lead->first_name,
+                'new' => 'TestUpdated'
+            ],
+            'phone' => [
+                'old' => $lead->phone,
+                'new' => '5551234567'
+            ]
+        ];
+        
+        $testData = [
+            'first_name' => 'TestUpdated',
+            'last_name' => $lead->last_name,
+            'phone' => '5551234567',
+            'email' => $lead->email,
+            'address' => $lead->address,
+            'city' => $lead->city,
+            'state' => $lead->state,
+            'zip_code' => $lead->zip_code
+        ];
+        
+        Log::info('Testing Vici update function', [
+            'lead_id' => $leadId,
+            'test_changes' => $testChanges
+        ]);
+        
+        // Test the Vici update function
+        $result = updateViciLead($leadId, $testData, $testChanges);
+        
+        return response()->json([
+            'test_type' => 'Vici Lead Update Test',
+            'lead_id' => $leadId,
+            'test_changes' => $testChanges,
+            'vici_result' => $result,
+            'success' => true
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'test_type' => 'Vici Lead Update Test',
+            'error' => $e->getMessage(),
+            'lead_id' => $leadId,
             'trace' => $e->getTraceAsString()
         ], 500);
     }

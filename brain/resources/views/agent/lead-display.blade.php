@@ -954,6 +954,12 @@
 
             <!-- Edit Form -->
             <div class="edit-form" id="contact-edit">
+                <label>First Name:</label>
+                <input type="text" id="edit-first-name" value="{{ $lead->first_name ?? '' }}" placeholder="First name">
+                
+                <label>Last Name:</label>
+                <input type="text" id="edit-last-name" value="{{ $lead->last_name ?? '' }}" placeholder="Last name">
+                
                 <label>Phone:</label>
                 <input type="text" id="edit-phone" value="{{ $lead->phone ?? '' }}" placeholder="Phone number">
                 
@@ -1807,6 +1813,8 @@
         
         async function saveContact() {
             const data = {
+                first_name: document.getElementById('edit-first-name').value,
+                last_name: document.getElementById('edit-last-name').value,
                 phone: document.getElementById('edit-phone').value,
                 email: document.getElementById('edit-email').value,
                 address: document.getElementById('edit-address').value,
@@ -1816,7 +1824,8 @@
             };
             
             try {
-                const response = await fetch(`/agent/lead/{{ $lead->id }}/contact`, {
+                // Use the new Vici sync endpoint
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/contact-with-vici-sync`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1828,7 +1837,20 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('Contact information updated successfully!');
+                    let message = 'Contact information updated successfully!';
+                    
+                    // Show additional info about what was changed and Vici sync status
+                    if (result.changed_fields && result.changed_fields.length > 0) {
+                        message += '\n\nUpdated fields: ' + result.changed_fields.join(', ');
+                        
+                        if (result.vici_sync === 'success') {
+                            message += '\n✅ Successfully synced with Vici dialer';
+                        } else if (result.vici_sync === 'skipped_or_failed') {
+                            message += '\n⚠️ Vici sync skipped or failed (check logs)';
+                        }
+                    }
+                    
+                    alert(message);
                     location.reload(); // Refresh to show updated data
                 } else {
                     alert('Error: ' + result.error);
@@ -2695,12 +2717,14 @@
                 
                 // Get contact information
                 const contactData = {
-                    phone: document.getElementById('contact_phone')?.value || '{{ $lead->phone }}',
-                    email: document.getElementById('contact_email')?.value || '{{ $lead->email }}',
-                    address: document.getElementById('contact_address')?.value || '{{ $lead->address }}',
-                    city: document.getElementById('contact_city')?.value || '{{ $lead->city }}',
-                    state: document.getElementById('contact_state')?.value || '{{ $lead->state }}',
-                    zip_code: document.getElementById('contact_zip_code')?.value || '{{ $lead->zip_code }}'
+                    first_name: document.getElementById('edit-first-name')?.value || '{{ $lead->first_name }}',
+                    last_name: document.getElementById('edit-last-name')?.value || '{{ $lead->last_name }}',
+                    phone: document.getElementById('contact_phone')?.value || document.getElementById('edit-phone')?.value || '{{ $lead->phone }}',
+                    email: document.getElementById('contact_email')?.value || document.getElementById('edit-email')?.value || '{{ $lead->email }}',
+                    address: document.getElementById('contact_address')?.value || document.getElementById('edit-address')?.value || '{{ $lead->address }}',
+                    city: document.getElementById('contact_city')?.value || document.getElementById('edit-city')?.value || '{{ $lead->city }}',
+                    state: document.getElementById('contact_state')?.value || document.getElementById('edit-state')?.value || '{{ $lead->state }}',
+                    zip_code: document.getElementById('contact_zip_code')?.value || document.getElementById('edit-zip')?.value || '{{ $lead->zip_code }}'
                 };
                 
                 // Get insurance information
@@ -2730,11 +2754,18 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    saveBtn.innerHTML = '✅ Saved!';
+                    let buttonText = '✅ Saved!';
+                    if (result.vici_sync === 'success') {
+                        buttonText = '✅ Saved & Synced!';
+                    } else if (result.vici_sync === 'skipped_or_failed') {
+                        buttonText = '✅ Saved (Sync Issue)';
+                    }
+                    
+                    saveBtn.innerHTML = buttonText;
                     setTimeout(() => {
                         saveBtn.innerHTML = originalText;
                         saveBtn.disabled = false;
-                    }, 2000);
+                    }, 3000);
                 } else {
                     throw new Error(result.error || 'Failed to save');
                 }
