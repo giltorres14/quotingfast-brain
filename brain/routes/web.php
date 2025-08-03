@@ -1527,4 +1527,86 @@ Route::post('/agent/lead/{leadId}/vehicle', function (Request $request, $leadId)
         ], 500);
     }
 });
+
+// Route to update insurance information
+Route::put('/agent/lead/{leadId}/insurance', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        
+        $insuranceData = [
+            'insurance_company' => $request->insurance_company,
+            'coverage_type' => $request->coverage_type,
+            'expiration_date' => $request->expiration_date,
+            'insured_since' => $request->insured_since
+        ];
+        
+        $lead->update(['current_policy' => $insuranceData]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Insurance information updated successfully',
+            'insurance' => $insuranceData
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to update insurance information: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Route to save all lead data (comprehensive save)
+Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        
+        // Save qualification data
+        if ($request->has('qualification')) {
+            $qualificationData = $request->qualification;
+            $qualificationData['lead_id'] = $leadId;
+            $qualificationData['enriched_at'] = now();
+            
+            \App\Models\LeadQualification::updateOrCreate(
+                ['lead_id' => $leadId],
+                $qualificationData
+            );
+        }
+        
+        // Save contact information
+        if ($request->has('contact')) {
+            $contactData = $request->contact;
+            $lead->update([
+                'phone' => $contactData['phone'],
+                'email' => $contactData['email'],
+                'address' => $contactData['address'],
+                'city' => $contactData['city'],
+                'state' => $contactData['state'],
+                'zip_code' => $contactData['zip_code']
+            ]);
+        }
+        
+        // Save insurance information
+        if ($request->has('insurance')) {
+            $insuranceData = $request->insurance;
+            $lead->update(['current_policy' => $insuranceData]);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'All lead data saved successfully',
+            'timestamp' => now()->toISOString()
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Failed to save all lead data', [
+            'lead_id' => $leadId,
+            'error' => $e->getMessage(),
+            'data' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to save lead data: ' . $e->getMessage()
+        ], 500);
+    }
+});
  

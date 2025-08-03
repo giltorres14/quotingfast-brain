@@ -54,11 +54,43 @@
         
         .section-title {
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             color: #495057;
             margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Colorful section headers */
+        .section-title.contact { 
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5); 
+            border-left-color: #2196f3; 
+            color: #1565c0; 
+        }
+        .section-title.insurance { 
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9); 
+            border-left-color: #4caf50; 
+            color: #2e7d32; 
+        }
+        .section-title.drivers { 
+            background: linear-gradient(135deg, #fff3e0, #fce4ec); 
+            border-left-color: #ff9800; 
+            color: #e65100; 
+        }
+        .section-title.vehicles { 
+            background: linear-gradient(135deg, #f3e5f5, #e1f5fe); 
+            border-left-color: #9c27b0; 
+            color: #6a1b9a; 
+        }
+        .section-title.qualification { 
+            background: linear-gradient(135deg, #ffebee, #fce4ec); 
+            border-left-color: #f44336; 
+            color: #c62828; 
         }
         
         .info-grid {
@@ -438,6 +470,32 @@
         .add-btn:hover { background: #0056b3; }
         .save-btn:hover { background: #1e7e34; }
         .cancel-btn:hover { background: #5a6268; }
+        
+        .save-lead-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .save-lead-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.6);
+        }
+        
+        .save-lead-btn:active {
+            transform: translateY(0);
+        }
 
         @media (max-width: 600px) {
             .container { padding: 8px; }
@@ -449,6 +507,9 @@
     </style>
 </head>
 <body>
+    <!-- Save Lead Button -->
+    <button class="save-lead-btn" onclick="saveAllLeadData()">💾 Save Lead</button>
+    
     <div class="container">
         <!-- Header - Agent View (No Admin Data) -->
         <div class="header">
@@ -460,7 +521,7 @@
 
         <!-- Ringba Qualification Form -->
         <div class="qualification-form">
-            <div class="qualification-header">
+            <div class="qualification-header section-title qualification">
                 🎯 Lead Qualification & Ringba Enrichment (Enhanced)
             </div>
             
@@ -675,7 +736,7 @@
 
         <!-- Contact Information -->
         <div class="section">
-            <div class="section-title">📞 Contact Information <button class="edit-btn" onclick="toggleEdit('contact')">Edit</button></div>
+            <div class="section-title contact">📞 Contact Information <button class="edit-btn" onclick="toggleEdit('contact')">Edit</button></div>
             <div class="info-grid" id="contact-display">
                 <div class="info-item">
                     <div class="info-label">Phone</div>
@@ -782,7 +843,7 @@
         <!-- Drivers -->
         @if($lead->drivers && count($lead->drivers) > 0)
         <div class="section">
-            <div class="section-title">👤 Drivers ({{ count($lead->drivers) }}) <button class="add-btn" onclick="addDriver()">Add Driver</button></div>
+            <div class="section-title drivers">👤 Drivers ({{ count($lead->drivers) }}) <button class="add-btn" onclick="addDriver()">Add Driver</button></div>
             @foreach($lead->drivers as $index => $driver)
             <div class="driver-card">
                 <h4>Driver {{ $index + 1 }}: {{ ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '') }}</h4>
@@ -893,7 +954,7 @@
         @else
         <!-- No Drivers Section -->
         <div class="section">
-            <div class="section-title">👤 Drivers (0) <button class="add-btn" onclick="addDriver()">Add Driver</button></div>
+            <div class="section-title drivers">👤 Drivers (0) <button class="add-btn" onclick="addDriver()">Add Driver</button></div>
             <p style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">No drivers added yet. Click "Add Driver" to add driver information.</p>
         </div>
         @endif
@@ -901,7 +962,7 @@
         <!-- Vehicles -->
         @if($lead->vehicles && count($lead->vehicles) > 0)
         <div class="section">
-            <div class="section-title">🚗 Vehicles ({{ count($lead->vehicles) }}) <button class="add-btn" onclick="addVehicle()">Add Vehicle</button></div>
+            <div class="section-title vehicles">🚗 Vehicles ({{ count($lead->vehicles) }}) <button class="add-btn" onclick="addVehicle()">Add Vehicle</button></div>
             @foreach($lead->vehicles as $index => $vehicle)
             <div class="vehicle-card">
                 <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
@@ -934,7 +995,7 @@
         @else
         <!-- No Vehicles Section -->
         <div class="section">
-            <div class="section-title">🚗 Vehicles (0) <button class="add-btn" onclick="addVehicle()">Add Vehicle</button></div>
+            <div class="section-title vehicles">🚗 Vehicles (0) <button class="add-btn" onclick="addVehicle()">Add Vehicle</button></div>
             <p style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">No vehicles added yet. Click "Add Vehicle" to add vehicle information.</p>
         </div>
         @endif
@@ -942,8 +1003,8 @@
         <!-- Current Policy -->
         @if($lead->current_policy)
         <div class="section">
-            <div class="section-title">🛡️ Current Insurance</div>
-            <div class="info-grid">
+            <div class="section-title insurance">🛡️ Current Insurance <button class="edit-btn" onclick="toggleEdit('insurance')">Edit</button></div>
+            <div class="info-grid" id="insurance-display">
                 <div class="info-item">
                     <div class="info-label">Insurance Company</div>
                     <div class="info-value">{{ $lead->current_policy['insurance_company'] ?? 'Not provided' }}</div>
@@ -960,6 +1021,28 @@
                     <div class="info-label">Insured Since</div>
                     <div class="info-value">{{ $lead->current_policy['insured_since'] ?? 'Not provided' }}</div>
                 </div>
+            </div>
+            <div class="edit-form" id="insurance-edit" style="display: none;">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Insurance Company</div>
+                        <input type="text" id="insurance_company" value="{{ $lead->current_policy['insurance_company'] ?? '' }}">
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Coverage Type</div>
+                        <input type="text" id="coverage_type" value="{{ $lead->current_policy['coverage_type'] ?? '' }}">
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Expiration Date</div>
+                        <input type="date" id="expiration_date" value="{{ $lead->current_policy['expiration_date'] ?? '' }}">
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Insured Since</div>
+                        <input type="date" id="insured_since" value="{{ $lead->current_policy['insured_since'] ?? '' }}">
+                    </div>
+                </div>
+                <button onclick="saveInsurance()">Save</button>
+                <button onclick="cancelEdit('insurance')">Cancel</button>
             </div>
         </div>
         @endif
@@ -1095,29 +1178,57 @@
                 const originalText = button.innerHTML;
                 
                 try {
-                    // First, save the qualification data to the database
-                    const qualificationData = {
-                        ...data,
-                        enrichment_type: type,
-                        enrichment_data: {
-                            type: type,
-                            url: enrichmentURL,
-                            timestamp: new Date().toISOString()
-                        }
+                    // First, save ALL lead data to the database (comprehensive save)
+                    button.innerHTML = '⏳ Saving...';
+                    
+                    // Get all form data including qualification answers
+                    const qualificationData = getFormData();
+                    
+                    // Get contact information
+                    const contactData = {
+                        phone: document.getElementById('contact_phone')?.value || '{{ $lead->phone }}',
+                        email: document.getElementById('contact_email')?.value || '{{ $lead->email }}',
+                        address: document.getElementById('contact_address')?.value || '{{ $lead->address }}',
+                        city: document.getElementById('contact_city')?.value || '{{ $lead->city }}',
+                        state: document.getElementById('contact_state')?.value || '{{ $lead->state }}',
+                        zip_code: document.getElementById('contact_zip_code')?.value || '{{ $lead->zip_code }}'
                     };
                     
-                    // Save to database
-                    const saveResponse = await fetch(`/agent/lead/{{ $lead->id }}/qualification`, {
+                    // Get insurance information
+                    const insuranceData = {
+                        insurance_company: document.getElementById('insurance_company')?.value || '{{ $lead->current_policy['insurance_company'] ?? '' }}',
+                        coverage_type: document.getElementById('coverage_type')?.value || '{{ $lead->current_policy['coverage_type'] ?? '' }}',
+                        expiration_date: document.getElementById('expiration_date')?.value || '{{ $lead->current_policy['expiration_date'] ?? '' }}',
+                        insured_since: document.getElementById('insured_since')?.value || '{{ $lead->current_policy['insured_since'] ?? '' }}'
+                    };
+                    
+                    // Combine all data with enrichment info
+                    const allData = {
+                        qualification: {
+                            ...qualificationData,
+                            enrichment_type: type,
+                            enrichment_data: {
+                                type: type,
+                                url: enrichmentURL,
+                                timestamp: new Date().toISOString()
+                            }
+                        },
+                        contact: contactData,
+                        insurance: insuranceData
+                    };
+                    
+                    // Save all data to database
+                    const saveResponse = await fetch(`/agent/lead/{{ $lead->id }}/save-all`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
-                        body: JSON.stringify(qualificationData)
+                        body: JSON.stringify(allData)
                     });
                     
                     if (!saveResponse.ok) {
-                        throw new Error('Failed to save qualification data');
+                        throw new Error('Failed to save lead data');
                     }
                     
                     // Open enrichment URL in new tab
@@ -1665,6 +1776,102 @@
                 }
             } catch (error) {
                 alert('Error adding driver: ' + error.message);
+            }
+        }
+
+        // Save insurance information
+        async function saveInsurance() {
+            const data = {
+                insurance_company: document.getElementById('insurance_company').value,
+                coverage_type: document.getElementById('coverage_type').value,
+                expiration_date: document.getElementById('expiration_date').value,
+                insured_since: document.getElementById('insured_since').value
+            };
+            
+            try {
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/insurance`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Insurance information updated successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error updating insurance: ' + error.message);
+            }
+        }
+
+        // Save all lead data (comprehensive save)
+        async function saveAllLeadData() {
+            const saveBtn = document.querySelector('.save-lead-btn');
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML = '⏳ Saving...';
+            saveBtn.disabled = true;
+            
+            try {
+                // Get all form data including qualification answers
+                const qualificationData = getFormData();
+                
+                // Get contact information
+                const contactData = {
+                    phone: document.getElementById('contact_phone')?.value || '{{ $lead->phone }}',
+                    email: document.getElementById('contact_email')?.value || '{{ $lead->email }}',
+                    address: document.getElementById('contact_address')?.value || '{{ $lead->address }}',
+                    city: document.getElementById('contact_city')?.value || '{{ $lead->city }}',
+                    state: document.getElementById('contact_state')?.value || '{{ $lead->state }}',
+                    zip_code: document.getElementById('contact_zip_code')?.value || '{{ $lead->zip_code }}'
+                };
+                
+                // Get insurance information
+                const insuranceData = {
+                    insurance_company: document.getElementById('insurance_company')?.value || '{{ $lead->current_policy['insurance_company'] ?? '' }}',
+                    coverage_type: document.getElementById('coverage_type')?.value || '{{ $lead->current_policy['coverage_type'] ?? '' }}',
+                    expiration_date: document.getElementById('expiration_date')?.value || '{{ $lead->current_policy['expiration_date'] ?? '' }}',
+                    insured_since: document.getElementById('insured_since')?.value || '{{ $lead->current_policy['insured_since'] ?? '' }}'
+                };
+                
+                // Combine all data
+                const allData = {
+                    qualification: qualificationData,
+                    contact: contactData,
+                    insurance: insuranceData
+                };
+                
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/save-all`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify(allData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    saveBtn.innerHTML = '✅ Saved!';
+                    setTimeout(() => {
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.disabled = false;
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Failed to save');
+                }
+            } catch (error) {
+                console.error('Error saving lead data:', error);
+                alert('Error saving lead data: ' + error.message);
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
             }
         }
 
