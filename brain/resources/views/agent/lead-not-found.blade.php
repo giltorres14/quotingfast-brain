@@ -18,13 +18,13 @@
             line-height: 1.4;
             background: #f8f9fa;
             color: #333;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-y: auto;
         }
 
         .container {
             max-width: 100%;
-            height: 100vh;
+            min-height: 100vh;
             background: white;
             display: flex;
             flex-direction: column;
