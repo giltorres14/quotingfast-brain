@@ -801,7 +801,7 @@
                 data[element.id] = element.value;
             });
             
-            // Map values for Ringba enrichment
+            // Map values for Ringba enrichment (per your specification)
             const enrichmentData = {
                 // Basic info from lead
                 phone: '{{ preg_replace("/[^0-9]/", "", $lead->phone) }}',
@@ -810,27 +810,28 @@
                 email: '{{ $lead->email ?? "" }}',
                 address: '{{ $lead->address ?? "" }}',
                 city: '{{ $lead->city ?? "" }}',
-                state: data.state || '{{ $lead->state ?? "" }}',
+                state: '{{ $lead->state ?? "" }}', // Lead state, not form state
                 zip_code: data.zip_code || '{{ $lead->zip_code ?? "" }}',
                 
-                // Mapped qualification data
-                currently_insured: data.currently_insured === 'yes' ? 'Y' : 'N',
-                current_provider: data.current_provider || '',
-                insurance_duration: data.insurance_duration || '',
-                active_license: data.active_license === 'yes' ? 'Y' : 'N',
+                // Qualification parameters (exact mapping per your spec)
+                insured: data.currently_insured || '', // Q1: sent as-is (Yes/No)
+                license: data.active_license || '', // Q4: sent as-is  
                 
-                // DUI/SR22 mapping
+                // Q5 & Q6: DUI/SR22 logic mapping
                 dui: (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'Y' : 'N',
                 sr22: (data.dui_sr22 === 'sr22_only' || data.dui_sr22 === 'both') ? 'Y' : 'N',
-                dui_when: data.dui_timeframe || '',
+                dui_when: data.dui_timeframe || '', // Maps to 1, 2, or 3
                 
-                // Home ownership mapping
-                homeowner: data.home_status === 'own' ? 'Y' : 'N',
+                // Q10: Home ownership mapping
+                homeowner: data.home_status === 'own' ? 'Y' : 'N', // Own = Y, Rent/Other = N
                 
-                // Other qualification data
-                num_vehicles: data.num_vehicles || '',
-                allstate_quote: data.allstate_quote === 'yes' ? 'Y' : 'N',
-                ready_to_speak: data.ready_to_speak === 'yes' ? 'Y' : 'N'
+                // Visual-only fields (not sent in enrichment per your spec)
+                // Q2: current_provider - visual only
+                // Q3: insurance_duration - visual only  
+                // Q7: state_input - visual only
+                // Q9: num_vehicles - not currently used
+                // Q11: allstate_quote - visual only
+                // Q12: ready_to_speak - visual only
             };
             
             return enrichmentData;
@@ -852,13 +853,13 @@
         function enrichLead(type) {
             const data = getFormData();
             
-            // Ringba enrichment URLs with variable placeholders
+            // Ringba enrichment URLs with correct parameter mapping
             const enrichmentURLs = {
-                insured: 'https://display.ringba.com/enrich/2674154334576444838?phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&currently_insured=<<currently_insured>>&current_provider=<<current_provider>>&insurance_duration=<<insurance_duration>>&active_license=<<active_license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>&num_vehicles=<<num_vehicles>>&allstate_quote=<<allstate_quote>>&ready_to_speak=<<ready_to_speak>>',
+                insured: 'https://display.ringba.com/enrich/2674154334576444838?phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>',
                 
-                uninsured: 'https://display.ringba.com/enrich/2676487329580844084?phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&currently_insured=<<currently_insured>>&current_provider=<<current_provider>>&insurance_duration=<<insurance_duration>>&active_license=<<active_license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>&num_vehicles=<<num_vehicles>>&allstate_quote=<<allstate_quote>>&ready_to_speak=<<ready_to_speak>>',
+                uninsured: 'https://display.ringba.com/enrich/2676487329580844084?phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>',
                 
-                homeowner: 'https://display.ringba.com/enrich/2717035800150673197?phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&currently_insured=<<currently_insured>>&current_provider=<<current_provider>>&insurance_duration=<<insurance_duration>>&active_license=<<active_license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>&num_vehicles=<<num_vehicles>>&allstate_quote=<<allstate_quote>>&ready_to_speak=<<ready_to_speak>>'
+                homeowner: 'https://display.ringba.com/enrich/2717035800150673197?phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>'
             };
             
             const baseURL = enrichmentURLs[type];
