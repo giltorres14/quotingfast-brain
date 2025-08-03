@@ -728,6 +728,13 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                 try {
                     $cachedData = Cache::get("lead_data_{$leadId}");
                     if ($cachedData) {
+                        // Convert date strings back to Carbon objects for Blade template compatibility
+                        if (isset($cachedData['received_at']) && is_string($cachedData['received_at'])) {
+                            $cachedData['received_at'] = \Carbon\Carbon::parse($cachedData['received_at']);
+                        }
+                        if (isset($cachedData['joined_at']) && is_string($cachedData['joined_at'])) {
+                            $cachedData['joined_at'] = \Carbon\Carbon::parse($cachedData['joined_at']);
+                        }
                         $lead = (object) array_merge($cachedData, ['id' => $leadId]);
                         Log::info('Lead found in cache', ['lead_id' => $leadId]);
                     }
@@ -737,6 +744,13 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                     if (file_exists($cacheFile)) {
                         $cachedData = json_decode(file_get_contents($cacheFile), true);
                         if ($cachedData) {
+                            // Convert date strings back to Carbon objects for Blade template compatibility
+                            if (isset($cachedData['received_at']) && is_string($cachedData['received_at'])) {
+                                $cachedData['received_at'] = \Carbon\Carbon::parse($cachedData['received_at']);
+                            }
+                            if (isset($cachedData['joined_at']) && is_string($cachedData['joined_at'])) {
+                                $cachedData['joined_at'] = \Carbon\Carbon::parse($cachedData['joined_at']);
+                            }
                             $lead = (object) array_merge($cachedData, ['id' => $leadId]);
                             Log::info('Lead found in file cache', ['lead_id' => $leadId]);
                         }
