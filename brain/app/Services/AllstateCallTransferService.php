@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use App\Services\DataNormalizationService;
 
 class AllstateCallTransferService
 {
@@ -32,8 +33,21 @@ class AllstateCallTransferService
                 'lead_name' => $lead->name ?? 'unknown'
             ]);
             
-            // Prepare lead data for Allstate API
-            $transferData = $this->prepareLeadData($lead);
+                    // Prepare and normalize lead data for Allstate API
+        $transferData = $this->prepareLeadData($lead);
+        
+        // Apply Allstate-specific data normalization
+        $originalData = $transferData;
+        $transferData = DataNormalizationService::normalizeForBuyer($transferData, 'allstate');
+        
+        // Log normalization changes for debugging
+        $validationReport = DataNormalizationService::getValidationReport($originalData, $transferData, 'allstate');
+        if (!empty($validationReport['changes_made'])) {
+            Log::info('Data normalized for Allstate transfer', [
+                'lead_id' => $lead->id ?? 'unknown',
+                'changes' => $validationReport['changes_made']
+            ]);
+        }
             
             // Make API call to Allstate using Basic Auth
             $response = Http::timeout(30)

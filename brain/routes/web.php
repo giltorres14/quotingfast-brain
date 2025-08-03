@@ -1647,4 +1647,47 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
         ], 500);
     }
 });
+
+// Test data normalization for buyers
+Route::get('/test/normalization/{leadId?}', function ($leadId = 'BRAIN_TEST_RINGBA') {
+    try {
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        
+        if (!$lead) {
+            return response()->json([
+                'error' => 'Lead not found',
+                'lead_id' => $leadId
+            ], 404);
+        }
+        
+        // Get original lead data
+        $originalData = [
+            'drivers' => $lead->drivers ?? [],
+            'vehicles' => $lead->vehicles ?? [],
+            'coverage_type' => $lead->coverage_type ?? 'Full Coverage',
+            'currently_insured' => $lead->currently_insured ?? 'Yes'
+        ];
+        
+        // Apply Allstate normalization
+        $normalizedData = \App\Services\DataNormalizationService::normalizeForBuyer($originalData, 'allstate');
+        
+        // Get validation report
+        $validationReport = \App\Services\DataNormalizationService::getValidationReport($originalData, $normalizedData, 'allstate');
+        
+        return response()->json([
+            'lead_id' => $leadId,
+            'original_data' => $originalData,
+            'normalized_data' => $normalizedData,
+            'validation_report' => $validationReport,
+            'buyer_profile' => 'allstate',
+            'message' => 'Data normalization test completed'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Normalization test failed: ' . $e->getMessage(),
+            'lead_id' => $leadId
+        ], 500);
+    }
+});
  
