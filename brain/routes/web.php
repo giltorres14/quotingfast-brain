@@ -979,13 +979,41 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
 // Test Allstate transfer endpoint
 Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
     try {
-        $lead = App\Models\Lead::find($leadId);
+        // Try to get lead from database, fallback to mock data
+        $lead = null;
+        try {
+            $lead = App\Models\Lead::find($leadId);
+        } catch (Exception $dbError) {
+            Log::info('Database unavailable for Allstate test, using mock data');
+        }
         
+        // If no lead found or database unavailable, create mock lead
         if (!$lead) {
-            return response()->json([
-                'success' => false,
-                'error' => "Lead #{$leadId} not found"
-            ], 404);
+            $lead = (object) [
+                'id' => 'ALLSTATE_TEST_' . $leadId,
+                'name' => 'Test AllstateUser',
+                'first_name' => 'Test',
+                'last_name' => 'AllstateUser',
+                'phone' => '5551234567',
+                'email' => 'test.allstate@example.com',
+                'address' => '123 Test Insurance St',
+                'city' => 'Los Angeles',
+                'state' => 'CA',
+                'zip_code' => '90210',
+                'insurance_company' => 'State Farm',
+                'coverage_type' => 'full_coverage',
+                'drivers' => json_encode([
+                    ['name' => 'Test AllstateUser', 'age' => 35, 'gender' => 'Unknown', 'license_status' => 'Valid', 'violations' => 0, 'accidents' => []]
+                ]),
+                'vehicles' => json_encode([
+                    ['year' => 2020, 'make' => 'Toyota', 'model' => 'Camry', 'usage' => 'Personal', 'ownership' => 'Own']
+                ]),
+                'current_policy' => json_encode([
+                    'current_insurance' => 'State Farm',
+                    'coverage' => 'full_coverage',
+                    'expiration_date' => '2024-12-31'
+                ])
+            ];
         }
         
         Log::info('Testing Allstate transfer', [
