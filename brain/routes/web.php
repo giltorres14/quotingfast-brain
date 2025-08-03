@@ -1147,12 +1147,16 @@ function sendToViciList101($leadData, $leadId) {
         'source' => 'LQF_API'
     ];
     
-    // Prepare Vici lead data (adding source_id: LQF_API)
+    // Generate ViciDial-compatible lead_id (9 digits starting with 100000000)
+    $viciLeadId = 100000000 + (int)(microtime(true) * 100) % 99999999;
+    
+    // Prepare Vici lead data (adding proper lead_id and source_id)
     $viciData = [
         'user' => $viciConfig['user'],
         'pass' => $viciConfig['pass'],
         'function' => 'add_lead',
         'source_id' => 'LQF_API',
+        'lead_id' => $viciLeadId,
         'list_id' => $viciConfig['list_id'],
         'phone_number' => preg_replace('/[^0-9]/', '', $leadData['phone']),
         'phone_code' => $viciConfig['phone_code'],
@@ -1164,7 +1168,7 @@ function sendToViciList101($leadData, $leadId) {
         'state' => $leadData['state'] ?? '',
         'postal_code' => $leadData['zip_code'] ?? '',
         'email' => $leadData['email'] ?? '',
-        'comments' => "Lead from LeadsQuotingFast - ID: {$leadId}"
+        'comments' => "Lead from LeadsQuotingFast - Brain ID: {$leadId}, Vici ID: {$viciLeadId}"
     ];
     
     // Send to Vici - Testing with hardcoded source_id: LQF_API
