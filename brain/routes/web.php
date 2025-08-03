@@ -40,6 +40,7 @@ Route::get('/', function () {
             '/webhook/vici' => 'Vici webhook (POST)',
             '/webhook/twilio' => 'Twilio webhook (POST)',
             '/webhook/allstate' => 'Allstate call transfer webhook (POST)',
+            '/webhook/ringba-decision' => 'Ringba buyer decision webhook (POST)',
             '/webhook/status' => 'Webhook status monitoring (GET)',
             '/api/webhooks' => 'Webhook dashboard API (GET)'
         ],
@@ -1674,6 +1675,158 @@ Route::get('/agent/lead/{leadId}/validate-allstate', function ($leadId) {
     }
 });
 
+// Ringba Decision Webhook - Automatic Allstate Transfer
+Route::post('/webhook/ringba-decision', function (Request $request) {
+    try {
+        Log::info('Ringba decision webhook received', [
+            'payload' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        // Validate required fields
+        $leadId = $request->input('lead_id');
+        $decision = $request->input('decision');
+        $ringbaData = $request->input('ringba_data', []);
+        
+        if (!$leadId) {
+            Log::error('Ringba webhook missing lead_id', ['payload' => $request->all()]);
+            return response()->json([
+                'success' => false,
+                'error' => 'lead_id is required'
+            ], 400);
+        }
+        
+        // Find the lead
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        if (!$lead) {
+            Log::error('Ringba webhook - lead not found', ['lead_id' => $leadId]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Lead not found'
+            ], 404);
+        }
+        
+        // Log the decision
+        Log::info('Ringba decision processed', [
+            'lead_id' => $leadId,
+            'decision' => $decision,
+            'lead_name' => $lead->name
+        ]);
+        
+        // Handle Allstate decision
+        if (strtolower($decision) === 'allstate') {
+            // Validate lead is ready for Allstate
+            $validation = \App\Services\AllstateValidationService::validateLeadForEnrichment($lead);
+            
+            if (!$validation['is_valid']) {
+                Log::warning('Ringba selected Allstate but lead validation failed', [
+                    'lead_id' => $leadId,
+                    'missing_fields' => $validation['missing_fields'],
+                    'errors' => $validation['errors']
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Lead validation failed for Allstate',
+                    'validation_errors' => $validation['missing_fields'],
+                    'message' => 'Lead does not meet Allstate requirements'
+                ], 422);
+            }
+            
+            // Lead is valid - proceed with Allstate transfer
+            Log::info('Initiating automatic Allstate transfer', ['lead_id' => $leadId]);
+            
+            $allstateService = new \App\Services\AllstateCallTransferService();
+            $transferResult = $allstateService->transferCall($lead);
+            
+            if ($transferResult['success']) {
+                // Update lead status
+                $lead->update([
+                    'status' => 'transferred_to_allstate',
+                    'allstate_transfer_id' => $transferResult['transfer_id'] ?? null,
+                    'allstate_transferred_at' => now(),
+                    'allstate_response' => $transferResult['allstate_response'] ?? null,
+                    'notes' => ($lead->notes ?? '') . "\n" . 'Auto-transferred to Allstate via Ringba decision at ' . now()->toDateTimeString()
+                ]);
+                
+                Log::info('Allstate transfer successful via Ringba webhook', [
+                    'lead_id' => $leadId,
+                    'transfer_id' => $transferResult['transfer_id'] ?? null,
+                    'allstate_response' => $transferResult['allstate_response'] ?? null
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Lead successfully transferred to Allstate',
+                    'lead_id' => $leadId,
+                    'decision' => $decision,
+                    'transfer_result' => [
+                        'transfer_id' => $transferResult['transfer_id'] ?? null,
+                        'status' => 'transferred_to_allstate',
+                        'transferred_at' => now()->toISOString()
+                    ]
+                ]);
+                
+            } else {
+                // Transfer failed
+                $lead->update([
+                    'status' => 'transfer_failed',
+                    'notes' => ($lead->notes ?? '') . "\n" . 'Allstate transfer failed via Ringba webhook: ' . ($transferResult['error'] ?? 'Unknown error') . ' at ' . now()->toDateTimeString()
+                ]);
+                
+                Log::error('Allstate transfer failed via Ringba webhook', [
+                    'lead_id' => $leadId,
+                    'error' => $transferResult['error'] ?? 'Unknown error',
+                    'response_body' => $transferResult['response_body'] ?? null
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Allstate transfer failed',
+                    'lead_id' => $leadId,
+                    'decision' => $decision,
+                    'error' => $transferResult['error'] ?? 'Transfer failed',
+                    'transfer_result' => [
+                        'status' => 'transfer_failed',
+                        'error' => $transferResult['error'] ?? 'Unknown error'
+                    ]
+                ], 500);
+            }
+        } else {
+            // Other decisions (not Allstate)
+            Log::info('Ringba decision processed - not Allstate', [
+                'lead_id' => $leadId,
+                'decision' => $decision
+            ]);
+            
+            // Update lead with decision but no transfer
+            $lead->update([
+                'notes' => ($lead->notes ?? '') . "\n" . "Ringba decision: $decision at " . now()->toDateTimeString()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Decision processed - no transfer needed',
+                'lead_id' => $leadId,
+                'decision' => $decision,
+                'action' => 'logged_only'
+            ]);
+        }
+        
+    } catch (\Exception $e) {
+        Log::error('Ringba webhook error', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'payload' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Webhook processing failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
 // Test data normalization for buyers
 Route::get('/test/normalization/{leadId?}', function ($leadId = 'BRAIN_TEST_RINGBA') {
     try {
@@ -1713,6 +1866,70 @@ Route::get('/test/normalization/{leadId?}', function ($leadId = 'BRAIN_TEST_RING
         return response()->json([
             'error' => 'Normalization test failed: ' . $e->getMessage(),
             'lead_id' => $leadId
+        ], 500);
+    }
+});
+
+// Test Ringba Decision Webhook
+Route::get('/test/ringba-decision/{leadId?}/{decision?}', function ($leadId = 'BRAIN_TEST_RINGBA', $decision = 'allstate') {
+    try {
+        // Find the lead first to make sure it exists
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        if (!$lead) {
+            return response()->json([
+                'error' => 'Lead not found for testing',
+                'lead_id' => $leadId,
+                'available_test_lead' => 'BRAIN_TEST_RINGBA'
+            ], 404);
+        }
+        
+        // Simulate a Ringba webhook call
+        $webhookData = [
+            'lead_id' => $leadId,
+            'decision' => $decision,
+            'ringba_data' => [
+                'campaign_id' => '2674154334576444838',
+                'processed_at' => now()->toISOString(),
+                'score' => 85,
+                'qualification_results' => [
+                    'currently_insured' => 'yes',
+                    'license_valid' => 'yes',
+                    'credit_score' => 'good'
+                ]
+            ]
+        ];
+        
+        // Make a real HTTP call to the webhook endpoint
+        $webhookUrl = url('/webhook/ringba-decision');
+        $response = Http::post($webhookUrl, $webhookData);
+        
+        return response()->json([
+            'test_type' => 'Ringba Decision Webhook Simulation',
+            'lead_id' => $leadId,
+            'lead_name' => $lead->name,
+            'decision' => $decision,
+            'webhook_data_sent' => $webhookData,
+            'webhook_response' => [
+                'status' => $response->status(),
+                'body' => $response->json(),
+                'successful' => $response->successful()
+            ],
+            'webhook_url' => $webhookUrl,
+            'instructions' => [
+                'This simulates Ringba calling your webhook',
+                'Check the response above to see if the transfer worked',
+                'Check logs for detailed processing information',
+                'Test different decisions: /test/ringba-decision/' . $leadId . '/other_decision'
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'test_type' => 'Ringba Decision Webhook Simulation',
+            'error' => $e->getMessage(),
+            'lead_id' => $leadId,
+            'decision' => $decision,
+            'trace' => $e->getTraceAsString()
         ], 500);
     }
 });
