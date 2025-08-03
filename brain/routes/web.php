@@ -821,12 +821,20 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                 'joined_at' => now(),
                 'drivers' => [
                     [
-                        'name' => 'John ViciTest',
+                        'first_name' => 'John',
+                        'last_name' => 'ViciTest',
                         'age' => 35,
                         'gender' => 'Male',
-                        'accidents' => [],
-                        'violations' => 1,
-                        'license_status' => 'Valid'
+                        'marital_status' => 'Single',
+                        'license_state' => 'CA',
+                        'license_status' => 'Valid',
+                        'years_licensed' => '15',
+                        'accidents' => [
+                            ['date' => '2023-03-15', 'type' => 'At-fault', 'description' => 'Rear-end collision']
+                        ],
+                        'violations' => [
+                            ['date' => '2023-08-20', 'type' => 'Speeding', 'description' => '15 mph over limit']
+                        ]
                     ]
                 ],
                 'vehicles' => [

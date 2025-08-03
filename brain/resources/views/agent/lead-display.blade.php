@@ -371,12 +371,11 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- Header - Agent View (No Admin Data) -->
         <div class="header">
             <h1>{{ $lead->name }}</h1>
             <div class="meta">
-                Lead ID: {{ $lead->id }} | Source: {{ ucfirst($lead->source) }} | 
-                Received: {{ $lead->received_at->format('M j, Y g:i A') }}
+                Lead ID: {{ $lead->id }}
             </div>
         </div>
 
@@ -580,34 +579,7 @@
             </div>
         </div>
 
-        <!-- Call Metrics (if available) -->
-        @if($callMetrics)
-        <div class="section call-metrics">
-            <div class="section-title">📊 Call Metrics</div>
-            <div class="metrics-grid">
-                <div class="metric-item">
-                    <div class="metric-value">{{ $callMetrics->call_attempts ?? 0 }}</div>
-                    <div class="metric-label">Attempts</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">{{ $callMetrics->connected_time ? '✓' : '✗' }}</div>
-                    <div class="metric-label">Connected</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">{{ $callMetrics->talk_time ?? 0 }}s</div>
-                    <div class="metric-label">Talk Time</div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-value">
-                        <span class="status-badge status-{{ strtolower($callMetrics->call_status ?? 'new') }}">
-                            {{ $callMetrics->call_status ?? 'NEW' }}
-                        </span>
-                    </div>
-                    <div class="metric-label">Status</div>
-                </div>
-            </div>
-        </div>
-        @endif
+        <!-- Call Metrics removed from agent view - admin only data -->
 
         <!-- Drivers -->
         @if($lead->drivers && count($lead->drivers) > 0)
@@ -640,12 +612,42 @@
                         <div class="info-value">{{ $driver['license_state'] ?? 'Not provided' }}</div>
                     </div>
                 </div>
-                @if(isset($driver['accidents']) && count($driver['accidents']) > 0)
-                <div style="margin-top: 8px;">
-                    <div class="info-label">Recent Accidents</div>
-                    <div class="info-value">{{ count($driver['accidents']) }} accident(s)</div>
+                
+                <!-- Violations & Accidents - Important for Agent -->
+                <div class="info-grid" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e9ecef;">
+                    <div class="info-item">
+                        <div class="info-label">Violations</div>
+                        <div class="info-value">
+                            @if(isset($driver['violations']) && count($driver['violations']) > 0)
+                                <span style="color: #dc3545; font-weight: bold;">{{ count($driver['violations']) }} violation(s)</span>
+                            @elseif(isset($driver['violations']))
+                                <span style="color: #28a745;">Clean record</span>
+                            @else
+                                Not provided
+                            @endif
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Accidents</div>
+                        <div class="info-value">
+                            @if(isset($driver['accidents']) && count($driver['accidents']) > 0)
+                                <span style="color: #dc3545; font-weight: bold;">{{ count($driver['accidents']) }} accident(s)</span>
+                            @elseif(isset($driver['accidents']))
+                                <span style="color: #28a745;">No accidents</span>
+                            @else
+                                Not provided
+                            @endif
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">License Status</div>
+                        <div class="info-value">{{ $driver['license_status'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Years Licensed</div>
+                        <div class="info-value">{{ $driver['years_licensed'] ?? 'Not provided' }}</div>
+                    </div>
                 </div>
-                @endif
             </div>
             @endforeach
         </div>
@@ -762,10 +764,7 @@
             }
         }
         
-        // Auto-refresh call metrics every 30 seconds
-        setInterval(function() {
-            location.reload();
-        }, 30000);
+        // Auto-refresh disabled for agent view - no call metrics displayed
         
         // Ringba Qualification Form Logic
         function toggleInsuranceQuestions() {
