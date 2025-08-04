@@ -233,6 +233,121 @@ Route::post('/test-lead-data', function (Request $request) {
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
+// Database status endpoint
+Route::get('/api/database/status', function () {
+    try {
+        $dbPath = database_path('database.sqlite');
+        $dbExists = file_exists($dbPath);
+        
+        if (!$dbExists) {
+            // Try to create the database file
+            touch($dbPath);
+            chmod($dbPath, 0666);
+        }
+        
+        // Test database connection
+        $leadCount = Lead::count();
+        
+        return response()->json([
+            'database_status' => 'connected',
+            'database_type' => config('database.default'),
+            'database_file' => $dbPath,
+            'file_exists' => file_exists($dbPath),
+            'file_writable' => is_writable($dbPath),
+            'lead_count' => $leadCount,
+            'migrations_needed' => false
+        ], 200, [], JSON_PRETTY_PRINT);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'database_status' => 'error',
+            'error' => $e->getMessage(),
+            'database_type' => config('database.default'),
+            'database_file' => database_path('database.sqlite'),
+            'file_exists' => file_exists(database_path('database.sqlite')),
+            'suggestions' => [
+                'Run migrations: php artisan migrate',
+                'Check file permissions',
+                'Verify database configuration'
+            ]
+        ], 500, [], JSON_PRETTY_PRINT);
+    }
+});
+
+// API endpoint to view lead payload
+Route::get('/api/lead/{leadId}/payload', function ($leadId) {
+    try {
+        // Try to find the lead in database first
+        $lead = Lead::find($leadId);
+        
+        if ($lead && $lead->payload) {
+            $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+            
+            return response()->json([
+                'lead_id' => $leadId,
+                'original_payload' => $payload,
+                'stored_at' => $lead->created_at,
+                'source' => 'database'
+            ], 200, [], JSON_PRETTY_PRINT);
+        }
+        
+        // Fallback: check cache for recent leads
+        $cachedData = Cache::get("lead_data_{$leadId}");
+        if ($cachedData) {
+            return response()->json([
+                'lead_id' => $leadId,
+                'original_payload' => $cachedData,
+                'source' => 'cache',
+                'note' => 'This lead was not stored in database but found in cache'
+            ], 200, [], JSON_PRETTY_PRINT);
+        }
+        
+        // If it's a test lead, show test data structure
+        if (str_starts_with($leadId, 'TEST_') || str_starts_with($leadId, 'BRAIN_TEST_')) {
+            return response()->json([
+                'lead_id' => $leadId,
+                'message' => 'This is test data - no original payload available',
+                'test_data_structure' => [
+                    'contact' => [
+                        'first_name' => 'string',
+                        'last_name' => 'string',
+                        'phone' => 'string',
+                        'email' => 'string',
+                        'address' => 'string',
+                        'city' => 'string',
+                        'state' => 'string',
+                        'zip_code' => 'string'
+                    ],
+                    'data' => [
+                        'drivers' => 'array',
+                        'vehicles' => 'array',
+                        'requested_policy' => 'object'
+                    ],
+                    'meta' => [
+                        'user_agent' => 'string',
+                        'landing_page_url' => 'string',
+                        'tcpa_compliant' => 'boolean'
+                    ]
+                ],
+                'source' => 'test_data'
+            ], 200, [], JSON_PRETTY_PRINT);
+        }
+        
+        return response()->json([
+            'error' => 'Lead not found',
+            'lead_id' => $leadId,
+            'searched_in' => ['database', 'cache']
+        ], 404, [], JSON_PRETTY_PRINT);
+        
+    } catch (Exception $e) {
+        return response()->json([
+            'error' => 'Failed to retrieve payload',
+            'message' => $e->getMessage(),
+            'lead_id' => $leadId
+        ], 500, [], JSON_PRETTY_PRINT);
+    }
+});
+
 // Debug endpoint to analyze incoming webhook data
 Route::post('/webhook/debug', function (Request $request) {
     $data = $request->all();
@@ -846,7 +961,9 @@ Route::get('/leads', function (Request $request) {
     } catch (\Exception $e) {
         Log::error('Leads listing error', [
             'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'trace' => $e->getTraceAsString(),
+            'db_connection' => config('database.default'),
+            'db_file' => database_path('database.sqlite')
         ]);
         
         // Fallback with test data if database fails

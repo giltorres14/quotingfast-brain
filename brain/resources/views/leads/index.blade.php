@@ -417,6 +417,15 @@
             background: #edf2f7;
         }
         
+        .btn-payload {
+            background: #8b5cf6;
+            color: white;
+        }
+        
+        .btn-payload:hover {
+            background: #7c3aed;
+        }
+        
         .btn-sms {
             background: #10b981;
             color: white;
@@ -678,6 +687,9 @@
                         </a>
                         <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-sm btn-edit">
                             ✏️ Edit
+                        </a>
+                        <a href="/api/lead/{{ $lead->id }}/payload" class="btn btn-sm btn-payload" target="_blank">
+                            📄 Payload
                         </a>
                         <a href="#" class="btn btn-sm btn-sms" onclick="alert('SMS feature coming soon for {{ $lead->first_name ?? $lead->name }}!')">
                             💬 SMS
