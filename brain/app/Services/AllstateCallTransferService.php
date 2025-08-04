@@ -15,7 +15,7 @@ class AllstateCallTransferService
     public function __construct()
     {
         // Allstate Lead Marketplace API key
-        $this->apiKey = env('ALLSTATE_API_KEY', 'b91446ade9d37650f93e305cbaf8c2c9b91446ade9d37650f93e305cbaf8c2c9');
+        $this->apiKey = env('ALLSTATE_API_KEY', 'quoting-fast'); // Testing key
         // Use testing environment first, then switch to production
         $this->baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
             ? 'https://api.allstateleadmarketplace.com/v2'
@@ -49,12 +49,13 @@ class AllstateCallTransferService
             ]);
         }
             
-            // Make API call to Allstate using Basic Auth
+            // Make API call to Allstate using proper Base64 encoded authorization
+            $authHeader = base64_encode($this->apiKey . ':');
             $response = Http::timeout(30)
-                ->withBasicAuth($this->apiKey, '') // Basic auth with API key as username, no password
                 ->withHeaders([
                     'Content-Type' => 'application/json',
-                    'Accept' => 'application/json'
+                    'Accept' => 'application/json',
+                    'Authorization' => $authHeader
                 ])
                 ->post($this->baseUrl . '/leads', $transferData); // Submit lead to Allstate Lead Marketplace
             

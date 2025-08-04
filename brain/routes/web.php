@@ -1635,7 +1635,7 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
 // Test Allstate API connection with multiple auth methods
 Route::get('/test/allstate/connection', function () {
     try {
-        $apiKey = env('ALLSTATE_API_KEY', 'b91446ade9d37650f93e305cbaf8c2c9b91446ade9d37650f93e305cbaf8c2c9');
+        $apiKey = env('ALLSTATE_API_KEY', 'quoting-fast');
         $baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
             ? 'https://api.allstateleadmarketplace.com/v2'
             : 'https://int.allstateleadmarketplace.com/v2';
@@ -1650,11 +1650,12 @@ Route::get('/test/allstate/connection', function () {
         $results = [];
         
         foreach ($endpoints as $endpoint) {
+            $authHeader = base64_encode($apiKey . ':');
             $response = \Illuminate\Support\Facades\Http::timeout(30)
-                ->withToken($apiKey) // Try Bearer token authentication
                 ->withHeaders([
                     'Content-Type' => 'application/json',
-                    'Accept' => 'application/json'
+                    'Accept' => 'application/json',
+                    'Authorization' => $authHeader
                 ])
                 ->post($baseUrl . $endpoint, []);
                 
@@ -1668,18 +1669,7 @@ Route::get('/test/allstate/connection', function () {
             }
         }
 
-        // If Bearer fails, try Basic Auth as fallback
-        if (!$response->successful() && $response->status() === 403) {
-            Log::info('Bearer token failed, trying Basic Auth', ['status' => $response->status()]);
-            
-            $response = \Illuminate\Support\Facades\Http::timeout(30)
-                ->withBasicAuth($apiKey, '')
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json'
-                ])
-                ->post($baseUrl . '/ping', []);
-        }
+        // We now use the correct Base64 encoded authorization format
 
         if ($response->successful()) {
             return response()->json([
