@@ -225,12 +225,7 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: FORCING POSTGRESQL CONNECTION ==="' >> /usr/local/bin/startup.sh && \
     echo 'echo "Hardcoding PostgreSQL environment variables..."' >> /usr/local/bin/startup.sh && \
     echo 'export DB_CONNECTION=pgsql' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_HOST=dpg-d277kvk9c44c7388bpg0-a' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_PORT=5432' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_DATABASE=brain_production' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_USERNAME=brain_user' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_PASSWORD=Kok8TYXZ6PShPKi8LTSdhHQQsCrnzcCQadpg' >> /usr/local/bin/startup.sh && \
-    echo 'export DATABASE_URL="postgresql://brain_user:Kok8TYXZ6PShPKi8LTSdhHQQsCrnzcCQadpg@dpg-d277kvk9c44c7388bpg0-a:5432/brain_production"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Using DATABASE_URL for PostgreSQL connection instead of individual params"' >> /usr/local/bin/startup.sh && \
     echo 'echo "Updating .env file with PostgreSQL settings..."' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=pgsql/" .env' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/DB_HOST=.*/DB_HOST=dpg-d277kvk9c44c7388bpg0-a/" .env' >> /usr/local/bin/startup.sh && \
