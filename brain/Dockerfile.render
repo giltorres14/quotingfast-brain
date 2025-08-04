@@ -75,8 +75,9 @@ RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
     echo "LOG_CHANNEL=stack" >> .env && \
     echo "LOG_LEVEL=error" >> .env && \
     echo "" >> .env && \
-    echo "# Database" >> .env && \
-    echo "DB_CONNECTION=pgsql" >> .env && \
+    echo "# Database - will be overridden by Render environment variables" >> .env && \
+    echo "DB_CONNECTION=sqlite" >> .env && \
+    echo "DB_DATABASE=/var/www/html/database/database.sqlite" >> .env && \
     echo "" >> .env && \
     echo "# Cache & Session" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
@@ -221,8 +222,28 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'sed -i "s/APP_KEY=.*/APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+\/nnQgxG8jNi3Iw=/" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "Current APP_KEY: $(grep APP_KEY .env)"' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: CRITICAL - Database Connection Check ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Render environment variables:"' >> /usr/local/bin/startup.sh && \
     echo 'echo "DB_CONNECTION: $DB_CONNECTION"' >> /usr/local/bin/startup.sh && \
     echo 'echo "DB_HOST: $DB_HOST"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "DB_DATABASE: $DB_DATABASE"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Updating .env with Render environment variables..."' >> /usr/local/bin/startup.sh && \
+    echo 'if [ -n "$DB_CONNECTION" ]; then' >> /usr/local/bin/startup.sh && \
+    echo '  sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=$DB_CONNECTION/" .env' >> /usr/local/bin/startup.sh && \
+    echo 'fi' >> /usr/local/bin/startup.sh && \
+    echo 'if [ -n "$DB_HOST" ]; then' >> /usr/local/bin/startup.sh && \
+    echo '  sed -i "s/DB_HOST=.*/DB_HOST=$DB_HOST/" .env || echo "DB_HOST=$DB_HOST" >> .env' >> /usr/local/bin/startup.sh && \
+    echo 'fi' >> /usr/local/bin/startup.sh && \
+    echo 'if [ -n "$DB_DATABASE" ]; then' >> /usr/local/bin/startup.sh && \
+    echo '  sed -i "s|DB_DATABASE=.*|DB_DATABASE=$DB_DATABASE|" .env || echo "DB_DATABASE=$DB_DATABASE" >> .env' >> /usr/local/bin/startup.sh && \
+    echo 'fi' >> /usr/local/bin/startup.sh && \
+    echo 'if [ -n "$DB_USERNAME" ]; then' >> /usr/local/bin/startup.sh && \
+    echo '  sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USERNAME/" .env || echo "DB_USERNAME=$DB_USERNAME" >> .env' >> /usr/local/bin/startup.sh && \
+    echo 'fi' >> /usr/local/bin/startup.sh && \
+    echo 'if [ -n "$DB_PASSWORD" ]; then' >> /usr/local/bin/startup.sh && \
+    echo '  sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" .env || echo "DB_PASSWORD=$DB_PASSWORD" >> .env' >> /usr/local/bin/startup.sh && \
+    echo 'fi' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Final .env database configuration:"' >> /usr/local/bin/startup.sh && \
+    echo 'grep "DB_" .env' >> /usr/local/bin/startup.sh && \
     echo 'if [ "$DB_CONNECTION" = "pgsql" ] && [ -n "$DB_HOST" ]; then' >> /usr/local/bin/startup.sh && \
     echo '  echo "🐘 POSTGRESQL DETECTED - Using persistent PostgreSQL database"' >> /usr/local/bin/startup.sh && \
     echo '  echo "PostgreSQL Host: $DB_HOST"' >> /usr/local/bin/startup.sh && \
