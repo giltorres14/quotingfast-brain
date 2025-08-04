@@ -220,19 +220,22 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'export APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/APP_KEY=.*/APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+\/nnQgxG8jNi3Iw=/" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "Current APP_KEY: $(grep APP_KEY .env)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: CRITICAL - Preventing Database Wipe ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP: CRITICAL - Database Initialization ==="' >> /usr/local/bin/startup.sh && \
     echo 'PERSISTENT_DB="/tmp/brain_persistent.sqlite"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Checking for persistent database at $PERSISTENT_DB"' >> /usr/local/bin/startup.sh && \
     echo 'if [ ! -f "$PERSISTENT_DB" ]; then' >> /usr/local/bin/startup.sh && \
-    echo '  echo "Creating persistent database in /tmp/"' >> /usr/local/bin/startup.sh && \
+    echo '  echo "Creating NEW persistent database with migrations..."' >> /usr/local/bin/startup.sh && \
     echo '  touch "$PERSISTENT_DB"' >> /usr/local/bin/startup.sh && \
     echo '  chmod 666 "$PERSISTENT_DB"' >> /usr/local/bin/startup.sh && \
-    echo '  php artisan migrate --force' >> /usr/local/bin/startup.sh && \
-    echo '  echo "New persistent database created"' >> /usr/local/bin/startup.sh && \
+    echo '  ln -sf "$PERSISTENT_DB" /var/www/html/database/database.sqlite' >> /usr/local/bin/startup.sh && \
+    echo '  php artisan migrate --force --no-interaction' >> /usr/local/bin/startup.sh && \
+    echo '  echo "✅ NEW database created and migrated successfully"' >> /usr/local/bin/startup.sh && \
     echo 'else' >> /usr/local/bin/startup.sh && \
-    echo '  echo "Using existing persistent database - DATA PRESERVED"' >> /usr/local/bin/startup.sh && \
+    echo '  echo "✅ EXISTING persistent database found - preserving data"' >> /usr/local/bin/startup.sh && \
+    echo '  ln -sf "$PERSISTENT_DB" /var/www/html/database/database.sqlite' >> /usr/local/bin/startup.sh && \
     echo 'fi' >> /usr/local/bin/startup.sh && \
-    echo 'ln -sf "$PERSISTENT_DB" /var/www/html/database/database.sqlite' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: Database persistence guaranteed ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Database file: $(ls -la /var/www/html/database/database.sqlite)"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP: Database ready ==="' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
