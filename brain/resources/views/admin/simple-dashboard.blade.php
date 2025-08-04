@@ -469,7 +469,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/agent/lead/BRAIN_TEST_RINGBA" class="nav-link">
+                    <a href="/leads" class="nav-link">
                         Leads
                     </a>
                 </li>
@@ -554,7 +554,7 @@
                     </div>
                 </div>
                                             <div class="action-buttons">
-                                <a href="/agent/lead/BRAIN_TEST_RINGBA" class="btn btn-primary">
+                                <a href="/leads" class="btn btn-primary">
                                     View Leads
                                 </a>
                                 <a href="#" class="btn btn-secondary" onclick="alert('Add Lead feature coming soon!')">

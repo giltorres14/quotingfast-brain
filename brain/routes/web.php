@@ -750,6 +750,88 @@ Route::get('/test/db', function () {
     }
 });
 
+// Leads listing page - modern card-based view
+Route::get('/leads', function (Request $request) {
+    try {
+        // Get search and filter parameters
+        $search = $request->get('search');
+        $status = $request->get('status');
+        $source = $request->get('source');
+        
+        // Build query
+        $query = Lead::query();
+        
+        // Apply search filter
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+        
+        // Apply status filter
+        if ($status && $status !== 'all') {
+            $query->where('status', $status);
+        }
+        
+        // Apply source filter
+        if ($source && $source !== 'all') {
+            $query->where('source', $source);
+        }
+        
+        // Get leads with pagination
+        $leads = $query->with(['viciCallMetrics', 'latestConversion'])
+                      ->orderBy('created_at', 'desc')
+                      ->paginate(20);
+        
+        // Get unique statuses and sources for filters
+        $statuses = Lead::distinct('status')->pluck('status')->filter()->sort();
+        $sources = Lead::distinct('source')->pluck('source')->filter()->sort();
+        
+        return view('leads.index', compact('leads', 'statuses', 'sources', 'search', 'status', 'source'));
+        
+    } catch (\Exception $e) {
+        Log::error('Leads listing error', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        // Fallback with test data if database fails
+        $testLeads = collect([
+            (object)[
+                'id' => 'BRAIN_TEST_RINGBA',
+                'first_name' => 'Cheryl',
+                'last_name' => 'Mattorano',
+                'phone' => '4138427567',
+                'email' => 'cheryl@example.com',
+                'city' => 'Las Vegas',
+                'state' => 'NV',
+                'source' => 'Manual',
+                'status' => 'New',
+                'created_at' => now()->subHours(2),
+                'vehicles' => [['year' => 2023, 'make' => 'Audi', 'model' => 'z']],
+                'current_policy' => ['company' => 'V.V.C Embroidery'],
+                'vici_call_metrics' => null,
+                'latest_conversion' => null,
+                'sell_price' => 0.10
+            ]
+        ]);
+        
+        return view('leads.index', [
+            'leads' => $testLeads,
+            'statuses' => collect(['New', 'Contacted', 'Qualified', 'Converted']),
+            'sources' => collect(['Manual', 'Web', 'Campaign']),
+            'search' => $search,
+            'status' => $status,
+            'source' => $source,
+            'isTestMode' => true
+        ]);
+    }
+});
+
 // Agent iframe endpoint - displays full lead data with transfer button
 Route::get('/agent/lead/{leadId}', function ($leadId) {
     try {
