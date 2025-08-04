@@ -526,7 +526,7 @@
                 <li><a href="#campaigns" class="nav-link" onclick="alert('Campaign management feature coming soon!')">Campaigns</a></li>
                 <li><a href="#settings" class="nav-link" onclick="alert('Settings feature coming soon!')">Settings</a></li>
             </ul>
-        </div>
+  </div>
     </nav>
 
     <!-- Page Header -->
@@ -558,10 +558,10 @@
                                 <option value="{{ $statusOption }}" 
                                         {{ ($status ?? '') === $statusOption ? 'selected' : '' }}>
                                     {{ ucfirst($statusOption) }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+          </option>
+        @endforeach
+      </select>
+    </div>
                     
                     <div class="form-group">
                         <label class="form-label">Source</label>
@@ -571,10 +571,10 @@
                                 <option value="{{ $sourceOption }}" 
                                         {{ ($source ?? '') === $sourceOption ? 'selected' : '' }}>
                                     {{ ucfirst($sourceOption) }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+          </option>
+        @endforeach
+      </select>
+    </div>
                     
                     <div class="form-group">
                         <label class="form-label">State</label>
@@ -584,10 +584,10 @@
                                 <option value="{{ $stateOption }}" 
                                         {{ ($state_filter ?? '') === $stateOption ? 'selected' : '' }}>
                                     {{ $stateOption }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+          </option>
+        @endforeach
+      </select>
+    </div>
                     
                     <div class="form-group">
                         <label class="form-label">Vici Status</label>
@@ -596,13 +596,13 @@
                             <option value="sent" {{ ($vici_status ?? '') === 'sent' ? 'selected' : '' }}>Sent to Vici</option>
                             <option value="not_sent" {{ ($vici_status ?? '') === 'not_sent' ? 'selected' : '' }}>Not Sent</option>
                         </select>
-                    </div>
-                    
+    </div>
+
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <a href="/leads" class="btn btn-secondary">Clear</a>
-                </div>
+    </div>
             </form>
-        </div>
+    </div>
 
         <!-- Test Message -->
         @if(isset($isTestMode) && $isTestMode)
@@ -626,7 +626,7 @@
                                     @if(!$lead->first_name && !$lead->last_name)
                                         {{ $lead->name ?? 'Unknown Lead' }}
                                     @endif
-                                </div>
+          </div>
                                 <div class="lead-contact">
                                     📞 @if($lead->phone)
                                         @php
@@ -636,8 +636,8 @@
                                             } else {
                                                 $formatted = $lead->phone;
                                             }
-                                        @endphp
-                                        {{ $formatted }}
+                @endphp
+                {{ $formatted }}
                                     @else
                                         No phone
                                     @endif
@@ -649,7 +649,7 @@
                                     📍 {{ $lead->city ?? '' }}@if($lead->city && $lead->state), @endif{{ $lead->state ?? '' }}
                                 </div>
                             </div>
-                        </div>
+        </div>
                         
                         <div class="lead-badges">
                             <div class="badge-row">
@@ -661,14 +661,14 @@
                                 
                                 @if($lead->source)
                                     <span class="badge badge-{{ strtolower($lead->source) }}">
-                                        {{ $lead->source }}
-                                    </span>
+            {{ $lead->source }}
+          </span>
                                 @endif
                                 
                                 @if(isset($lead->sent_to_vici) && $lead->sent_to_vici)
                                     <span class="badge badge-vici">
                                         Vici
-                                    </span>
+          </span>
                                 @endif
                             </div>
                             

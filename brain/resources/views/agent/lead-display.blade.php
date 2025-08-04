@@ -994,22 +994,22 @@
                 @endif
             </div>
             <div class="contact-layout" id="contact-display">
-                <div class="contact-left">
-                    <div class="info-item">
+                                <div class="contact-left">
+                    <div class="info-item" id="contact-phone">
                         <div class="info-label">Phone</div>
                         <div class="info-value">{{ $lead->phone ?: 'Not provided' }}</div>
                     </div>
-                    <div class="info-item">
+                    <div class="info-item" id="contact-email">
                         <div class="info-label">Email</div>
                         <div class="info-value">{{ $lead->email ?: 'Not provided' }}</div>
                     </div>
                 </div>
                 <div class="contact-right">
-                    <div class="info-item">
+                    <div class="info-item" id="contact-address">
                         <div class="info-label">Address</div>
                         <div class="info-value">{{ $lead->address ?: 'Not provided' }}</div>
                     </div>
-                    <div class="info-item">
+                    <div class="info-item" id="contact-location">
                         <div class="info-label">City, State ZIP</div>
                         <div class="info-value">
                             {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
@@ -1019,7 +1019,8 @@
             </div>
         </div>
 
-        <!-- Additional Lead Data -->
+        <!-- Additional Lead Data - Only show in view mode -->
+        @if(isset($mode) && $mode === 'view')
         <div class="section">
             <div class="section-title">📋 Lead Details & Compliance</div>
             <div class="info-grid">
@@ -1037,7 +1038,7 @@
                         <span style="color: {{ $lead->tcpa_compliant ? '#28a745' : '#dc3545' }};">
                             {{ $lead->tcpa_compliant ? '✅ Yes' : '❌ No' }}
                         </span>
-                    </div>
+                </div>
                 </div>
                 @endif
                 
@@ -1056,15 +1057,15 @@
                 <div class="info-item">
                     <div class="info-label">Campaign ID</div>
                     <div class="info-value">{{ $lead->campaign_id }}</div>
-                </div>
+            </div>
                 @endif
                 
                 @if(isset($lead->external_lead_id) && $lead->external_lead_id)
                 <div class="info-item">
                     <div class="info-label">External Lead ID</div>
                     <div class="info-value">{{ $lead->external_lead_id }}</div>
-                </div>
-                @endif
+        </div>
+        @endif
                 
                 @if(isset($lead->meta) && is_array($lead->meta))
                     @if(isset($lead->meta['trusted_form_cert_url']) && $lead->meta['trusted_form_cert_url'])
@@ -1087,6 +1088,7 @@
                 @endif
             </div>
         </div>
+        @endif
 
             <!-- Edit Form -->
             <div class="edit-form" id="contact-edit">
@@ -1246,7 +1248,7 @@
                                             @if(isset($violation['state']))
                                                 <strong>State:</strong> {{ $violation['state'] }}<br>
                                             @endif
-                                        </div>
+                </div>
                                     @endforeach
                                 </div>
                             @elseif(isset($driver['violations']))
@@ -1279,9 +1281,9 @@
                                             @endif
                                             @if(isset($accident['damage_amount']))
                                                 <strong>Damage Amount:</strong> ${{ number_format($accident['damage_amount']) }}<br>
-                                            @endif
-                </div>
-                                    @endforeach
+                @endif
+            </div>
+            @endforeach
                                 </div>
                             @elseif(isset($driver['accidents']))
                                 <span style="color: #28a745;">No accidents</span>
@@ -1507,7 +1509,18 @@
                 // Handle lead fields
                 if (fieldPath.startsWith('lead.')) {
                     const fieldName = fieldPath.replace('lead.', '');
-                    const selectors = fieldMapping[fieldPath] || [`#contact-${fieldName}`, `.contact-info .${fieldName}`];
+                    
+                    // Map field names to actual selectors in our layout
+                    const fieldSelectors = {
+                        'phone': ['#contact-phone'],
+                        'email': ['#contact-email'],
+                        'address': ['#contact-address'],
+                        'city': ['#contact-location'],
+                        'state': ['#contact-location'],
+                        'zip_code': ['#contact-location']
+                    };
+                    
+                    const selectors = fieldSelectors[fieldName] || [`#contact-${fieldName}`];
                     
                     selectors.forEach(selector => {
                         const element = document.querySelector(selector);
@@ -1952,7 +1965,7 @@
             
             if (edit.classList.contains('show')) {
                 edit.classList.remove('show');
-                display.style.display = 'grid';
+                display.style.display = 'flex'; // Changed from grid to flex for new contact layout
             } else {
                 edit.classList.add('show');
                 display.style.display = 'none';
@@ -1964,7 +1977,7 @@
             const edit = document.getElementById(section + '-edit');
             
             edit.classList.remove('show');
-            display.style.display = 'grid';
+            display.style.display = 'flex'; // Changed from grid to flex for new contact layout
         }
         
         async function saveContact() {
