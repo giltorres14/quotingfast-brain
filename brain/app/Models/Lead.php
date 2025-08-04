@@ -10,7 +10,12 @@ class Lead extends Model
 {
     use HasFactory;
 
+    // Allow custom IDs (disable auto-incrementing)
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
+        'id', // Add id to fillable
         // Basic contact information
         'name',
         'first_name',

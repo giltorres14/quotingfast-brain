@@ -2764,6 +2764,48 @@
             }
         }
 
+        // Update header elements after successful save
+        function updateHeaderAfterSave(contactData) {
+            try {
+                // Update the main header title
+                const headerTitle = document.querySelector('.header h1');
+                if (headerTitle && contactData.first_name && contactData.last_name) {
+                    const fullName = `${contactData.first_name} ${contactData.last_name}`;
+                    // Preserve any existing mode text (View Only, Edit Mode)
+                    const modeText = headerTitle.innerHTML.match(/<span.*?<\/span>/);
+                    headerTitle.innerHTML = fullName + (modeText ? ' ' + modeText[0] : '');
+                }
+                
+                // Update the lead info bubble name
+                const bubbleName = document.querySelector('.lead-name');
+                if (bubbleName && contactData.first_name && contactData.last_name) {
+                    bubbleName.textContent = `${contactData.first_name} ${contactData.last_name}`;
+                }
+                
+                // Update the lead info bubble phone
+                const bubblePhone = document.querySelector('.lead-phone');
+                if (bubblePhone && contactData.phone) {
+                    // Format phone number as (xxx)xxx-xxxx
+                    const cleanPhone = contactData.phone.replace(/[^0-9]/g, '');
+                    if (cleanPhone.length === 10) {
+                        const formattedPhone = `(${cleanPhone.substr(0,3)})${cleanPhone.substr(3,3)}-${cleanPhone.substr(6,4)}`;
+                        bubblePhone.textContent = formattedPhone;
+                    } else {
+                        bubblePhone.textContent = contactData.phone;
+                    }
+                }
+                
+                // Update page title
+                if (contactData.first_name && contactData.last_name) {
+                    document.title = `Lead Details - ${contactData.first_name} ${contactData.last_name}`;
+                }
+                
+            } catch (error) {
+                console.log('Minor error updating header elements:', error);
+                // Don't throw - this is a nice-to-have feature
+            }
+        }
+
         // Save all lead data (comprehensive save)
         async function saveAllLeadData() {
             const saveBtn = document.querySelector('.save-lead-btn');
@@ -2822,6 +2864,10 @@
                     }
                     
                     saveBtn.innerHTML = buttonText;
+                    
+                    // Update header with new contact information
+                    updateHeaderAfterSave(contactData);
+                    
                     setTimeout(() => {
                         saveBtn.innerHTML = originalText;
                         saveBtn.disabled = false;

@@ -563,9 +563,11 @@ Route::post('/webhook.php', function (Request $request) {
         
         // Try to store in database, but continue if it fails
         $lead = null;
+        $actualLeadId = $leadId; // Default to generated ID
         try {
             $lead = Lead::create(array_merge($leadData, ['id' => $leadId]));
-            Log::info('LeadsQuotingFast lead stored in database', ['lead_id' => $leadId]);
+            $actualLeadId = $lead->id; // Use the actual saved ID
+            Log::info('LeadsQuotingFast lead stored in database', ['generated_id' => $leadId, 'actual_id' => $actualLeadId]);
         } catch (Exception $dbError) {
             Log::warning('Database storage failed, continuing with Vici integration', ['error' => $dbError->getMessage()]);
         }
@@ -580,7 +582,7 @@ Route::post('/webhook.php', function (Request $request) {
         
         // Store lead data in file cache for iframe testing (fallback if DB fails)
         try {
-            Cache::put("lead_data_{$leadId}", $leadData, now()->addHours(24));
+            Cache::put("lead_data_{$actualLeadId}", $leadData, now()->addHours(24));
         } catch (Exception $cacheError) {
             // File-based fallback if cache also fails
             $cacheDir = storage_path('app/lead_cache');
@@ -588,22 +590,22 @@ Route::post('/webhook.php', function (Request $request) {
                 mkdir($cacheDir, 0755, true);
             }
             file_put_contents(
-                "{$cacheDir}/{$leadId}.json", 
+                "{$cacheDir}/{$actualLeadId}.json", 
                 json_encode(array_merge($leadData, ['cached_at' => now()->toISOString()]))
             );
-            Log::info('Lead stored in file cache', ['lead_id' => $leadId]);
+            Log::info('Lead stored in file cache', ['lead_id' => $actualLeadId]);
         }
         
-        Log::info('LeadsQuotingFast lead processed successfully', ['lead_id' => $leadId]);
+        Log::info('LeadsQuotingFast lead processed successfully', ['lead_id' => $actualLeadId]);
         
-        // Return success response with lead ID for iframe testing
+        // Return success response with actual lead ID for iframe testing
         return response()->json([
             'success' => true,
             'message' => 'Lead received and sent to Vici list 101',
-            'lead_id' => $leadId,
+            'lead_id' => $actualLeadId, // Use actual saved ID
             'name' => $leadData['name'],
             'vici_list' => 101,
-            'iframe_url' => url("/agent/lead/{$leadId}"),
+            'iframe_url' => url("/agent/lead/{$actualLeadId}"), // Use actual saved ID
             'timestamp' => now()->toISOString()
         ], 201);
         
