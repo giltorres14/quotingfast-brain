@@ -553,7 +553,8 @@ Route::post('/webhook.php', function (Request $request) {
             
             'drivers' => json_encode($data['data']['drivers'] ?? []),
             'vehicles' => json_encode($data['data']['vehicles'] ?? []),
-            'current_policy' => json_encode($data['data']['requested_policy'] ?? null),
+            'current_policy' => json_encode($data['data']['current_policy'] ?? null),
+            'requested_policy' => json_encode($data['requested_policy'] ?? null),
             'payload' => json_encode($data),
         ];
         
@@ -1262,6 +1263,9 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                     }
                     if (is_string($lead->current_policy)) {
                         $lead->current_policy = json_decode($lead->current_policy, true) ?: [];
+                    }
+                    if (is_string($lead->requested_policy)) {
+                        $lead->requested_policy = json_decode($lead->requested_policy, true) ?: [];
                     }
                     if (is_string($lead->meta)) {
                         $lead->meta = json_decode($lead->meta, true) ?: [];
