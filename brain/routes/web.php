@@ -563,10 +563,11 @@ Route::post('/webhook.php', function (Request $request) {
         
         // Try to store in database, but continue if it fails
         $lead = null;
-        $actualLeadId = $leadId; // Default to generated ID
+        $actualLeadId = $leadId; // Default to generated ID for fallback
         try {
-            $lead = Lead::create(array_merge($leadData, ['id' => $leadId]));
-            $actualLeadId = $lead->id; // Use the actual saved ID
+            // Don't set custom ID - let database auto-increment
+            $lead = Lead::create($leadData);
+            $actualLeadId = $lead->id; // Use the actual auto-generated ID
             Log::info('LeadsQuotingFast lead stored in database', ['generated_id' => $leadId, 'actual_id' => $actualLeadId]);
         } catch (Exception $dbError) {
             Log::warning('Database storage failed, continuing with Vici integration', ['error' => $dbError->getMessage()]);
