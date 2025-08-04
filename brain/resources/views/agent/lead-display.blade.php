@@ -1298,7 +1298,7 @@
                     <div class="info-item">
                         <div class="info-label">Insurance Company</div>
                         <input type="text" id="insurance_company" value="{{ $lead->current_policy['insurance_company'] ?? '' }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                    </div>
+        </div>
                     <div class="info-item">
                         <div class="info-label">Coverage Type</div>
                         <select id="coverage_type" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
@@ -1308,7 +1308,7 @@
                             <option value="Comprehensive" {{ ($lead->current_policy['coverage_type'] ?? '') == 'Comprehensive' ? 'selected' : '' }}>Comprehensive</option>
                             <option value="Collision" {{ ($lead->current_policy['coverage_type'] ?? '') == 'Collision' ? 'selected' : '' }}>Collision</option>
                         </select>
-                    </div>
+        </div>
                     <div class="info-item">
                         <div class="info-label">Expiration Date</div>
                         <input type="date" id="expiration_date" value="{{ $lead->current_policy['expiration_date'] ?? '' }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
@@ -2161,7 +2161,7 @@
                 if (result.success) {
                     closeAccidentModal();
                     alert('Accident added successfully!');
-                    location.reload();
+            location.reload();
                 } else {
                     alert('Error: ' + result.error);
                 }
