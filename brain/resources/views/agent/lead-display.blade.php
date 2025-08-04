@@ -1242,7 +1242,19 @@
                                     @if(!in_array($key, ['first_name', 'last_name', 'birth_date', 'gender', 'marital_status', 'license_state', 'violations', 'accidents', 'license_status', 'years_licensed']))
                                     <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
                                         <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
-                                        <div style="font-size: 10px; color: #495057; margin-top: 1px;">{{ is_array($value) ? json_encode($value) : ($value ?? 'Not provided') }}</div>
+                                        <div style="font-size: 10px; color: #495057; margin-top: 1px;">
+                                            @if(is_bool($value))
+                                                {{ $value ? 'Yes' : 'No' }}
+                                            @elseif(is_array($value))
+                                                {{ json_encode($value) }}
+                                            @elseif($value === 1 || $value === '1')
+                                                Yes
+                                            @elseif($value === 0 || $value === '0')
+                                                No
+                                            @else
+                                                {{ $value ?? 'Not provided' }}
+                                            @endif
+                                        </div>
                                     </div>
                                     @endif
                                 @endforeach
@@ -1317,7 +1329,19 @@
                                     @if(!in_array($key, ['year', 'make', 'model', 'vin', 'primary_use', 'annual_miles', 'ownership', 'garage']))
                                     <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
                                         <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
-                                        <div style="font-size: 10px; color: #495057; margin-top: 1px;">{{ is_array($value) ? json_encode($value) : ($value ?? 'Not provided') }}</div>
+                                        <div style="font-size: 10px; color: #495057; margin-top: 1px;">
+                                            @if(is_bool($value))
+                                                {{ $value ? 'Yes' : 'No' }}
+                                            @elseif(is_array($value))
+                                                {{ json_encode($value) }}
+                                            @elseif($value === 1 || $value === '1')
+                                                Yes
+                                            @elseif($value === 0 || $value === '0')
+                                                No
+                                            @else
+                                                {{ $value ?? 'Not provided' }}
+                                            @endif
+                                        </div>
                                     </div>
                                     @endif
                                 @endforeach
@@ -1420,6 +1444,34 @@
                 <div class="info-item">
                     <div class="info-label">Monthly Budget</div>
                     <div class="info-value">${{ number_format($lead->requested_policy['monthly_budget']) }}</div>
+                </div>
+                @endif
+                
+                @if(isset($lead->requested_policy['property_damage']) && $lead->requested_policy['property_damage'])
+                <div class="info-item">
+                    <div class="info-label">Property Damage</div>
+                    <div class="info-value">${{ number_format($lead->requested_policy['property_damage']) }}</div>
+                </div>
+                @endif
+                
+                @if(isset($lead->requested_policy['bodily_injury']) && $lead->requested_policy['bodily_injury'])
+                <div class="info-item">
+                    <div class="info-label">Bodily Injury</div>
+                    <div class="info-value">{{ $lead->requested_policy['bodily_injury'] }}</div>
+                </div>
+                @endif
+                
+                @if(isset($lead->requested_policy['comprehensive_deductible']) && $lead->requested_policy['comprehensive_deductible'])
+                <div class="info-item">
+                    <div class="info-label">Comprehensive Deductible</div>
+                    <div class="info-value">${{ number_format($lead->requested_policy['comprehensive_deductible']) }}</div>
+                </div>
+                @endif
+                
+                @if(isset($lead->requested_policy['collision_deductible']) && $lead->requested_policy['collision_deductible'])
+                <div class="info-item">
+                    <div class="info-label">Collision Deductible</div>
+                    <div class="info-value">${{ number_format($lead->requested_policy['collision_deductible']) }}</div>
                 </div>
                 @endif
                 
