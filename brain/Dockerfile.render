@@ -220,12 +220,19 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'export APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/APP_KEY=.*/APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+\/nnQgxG8jNi3Iw=/" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "Current APP_KEY: $(grep APP_KEY .env)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: Initializing SQLite Database ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP: Checking SQLite Database ==="' >> /usr/local/bin/startup.sh && \
     echo 'mkdir -p database' >> /usr/local/bin/startup.sh && \
-    echo 'touch database/database.sqlite' >> /usr/local/bin/startup.sh && \
-    echo 'chmod 666 database/database.sqlite' >> /usr/local/bin/startup.sh && \
-    echo 'php artisan migrate --force' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: Database initialized ==="' >> /usr/local/bin/startup.sh && \
+    echo 'if [ ! -f database/database.sqlite ]; then' >> /usr/local/bin/startup.sh && \
+    echo '  echo "Creating new SQLite database file..."' >> /usr/local/bin/startup.sh && \
+    echo '  touch database/database.sqlite' >> /usr/local/bin/startup.sh && \
+    echo '  chmod 666 database/database.sqlite' >> /usr/local/bin/startup.sh && \
+    echo '  php artisan migrate --force' >> /usr/local/bin/startup.sh && \
+    echo '  echo "New database created and migrated"' >> /usr/local/bin/startup.sh && \
+    echo 'else' >> /usr/local/bin/startup.sh && \
+    echo '  echo "Existing database found - preserving data"' >> /usr/local/bin/startup.sh && \
+    echo '  chmod 666 database/database.sqlite' >> /usr/local/bin/startup.sh && \
+    echo 'fi' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP: Database ready ==="' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh

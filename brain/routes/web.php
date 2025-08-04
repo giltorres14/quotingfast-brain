@@ -2405,63 +2405,8 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
     }
 });
 
-// Validate lead for Allstate enrichment
-Route::post('/agent/lead/{leadId}/validate-allstate', function (Request $request, $leadId) {
-    try {
-        $lead = \App\Models\Lead::findOrFail($leadId);
-        
-        // Get current form data from request
-        $qualificationData = $request->input('qualification', []);
-        $contactData = $request->input('contact', []);
-        
-        // Create a temporary lead object with current form data
-        $tempLead = clone $lead;
-        
-        // Update contact fields if provided
-        if (!empty($contactData)) {
-            foreach ($contactData as $field => $value) {
-                if (!empty($value)) {
-                    $tempLead->$field = $value;
-                }
-            }
-        }
-        
-        // Update qualification data if provided
-        if (!empty($qualificationData)) {
-            $tempLead->qualification_data = array_merge($lead->qualification_data ?? [], $qualificationData);
-            
-            // Map qualification answers to expected fields for validation
-            if (isset($qualificationData['currently_insured'])) {
-                $tempLead->currently_insured = $qualificationData['currently_insured'];
-            }
-            if (isset($qualificationData['current_provider'])) {
-                $tempLead->insurance_company = $qualificationData['current_provider'];
-            }
-            if (isset($qualificationData['birth_date'])) {
-                $tempLead->birth_date = $qualificationData['birth_date'];
-            }
-        }
-        
-        // Perform Allstate validation with current form data
-        $validation = \App\Services\AllstateValidationService::validateLeadForEnrichment($tempLead);
-        $summary = \App\Services\AllstateValidationService::generateValidationSummary($validation);
-        $fieldMapping = \App\Services\AllstateValidationService::getFieldMappingForFrontend();
-        
-        return response()->json([
-            'lead_id' => $leadId,
-            'validation' => $validation,
-            'summary' => $summary,
-            'field_mapping' => $fieldMapping,
-            'required_fields' => \App\Services\AllstateValidationService::getRequiredFields()
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'error' => 'Validation failed: ' . $e->getMessage()
-        ], 500);
-    }
-});
+// REMOVED: Allstate validation route per user request
+// This was causing issues and will be re-implemented later if needed
 
 // Ringba Decision Webhook - Automatic Allstate Transfer
 Route::post('/webhook/ringba-decision', function (Request $request) {

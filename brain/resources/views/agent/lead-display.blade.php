@@ -699,33 +699,7 @@
             background: #28a745;
         }
         
-        .validation-progress {
-            position: fixed;
-            top: 60px;
-            right: 20px;
-            background: white;
-            border-radius: 8px;
-            padding: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            z-index: 999;
-            font-size: 12px;
-            min-width: 200px;
-        }
-        
-        .validation-progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #e9ecef;
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 8px 0;
-        }
-        
-        .validation-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #dc3545, #ffc107, #28a745);
-            transition: width 0.3s ease;
-        }
+        /* REMOVED: Allstate validation progress CSS per user request */
     </style>
 </head>
 <body>
@@ -734,14 +708,7 @@
         <button class="save-lead-btn" onclick="saveAllLeadData()">💾 Save Lead</button>
     @endif
     
-    <!-- Validation Progress Indicator -->
-    <div id="validation-progress" class="validation-progress" style="display: none;">
-        <div>Allstate Readiness: <span id="validation-percentage">0%</span></div>
-        <div class="validation-progress-bar">
-            <div id="validation-progress-fill" class="validation-progress-fill" style="width: 0%"></div>
-        </div>
-        <div id="validation-status">Checking requirements...</div>
-    </div>
+    <!-- REMOVED: Allstate validation progress indicator per user request -->
     
     <!-- Validation Summary Modal -->
     <div id="validation-summary" class="validation-summary">
@@ -1450,205 +1417,31 @@
         let validationData = null;
         let validationTimer = null;
         
-        // Initialize validation on page load
+        // Initialize enrichment buttons on page load (no validation)
         document.addEventListener('DOMContentLoaded', function() {
-            validateAllstateReadiness();
-            // Re-validate when any form field changes
-            document.addEventListener('input', debounceValidation);
-            document.addEventListener('change', debounceValidation);
+            updateEnrichmentButtons();
+            // REMOVED: Validation event listeners per user request
         });
         
-        function debounceValidation() {
-            clearTimeout(validationTimer);
-            validationTimer = setTimeout(validateAllstateReadiness, 1000);
-        }
+        // REMOVED: debounceValidation function per user request
         
-        async function validateAllstateReadiness() {
-            try {
-                // Get current form data for validation
-                const qualificationData = getFormData();
-                const contactData = {
-                    phone: document.getElementById('contact_phone')?.value || '{{ $lead->phone }}',
-                    email: document.getElementById('contact_email')?.value || '{{ $lead->email }}',
-                    address: document.getElementById('contact_address')?.value || '{{ $lead->address }}',
-                    city: document.getElementById('contact_city')?.value || '{{ $lead->city }}',
-                    state: document.getElementById('contact_state')?.value || '{{ $lead->state }}',
-                    zip_code: document.getElementById('contact_zip_code')?.value || '{{ $lead->zip_code }}'
-                };
-                
-                const response = await fetch(`/agent/lead/{{ $lead->id }}/validate-allstate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        qualification: qualificationData,
-                        contact: contactData
-                    })
-                });
-                const data = await response.json();
-                
-                validationData = data;
-                updateValidationUI(data);
-                
-            } catch (error) {
-                console.error('Validation error:', error);
-            }
-        }
+        // REMOVED: validateAllstateReadiness function per user request
         
-        function updateValidationUI(data) {
-            const validation = data.validation;
-            const summary = data.summary;
-            
-            // Update progress indicator
-            const totalFields = Object.keys(data.required_fields.lead).length + 
-                               data.required_fields.drivers.fields ? Object.keys(data.required_fields.drivers.fields).length : 0 +
-                               data.required_fields.vehicles.fields ? Object.keys(data.required_fields.vehicles.fields).length : 0 + 2; // +2 for insurance fields
-            
-            const missingCount = Object.keys(validation.missing_fields).length;
-            const completedCount = Math.max(0, totalFields - missingCount);
-            const percentage = Math.round((completedCount / totalFields) * 100);
-            
-            document.getElementById('validation-percentage').textContent = percentage + '%';
-            document.getElementById('validation-progress-fill').style.width = percentage + '%';
-            document.getElementById('validation-status').textContent = 
-                validation.is_valid ? 'Ready for Allstate!' : `${missingCount} fields missing`;
-            
-            // Show/hide progress indicator
-            const progressEl = document.getElementById('validation-progress');
-            if (missingCount > 0 || !validation.is_valid) {
-                progressEl.style.display = 'block';
-            } else {
-                progressEl.style.display = 'none';
-            }
-            
-            // Highlight missing fields
-            highlightMissingFields(validation.missing_fields, data.field_mapping);
-            
-            // Update enrichment buttons
-            updateEnrichmentButtons(validation.is_valid, summary);
-        }
+        // REMOVED: updateValidationUI function per user request
         
-        function highlightMissingFields(missingFields, fieldMapping) {
-            // Clear previous highlighting
-            document.querySelectorAll('.validation-error, .validation-warning').forEach(el => {
-                el.classList.remove('validation-error', 'validation-warning');
-            });
-            
-            // Remove existing tooltips
-            document.querySelectorAll('.validation-tooltip').forEach(el => el.remove());
-            
-            // Highlight missing fields
-            Object.keys(missingFields).forEach(fieldPath => {
-                const fieldLabel = missingFields[fieldPath];
-                
-                // Handle lead fields
-                if (fieldPath.startsWith('lead.')) {
-                    const fieldName = fieldPath.replace('lead.', '');
-                    
-                    // Map field names to actual selectors in our layout
-                    const fieldSelectors = {
-                        'phone': ['#contact-phone'],
-                        'email': ['#contact-email'],
-                        'address': ['#contact-address'],
-                        'city': ['#contact-location'],
-                        'state': ['#contact-location'],
-                        'zip_code': ['#contact-location']
-                    };
-                    
-                    const selectors = fieldSelectors[fieldName] || [`#contact-${fieldName}`];
-                    
-                    selectors.forEach(selector => {
-                        const element = document.querySelector(selector);
-                        if (element) {
-                            element.classList.add('validation-error');
-                            addValidationTooltip(element, fieldLabel);
-                        }
-                    });
-                }
-                
-                // Handle insurance fields
-                if (fieldPath.startsWith('insurance.')) {
-                    const fieldName = fieldPath.replace('insurance.', '');
-                    const selectors = fieldMapping[fieldPath] || [`#${fieldName}`, `.insurance-section .${fieldName}`];
-                    
-                    selectors.forEach(selector => {
-                        const element = document.querySelector(selector);
-                        if (element) {
-                            element.classList.add('validation-error');
-                            addValidationTooltip(element, fieldLabel);
-                        }
-                    });
-                }
-                
-                // Handle driver/vehicle count errors
-                if (fieldPath.includes('.count')) {
-                    const sectionName = fieldPath.split('.')[0];
-                    const sectionElement = document.querySelector(`.${sectionName}-section`);
-                    if (sectionElement) {
-                        sectionElement.classList.add('validation-warning');
-                        addValidationTooltip(sectionElement, fieldLabel);
-                    }
-                }
-                
-                // Handle specific driver/vehicle field errors
-                if (fieldPath.includes('drivers.') && !fieldPath.includes('.count')) {
-                    const parts = fieldPath.split('.');
-                    if (parts.length >= 3) {
-                        const driverIndex = parts[1];
-                        const driverCard = document.querySelector(`.driver-card[data-index="${driverIndex}"]`);
-                        if (driverCard) {
-                            driverCard.classList.add('validation-warning');
-                            addValidationTooltip(driverCard, fieldLabel);
-                        }
-                    }
-                }
-                
-                if (fieldPath.includes('vehicles.') && !fieldPath.includes('.count')) {
-                    const parts = fieldPath.split('.');
-                    if (parts.length >= 3) {
-                        const vehicleIndex = parts[1];
-                        const vehicleCard = document.querySelector(`.vehicle-card[data-index="${vehicleIndex}"]`);
-                        if (vehicleCard) {
-                            vehicleCard.classList.add('validation-warning');
-                            addValidationTooltip(vehicleCard, fieldLabel);
-                        }
-                    }
-                }
-            });
-        }
+        // REMOVED: highlightMissingFields function per user request
         
-        function addValidationTooltip(element, message) {
-            const tooltip = document.createElement('div');
-            tooltip.className = 'validation-tooltip';
-            tooltip.textContent = message;
-            
-            element.style.position = 'relative';
-            element.appendChild(tooltip);
-            
-            // Position tooltip
-            setTimeout(() => {
-                const rect = element.getBoundingClientRect();
-                tooltip.style.top = '-30px';
-                tooltip.style.left = '50%';
-                tooltip.style.transform = 'translateX(-50%)';
-            }, 10);
-        }
+        // REMOVED: addValidationTooltip function per user request
         
-        function updateEnrichmentButtons(isValid, summary) {
+        function updateEnrichmentButtons() {
+            // SIMPLIFIED: Always enable enrichment buttons (no validation check)
             const enrichmentButtons = document.querySelectorAll('.btn-enrichment');
             
             enrichmentButtons.forEach(button => {
-                if (isValid) {
-                    button.classList.remove('enrichment-blocked');
-                    button.classList.add('enrichment-ready');
-                    button.title = 'Ready for Allstate enrichment';
-                } else {
-                    button.classList.add('enrichment-blocked');
-                    button.classList.remove('enrichment-ready');
-                    button.title = summary.message || 'Complete required fields first';
-                }
+                button.classList.remove('enrichment-blocked');
+                button.classList.add('enrichment-ready');
+                button.title = 'Ready for enrichment';
+                button.disabled = false;
             });
         }
         
@@ -1813,32 +1606,8 @@
         async function enrichLead(type) {
             // CRITICAL: Validate for Allstate before allowing enrichment
             if (type === 'insured') {
-                // Re-validate to get latest status
-                await validateAllstateReadiness();
-                
-                if (!validationData || !validationData.validation.is_valid) {
-                    const summary = validationData ? validationData.summary : {
-                        title: 'Validation Error',
-                        message: 'Unable to validate lead requirements. Please refresh and try again.',
-                        status: 'error',
-                        details: {}
-                    };
-                    
-                    showValidationSummary(summary);
-                    
-                    // Show detailed error
-                    let errorMessage = summary.title + '\n\n' + summary.message;
-                    
-                    if (summary.details && Object.keys(summary.details).length > 0) {
-                        errorMessage += '\n\nMissing Required Fields:';
-                        Object.values(summary.details).forEach(detail => {
-                            errorMessage += '\n• ' + detail;
-                        });
-                    }
-                    
-                    alert(errorMessage);
-                    return;
-                }
+                // REMOVED: Validation check per user request - always allow enrichment
+                // Just proceed with enrichment without validation
                 
                 // Special check for insurance status (Allstate only accepts insured)
                 const currentlyInsured = document.getElementById('currently_insured')?.value || '';
