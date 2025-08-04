@@ -550,122 +550,15 @@
             .btn-enrichment { min-width: 200px; }
         }
         
-        /* Allstate Validation Styles */
-        .validation-error {
-            border: 2px solid #dc3545 !important;
-            background-color: #fff5f5 !important;
-            animation: validationPulse 2s ease-in-out;
-        }
+        /* REMOVED: Allstate validation styles per user request */
         
-        .validation-warning {
-            border: 2px solid #ffc107 !important;
-            background-color: #fffbf0 !important;
-        }
+        /* REMOVED: validationPulse animation per user request */
         
-        .validation-success {
-            border: 2px solid #28a745 !important;
-            background-color: #f0fff0 !important;
-        }
+        /* REMOVED: validation tooltip styles per user request */
         
-        @keyframes validationPulse {
-            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-        }
+        /* REMOVED: All validation summary CSS per user request */
         
-        .validation-tooltip {
-            position: absolute;
-            background: #dc3545;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            z-index: 1000;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        
-        .validation-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border: 4px solid transparent;
-            border-top-color: #dc3545;
-        }
-        
-        .validation-summary {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: white;
-            border-radius: 8px;
-            padding: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1001;
-            max-width: 300px;
-            display: none;
-        }
-        
-        .validation-summary.show {
-            display: block;
-            animation: slideInRight 0.3s ease-out;
-        }
-        
-        .validation-summary.error {
-            border-left: 4px solid #dc3545;
-        }
-        
-        .validation-summary.warning {
-            border-left: 4px solid #ffc107;
-        }
-        
-        .validation-summary.success {
-            border-left: 4px solid #28a745;
-        }
-        
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .validation-summary h4 {
-            margin: 0 0 8px 0;
-            font-size: 14px;
-        }
-        
-        .validation-summary p {
-            margin: 0 0 8px 0;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .validation-summary ul {
-            margin: 8px 0;
-            padding-left: 16px;
-            font-size: 11px;
-        }
-        
-        .validation-summary li {
-            margin: 2px 0;
-            color: #666;
-        }
-        
-        .validation-close {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: none;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            color: #999;
-        }
-        
-        .validation-close:hover {
-            color: #333;
-        }
+        /* REMOVED: validation close button CSS per user request */
         
         .enrichment-blocked {
             opacity: 0.5;
@@ -710,13 +603,7 @@
     
     <!-- REMOVED: Allstate validation progress indicator per user request -->
     
-    <!-- Validation Summary Modal -->
-    <div id="validation-summary" class="validation-summary">
-        <button class="validation-close" onclick="closeValidationSummary()">×</button>
-        <h4 id="validation-title">Validation Status</h4>
-        <p id="validation-message">Checking lead requirements...</p>
-        <ul id="validation-details"></ul>
-    </div>
+    <!-- REMOVED: Validation Summary Modal per user request -->
     
     <div class="container">
         <!-- Header - Agent View (No Admin Data) -->
@@ -1445,42 +1332,7 @@
             });
         }
         
-        function showValidationSummary(summary) {
-            const summaryEl = document.getElementById('validation-summary');
-            const titleEl = document.getElementById('validation-title');
-            const messageEl = document.getElementById('validation-message');
-            const detailsEl = document.getElementById('validation-details');
-            
-            titleEl.textContent = summary.title;
-            messageEl.textContent = summary.message;
-            
-            // Clear previous details
-            detailsEl.innerHTML = '';
-            
-            // Add missing field details
-            if (summary.details) {
-                Object.values(summary.details).forEach(detail => {
-                    const li = document.createElement('li');
-                    li.textContent = detail;
-                    detailsEl.appendChild(li);
-                });
-            }
-            
-            // Set appropriate styling
-            summaryEl.className = `validation-summary show ${summary.status}`;
-            
-            // Auto-hide after 10 seconds for success messages
-            if (summary.status === 'success') {
-                setTimeout(() => {
-                    closeValidationSummary();
-                }, 10000);
-            }
-        }
-        
-        function closeValidationSummary() {
-            const summaryEl = document.getElementById('validation-summary');
-            summaryEl.classList.remove('show');
-        }
+        // REMOVED: showValidationSummary and closeValidationSummary functions per user request
         
         // Ringba Qualification Form Logic
         function toggleInsuranceQuestions() {
@@ -1715,13 +1567,8 @@
                     window.open(enrichmentURL, '_blank');
                     
                     // Show success confirmation
-                    const successSummary = {
-                        title: '✅ Enrichment Successful!',
-                        message: `Lead has been successfully enriched to ${type.toUpperCase()} campaign and all data has been saved.`,
-                        status: 'success',
-                        details: {}
-                    };
-                    showValidationSummary(successSummary);
+                    // REMOVED: Validation summary display per user request
+                    // Just show success message via button text
                     
                     // Update button to show it was saved and enriched
                     button.innerHTML = '✅ Saved & Enriched!';
