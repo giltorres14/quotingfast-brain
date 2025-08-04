@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => 'sqlite', // Force SQLite for now, Render was overriding to pgsql
 
     /*
     |--------------------------------------------------------------------------

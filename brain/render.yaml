@@ -15,35 +15,6 @@ services:
       - key: LOG_LEVEL
         value: error
       - key: DB_CONNECTION
-        value: pgsql
-      - key: DB_HOST
-        fromDatabase:
-          name: brain-postgres
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: brain-postgres
-          property: port
+        value: sqlite
       - key: DB_DATABASE
-        fromDatabase:
-          name: brain-postgres
-          property: database
-      - key: DB_USERNAME
-        fromDatabase:
-          name: brain-postgres
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: brain-postgres
-          property: password
-      - key: DATABASE_URL
-        fromDatabase:
-          name: brain-postgres
-          property: connectionString
-
-databases:
-  - name: brain-postgres
-    databaseName: brain_production
-    user: brain_user
-    plan: free
-    region: ohio
+        value: /var/www/html/database/database.sqlite
