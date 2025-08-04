@@ -2417,12 +2417,33 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
 });
 
 // Validate lead for Allstate enrichment
-Route::get('/agent/lead/{leadId}/validate-allstate', function ($leadId) {
+Route::post('/agent/lead/{leadId}/validate-allstate', function (Request $request, $leadId) {
     try {
         $lead = \App\Models\Lead::findOrFail($leadId);
         
-        // Perform Allstate validation
-        $validation = \App\Services\AllstateValidationService::validateLeadForEnrichment($lead);
+        // Get current form data from request
+        $qualificationData = $request->input('qualification', []);
+        $contactData = $request->input('contact', []);
+        
+        // Create a temporary lead object with current form data
+        $tempLead = clone $lead;
+        
+        // Update contact fields if provided
+        if (!empty($contactData)) {
+            foreach ($contactData as $field => $value) {
+                if (!empty($value)) {
+                    $tempLead->$field = $value;
+                }
+            }
+        }
+        
+        // Update qualification data if provided
+        if (!empty($qualificationData)) {
+            $tempLead->qualification_data = array_merge($lead->qualification_data ?? [], $qualificationData);
+        }
+        
+        // Perform Allstate validation with current form data
+        $validation = \App\Services\AllstateValidationService::validateLeadForEnrichment($tempLead);
         $summary = \App\Services\AllstateValidationService::generateValidationSummary($validation);
         $fieldMapping = \App\Services\AllstateValidationService::getFieldMappingForFrontend();
         

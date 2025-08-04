@@ -996,23 +996,23 @@
             <div class="contact-layout" id="contact-display">
                                 <div class="contact-left">
                     <div class="info-item" id="contact-phone">
-                        <div class="info-label">Phone</div>
-                        <div class="info-value">{{ $lead->phone ?: 'Not provided' }}</div>
-                    </div>
+                    <div class="info-label">Phone</div>
+                    <div class="info-value">{{ $lead->phone ?: 'Not provided' }}</div>
+                </div>
                     <div class="info-item" id="contact-email">
-                        <div class="info-label">Email</div>
-                        <div class="info-value">{{ $lead->email ?: 'Not provided' }}</div>
-                    </div>
+                    <div class="info-label">Email</div>
+                    <div class="info-value">{{ $lead->email ?: 'Not provided' }}</div>
+                </div>
                 </div>
                 <div class="contact-right">
                     <div class="info-item" id="contact-address">
-                        <div class="info-label">Address</div>
-                        <div class="info-value">{{ $lead->address ?: 'Not provided' }}</div>
-                    </div>
+                    <div class="info-label">Address</div>
+                    <div class="info-value">{{ $lead->address ?: 'Not provided' }}</div>
+                </div>
                     <div class="info-item" id="contact-location">
-                        <div class="info-label">City, State ZIP</div>
-                        <div class="info-value">
-                            {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
+                    <div class="info-label">City, State ZIP</div>
+                    <div class="info-value">
+                        {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
                         </div>
                     </div>
                 </div>
@@ -1057,15 +1057,15 @@
                 <div class="info-item">
                     <div class="info-label">Campaign ID</div>
                     <div class="info-value">{{ $lead->campaign_id }}</div>
-            </div>
+                </div>
                 @endif
                 
                 @if(isset($lead->external_lead_id) && $lead->external_lead_id)
                 <div class="info-item">
                     <div class="info-label">External Lead ID</div>
                     <div class="info-value">{{ $lead->external_lead_id }}</div>
-        </div>
-        @endif
+                </div>
+                @endif
                 
                 @if(isset($lead->meta) && is_array($lead->meta))
                     @if(isset($lead->meta['trusted_form_cert_url']) && $lead->meta['trusted_form_cert_url'])
@@ -1188,7 +1188,12 @@
             </div>
             @foreach($lead->drivers as $index => $driver)
             <div class="driver-card">
-                <h4>Driver {{ $index + 1 }}: {{ ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '') }}</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4>Driver {{ $index + 1 }}: {{ ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '') }}</h4>
+                    @if(!isset($mode) || $mode !== 'view')
+                        <button class="btn btn-sm btn-outline-primary" onclick="editDriver({{ $index }})">✏️ Edit</button>
+                    @endif
+                </div>
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-label">Age</div>
@@ -1328,7 +1333,12 @@
             </div>
             @foreach($lead->vehicles as $index => $vehicle)
             <div class="vehicle-card">
-                <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
+                    @if(!isset($mode) || $mode !== 'view')
+                        <button class="btn btn-sm btn-outline-primary" onclick="editVehicle({{ $index }})">✏️ Edit</button>
+                    @endif
+                </div>
                 @if(isset($vehicle['vin']) && !empty($vehicle['vin']))
                 <div style="margin-bottom: 8px; padding: 6px; background: #e3f2fd; border-radius: 4px; font-size: 12px;">
                     <strong>VIN:</strong> <span style="font-family: monospace; font-weight: bold;">{{ $vehicle['vin'] }}</span>
@@ -1449,7 +1459,28 @@
         
         async function validateAllstateReadiness() {
             try {
-                const response = await fetch(`/agent/lead/{{ $lead->id }}/validate-allstate`);
+                // Get current form data for validation
+                const qualificationData = getFormData();
+                const contactData = {
+                    phone: document.getElementById('contact_phone')?.value || '{{ $lead->phone }}',
+                    email: document.getElementById('contact_email')?.value || '{{ $lead->email }}',
+                    address: document.getElementById('contact_address')?.value || '{{ $lead->address }}',
+                    city: document.getElementById('contact_city')?.value || '{{ $lead->city }}',
+                    state: document.getElementById('contact_state')?.value || '{{ $lead->state }}',
+                    zip_code: document.getElementById('contact_zip_code')?.value || '{{ $lead->zip_code }}'
+                };
+                
+                const response = await fetch(`/agent/lead/{{ $lead->id }}/validate-allstate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        qualification: qualificationData,
+                        contact: contactData
+                    })
+                });
                 const data = await response.json();
                 
                 validationData = data;
@@ -2602,6 +2633,14 @@
             showDriverModal();
         }
         
+        function editDriver(driverIndex) {
+            showDriverModal(driverIndex);
+        }
+        
+        function editVehicle(vehicleIndex) {
+            showVehicleModal(vehicleIndex);
+        }
+        
         // Smart dropdown compatibility functions
         // These functions handle imported lead data that may not match our dropdown options
         // - Exact match: Maps imported values to dropdown options when possible
@@ -2670,20 +2709,23 @@
             return selectElement.value;
         }
 
-        function showDriverModal() {
+        function showDriverModal(driverIndex = null) {
+            const isEditing = driverIndex !== null;
+            const drivers = @json($lead->drivers ?? []);
+            const driver = isEditing ? drivers[driverIndex] : null;
             const modalHtml = `
                 <div id="driverModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
                     <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90%; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                        <h3 style="margin-top: 0; color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px;">👤 Add New Driver</h3>
+                        <h3 style="margin-top: 0; color: #e65100; border-bottom: 2px solid #ff9800; padding-bottom: 10px;">👤 ${isEditing ? 'Edit Driver' : 'Add New Driver'}</h3>
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">First Name *:</label>
-                            <input type="text" id="driverFirstName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                            <input type="text" id="driverFirstName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" value="${driver ? driver.first_name || '' : ''}" required>
                         </div>
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Last Name *:</label>
-                            <input type="text" id="driverLastName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                            <input type="text" id="driverLastName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" value="${driver ? driver.last_name || '' : ''}" required>
                         </div>
                         
                         <div style="margin-bottom: 15px;">
