@@ -889,8 +889,8 @@
                     <div class="info-value">${{ number_format($lead->sell_price, 2) }}</div>
                 </div>
                 @endif
-            </div>
-        </div>
+                </div>
+                </div>
         @endif
         
         <!-- TCPA Compliance Section - VIEW ONLY -->
@@ -928,8 +928,8 @@
                                 @else
                                     <span style="color: #dc3545; font-weight: bold;">❌ NO</span>
                                 @endif
-                            </div>
-                        </div>
+                    </div>
+                </div>
 
                         <!-- Originally Created -->
                         @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['originally_created']))
@@ -962,9 +962,9 @@
                                 <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
                                     {{ $lead->meta['landing_page_url'] }}
                                 </div>
-                            </div>
-                        </div>
-                        @endif
+            </div>
+        </div>
+        @endif
 
                         <!-- TrustedForm Certificate -->
                         @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['trusted_form_cert_url']))
@@ -1098,7 +1098,7 @@
             @foreach($lead->drivers as $index => $driver)
             <div class="driver-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h4>Driver {{ $index + 1 }}: {{ ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '') }}</h4>
+                <h4>Driver {{ $index + 1 }}: {{ ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '') }}</h4>
                     @if(!isset($mode) || $mode !== 'view')
                         <button class="btn btn-sm btn-outline-primary" onclick="editDriver({{ $index }})">✏️ Edit</button>
                     @endif
@@ -1206,7 +1206,7 @@
                 @endif
             </div>
             @endforeach
-                                </div>
+        </div>
                             @elseif(isset($driver['accidents']))
                                 <span style="color: #28a745;">No accidents</span>
                                 @if(!isset($mode) || $mode !== 'view')
@@ -1288,7 +1288,7 @@
             @foreach($lead->vehicles as $index => $vehicle)
             <div class="vehicle-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
+                <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
                     @if(!isset($mode) || $mode !== 'view')
                         <button class="btn btn-sm btn-outline-primary" onclick="editVehicle({{ $index }})">✏️ Edit</button>
                     @endif
@@ -1341,10 +1341,10 @@
                                             @else
                                                 {{ $value ?? 'Not provided' }}
                                             @endif
-                                        </div>
+            </div>
                                     </div>
                                     @endif
-                                @endforeach
+            @endforeach
                             </div>
                         </div>
                     </details>
@@ -1430,14 +1430,14 @@
                 <div class="info-item">
                     <div class="info-label">Requested Coverage</div>
                     <div class="info-value">{{ $lead->requested_policy['coverage_type'] }}</div>
-                </div>
-                @endif
-                
+        </div>
+        @endif
+
                 @if(isset($lead->requested_policy['deductible']) && $lead->requested_policy['deductible'])
                 <div class="info-item">
                     <div class="info-label">Preferred Deductible</div>
                     <div class="info-value">${{ number_format($lead->requested_policy['deductible']) }}</div>
-                </div>
+        </div>
                 @endif
                 
                 @if(isset($lead->requested_policy['monthly_budget']) && $lead->requested_policy['monthly_budget'])
