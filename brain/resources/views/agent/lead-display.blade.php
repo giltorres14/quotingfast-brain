@@ -121,6 +121,29 @@
             gap: 12px;
         }
         
+        .contact-layout {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+        
+        .contact-left {
+            flex: 0 0 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .contact-right {
+            flex: 1;
+            padding-left: 2rem;
+            margin-left: 2rem;
+            border-left: 2px solid #e9ecef;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
         .info-item {
             display: flex;
             flex-direction: column;
@@ -747,7 +770,7 @@
         </div>
 
         <!-- Ringba Qualification Form -->
-        @if(!isset($mode) || $mode === 'agent')
+        @if(!isset($mode) || $mode === 'agent' || $mode === 'edit')
         <div class="qualification-form">
             <div class="qualification-header section-title qualification">
                 🎯 Lead Qualification & Ringba Enrichment (Enhanced)
@@ -970,24 +993,98 @@
                     <button class="edit-btn" onclick="toggleEdit('contact')">Edit</button>
                 @endif
             </div>
-            <div class="info-grid" id="contact-display">
-                <div class="info-item">
-                    <div class="info-label">Phone</div>
-                    <div class="info-value">{{ $lead->phone ?: 'Not provided' }}</div>
+            <div class="contact-layout" id="contact-display">
+                <div class="contact-left">
+                    <div class="info-item">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">{{ $lead->phone ?: 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ $lead->email ?: 'Not provided' }}</div>
+                    </div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Email</div>
-                    <div class="info-value">{{ $lead->email ?: 'Not provided' }}</div>
+                <div class="contact-right">
+                    <div class="info-item">
+                        <div class="info-label">Address</div>
+                        <div class="info-value">{{ $lead->address ?: 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">City, State ZIP</div>
+                        <div class="info-value">
+                            {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Additional Lead Data -->
+        <div class="section">
+            <div class="section-title">📋 Lead Details & Compliance</div>
+            <div class="info-grid">
+                @if(isset($lead->sell_price) && $lead->sell_price)
                 <div class="info-item">
-                    <div class="info-label">Address</div>
-                    <div class="info-value">{{ $lead->address ?: 'Not provided' }}</div>
+                    <div class="info-label">Lead Cost</div>
+                    <div class="info-value">${{ number_format($lead->sell_price, 2) }}</div>
                 </div>
+                @endif
+                
+                @if(isset($lead->tcpa_compliant))
                 <div class="info-item">
-                    <div class="info-label">City, State ZIP</div>
+                    <div class="info-label">TCPA Compliant</div>
                     <div class="info-value">
-                        {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
+                        <span style="color: {{ $lead->tcpa_compliant ? '#28a745' : '#dc3545' }};">
+                            {{ $lead->tcpa_compliant ? '✅ Yes' : '❌ No' }}
+                        </span>
+                    </div>
                 </div>
+                @endif
+                
+                @if(isset($lead->landing_page_url) && $lead->landing_page_url)
+                <div class="info-item">
+                    <div class="info-label">Landing Page</div>
+                    <div class="info-value">
+                        <a href="{{ $lead->landing_page_url }}" target="_blank" style="color: #007bff; text-decoration: none;">
+                            {{ $lead->landing_page_url }}
+                        </a>
+                    </div>
+                </div>
+                @endif
+                
+                @if(isset($lead->campaign_id) && $lead->campaign_id)
+                <div class="info-item">
+                    <div class="info-label">Campaign ID</div>
+                    <div class="info-value">{{ $lead->campaign_id }}</div>
+                </div>
+                @endif
+                
+                @if(isset($lead->external_lead_id) && $lead->external_lead_id)
+                <div class="info-item">
+                    <div class="info-label">External Lead ID</div>
+                    <div class="info-value">{{ $lead->external_lead_id }}</div>
+                </div>
+                @endif
+                
+                @if(isset($lead->meta) && is_array($lead->meta))
+                    @if(isset($lead->meta['trusted_form_cert_url']) && $lead->meta['trusted_form_cert_url'])
+                    <div class="info-item">
+                        <div class="info-label">TrustedForm Certificate</div>
+                        <div class="info-value">
+                            <a href="{{ $lead->meta['trusted_form_cert_url'] }}" target="_blank" style="color: #007bff; text-decoration: none;">
+                                View Certificate
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+                    
+                    @if(isset($lead->meta['originally_created']) && $lead->meta['originally_created'])
+                    <div class="info-item">
+                        <div class="info-label">Originally Created</div>
+                        <div class="info-value">{{ \Carbon\Carbon::parse($lead->meta['originally_created'])->format('M j, Y g:i A') }}</div>
+                    </div>
+                    @endif
+                @endif
             </div>
         </div>
 
