@@ -1632,7 +1632,7 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
     }
 });
 
-// Test Allstate API connection
+// Test Allstate API connection with multiple auth methods
 Route::get('/test/allstate/connection', function () {
     try {
         $apiKey = env('ALLSTATE_API_KEY', 'b91446ade9d37650f93e305cbaf8c2c9b91446ade9d37650f93e305cbaf8c2c9');
@@ -1645,14 +1645,28 @@ Route::get('/test/allstate/connection', function () {
             'base_url' => $baseUrl
         ]);
 
-        // Test API connection with ping endpoint - try Bearer token first
-        $response = \Illuminate\Support\Facades\Http::timeout(30)
-            ->withToken($apiKey) // Try Bearer token authentication
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json'
-            ])
-            ->post($baseUrl . '/ping', []);
+        // Test multiple endpoints to find the correct one
+        $endpoints = ['/ping', '/health', '/status', '/test'];
+        $results = [];
+        
+        foreach ($endpoints as $endpoint) {
+            $response = \Illuminate\Support\Facades\Http::timeout(30)
+                ->withToken($apiKey) // Try Bearer token authentication
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json'
+                ])
+                ->post($baseUrl . $endpoint, []);
+                
+            $results[$endpoint] = [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ];
+            
+            if ($response->successful()) {
+                break; // Found working endpoint
+            }
+        }
 
         // If Bearer fails, try Basic Auth as fallback
         if (!$response->successful() && $response->status() === 403) {
@@ -1674,24 +1688,22 @@ Route::get('/test/allstate/connection', function () {
                 'api_key' => substr($apiKey, 0, 10) . '...',
                 'environment' => env('ALLSTATE_API_ENV', 'testing'),
                 'base_url' => $baseUrl,
-                'auth_method' => $response->status() === 200 ? 'Bearer Token' : 'Basic Auth',
+                'working_endpoint' => $endpoint ?? 'unknown',
+                'auth_method' => 'Bearer Token',
                 'response' => $response->json(),
+                'all_endpoints_tested' => $results,
                 'timestamp' => now()->toISOString()
             ]);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Allstate API connection failed',
-                'status' => $response->status(),
-                'error' => $response->body(),
+                'message' => 'Allstate API connection failed - all endpoints failed',
                 'api_key' => substr($apiKey, 0, 10) . '...',
                 'api_key_length' => strlen($apiKey),
                 'base_url' => $baseUrl,
-                'headers_sent' => [
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                    'Authorization' => 'Bearer/Basic (hidden)'
-                ],
+                'all_endpoints_tested' => $results,
+                'last_response_status' => $response->status(),
+                'last_response_body' => $response->body(),
                 'timestamp' => now()->toISOString()
             ], 500);
         }
