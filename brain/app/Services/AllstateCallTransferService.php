@@ -49,8 +49,11 @@ class AllstateCallTransferService
             ]);
         }
             
-            // Make API call to Allstate using proper Base64 encoded authorization
-            $authHeader = 'Basic ' . base64_encode($this->apiKey . ':');
+            // Make API call to Allstate using exact Base64 value from Allstate documentation
+            $authHeader = ($this->apiKey === 'quoting-fast') 
+                ? 'cXVvdGluZy1mYXN0Og==' 
+                : 'Basic ' . base64_encode($this->apiKey . ':');
+            
             $response = Http::timeout(30)
                 ->withHeaders([
                     'Content-Type' => 'application/json',

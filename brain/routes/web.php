@@ -1650,7 +1650,11 @@ Route::get('/test/allstate/connection', function () {
         $results = [];
         
         foreach ($endpoints as $endpoint) {
-            $authHeader = 'Basic ' . base64_encode($apiKey . ':');
+            // Use exact Base64 value provided by Allstate for testing
+            $authHeader = ($apiKey === 'quoting-fast') 
+                ? 'cXVvdGluZy1mYXN0Og==' 
+                : 'Basic ' . base64_encode($apiKey . ':');
+            
             $response = \Illuminate\Support\Facades\Http::timeout(30)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
