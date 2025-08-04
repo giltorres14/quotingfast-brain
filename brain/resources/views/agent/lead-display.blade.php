@@ -903,14 +903,23 @@
                             <div class="info-value">
                                 @php
                                     $tcpaCompliant = false;
+                                    
+                                    // Check direct field first
                                     if (isset($lead->tcpa_compliant)) {
                                         $tcpaCompliant = $lead->tcpa_compliant;
-                                    } elseif (isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['tcpa_compliant'])) {
+                                    } 
+                                    // Check meta field
+                                    elseif (isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['tcpa_compliant'])) {
                                         $tcpaCompliant = $lead->meta['tcpa_compliant'];
                                     }
-                                    // Handle string values from payload
+                                    
+                                    // Robust boolean conversion - handle all possible formats
                                     if (is_string($tcpaCompliant)) {
-                                        $tcpaCompliant = strtolower($tcpaCompliant) === 'true' || $tcpaCompliant === '1';
+                                        $tcpaCompliant = in_array(strtolower($tcpaCompliant), ['true', '1', 'yes', 'on']);
+                                    } elseif (is_numeric($tcpaCompliant)) {
+                                        $tcpaCompliant = (bool)$tcpaCompliant;
+                                    } else {
+                                        $tcpaCompliant = (bool)$tcpaCompliant;
                                     }
                                 @endphp
                                 @if($tcpaCompliant)
@@ -918,12 +927,6 @@
                                 @else
                                     <span style="color: #dc3545; font-weight: bold;">❌ NO</span>
                                 @endif
-                                <!-- DEBUG: Remove after fixing -->
-                                <div style="font-size: 10px; color: #666; margin-top: 5px;">
-                                    DEBUG: tcpa_direct={{ isset($lead->tcpa_compliant) ? json_encode($lead->tcpa_compliant) : 'null' }}, 
-                                    meta_exists={{ isset($lead->meta) && is_array($lead->meta) ? 'true' : 'false' }}, 
-                                    meta_tcpa={{ isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['tcpa_compliant']) ? json_encode($lead->meta['tcpa_compliant']) : 'null' }}
-                                </div>
                             </div>
                         </div>
 
