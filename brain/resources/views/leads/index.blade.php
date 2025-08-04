@@ -131,7 +131,7 @@
         
         .search-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto auto;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto auto;
             gap: 1rem;
             align-items: end;
         }
@@ -319,9 +319,15 @@
             color: #0277bd;
         }
         
-        .badge-campaign {
+                .badge-campaign {
             background: #fff3e0;
             color: #ef6c00;
+        }
+        
+        /* Vici Badge */
+        .badge-vici {
+            background: #e1f5fe;
+            color: #01579b;
         }
         
         /* SMS Status */
@@ -446,11 +452,22 @@
         /* Responsive Design */
         @media (max-width: 1200px) {
             .search-grid {
+                grid-template-columns: 1fr 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .search-grid .form-group:first-child {
+                grid-column: span 3;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .search-grid {
                 grid-template-columns: 1fr 1fr;
                 gap: 1rem;
             }
             
-            .search-grid .form-group:nth-child(n+3) {
+            .search-grid .form-group:first-child {
                 grid-column: span 2;
             }
         }
@@ -550,6 +567,28 @@
                         </select>
                     </div>
                     
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <select name="state_filter" class="form-select">
+                            <option value="all">All States</option>
+                            @foreach($states as $stateOption)
+                                <option value="{{ $stateOption }}" 
+                                        {{ ($state_filter ?? '') === $stateOption ? 'selected' : '' }}>
+                                    {{ $stateOption }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Vici Status</label>
+                        <select name="vici_status" class="form-select">
+                            <option value="all">All</option>
+                            <option value="sent" {{ ($vici_status ?? '') === 'sent' ? 'selected' : '' }}>Sent to Vici</option>
+                            <option value="not_sent" {{ ($vici_status ?? '') === 'not_sent' ? 'selected' : '' }}>Not Sent</option>
+                        </select>
+                    </div>
+                    
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <a href="/leads" class="btn btn-secondary">Clear</a>
                 </div>
@@ -580,7 +619,19 @@
                                     @endif
                                 </div>
                                 <div class="lead-contact">
-                                    📞 {{ $lead->phone ?? 'No phone' }} 
+                                    📞 @if($lead->phone)
+                                        @php
+                                            $phone = preg_replace('/[^0-9]/', '', $lead->phone);
+                                            if(strlen($phone) == 10) {
+                                                $formatted = '(' . substr($phone, 0, 3) . ')' . substr($phone, 3, 3) . '-' . substr($phone, 6, 4);
+                                            } else {
+                                                $formatted = $lead->phone;
+                                            }
+                                        @endphp
+                                        {{ $formatted }}
+                                    @else
+                                        No phone
+                                    @endif
                                     @if($lead->email)
                                         • ✉️ {{ $lead->email }}
                                     @endif
@@ -604,6 +655,12 @@
                                         {{ $lead->source }}
                                     </span>
                                 @endif
+                                
+                                @if(isset($lead->sent_to_vici) && $lead->sent_to_vici)
+                                    <span class="badge badge-vici">
+                                        Vici
+                                    </span>
+                                @endif
                             </div>
                             
                             <div class="sms-status">
@@ -613,43 +670,7 @@
                         </div>
                     </div>
                     
-                    <div class="lead-details">
-                        <div class="detail-item">
-                            <div class="detail-icon">🚗</div>
-                            <div class="detail-value">
-                                @if(is_array($lead->vehicles) && count($lead->vehicles) > 0)
-                                    {{ $lead->vehicles[0]['year'] ?? '' }} {{ $lead->vehicles[0]['make'] ?? '' }}
-                                @else
-                                    No Vehicle
-                                @endif
-                            </div>
-                            <div class="detail-label">Vehicle</div>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <div class="detail-icon">🏢</div>
-                            <div class="detail-value">
-                                @if(is_array($lead->current_policy) && isset($lead->current_policy['company']))
-                                    {{ $lead->current_policy['company'] }}
-                                @else
-                                    Unknown
-                                @endif
-                            </div>
-                            <div class="detail-label">Current</div>
-                        </div>
-                        
-                        <div class="detail-item">
-                            <div class="detail-icon">💰</div>
-                            <div class="detail-value">
-                                @if($lead->sell_price)
-                                    ${{ number_format($lead->sell_price, 2) }}
-                                @else
-                                    $0.00
-                                @endif
-                            </div>
-                            <div class="detail-label">Sell Price</div>
-                        </div>
-                    </div>
+
                     
                     <div class="lead-actions">
                         <a href="/agent/lead/{{ $lead->id }}" class="btn btn-sm btn-view">

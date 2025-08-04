@@ -757,6 +757,8 @@ Route::get('/leads', function (Request $request) {
         $search = $request->get('search');
         $status = $request->get('status');
         $source = $request->get('source');
+        $state_filter = $request->get('state_filter');
+        $vici_status = $request->get('vici_status');
         
         // Build query
         $query = Lead::query();
@@ -782,16 +784,31 @@ Route::get('/leads', function (Request $request) {
             $query->where('source', $source);
         }
         
+        // Apply state filter
+        if ($state_filter && $state_filter !== 'all') {
+            $query->where('state', $state_filter);
+        }
+        
+        // Apply Vici status filter
+        if ($vici_status && $vici_status !== 'all') {
+            if ($vici_status === 'sent') {
+                $query->whereNotNull('vici_lead_id');
+            } else {
+                $query->whereNull('vici_lead_id');
+            }
+        }
+        
         // Get leads with pagination
         $leads = $query->with(['viciCallMetrics', 'latestConversion'])
                       ->orderBy('created_at', 'desc')
                       ->paginate(20);
         
-        // Get unique statuses and sources for filters
+        // Get unique statuses, sources, and states for filters
         $statuses = Lead::distinct('status')->pluck('status')->filter()->sort();
         $sources = Lead::distinct('source')->pluck('source')->filter()->sort();
+        $states = Lead::distinct('state')->pluck('state')->filter()->sort();
         
-        return view('leads.index', compact('leads', 'statuses', 'sources', 'search', 'status', 'source'));
+        return view('leads.index', compact('leads', 'statuses', 'sources', 'states', 'search', 'status', 'source', 'state_filter', 'vici_status'));
         
     } catch (\Exception $e) {
         Log::error('Leads listing error', [
@@ -816,7 +833,8 @@ Route::get('/leads', function (Request $request) {
                 'current_policy' => ['company' => 'V.V.C Embroidery'],
                 'vici_call_metrics' => null,
                 'latest_conversion' => null,
-                'sell_price' => 0.10
+                'sell_price' => 0.10,
+                'sent_to_vici' => true
             ],
             (object)[
                 'id' => 'TEST_LEAD_2',
@@ -833,7 +851,8 @@ Route::get('/leads', function (Request $request) {
                 'current_policy' => ['company' => 'Unknown'],
                 'vici_call_metrics' => null,
                 'latest_conversion' => null,
-                'sell_price' => 0.15
+                'sell_price' => 0.15,
+                'sent_to_vici' => false
             ],
             (object)[
                 'id' => 'TEST_LEAD_3',
@@ -850,7 +869,8 @@ Route::get('/leads', function (Request $request) {
                 'current_policy' => ['company' => 'State Farm'],
                 'vici_call_metrics' => null,
                 'latest_conversion' => null,
-                'sell_price' => 0.25
+                'sell_price' => 0.25,
+                'sent_to_vici' => true
             ],
             (object)[
                 'id' => 'TEST_LEAD_4',
@@ -867,7 +887,8 @@ Route::get('/leads', function (Request $request) {
                 'current_policy' => ['company' => 'Geico'],
                 'vici_call_metrics' => null,
                 'latest_conversion' => null,
-                'sell_price' => 0.50
+                'sell_price' => 0.50,
+                'sent_to_vici' => false
             ]
         ]);
         
@@ -875,9 +896,12 @@ Route::get('/leads', function (Request $request) {
             'leads' => $testLeads,
             'statuses' => collect(['New', 'Contacted', 'Qualified', 'Converted']),
             'sources' => collect(['Manual', 'Web', 'Campaign']),
+            'states' => collect(['NV', 'MD', 'AZ', 'FL']),
             'search' => $search,
             'status' => $status,
             'source' => $source,
+            'state_filter' => $state_filter,
+            'vici_status' => $vici_status,
             'isTestMode' => true
         ]);
     }
