@@ -893,7 +893,8 @@
         </div>
         @endif
         
-        <!-- TCPA Compliance Section - Show in ALL modes -->
+        <!-- TCPA Compliance Section - VIEW ONLY -->
+        @if(isset($mode) && $mode === 'view')
         <div class="section">
                     <div class="section-title compliance">🛡️ TCPA Compliance & Lead Details</div>
                     <div class="info-grid">
@@ -946,6 +947,9 @@
                                 <a href="{{ $lead->landing_page_url }}" target="_blank" style="color: #007bff; text-decoration: none;">
                                     🔗 View Landing Page
                                 </a>
+                                <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
+                                    {{ $lead->landing_page_url }}
+                                </div>
                             </div>
                         </div>
                         @elseif(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['landing_page_url']))
@@ -955,6 +959,9 @@
                                 <a href="{{ $lead->meta['landing_page_url'] }}" target="_blank" style="color: #007bff; text-decoration: none;">
                                     🔗 View Landing Page
                                 </a>
+                                <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
+                                    {{ $lead->meta['landing_page_url'] }}
+                                </div>
                             </div>
                         </div>
                         @endif
@@ -967,6 +974,9 @@
                                 <a href="{{ $lead->meta['trusted_form_cert_url'] }}" target="_blank" style="color: #28a745; text-decoration: none;">
                                     📜 View Certificate
                                 </a>
+                                <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
+                                    {{ $lead->meta['trusted_form_cert_url'] }}
+                                </div>
                             </div>
                         </div>
                         @endif
@@ -987,6 +997,7 @@
                         @endif
                     </div>
                 </div>
+        @endif
 
             <!-- Edit Form -->
             <div class="edit-form" id="contact-edit">
@@ -1218,6 +1229,27 @@
                         <div class="info-value">{{ $driver['years_licensed'] ?? 'Not provided' }}</div>
                     </div>
                 </div>
+                
+                <!-- View More Details Section for Drivers -->
+                <div style="margin-top: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px; border-left: 3px solid #6c757d;">
+                    <details>
+                        <summary style="cursor: pointer; font-weight: bold; color: #495057;">
+                            📋 View More Details
+                        </summary>
+                        <div style="margin-top: 8px; font-size: 12px; color: #6c757d;">
+                            <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+                                @foreach($driver as $key => $value)
+                                    @if(!in_array($key, ['first_name', 'last_name', 'birth_date', 'gender', 'marital_status', 'license_state', 'violations', 'accidents', 'license_status', 'years_licensed']))
+                                    <div class="info-item">
+                                        <div class="info-label">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
+                                        <div class="info-value">{{ is_array($value) ? json_encode($value) : ($value ?? 'Not provided') }}</div>
+                                    </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    </details>
+                </div>
             </div>
             @endforeach
         </div>
@@ -1271,6 +1303,27 @@
                         <div class="info-label">Garage</div>
                         <div class="info-value">{{ $vehicle['garage'] ?? 'Not provided' }}</div>
                     </div>
+                </div>
+                
+                <!-- View More Details Section for Vehicles -->
+                <div style="margin-top: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px; border-left: 3px solid #6c757d;">
+                    <details>
+                        <summary style="cursor: pointer; font-weight: bold; color: #495057;">
+                            📋 View More Details
+                        </summary>
+                        <div style="margin-top: 8px; font-size: 12px; color: #6c757d;">
+                            <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+                                @foreach($vehicle as $key => $value)
+                                    @if(!in_array($key, ['year', 'make', 'model', 'vin', 'primary_use', 'annual_miles', 'ownership', 'garage']))
+                                    <div class="info-item">
+                                        <div class="info-label">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
+                                        <div class="info-value">{{ is_array($value) ? json_encode($value) : ($value ?? 'Not provided') }}</div>
+                                    </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    </details>
                 </div>
             </div>
             @endforeach
