@@ -557,9 +557,6 @@
                     <a href="/leads" class="btn btn-primary">
                         View Leads
                     </a>
-                    <a href="#" class="btn btn-secondary" onclick="cleanupTestLeads()">
-                        🗑️ Cleanup Test Leads
-                    </a>
                 </div>
             </div>
 
@@ -870,23 +867,8 @@
         }
 
         // Clean up test leads
-        function cleanupTestLeads() {
-            if (confirm('Are you sure you want to delete all test leads? This cannot be undone.')) {
-                fetch('/api/leads/cleanup', { method: 'DELETE' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(`✅ Cleanup complete!\n\nDeleted: ${data.deleted_count} test leads\nRemaining: ${data.remaining_leads} leads`);
-                            location.reload(); // Refresh to update stats
-                        } else {
-                            alert('❌ Cleanup failed: ' + data.error);
-                        }
-                    })
-                    .catch(error => {
-                        alert('❌ Cleanup error: ' + error.message);
-                    });
-            }
-        }
+        // REMOVED: cleanupTestLeads function per user request
+        // This was automatically deleting leads on deployment
 
         // Load cost analytics on page load
         loadCostAnalytics();

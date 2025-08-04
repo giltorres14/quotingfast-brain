@@ -348,79 +348,9 @@ Route::get('/api/reports/cost/state/{state}', function ($state) {
     }
 });
 
-// Clean up test leads endpoint
-Route::delete('/api/leads/cleanup', function () {
-    try {
-        $deletedCount = 0;
-        
-        // Delete leads with test patterns
-        $testPatterns = [
-            'LQF_%', // Old format test leads
-            '%Test%', // Any lead with "Test" in name/email
-            '%test%', // Any lead with "test" in name/email
-            '%example.com%', // Example email domains
-        ];
-        
-        foreach ($testPatterns as $pattern) {
-            $deleted = Lead::where('name', 'LIKE', $pattern)
-                          ->orWhere('email', 'LIKE', $pattern)
-                          ->orWhere('first_name', 'LIKE', $pattern)
-                          ->orWhere('last_name', 'LIKE', $pattern)
-                          ->delete();
-            $deletedCount += $deleted;
-        }
-        
-        // Also delete leads with specific test phone numbers
-        $testPhones = ['5551234567', '555-TEST-123', '736-933-5647'];
-        foreach ($testPhones as $phone) {
-            $deleted = Lead::where('phone', 'LIKE', "%{$phone}%")->delete();
-            $deletedCount += $deleted;
-        }
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Test leads cleaned up successfully',
-            'deleted_count' => $deletedCount,
-            'remaining_leads' => Lead::count()
-        ], 200, [], JSON_PRETTY_PRINT);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage()
-        ], 500, [], JSON_PRETTY_PRINT);
-    }
-});
-
-// Reset lead ID counter (use with caution)
-Route::post('/api/leads/reset-counter', function () {
-    try {
-        // This will reset the next lead ID to 100000001
-        // Only use when database is empty or you want to restart numbering
-        
-        $leadCount = Lead::count();
-        if ($leadCount > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot reset counter while leads exist',
-                'current_lead_count' => $leadCount,
-                'suggestion' => 'Use /api/leads/cleanup first to remove test leads'
-            ], 400, [], JSON_PRETTY_PRINT);
-        }
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Lead counter reset - next lead will be 100000001',
-            'next_lead_id' => '100000001'
-        ], 200, [], JSON_PRETTY_PRINT);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage()
-        ], 500, [], JSON_PRETTY_PRINT);
-    }
-});
+// REMOVED: Cleanup and reset functionality per user request
+// These features were automatically deleting leads on deployment
+// Will be re-added only when specifically requested by user
 
 // Database status endpoint
 Route::get('/api/database/status', function () {
