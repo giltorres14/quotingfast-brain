@@ -1661,7 +1661,7 @@ Route::get('/test/allstate/connection', function () {
                 'Authorization' => 'Basic ' . $apiKey
             ])
             ->post($baseUrl . '/ping', [
-                'vertical' => 'auto'  // Required vertical parameter for auto insurance
+                'vertical' => 'auto-insurance'  // Required vertical parameter from Allstate docs
             ]);
             
         $results = [

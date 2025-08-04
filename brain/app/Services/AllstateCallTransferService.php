@@ -53,7 +53,7 @@ class AllstateCallTransferService
             $authHeader = 'Basic ' . $this->apiKey;
             
             // Add required vertical parameter to transfer data
-            $transferData['vertical'] = 'auto'; // Auto insurance vertical
+            $transferData['vertical'] = 'auto-insurance'; // Auto insurance vertical from Allstate docs
             
             $response = Http::timeout(30)
                 ->withHeaders([
