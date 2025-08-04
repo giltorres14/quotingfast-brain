@@ -889,9 +889,12 @@
                     <div class="info-value">${{ number_format($lead->sell_price, 2) }}</div>
                 </div>
                 @endif
-                
-                <!-- TCPA Compliance Section -->
-                <div class="section">
+            </div>
+        </div>
+        @endif
+        
+        <!-- TCPA Compliance Section - Show in ALL modes -->
+        <div class="section">
                     <div class="section-title compliance">🛡️ TCPA Compliance & Lead Details</div>
                     <div class="info-grid">
                         <!-- TCPA Compliance Status -->
@@ -958,26 +961,23 @@
                             </div>
                         </div>
                         @endif
+
+                        <!-- Campaign & Lead IDs -->
+                        @if(isset($lead->campaign_id) && $lead->campaign_id)
+                        <div class="info-item">
+                            <div class="info-label">Campaign ID</div>
+                            <div class="info-value">{{ $lead->campaign_id }}</div>
+                        </div>
+                        @endif
+                        
+                        @if(isset($lead->external_lead_id) && $lead->external_lead_id)
+                        <div class="info-item">
+                            <div class="info-label">External Lead ID</div>
+                            <div class="info-value">{{ $lead->external_lead_id }}</div>
+                        </div>
+                        @endif
                     </div>
                 </div>
-                
-                <!-- Campaign & Lead IDs (keeping these separate from TCPA section) -->
-                @if(isset($lead->campaign_id) && $lead->campaign_id)
-                <div class="info-item">
-                    <div class="info-label">Campaign ID</div>
-                    <div class="info-value">{{ $lead->campaign_id }}</div>
-                </div>
-                @endif
-                
-                @if(isset($lead->external_lead_id) && $lead->external_lead_id)
-                <div class="info-item">
-                    <div class="info-label">External Lead ID</div>
-                    <div class="info-value">{{ $lead->external_lead_id }}</div>
-                </div>
-                @endif
-            </div>
-        </div>
-        @endif
 
             <!-- Edit Form -->
             <div class="edit-form" id="contact-edit">
