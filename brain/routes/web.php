@@ -1321,6 +1321,20 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             try {
                 $lead = App\Models\Lead::find($leadId);
                 if ($lead) {
+                    // Ensure JSON fields are properly decoded as arrays for view compatibility
+                    if (is_string($lead->drivers)) {
+                        $lead->drivers = json_decode($lead->drivers, true) ?: [];
+                    }
+                    if (is_string($lead->vehicles)) {
+                        $lead->vehicles = json_decode($lead->vehicles, true) ?: [];
+                    }
+                    if (is_string($lead->current_policy)) {
+                        $lead->current_policy = json_decode($lead->current_policy, true) ?: [];
+                    }
+                    if (is_string($lead->meta)) {
+                        $lead->meta = json_decode($lead->meta, true) ?: [];
+                    }
+                    
                     $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
                 }
             } catch (Exception $dbError) {

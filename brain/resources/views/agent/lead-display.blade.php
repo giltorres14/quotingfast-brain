@@ -1164,8 +1164,8 @@
                     <div class="info-item">
                         <div class="info-label">Accidents</div>
                         <div class="info-value">
-                @if(isset($driver['accidents']) && count($driver['accidents']) > 0)
-                                <span style="color: #dc3545; font-weight: bold;">{{ count($driver['accidents']) }} accident(s)</span>
+                                                            @if(isset($driver['accidents']) && is_array($driver['accidents']) && count($driver['accidents']) > 0)
+                <span style="color: #dc3545; font-weight: bold;">{{ count($driver['accidents']) }} accident(s)</span>
                                 <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('accidents-{{ $index }}')">View Details</button>
                                 <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
                                 <div id="accidents-{{ $index }}" class="accident-details" style="display: none; margin-top: 8px; padding: 8px; background: #f8d7da; border-radius: 4px; font-size: 11px;">
@@ -1220,7 +1220,7 @@
         @endif
 
         <!-- Vehicles -->
-        @if($lead->vehicles && count($lead->vehicles) > 0)
+        @if($lead->vehicles && is_array($lead->vehicles) && count($lead->vehicles) > 0)
         <div class="section">
             <div class="section-title vehicles">🚗 Vehicles ({{ count($lead->vehicles) }}) 
                 @if(!isset($mode) || $mode !== 'view')
