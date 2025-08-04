@@ -233,6 +233,121 @@ Route::post('/test-lead-data', function (Request $request) {
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
+// Lead cost reporting endpoints
+Route::get('/api/reports/cost/today', function () {
+    try {
+        $today = now()->startOfDay();
+        $leads = Lead::whereDate('created_at', $today)->get();
+        
+        $totalCost = $leads->sum('sell_price');
+        $leadCount = $leads->count();
+        
+        // Group by source
+        $bySource = $leads->groupBy('source')->map(function ($sourceLeads, $source) {
+            return [
+                'source' => $source,
+                'count' => $sourceLeads->count(),
+                'total_cost' => $sourceLeads->sum('sell_price'),
+                'avg_cost' => $sourceLeads->avg('sell_price')
+            ];
+        })->values();
+        
+        // Group by state
+        $byState = $leads->groupBy('state')->map(function ($stateLeads, $state) {
+            return [
+                'state' => $state,
+                'count' => $stateLeads->count(), 
+                'total_cost' => $stateLeads->sum('sell_price'),
+                'avg_cost' => $stateLeads->avg('sell_price')
+            ];
+        })->values();
+        
+        return response()->json([
+            'date' => $today->format('Y-m-d'),
+            'summary' => [
+                'total_leads' => $leadCount,
+                'total_cost' => round($totalCost, 2),
+                'average_cost_per_lead' => $leadCount > 0 ? round($totalCost / $leadCount, 2) : 0
+            ],
+            'by_source' => $bySource,
+            'by_state' => $byState
+        ], 200, [], JSON_PRETTY_PRINT);
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+Route::get('/api/reports/cost/source/{source}', function ($source) {
+    try {
+        $leads = Lead::where('source', $source)->get();
+        
+        $totalCost = $leads->sum('sell_price');
+        $leadCount = $leads->count();
+        
+        // Group by date (last 30 days)
+        $byDate = $leads->where('created_at', '>=', now()->subDays(30))
+                       ->groupBy(function($lead) {
+                           return $lead->created_at->format('Y-m-d');
+                       })
+                       ->map(function ($dateLeads, $date) {
+                           return [
+                               'date' => $date,
+                               'count' => $dateLeads->count(),
+                               'total_cost' => $dateLeads->sum('sell_price')
+                           ];
+                       })->values();
+        
+        return response()->json([
+            'source' => $source,
+            'summary' => [
+                'total_leads' => $leadCount,
+                'total_cost' => round($totalCost, 2),
+                'average_cost_per_lead' => $leadCount > 0 ? round($totalCost / $leadCount, 2) : 0
+            ],
+            'last_30_days' => $byDate
+        ], 200, [], JSON_PRETTY_PRINT);
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+Route::get('/api/reports/cost/state/{state}', function ($state) {
+    try {
+        $leads = Lead::where('state', $state)->get();
+        
+        $totalCost = $leads->sum('sell_price');
+        $leadCount = $leads->count();
+        
+        // Group by date (last 30 days)
+        $byDate = $leads->where('created_at', '>=', now()->subDays(30))
+                       ->groupBy(function($lead) {
+                           return $lead->created_at->format('Y-m-d');
+                       })
+                       ->map(function ($dateLeads, $date) {
+                           return [
+                               'date' => $date,
+                               'count' => $dateLeads->count(),
+                               'total_cost' => $dateLeads->sum('sell_price')
+                           ];
+                       })->values();
+        
+        return response()->json([
+            'state' => $state,
+            'summary' => [
+                'total_leads' => $leadCount,
+                'total_cost' => round($totalCost, 2),
+                'average_cost_per_lead' => $leadCount > 0 ? round($totalCost / $leadCount, 2) : 0
+            ],
+            'last_30_days' => $byDate
+        ], 200, [], JSON_PRETTY_PRINT);
+        
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
 // Database status endpoint
 Route::get('/api/database/status', function () {
     try {
@@ -415,6 +530,24 @@ Route::post('/webhook.php', function (Request $request) {
             'type' => 'auto',
             'received_at' => now(),
             'joined_at' => now(),
+            
+            // NEW: Capture additional fields for reporting and compliance
+            'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null, // Lead cost for reporting
+            'tcpa_compliant' => $data['tcpa_compliant'] ?? false,
+            'landing_page_url' => $data['landing_page_url'] ?? null,
+            'user_agent' => $data['user_agent'] ?? null,
+            'ip_address' => $data['ip_address'] ?? null,
+            'campaign_id' => $data['campaign_id'] ?? null,
+            'external_lead_id' => $data['external_lead_id'] ?? $data['lead_id'] ?? null,
+            
+            // Store compliance and tracking data in meta
+            'meta' => json_encode([
+                'trusted_form_cert_url' => $data['trusted_form_cert_url'] ?? null,
+                'originally_created' => $data['originally_created'] ?? null,
+                'source_details' => $data['source'] ?? null,
+                'additional_data' => $data['meta'] ?? []
+            ]),
+            
             'drivers' => json_encode($data['data']['drivers'] ?? []),
             'vehicles' => json_encode($data['data']['vehicles'] ?? []),
             'current_policy' => json_encode($data['data']['requested_policy'] ?? null),
