@@ -31,7 +31,7 @@ Route::get('/test-deployment', function () {
 Route::get('/', function () {
     return response()->json([
         'success' => true,
-        'message' => 'The Brain - Full Admin System Deployed!',
+        'message' => 'The Brain - Full Admin System LIVE & WORKING!',
         'debug_info' => [
             'laravel_version' => app()->version(),
             'environment' => app()->environment(),

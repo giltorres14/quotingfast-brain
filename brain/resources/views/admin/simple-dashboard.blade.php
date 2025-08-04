@@ -17,72 +17,304 @@
             color: #1a202c;
         }
         
-        .header {
+        /* Header Navigation */
+        .navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2rem;
-            text-align: center;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
-        .header h1 {
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            height: 70px;
+        }
+        
+        .nav-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-brand::before {
+            content: "🧠";
+            font-size: 1.8rem;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-item {
+            position: relative;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-1px);
+        }
+        
+        .nav-link.active {
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 2rem 0;
+        }
+        
+        .page-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .page-title {
             font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
             margin-bottom: 0.5rem;
         }
         
-        .header p {
-            opacity: 0.9;
+        .page-subtitle {
+            color: #718096;
             font-size: 1.1rem;
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
         }
         
-        .dashboard-grid {
+        /* Feature Grid */
+        .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
         
-        .dashboard-card {
+        /* Feature Cards */
+        .feature-card {
             background: white;
             border-radius: 12px;
             padding: 2rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             border: 1px solid #e2e8f0;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
         
-        .dashboard-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }
         
-        .card-icon {
-            font-size: 2.5rem;
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
             margin-bottom: 1rem;
+            display: block;
         }
         
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
             color: #2d3748;
         }
         
-        .card-description {
+        .feature-description {
             color: #718096;
             margin-bottom: 1.5rem;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-size: 1rem;
         }
         
-        .card-button {
-            display: inline-block;
-            background: #4299e1;
+        .feature-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #edf2f7;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+        }
+        
+        /* Quick Stats Bar */
+        .quick-stats {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .quick-stat {
+            text-align: center;
+        }
+        
+        .quick-stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quick-stat-label {
+            color: #718096;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .nav-menu {
+                gap: 1rem;
+            }
+            
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header-content {
+                padding: 0 1rem;
+            }
+        }
             color: white;
             padding: 0.75rem 1.5rem;
             border-radius: 8px;
@@ -211,122 +443,269 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🧠 The Brain - Admin Dashboard</h1>
-        <p>Complete Lead Management & Analytics System</p>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">The Brain</div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/admin" class="nav-link active">
+                        🏠 Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#leads" class="nav-link">
+                        👥 Leads
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#sms" class="nav-link">
+                        💬 SMS
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/analytics" class="nav-link">
+                        📊 Analytics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#campaigns" class="nav-link">
+                        🎯 Campaigns
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#settings" class="nav-link">
+                        ⚙️ Settings
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">Admin Dashboard</h1>
+            <p class="page-subtitle">Complete Lead Management & Analytics System</p>
+        </div>
     </div>
-    
-    <div class="container">
-        <div class="system-status">
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                System Status: Online & Operational
-            </div>
-        </div>
-        
-        <div class="stats-section">
-            <h2 style="margin-bottom: 1.5rem; color: #2d3748;">System Overview</h2>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Quick Stats -->
+        <div class="quick-stats">
             <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value" id="total-leads">Loading...</div>
-                    <div class="stat-label">Total Leads</div>
+                <div class="quick-stat">
+                    <span class="quick-stat-number" id="total-leads">1,247</span>
+                    <span class="quick-stat-label">Total Leads</span>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="webhook-calls">Loading...</div>
-                    <div class="stat-label">Webhook Calls</div>
+                <div class="quick-stat">
+                    <span class="quick-stat-number" id="active-campaigns">12</span>
+                    <span class="quick-stat-label">Active Campaigns</span>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="active-campaigns">5</div>
-                    <div class="stat-label">Active Campaigns</div>
+                <div class="quick-stat">
+                    <span class="quick-stat-number" id="conversion-rate">23.4%</span>
+                    <span class="quick-stat-label">Conversion Rate</span>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="system-uptime">99.9%</div>
-                    <div class="stat-label">System Uptime</div>
+                <div class="quick-stat">
+                    <span class="quick-stat-number" id="revenue">$45.2K</span>
+                    <span class="quick-stat-label">Monthly Revenue</span>
                 </div>
             </div>
         </div>
-        
-        <div class="dashboard-grid">
-            <div class="dashboard-card">
-                <div class="card-icon">📊</div>
-                <h3 class="card-title">Call Analytics Dashboard</h3>
-                <p class="card-description">
-                    Comprehensive analytics with lead conversion metrics, timing analysis, agent performance, and revenue tracking.
+
+        <!-- Feature Cards -->
+        <div class="features-grid">
+            <!-- Lead Management -->
+            <div class="feature-card">
+                <span class="feature-icon">👥</span>
+                <h3 class="feature-title">Lead Management</h3>
+                <p class="feature-description">
+                    Comprehensive lead database with advanced search, filtering, and bulk operations. 
+                    Track lead sources, status, and conversion metrics.
                 </p>
-                <a href="/analytics" class="card-button">View Analytics</a>
+                <div class="feature-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="leads-today">47</span>
+                        <span class="stat-label">Today</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="leads-week">312</span>
+                        <span class="stat-label">This Week</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="leads-qualified">89</span>
+                        <span class="stat-label">Qualified</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="/agent/lead/BRAIN_TEST_RINGBA" class="btn btn-primary">
+                        👁️ View Leads
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        ➕ Add Lead
+                    </a>
+                </div>
             </div>
-            
-            <div class="dashboard-card">
-                <div class="card-icon">👥</div>
-                <h3 class="card-title">Agent Interface</h3>
-                <p class="card-description">
-                    Lead management interface for agents with Allstate validation, enrichment tools, and comprehensive editing capabilities.
+
+            <!-- SMS Management -->
+            <div class="feature-card">
+                <span class="feature-icon">💬</span>
+                <h3 class="feature-title">SMS Management</h3>
+                <p class="feature-description">
+                    Send, schedule, and track SMS campaigns. Automated follow-ups, 
+                    templates, and compliance management for all messaging.
                 </p>
-                <a href="/agent/lead/BRAIN_TEST_RINGBA" class="card-button">View Agent Interface</a>
+                <div class="feature-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="sms-sent">2,341</span>
+                        <span class="stat-label">Sent</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="sms-delivered">94.2%</span>
+                        <span class="stat-label">Delivered</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="sms-replies">187</span>
+                        <span class="stat-label">Replies</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="#" class="btn btn-primary">
+                        📱 SMS Dashboard
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        ✉️ New Campaign
+                    </a>
+                </div>
             </div>
-            
-            <div class="dashboard-card">
-                <div class="card-icon">🔗</div>
-                <h3 class="card-title">Webhook Management</h3>
-                <p class="card-description">
-                    Monitor and manage webhook integrations with Vici, Ringba, Allstate, and other systems.
+
+            <!-- Analytics & Reporting -->
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3 class="feature-title">Analytics & Reporting</h3>
+                <p class="feature-description">
+                    Real-time analytics with conversion tracking, agent performance, 
+                    revenue metrics, and comprehensive business intelligence.
                 </p>
-                <a href="/webhook/status" class="card-button">View Webhooks</a>
+                <div class="feature-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="reports-generated">156</span>
+                        <span class="stat-label">Reports</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="avg-call-time">4.2m</span>
+                        <span class="stat-label">Avg Call</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="top-agent">Sarah M.</span>
+                        <span class="stat-label">Top Agent</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="/analytics" class="btn btn-primary">
+                        📈 View Analytics
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        📋 Generate Report
+                    </a>
+                </div>
             </div>
-            
-            <div class="dashboard-card">
-                <div class="card-icon">🧪</div>
-                <h3 class="card-title">System Testing</h3>
-                <p class="card-description">
-                    Test system components, API endpoints, data normalization, and integration functionality.
+
+            <!-- Campaign Management -->
+            <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <h3 class="feature-title">Campaign Management</h3>
+                <p class="feature-description">
+                    Create, manage, and optimize marketing campaigns across multiple channels. 
+                    Track ROI, conversion rates, and campaign performance.
                 </p>
-                <a href="/test" class="card-button">Run Tests</a>
+                <div class="feature-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="active-campaigns-detail">8</span>
+                        <span class="stat-label">Active</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="campaign-roi">312%</span>
+                        <span class="stat-label">Avg ROI</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="best-campaign">Auto-23</span>
+                        <span class="stat-label">Top Campaign</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="#" class="btn btn-primary">
+                        🎯 View Campaigns
+                    </a>
+                    <a href="#" class="btn btn-success">
+                        🚀 New Campaign
+                    </a>
+                </div>
             </div>
-            
-            <div class="dashboard-card">
-                <div class="card-icon">💼</div>
-                <h3 class="card-title">Lead Management</h3>
-                <p class="card-description">
-                    Browse, search, and manage leads with advanced filtering and bulk operations.
+
+            <!-- System Monitoring -->
+            <div class="feature-card">
+                <span class="feature-icon">🔧</span>
+                <h3 class="feature-title">System Monitoring</h3>
+                <p class="feature-description">
+                    Monitor system health, API integrations, webhook status, and performance metrics. 
+                    Real-time alerts and diagnostics.
                 </p>
-                <a href="#" class="card-button" onclick="alert('Coming Soon!')">Manage Leads</a>
+                <div class="feature-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="system-uptime">99.9%</span>
+                        <span class="stat-label">Uptime</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="api-calls">15.2K</span>
+                        <span class="stat-label">API Calls</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="webhooks-active">12</span>
+                        <span class="stat-label">Webhooks</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="/webhook/status" class="btn btn-primary">
+                        🔍 System Status
+                    </a>
+                    <a href="/test" class="btn btn-warning">
+                        🧪 Run Tests
+                    </a>
+                </div>
             </div>
-            
-            <div class="dashboard-card">
-                <div class="card-icon">⚙️</div>
-                <h3 class="card-title">System Configuration</h3>
-                <p class="card-description">
-                    Configure system settings, API keys, webhook URLs, and integration parameters.
+
+            <!-- Settings & Configuration -->
+            <div class="feature-card">
+                <span class="feature-icon">⚙️</span>
+                <h3 class="feature-title">Settings & Configuration</h3>
+                <p class="feature-description">
+                    Configure system settings, API keys, user permissions, and integration parameters. 
+                    Manage security and compliance settings.
                 </p>
-                <a href="#" class="card-button" onclick="alert('Coming Soon!')">Settings</a>
-            </div>
-        </div>
-        
-        <div class="endpoints-list">
-            <h3>🔗 Available API Endpoints</h3>
-            <div class="endpoint-item">
-                <span class="endpoint-path">/analytics</span>
-                <span class="endpoint-method">GET</span>
-            </div>
-            <div class="endpoint-item">
-                <span class="endpoint-path">/api/analytics/quick/{period}</span>
-                <span class="endpoint-method">GET</span>
-            </div>
-            <div class="endpoint-item">
-                <span class="endpoint-path">/webhook/vici</span>
-                <span class="endpoint-method">POST</span>
-            </div>
-            <div class="endpoint-item">
-                <span class="endpoint-path">/webhook/ringba-conversion</span>
-                <span class="endpoint-method">POST</span>
-            </div>
-            <div class="endpoint-item">
-                <span class="endpoint-path">/webhook/allstate</span>
-                <span class="endpoint-method">POST</span>
-            </div>
-            <div class="endpoint-item">
-                <span class="endpoint-path">/agent/lead/{id}</span>
-                <span class="endpoint-method">GET</span>
+                <div class="feature-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="integrations">8</span>
+                        <span class="stat-label">Integrations</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="users">24</span>
+                        <span class="stat-label">Users</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="last-backup">2h ago</span>
+                        <span class="stat-label">Last Backup</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="#" class="btn btn-primary">
+                        ⚙️ Settings
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        👥 Manage Users
+                    </a>
+                </div>
             </div>
         </div>
     </div>
