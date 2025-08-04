@@ -19,12 +19,13 @@
         
         /* Header Navigation */
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
             z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
         .nav-container {
@@ -38,16 +39,24 @@
         }
         
         .nav-brand {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            color: white;
         }
         
-        .nav-brand::before {
-            content: "🧠";
-            font-size: 1.8rem;
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: #4f46e5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
         }
         
         .nav-menu {
@@ -62,25 +71,27 @@
         }
         
         .nav-link {
-            color: white;
+            color: rgba(255,255,255,0.8);
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 0.95rem;
         }
         
         .nav-link:hover {
-            background: rgba(255,255,255,0.15);
-            transform: translateY(-1px);
+            background: rgba(255,255,255,0.1);
+            color: white;
         }
         
         .nav-link.active {
-            background: rgba(255,255,255,0.2);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-weight: 600;
         }
         
         /* Page Header */
@@ -147,7 +158,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: #4f46e5;
         }
         
         .feature-icon {
@@ -184,7 +195,7 @@
         .stat-number {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #667eea;
+            color: #4f46e5;
             display: block;
         }
         
@@ -217,13 +228,14 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             color: white;
         }
         
         .btn-primary:hover {
+            background: #4338ca;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
         }
         
         .btn-secondary {
@@ -280,7 +292,7 @@
         .quick-stat-number {
             font-size: 2.5rem;
             font-weight: 700;
-            color: #667eea;
+            color: #4f46e5;
             display: block;
             margin-bottom: 0.5rem;
         }
@@ -446,36 +458,39 @@
     <!-- Navigation Header -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="nav-brand">The Brain</div>
+            <div class="nav-brand">
+                <div class="brand-logo">Q</div>
+                <span>Quoting Fast Brain</span>
+            </div>
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="/admin" class="nav-link active">
-                        🏠 Dashboard
+                        Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#leads" class="nav-link">
-                        👥 Leads
+                        Leads
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#sms" class="nav-link">
-                        💬 SMS
+                    <a href="#messaging" class="nav-link">
+                        Messaging
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="/analytics" class="nav-link">
-                        📊 Analytics
+                        Analytics
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#campaigns" class="nav-link">
-                        🎯 Campaigns
+                        Campaigns
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#settings" class="nav-link">
-                        ⚙️ Settings
+                        Settings
                     </a>
                 </li>
             </ul>
@@ -485,8 +500,8 @@
     <!-- Page Header -->
     <div class="page-header">
         <div class="page-header-content">
-            <h1 class="page-title">Admin Dashboard</h1>
-            <p class="page-subtitle">Complete Lead Management & Analytics System</p>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Auto Insurance Leads Management System</p>
         </div>
     </div>
 
@@ -496,20 +511,20 @@
         <div class="quick-stats">
             <div class="stats-grid">
                 <div class="quick-stat">
-                    <span class="quick-stat-number" id="total-leads">1,247</span>
+                    <span class="quick-stat-number" id="total-leads">11</span>
                     <span class="quick-stat-label">Total Leads</span>
                 </div>
                 <div class="quick-stat">
-                    <span class="quick-stat-number" id="active-campaigns">12</span>
-                    <span class="quick-stat-label">Active Campaigns</span>
+                    <span class="quick-stat-number" id="new-leads">11</span>
+                    <span class="quick-stat-label">New Leads</span>
                 </div>
                 <div class="quick-stat">
-                    <span class="quick-stat-number" id="conversion-rate">23.4%</span>
-                    <span class="quick-stat-label">Conversion Rate</span>
+                    <span class="quick-stat-number" id="contacted">0</span>
+                    <span class="quick-stat-label">Contacted</span>
                 </div>
                 <div class="quick-stat">
-                    <span class="quick-stat-number" id="revenue">$45.2K</span>
-                    <span class="quick-stat-label">Monthly Revenue</span>
+                    <span class="quick-stat-number" id="converted">0</span>
+                    <span class="quick-stat-label">Converted</span>
                 </div>
             </div>
         </div>
