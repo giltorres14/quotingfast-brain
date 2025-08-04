@@ -1035,9 +1035,11 @@
                 <div class="info-item">
                     <div class="info-label">TCPA Compliant</div>
                     <div class="info-value">
-                        <span style="color: {{ $lead->tcpa_compliant ? '#28a745' : '#dc3545' }};">
-                            {{ $lead->tcpa_compliant ? '✅ Yes' : '❌ No' }}
-                        </span>
+                        @if($lead->tcpa_compliant)
+                            <span style="color: #28a745;">✅ Yes</span>
+                        @else
+                            <span style="color: #dc3545;">❌ No</span>
+                        @endif
                 </div>
                 </div>
                 @endif
@@ -1437,6 +1439,10 @@
     </div>
 
     <script>
+        // Global data for JavaScript functions
+        const leadDriversData = @json($lead->drivers ?? []);
+        const leadVehiclesData = @json($lead->vehicles ?? []);
+        
         
         // Auto-refresh disabled for agent view - no call metrics displayed
         
@@ -2711,8 +2717,7 @@
 
         function showDriverModal(driverIndex = null) {
             const isEditing = driverIndex !== null;
-            const drivers = @json($lead->drivers ?? []);
-            const driver = isEditing && drivers[driverIndex] ? drivers[driverIndex] : null;
+            const driver = isEditing && leadDriversData[driverIndex] ? leadDriversData[driverIndex] : null;
             const modalHtml = `
                 <div id="driverModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
                     <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90%; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
