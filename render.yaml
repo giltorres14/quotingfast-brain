@@ -17,15 +17,15 @@ services:
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
-        value: dpg-d261qkfdiees738entk0-a
+        value: dpg-d277kvk9c44c7388bpg0-a
       - key: DB_PORT
         value: 5432
       - key: DB_DATABASE
-        value: parcelvoy_p64d
+        value: brain_production
       - key: DB_USERNAME
-        value: parcelvoy
+        value: brain_user
       - key: DB_PASSWORD
-        value: gGRLGwBBn90tEInwq9NeaG60uYhGXbE1
+        value: KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ
       - key: ALLSTATE_API_KEY
         value: quoting-fast
       - key: ALLSTATE_API_ENV
