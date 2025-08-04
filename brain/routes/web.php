@@ -545,12 +545,11 @@ Route::post('/webhook.php', function (Request $request) {
             'external_lead_id' => $data['external_lead_id'] ?? $data['lead_id'] ?? null,
             
             // Store compliance and tracking data in meta
-            'meta' => json_encode([
+            'meta' => json_encode(array_merge([
                 'trusted_form_cert_url' => $data['trusted_form_cert_url'] ?? null,
                 'originally_created' => $data['originally_created'] ?? null,
                 'source_details' => $data['source'] ?? null,
-                'additional_data' => $data['meta'] ?? []
-            ]),
+            ], $data['meta'] ?? [])),
             
             'drivers' => json_encode($data['data']['drivers'] ?? []),
             'vehicles' => json_encode($data['data']['vehicles'] ?? []),
