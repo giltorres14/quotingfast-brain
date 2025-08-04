@@ -26,8 +26,7 @@ services:
         value: brain_user
       - key: DB_PASSWORD
         value: KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ
-      - key: DATABASE_URL
-        value: postgresql://brain_user:KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ@dpg-d277kvk9c44c7388bpg0-a:5432/brain_production
+
 
 databases:
   - name: brain-postgres
