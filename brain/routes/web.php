@@ -28,6 +28,27 @@ Route::get('/test-deployment', function () {
     ]);
 });
 
+// Manual migration trigger - EMERGENCY USE ONLY
+Route::get('/emergency-migrate', function () {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Emergency migration completed!',
+            'output' => $output,
+            'timestamp' => now()->toISOString()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
+});
+
 Route::get('/', function () {
     return response()->json([
         'success' => true,

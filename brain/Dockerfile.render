@@ -236,7 +236,7 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'fi' >> /usr/local/bin/startup.sh && \
     echo 'echo "Database file: $(ls -la /var/www/html/database/database.sqlite)"' >> /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: Database ready ==="' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "=== STARTUP: Starting Apache Server ==="' >> /usr/local/bin/startup.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
 
