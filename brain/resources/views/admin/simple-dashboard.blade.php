@@ -459,8 +459,8 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
-                <div class="brand-logo">Q</div>
-                <span>Quoting Fast Brain</span>
+                <div class="brand-logo">B</div>
+                <span>The Brain</span>
             </div>
             <ul class="nav-menu">
                 <li class="nav-item">
@@ -469,12 +469,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#leads" class="nav-link">
+                    <a href="/agent/lead/BRAIN_TEST_RINGBA" class="nav-link">
                         Leads
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#messaging" class="nav-link">
+                    <a href="#messaging" class="nav-link" onclick="alert('SMS/Messaging feature coming soon!')">
                         Messaging
                     </a>
                 </li>
@@ -484,12 +484,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#campaigns" class="nav-link">
+                    <a href="#campaigns" class="nav-link" onclick="alert('Campaign management feature coming soon!')">
                         Campaigns
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#settings" class="nav-link">
+                    <a href="#settings" class="nav-link" onclick="alert('Settings feature coming soon!')">
                         Settings
                     </a>
                 </li>
@@ -553,14 +553,14 @@
                         <span class="stat-label">Qualified</span>
                     </div>
                 </div>
-                <div class="action-buttons">
-                    <a href="/agent/lead/BRAIN_TEST_RINGBA" class="btn btn-primary">
-                        👁️ View Leads
-                    </a>
-                    <a href="#" class="btn btn-secondary">
-                        ➕ Add Lead
-                    </a>
-                </div>
+                                            <div class="action-buttons">
+                                <a href="/agent/lead/BRAIN_TEST_RINGBA" class="btn btn-primary">
+                                    View Leads
+                                </a>
+                                <a href="#" class="btn btn-secondary" onclick="alert('Add Lead feature coming soon!')">
+                                    Add Lead
+                                </a>
+                            </div>
             </div>
 
             <!-- SMS Management -->
