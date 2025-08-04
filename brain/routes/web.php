@@ -49,6 +49,35 @@ Route::get('/emergency-migrate', function () {
     }
 });
 
+// Debug environment variables
+Route::get('/debug-env', function () {
+    return response()->json([
+        'environment_variables' => [
+            'DB_CONNECTION' => env('DB_CONNECTION'),
+            'DB_HOST' => env('DB_HOST'),
+            'DB_PORT' => env('DB_PORT'),
+            'DB_DATABASE' => env('DB_DATABASE'),
+            'DB_USERNAME' => env('DB_USERNAME'),
+            'DB_PASSWORD' => env('DB_PASSWORD') ? '***SET***' : null,
+            'DATABASE_URL' => env('DATABASE_URL') ? '***SET***' : null
+        ],
+        'server_env' => [
+            'DB_CONNECTION' => $_ENV['DB_CONNECTION'] ?? null,
+            'DB_HOST' => $_ENV['DB_HOST'] ?? null,
+            'DB_PORT' => $_ENV['DB_PORT'] ?? null,
+            'DB_DATABASE' => $_ENV['DB_DATABASE'] ?? null,
+            'DB_USERNAME' => $_ENV['DB_USERNAME'] ?? null,
+            'DB_PASSWORD' => isset($_ENV['DB_PASSWORD']) ? '***SET***' : null,
+            'DATABASE_URL' => isset($_ENV['DATABASE_URL']) ? '***SET***' : null
+        ],
+        'config' => [
+            'database.default' => config('database.default'),
+            'database.connections.pgsql.host' => config('database.connections.pgsql.host'),
+            'database.connections.pgsql.database' => config('database.connections.pgsql.database')
+        ]
+    ]);
+});
+
 Route::get('/', function () {
     return response()->json([
         'success' => true,
