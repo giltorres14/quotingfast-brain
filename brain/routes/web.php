@@ -554,7 +554,7 @@ Route::post('/webhook.php', function (Request $request) {
             'drivers' => json_encode($data['data']['drivers'] ?? []),
             'vehicles' => json_encode($data['data']['vehicles'] ?? []),
             'current_policy' => json_encode($data['data']['current_policy'] ?? null),
-            'requested_policy' => json_encode($data['requested_policy'] ?? null),
+            'requested_policy' => json_encode($data['data']['requested_policy'] ?? $data['requested_policy'] ?? null),
             'payload' => json_encode($data),
         ];
         

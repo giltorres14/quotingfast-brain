@@ -1231,18 +1231,18 @@
                 </div>
                 
                 <!-- View More Details Section for Drivers -->
-                <div style="margin-top: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px; border-left: 3px solid #6c757d;">
+                <div style="margin-top: 8px; padding: 6px; background: #f8f9fa; border-radius: 3px; border-left: 2px solid #dee2e6;">
                     <details>
-                        <summary style="cursor: pointer; font-weight: bold; color: #495057;">
+                        <summary style="cursor: pointer; font-size: 11px; font-weight: 600; color: #6c757d; padding: 2px 0;">
                             📋 View More Details
                         </summary>
-                        <div style="margin-top: 8px; font-size: 12px; color: #6c757d;">
-                            <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div style="margin-top: 6px; font-size: 10px; color: #6c757d;">
+                            <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 4px;">
                                 @foreach($driver as $key => $value)
                                     @if(!in_array($key, ['first_name', 'last_name', 'birth_date', 'gender', 'marital_status', 'license_state', 'violations', 'accidents', 'license_status', 'years_licensed']))
-                                    <div class="info-item">
-                                        <div class="info-label">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
-                                        <div class="info-value">{{ is_array($value) ? json_encode($value) : ($value ?? 'Not provided') }}</div>
+                                    <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
+                                        <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
+                                        <div style="font-size: 10px; color: #495057; margin-top: 1px;">{{ is_array($value) ? json_encode($value) : ($value ?? 'Not provided') }}</div>
                                     </div>
                                     @endif
                                 @endforeach
@@ -1306,18 +1306,18 @@
                 </div>
                 
                 <!-- View More Details Section for Vehicles -->
-                <div style="margin-top: 12px; padding: 8px; background: #f8f9fa; border-radius: 4px; border-left: 3px solid #6c757d;">
+                <div style="margin-top: 8px; padding: 6px; background: #f8f9fa; border-radius: 3px; border-left: 2px solid #dee2e6;">
                     <details>
-                        <summary style="cursor: pointer; font-weight: bold; color: #495057;">
+                        <summary style="cursor: pointer; font-size: 11px; font-weight: 600; color: #6c757d; padding: 2px 0;">
                             📋 View More Details
                         </summary>
-                        <div style="margin-top: 8px; font-size: 12px; color: #6c757d;">
-                            <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div style="margin-top: 6px; font-size: 10px; color: #6c757d;">
+                            <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 4px;">
                                 @foreach($vehicle as $key => $value)
                                     @if(!in_array($key, ['year', 'make', 'model', 'vin', 'primary_use', 'annual_miles', 'ownership', 'garage']))
-                                    <div class="info-item">
-                                        <div class="info-label">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
-                                        <div class="info-value">{{ is_array($value) ? json_encode($value) : ($value ?? 'Not provided') }}</div>
+                                    <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
+                                        <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
+                                        <div style="font-size: 10px; color: #495057; margin-top: 1px;">{{ is_array($value) ? json_encode($value) : ($value ?? 'Not provided') }}</div>
                                     </div>
                                     @endif
                                 @endforeach
