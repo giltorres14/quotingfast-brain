@@ -627,6 +627,38 @@
                 </div>
             </div>
 
+            <!-- Lead Cost Reporting -->
+            <div class="feature-card">
+                <span class="feature-icon">💰</span>
+                <h3 class="feature-title">Lead Cost Analytics</h3>
+                <p class="feature-description">
+                    Track lead acquisition costs by source, state, and time period. 
+                    Monitor daily spend, ROI metrics, and cost optimization opportunities.
+                </p>
+                <div class="feature-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="cost-today">$0.00</span>
+                        <span class="stat-label">Today's Cost</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="avg-cost-lead">$0.00</span>
+                        <span class="stat-label">Avg/Lead</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="top-cost-source">-</span>
+                        <span class="stat-label">Top Source</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <a href="#" class="btn btn-primary" onclick="showCostReports()">
+                        💰 Cost Reports
+                    </a>
+                    <a href="#" class="btn btn-secondary" onclick="showCostByState()">
+                        📍 By State
+                    </a>
+                </div>
+            </div>
+
             <!-- Campaign Management -->
             <div class="feature-card">
                 <span class="feature-icon">🎯</span>
@@ -740,6 +772,105 @@
         
         // Simulate lead count (replace with real API call when available)
         document.getElementById('total-leads').textContent = 'N/A';
+        
+        // Load cost analytics data
+        async function loadCostAnalytics() {
+            try {
+                const response = await fetch('/api/reports/cost/today');
+                const data = await response.json();
+                
+                // Update cost stats
+                document.getElementById('cost-today').textContent = `$${data.summary.total_cost}`;
+                document.getElementById('avg-cost-lead').textContent = `$${data.summary.average_cost_per_lead}`;
+                
+                // Find top cost source
+                if (data.by_source && data.by_source.length > 0) {
+                    const topSource = data.by_source.reduce((max, source) => 
+                        source.total_cost > max.total_cost ? source : max
+                    );
+                    document.getElementById('top-cost-source').textContent = topSource.source;
+                }
+            } catch (error) {
+                console.error('Failed to load cost analytics:', error);
+            }
+        }
+
+        // Show cost reports modal/popup
+        function showCostReports() {
+            fetch('/api/reports/cost/today')
+                .then(response => response.json())
+                .then(data => {
+                    let reportHtml = `
+                        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 800px; margin: 2rem auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h2>📊 Today's Lead Cost Report</h2>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1rem 0;">
+                                <div style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 6px;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;">$${data.summary.total_cost}</div>
+                                    <div style="color: #718096;">Total Cost Today</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 6px;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;">${data.summary.total_leads}</div>
+                                    <div style="color: #718096;">Total Leads</div>
+                                </div>
+                                <div style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 6px;">
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;">$${data.summary.average_cost_per_lead}</div>
+                                    <div style="color: #718096;">Avg Cost/Lead</div>
+                                </div>
+                            </div>
+                            
+                            <h3>💰 Cost by Source</h3>
+                            <div style="margin: 1rem 0;">
+                                ${data.by_source.map(source => `
+                                    <div style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #e2e8f0;">
+                                        <span>${source.source}</span>
+                                        <span><strong>$${source.total_cost}</strong> (${source.count} leads)</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <h3>📍 Cost by State</h3>
+                            <div style="margin: 1rem 0;">
+                                ${data.by_state.map(state => `
+                                    <div style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid #e2e8f0;">
+                                        <span>${state.state}</span>
+                                        <span><strong>$${state.total_cost}</strong> (${state.count} leads)</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <button onclick="closeCostReport()" style="background: #4299e1; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; margin-top: 1rem;">Close</button>
+                        </div>
+                        <div onclick="closeCostReport()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;"></div>
+                    `;
+                    
+                    const modal = document.createElement('div');
+                    modal.id = 'cost-report-modal';
+                    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1001; overflow-y: auto;';
+                    modal.innerHTML = reportHtml;
+                    document.body.appendChild(modal);
+                })
+                .catch(error => {
+                    alert('Failed to load cost report. Please try again.');
+                    console.error('Cost report error:', error);
+                });
+        }
+
+        function showCostByState() {
+            const state = prompt('Enter state code (e.g., TX, CA, FL):');
+            if (state) {
+                window.open(`/api/reports/cost/state/${state}`, '_blank');
+            }
+        }
+
+        function closeCostReport() {
+            const modal = document.getElementById('cost-report-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // Load cost analytics on page load
+        loadCostAnalytics();
         
         // Add current timestamp
         const now = new Date();
