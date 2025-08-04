@@ -28,6 +28,27 @@ Route::get('/test-deployment', function () {
     ]);
 });
 
+// Health check endpoint for Render
+Route::get('/healthz', function () {
+    try {
+        // Test database connection
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+        
+        return response()->json([
+            'status' => 'healthy',
+            'database' => 'connected',
+            'timestamp' => now()->toISOString()
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'unhealthy',
+            'database' => 'disconnected',
+            'error' => $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 503);
+    }
+});
+
 // Manual migration trigger - EMERGENCY USE ONLY
 Route::get('/emergency-migrate', function () {
     try {
