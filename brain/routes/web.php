@@ -1650,7 +1650,7 @@ Route::get('/test/allstate/connection', function () {
         $results = [];
         
         foreach ($endpoints as $endpoint) {
-            $authHeader = base64_encode($apiKey . ':');
+            $authHeader = 'Basic ' . base64_encode($apiKey . ':');
             $response = \Illuminate\Support\Facades\Http::timeout(30)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
