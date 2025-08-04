@@ -109,6 +109,11 @@
             border-left-color: #9c27b0; 
             color: #6a1b9a; 
         }
+        .section-title.compliance { 
+            background: linear-gradient(135deg, #e8f5e8, #f0f4f8); 
+            border-left-color: #28a745; 
+            color: #155724; 
+        }
         .section-title.qualification { 
             background: linear-gradient(135deg, #ffebee, #fce4ec); 
             border-left-color: #f44336; 
@@ -885,30 +890,78 @@
                 </div>
                 @endif
                 
-                @if(isset($lead->tcpa_compliant))
-                <div class="info-item">
-                    <div class="info-label">TCPA Compliant</div>
-                    <div class="info-value">
-                        @if($lead->tcpa_compliant)
-                            <span style="color: #28a745;">✅ Yes</span>
-                        @else
-                            <span style="color: #dc3545;">❌ No</span>
+                <!-- TCPA Compliance Section -->
+                <div class="section">
+                    <div class="section-title compliance">🛡️ TCPA Compliance & Lead Details</div>
+                    <div class="info-grid">
+                        <!-- TCPA Compliance Status -->
+                        <div class="info-item">
+                            <div class="info-label">TCPA Compliant</div>
+                            <div class="info-value">
+                                @php
+                                    $tcpaCompliant = false;
+                                    if (isset($lead->tcpa_compliant)) {
+                                        $tcpaCompliant = $lead->tcpa_compliant;
+                                    } elseif (isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['tcpa_compliant'])) {
+                                        $tcpaCompliant = $lead->meta['tcpa_compliant'];
+                                    }
+                                    // Handle string values from payload
+                                    if (is_string($tcpaCompliant)) {
+                                        $tcpaCompliant = strtolower($tcpaCompliant) === 'true' || $tcpaCompliant === '1';
+                                    }
+                                @endphp
+                                @if($tcpaCompliant)
+                                    <span style="color: #28a745; font-weight: bold;">✅ YES</span>
+                                @else
+                                    <span style="color: #dc3545; font-weight: bold;">❌ NO</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Originally Created -->
+                        @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['originally_created']))
+                        <div class="info-item">
+                            <div class="info-label">Originally Created</div>
+                            <div class="info-value">{{ \Carbon\Carbon::parse($lead->meta['originally_created'])->format('M j, Y g:i A') }}</div>
+                        </div>
                         @endif
-                </div>
-                </div>
-                @endif
-                
-                @if(isset($lead->landing_page_url) && $lead->landing_page_url)
-                <div class="info-item">
-                    <div class="info-label">Landing Page</div>
-                    <div class="info-value">
-                        <a href="{{ $lead->landing_page_url }}" target="_blank" style="color: #007bff; text-decoration: none;">
-                            {{ $lead->landing_page_url }}
-                        </a>
+
+                        <!-- Landing Page URL -->
+                        @if(isset($lead->landing_page_url) && $lead->landing_page_url)
+                        <div class="info-item">
+                            <div class="info-label">Landing Page</div>
+                            <div class="info-value">
+                                <a href="{{ $lead->landing_page_url }}" target="_blank" style="color: #007bff; text-decoration: none;">
+                                    🔗 View Landing Page
+                                </a>
+                            </div>
+                        </div>
+                        @elseif(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['landing_page_url']))
+                        <div class="info-item">
+                            <div class="info-label">Landing Page</div>
+                            <div class="info-value">
+                                <a href="{{ $lead->meta['landing_page_url'] }}" target="_blank" style="color: #007bff; text-decoration: none;">
+                                    🔗 View Landing Page
+                                </a>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- TrustedForm Certificate -->
+                        @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['trusted_form_cert_url']))
+                        <div class="info-item">
+                            <div class="info-label">TrustedForm Certificate</div>
+                            <div class="info-value">
+                                <a href="{{ $lead->meta['trusted_form_cert_url'] }}" target="_blank" style="color: #28a745; text-decoration: none;">
+                                    📜 View Certificate
+                                </a>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
-                @endif
                 
+                <!-- Campaign & Lead IDs (keeping these separate from TCPA section) -->
                 @if(isset($lead->campaign_id) && $lead->campaign_id)
                 <div class="info-item">
                     <div class="info-label">Campaign ID</div>
@@ -921,26 +974,6 @@
                     <div class="info-label">External Lead ID</div>
                     <div class="info-value">{{ $lead->external_lead_id }}</div>
                 </div>
-                @endif
-                
-                @if(isset($lead->meta) && is_array($lead->meta))
-                    @if(isset($lead->meta['trusted_form_cert_url']) && $lead->meta['trusted_form_cert_url'])
-                    <div class="info-item">
-                        <div class="info-label">TrustedForm Certificate</div>
-                        <div class="info-value">
-                            <a href="{{ $lead->meta['trusted_form_cert_url'] }}" target="_blank" style="color: #007bff; text-decoration: none;">
-                                View Certificate
-                            </a>
-                        </div>
-                    </div>
-                    @endif
-                    
-                    @if(isset($lead->meta['originally_created']) && $lead->meta['originally_created'])
-                    <div class="info-item">
-                        <div class="info-label">Originally Created</div>
-                        <div class="info-value">{{ \Carbon\Carbon::parse($lead->meta['originally_created'])->format('M j, Y g:i A') }}</div>
-                    </div>
-                    @endif
                 @endif
             </div>
         </div>
@@ -1093,7 +1126,9 @@
                                             @if(isset($driver['violations']) && is_array($driver['violations']) && count($driver['violations']) > 0)
                 <span style="color: #dc3545; font-weight: bold;">{{ count($driver['violations']) }} violation(s)</span>
                                 <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('violations-{{ $index }}')">View Details</button>
-                                <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
+                                @if(!isset($mode) || $mode !== 'view')
+                                    <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
+                                @endif
                                 <div id="violations-{{ $index }}" class="violation-details" style="display: none; margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; font-size: 11px;">
                                     @foreach($driver['violations'] as $violationIndex => $violation)
                                         <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #ffeaa7;">
@@ -1114,10 +1149,14 @@
                                 </div>
                             @elseif(isset($driver['violations']))
                                 <span style="color: #28a745;">Clean record</span>
-                                <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
+                                @if(!isset($mode) || $mode !== 'view')
+                                    <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
+                                @endif
                             @else
                                 Not provided
-                                <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
+                                @if(!isset($mode) || $mode !== 'view')
+                                    <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -1127,7 +1166,9 @@
                                                             @if(isset($driver['accidents']) && is_array($driver['accidents']) && count($driver['accidents']) > 0)
                 <span style="color: #dc3545; font-weight: bold;">{{ count($driver['accidents']) }} accident(s)</span>
                                 <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('accidents-{{ $index }}')">View Details</button>
-                                <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
+                                @if(!isset($mode) || $mode !== 'view')
+                                    <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
+                                @endif
                                 <div id="accidents-{{ $index }}" class="accident-details" style="display: none; margin-top: 8px; padding: 8px; background: #f8d7da; border-radius: 4px; font-size: 11px;">
                                     @foreach($driver['accidents'] as $accidentIndex => $accident)
                                         <div style="margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid #f5c6cb;">
@@ -1148,10 +1189,14 @@
                                 </div>
                             @elseif(isset($driver['accidents']))
                                 <span style="color: #28a745;">No accidents</span>
-                                <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
+                                @if(!isset($mode) || $mode !== 'view')
+                                    <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
+                                @endif
                             @else
                                 Not provided
-                                <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
+                                @if(!isset($mode) || $mode !== 'view')
+                                    <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
+                                @endif
                 @endif
                         </div>
                     </div>
@@ -1289,6 +1334,42 @@
                 </div>
             </div>
         </div>
+
+        <!-- Requested Policy Section -->
+        @if(isset($lead->requested_policy) && is_array($lead->requested_policy) && !empty(array_filter($lead->requested_policy)))
+        <div class="section">
+            <div class="section-title insurance">📋 Requested Policy</div>
+            <div class="info-grid">
+                @if(isset($lead->requested_policy['coverage_type']) && $lead->requested_policy['coverage_type'])
+                <div class="info-item">
+                    <div class="info-label">Requested Coverage</div>
+                    <div class="info-value">{{ $lead->requested_policy['coverage_type'] }}</div>
+                </div>
+                @endif
+                
+                @if(isset($lead->requested_policy['deductible']) && $lead->requested_policy['deductible'])
+                <div class="info-item">
+                    <div class="info-label">Preferred Deductible</div>
+                    <div class="info-value">${{ number_format($lead->requested_policy['deductible']) }}</div>
+                </div>
+                @endif
+                
+                @if(isset($lead->requested_policy['monthly_budget']) && $lead->requested_policy['monthly_budget'])
+                <div class="info-item">
+                    <div class="info-label">Monthly Budget</div>
+                    <div class="info-value">${{ number_format($lead->requested_policy['monthly_budget']) }}</div>
+                </div>
+                @endif
+                
+                @if(isset($lead->requested_policy['preferred_start_date']) && $lead->requested_policy['preferred_start_date'])
+                <div class="info-item">
+                    <div class="info-label">Preferred Start Date</div>
+                    <div class="info-value">{{ \Carbon\Carbon::parse($lead->requested_policy['preferred_start_date'])->format('M j, Y') }}</div>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
 
     </div>
 
@@ -1665,11 +1746,11 @@
                     if (result.changed_fields && result.changed_fields.length > 0) {
                         message += '\n\nUpdated fields: ' + result.changed_fields.join(', ');
                         
-                        if (result.vici_sync === 'success') {
-                            message += '\n✅ Successfully synced with Vici dialer';
-                        } else if (result.vici_sync === 'skipped_or_failed') {
-                            message += '\n⚠️ Vici sync skipped or failed (check logs)';
-                        }
+                                        if (result.vici_sync === 'success') {
+                    message += '\n✅ Successfully synced with Vici dialer';
+                } else if (result.vici_sync === 'skipped_or_failed') {
+                    message += '\n⚠️ Vici sync failed - lead not found in Vici system';
+                }
                     }
                     
                     alert(message);
@@ -2707,7 +2788,7 @@
                     if (result.vici_sync === 'success') {
                         buttonText = '✅ Saved & Synced!';
                     } else if (result.vici_sync === 'skipped_or_failed') {
-                        buttonText = '✅ Saved (Sync Issue)';
+                        buttonText = '✅ Saved (Vici Sync Failed)';
                     }
                     
                     saveBtn.innerHTML = buttonText;

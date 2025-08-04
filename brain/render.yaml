@@ -18,3 +18,5 @@ services:
         value: sqlite
       - key: DB_DATABASE
         value: /var/www/html/database/database.sqlite
+      - key: VICI_SYNC_ENABLED
+        value: false

@@ -2000,8 +2000,13 @@ Route::put('/agent/lead/{leadId}/contact-with-vici-sync', function (Request $req
         $viciSyncResult = null;
         if (!empty($changedFields)) {
             try {
-                // Attempt to sync with Vici
-                $viciSyncResult = updateViciLead($leadId, $updatedData, $changedFields);
+                        // Attempt to sync with Vici (disabled during testing)
+        if (env('VICI_SYNC_ENABLED', true)) {
+            $viciSyncResult = updateViciLead($leadId, $updatedData, $changedFields);
+        } else {
+            Log::info('Vici sync disabled for testing', ['lead_id' => $leadId]);
+            $viciSyncResult = false; // Simulate disabled sync
+        }
                 Log::info('Vici lead sync attempted', [
                     'lead_id' => $leadId,
                     'changed_fields' => array_keys($changedFields),
@@ -2364,10 +2369,15 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
                 }
             }
             
-            // Attempt Vici sync if fields changed
-            if (!empty($changedFields)) {
-                try {
+                    // Attempt Vici sync if fields changed (disabled during testing)
+        if (!empty($changedFields)) {
+            try {
+                if (env('VICI_SYNC_ENABLED', true)) {
                     $viciSyncResult = updateViciLead($leadId, $updatedData, $changedFields);
+                } else {
+                    Log::info('Vici sync disabled for testing in save-all', ['lead_id' => $leadId]);
+                    $viciSyncResult = false; // Simulate disabled sync
+                }
                     Log::info('Vici sync in save-all', [
                         'lead_id' => $leadId,
                         'changed_fields' => array_keys($changedFields),
