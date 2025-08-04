@@ -243,6 +243,9 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "🧹 Clearing Laravel configuration cache..."' >> /usr/local/bin/startup.sh && \
     echo 'php artisan config:clear' >> /usr/local/bin/startup.sh && \
     echo 'php artisan cache:clear' >> /usr/local/bin/startup.sh && \
+    echo 'echo "🔧 FORCING config/database.php to use PostgreSQL..."' >> /usr/local/bin/startup.sh && \
+    echo 'sed -i "s/'"'"'default'"'"' => env('"'"'DB_CONNECTION'"'"'.*/'"'"'default'"'"' => '"'"'pgsql'"'"',/" config/database.php' >> /usr/local/bin/startup.sh && \
+    echo 'echo "✅ Database config forced to PostgreSQL"' >> /usr/local/bin/startup.sh && \
     echo 'echo "🐘 POSTGRESQL FORCED - Running migrations..."' >> /usr/local/bin/startup.sh && \
     echo 'php artisan migrate --force --no-interaction' >> /usr/local/bin/startup.sh && \
     echo 'echo "✅ PostgreSQL database ready!"' >> /usr/local/bin/startup.sh && \
