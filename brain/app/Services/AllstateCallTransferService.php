@@ -15,7 +15,7 @@ class AllstateCallTransferService
     public function __construct()
     {
         // Allstate Lead Marketplace API key
-        $this->apiKey = 'b91446ade9d37650f93e305cbaf8c2c9f';
+        $this->apiKey = env('ALLSTATE_API_KEY', 'b91446ade9d37650f93e305cbaf8c2c9b91446ade9d37650f93e305cbaf8c2c9');
         // Use testing environment first, then switch to production
         $this->baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
             ? 'https://api.allstateleadmarketplace.com/v2'
@@ -56,7 +56,7 @@ class AllstateCallTransferService
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json'
                 ])
-                ->post($this->baseUrl . '/ping', $transferData); // Start with ping to test connection
+                ->post($this->baseUrl . '/leads', $transferData); // Submit lead to Allstate Lead Marketplace
             
             if ($response->successful()) {
                 $responseData = $response->json();

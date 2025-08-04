@@ -26,5 +26,11 @@ services:
         value: brain_user
       - key: DB_PASSWORD
         value: KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ
+      - key: ALLSTATE_API_KEY
+        value: b91446ade9d37650f93e305cbaf8c2c9b91446ade9d37650f93e305cbaf8c2c9
+      - key: ALLSTATE_API_ENV
+        value: testing
+      - key: ALLSTATE_TEST_MODE
+        value: true
 
 

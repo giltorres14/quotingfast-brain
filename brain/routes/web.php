@@ -1632,6 +1632,65 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
     }
 });
 
+// Test Allstate API connection
+Route::get('/test/allstate/connection', function () {
+    try {
+        $apiKey = env('ALLSTATE_API_KEY', 'b91446ade9d37650f93e305cbaf8c2c9b91446ade9d37650f93e305cbaf8c2c9');
+        $baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
+            ? 'https://api.allstateleadmarketplace.com/v2'
+            : 'https://int.allstateleadmarketplace.com/v2';
+
+        Log::info('Testing Allstate API connection', [
+            'api_key' => substr($apiKey, 0, 10) . '...',
+            'base_url' => $baseUrl
+        ]);
+
+        // Test API connection with ping endpoint
+        $response = \Illuminate\Support\Facades\Http::timeout(30)
+            ->withBasicAuth($apiKey, '')
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
+            ])
+            ->get($baseUrl . '/ping');
+
+        if ($response->successful()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Allstate API connection successful',
+                'api_key' => substr($apiKey, 0, 10) . '...',
+                'environment' => env('ALLSTATE_API_ENV', 'testing'),
+                'base_url' => $baseUrl,
+                'response' => $response->json(),
+                'timestamp' => now()->toISOString()
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Allstate API connection failed',
+                'status' => $response->status(),
+                'error' => $response->body(),
+                'api_key' => substr($apiKey, 0, 10) . '...',
+                'base_url' => $baseUrl,
+                'timestamp' => now()->toISOString()
+            ], 500);
+        }
+
+    } catch (Exception $e) {
+        Log::error('Allstate API connection test failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Allstate API connection test failed',
+            'error' => $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
+});
+
 // Test Allstate transfer endpoint
 Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
     try {
