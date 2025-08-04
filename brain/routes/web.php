@@ -537,7 +537,7 @@ Route::post('/webhook.php', function (Request $request) {
             
             // NEW: Capture additional fields for reporting and compliance
             'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null, // Lead cost for reporting
-            'tcpa_compliant' => $data['tcpa_compliant'] ?? false,
+            'tcpa_compliant' => $data['tcpa_compliant'] ?? $data['meta']['tcpa_compliant'] ?? false,
             'landing_page_url' => $data['landing_page_url'] ?? null,
             'user_agent' => $data['user_agent'] ?? null,
             'ip_address' => $data['ip_address'] ?? null,
