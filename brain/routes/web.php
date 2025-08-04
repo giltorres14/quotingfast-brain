@@ -233,6 +233,39 @@ Route::post('/test-lead-data', function (Request $request) {
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
+// Debug endpoint to analyze incoming webhook data
+Route::post('/webhook/debug', function (Request $request) {
+    $data = $request->all();
+    $headers = $request->headers->all();
+    
+    return response()->json([
+        'received_data' => $data,
+        'headers' => $headers,
+        'parsed_contact' => isset($data['contact']) ? $data['contact'] : $data,
+        'extracted_fields' => [
+            'name' => trim(($data['contact']['first_name'] ?? $data['first_name'] ?? '') . ' ' . ($data['contact']['last_name'] ?? $data['last_name'] ?? '')) ?: 'Unknown',
+            'first_name' => $data['contact']['first_name'] ?? $data['first_name'] ?? null,
+            'last_name' => $data['contact']['last_name'] ?? $data['last_name'] ?? null,
+            'phone' => $data['contact']['phone'] ?? $data['phone'] ?? 'Unknown',
+            'email' => $data['contact']['email'] ?? $data['email'] ?? null,
+            'address' => $data['contact']['address'] ?? $data['address'] ?? null,
+            'city' => $data['contact']['city'] ?? $data['city'] ?? null,
+            'state' => $data['contact']['state'] ?? $data['state'] ?? 'Unknown',
+            'zip_code' => $data['contact']['zip_code'] ?? $data['zip_code'] ?? null,
+            'drivers' => $data['data']['drivers'] ?? $data['drivers'] ?? [],
+            'vehicles' => $data['data']['vehicles'] ?? $data['vehicles'] ?? [],
+            'current_policy' => $data['data']['requested_policy'] ?? $data['requested_policy'] ?? $data['current_policy'] ?? null,
+        ],
+        'missing_fields_analysis' => [
+            'available_in_lead_model' => [
+                'campaign_id', 'external_lead_id', 'sell_price', 'ip_address', 
+                'user_agent', 'landing_page_url', 'tcpa_compliant', 'meta'
+            ],
+            'potentially_missing_from_payload' => []
+        ]
+    ], 200, [], JSON_PRETTY_PRINT);
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
 // LeadsQuotingFast webhook endpoint (bypasses CSRF for external API calls)
 Route::post('/webhook.php', function (Request $request) {
     try {
