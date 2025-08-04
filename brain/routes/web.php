@@ -1652,7 +1652,7 @@ Route::get('/test/allstate/connection', function () {
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json'
             ])
-            ->get($baseUrl . '/ping');
+            ->post($baseUrl . '/ping', []);
 
         if ($response->successful()) {
             return response()->json([
