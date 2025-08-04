@@ -1080,7 +1080,7 @@
         <!-- Call Metrics removed from agent view - admin only data -->
 
         <!-- Drivers -->
-        @if($lead->drivers && count($lead->drivers) > 0)
+        @if($lead->drivers && is_array($lead->drivers) && count($lead->drivers) > 0)
         <div class="section">
             <div class="section-title drivers">👤 Drivers ({{ count($lead->drivers) }}) 
                 @if(!isset($mode) || $mode !== 'view')
@@ -1130,8 +1130,8 @@
                     <div class="info-item">
                         <div class="info-label">Violations</div>
                         <div class="info-value">
-                            @if(isset($driver['violations']) && count($driver['violations']) > 0)
-                                <span style="color: #dc3545; font-weight: bold;">{{ count($driver['violations']) }} violation(s)</span>
+                                            @if(isset($driver['violations']) && is_array($driver['violations']) && count($driver['violations']) > 0)
+                <span style="color: #dc3545; font-weight: bold;">{{ count($driver['violations']) }} violation(s)</span>
                                 <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('violations-{{ $index }}')">View Details</button>
                                 <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
                                 <div id="violations-{{ $index }}" class="violation-details" style="display: none; margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; font-size: 11px;">

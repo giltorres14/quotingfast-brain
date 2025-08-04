@@ -1266,6 +1266,20 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                         if (isset($cachedData['joined_at']) && is_string($cachedData['joined_at'])) {
                             $cachedData['joined_at'] = \Carbon\Carbon::parse($cachedData['joined_at']);
                         }
+                        // Ensure JSON fields are properly decoded for view compatibility
+                        if (isset($cachedData['drivers']) && is_string($cachedData['drivers'])) {
+                            $cachedData['drivers'] = json_decode($cachedData['drivers'], true) ?: [];
+                        }
+                        if (isset($cachedData['vehicles']) && is_string($cachedData['vehicles'])) {
+                            $cachedData['vehicles'] = json_decode($cachedData['vehicles'], true) ?: [];
+                        }
+                        if (isset($cachedData['current_policy']) && is_string($cachedData['current_policy'])) {
+                            $cachedData['current_policy'] = json_decode($cachedData['current_policy'], true) ?: [];
+                        }
+                        if (isset($cachedData['meta']) && is_string($cachedData['meta'])) {
+                            $cachedData['meta'] = json_decode($cachedData['meta'], true) ?: [];
+                        }
+                        
                         $lead = (object) array_merge($cachedData, ['id' => $leadId]);
                         Log::info('Lead found in cache', ['lead_id' => $leadId]);
                     }
@@ -1282,6 +1296,20 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                             if (isset($cachedData['joined_at']) && is_string($cachedData['joined_at'])) {
                                 $cachedData['joined_at'] = \Carbon\Carbon::parse($cachedData['joined_at']);
                             }
+                            // Ensure JSON fields are properly decoded for view compatibility
+                            if (isset($cachedData['drivers']) && is_string($cachedData['drivers'])) {
+                                $cachedData['drivers'] = json_decode($cachedData['drivers'], true) ?: [];
+                            }
+                            if (isset($cachedData['vehicles']) && is_string($cachedData['vehicles'])) {
+                                $cachedData['vehicles'] = json_decode($cachedData['vehicles'], true) ?: [];
+                            }
+                            if (isset($cachedData['current_policy']) && is_string($cachedData['current_policy'])) {
+                                $cachedData['current_policy'] = json_decode($cachedData['current_policy'], true) ?: [];
+                            }
+                            if (isset($cachedData['meta']) && is_string($cachedData['meta'])) {
+                                $cachedData['meta'] = json_decode($cachedData['meta'], true) ?: [];
+                            }
+                            
                             $lead = (object) array_merge($cachedData, ['id' => $leadId]);
                             Log::info('Lead found in file cache', ['lead_id' => $leadId]);
                         }
