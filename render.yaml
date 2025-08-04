@@ -28,9 +28,3 @@ services:
         value: KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ
 
 
-databases:
-  - name: brain-postgres
-    databaseName: brain_production
-    user: brain_user
-    plan: free
-    region: ohio
