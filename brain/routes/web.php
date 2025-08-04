@@ -554,8 +554,8 @@ Route::post('/webhook.php', function (Request $request) {
             'payload' => json_encode($data),
         ];
         
-        // Generate unique lead ID for this session
-        $leadId = 'LQF_' . date('Ymd_His') . '_' . substr(md5($leadData['phone']), 0, 6);
+        // Generate unique lead ID - 9 digits starting with 100000001
+        $leadId = generateLeadId();
         
         // Try to store in database, but continue if it fails
         $lead = null;
@@ -1716,6 +1716,31 @@ Route::post('/api/leads', function (Request $request) {
 Route::get('/login', function() {
     return response()->json(['message' => 'Please implement authentication UI']);
 })->name('login');
+
+// Generate unique 9-digit lead ID starting with 100000001
+function generateLeadId() {
+    try {
+        // Get the highest existing lead ID from database
+        $lastLead = Lead::where('id', 'REGEXP', '^[0-9]{9}$')
+                       ->orderBy('id', 'desc')
+                       ->first();
+        
+        if ($lastLead && is_numeric($lastLead->id)) {
+            $nextId = intval($lastLead->id) + 1;
+        } else {
+            $nextId = 100000001; // Starting number
+        }
+        
+        // Ensure it's always 9 digits
+        return str_pad($nextId, 9, '0', STR_PAD_LEFT);
+        
+    } catch (Exception $e) {
+        // Fallback: use timestamp-based ID if database fails
+        $timestamp = time();
+        $fallbackId = 100000000 + ($timestamp % 999999);
+        return str_pad($fallbackId, 9, '0', STR_PAD_LEFT);
+    }
+}
 
 // Vici integration function (shared between webhooks)
 function sendToViciList101($leadData, $leadId) {
