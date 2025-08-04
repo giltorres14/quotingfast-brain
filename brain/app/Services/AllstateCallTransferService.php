@@ -52,6 +52,9 @@ class AllstateCallTransferService
             // Make API call to Allstate using correct Basic Auth format from Allstate rep
             $authHeader = 'Basic ' . $this->apiKey;
             
+            // Add required vertical parameter to transfer data
+            $transferData['vertical'] = 'auto'; // Auto insurance vertical
+            
             $response = Http::timeout(30)
                 ->withHeaders([
                     'Content-Type' => 'application/json',

@@ -1653,14 +1653,16 @@ Route::get('/test/allstate/connection', function () {
             'base_url' => $baseUrl
         ]);
 
-        // Test /ping endpoint with correct Basic Auth format from Allstate rep
+        // Test /ping endpoint with correct Basic Auth format and vertical parameter
         $response = \Illuminate\Support\Facades\Http::timeout(30)
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
                 'Authorization' => 'Basic ' . $apiKey
             ])
-            ->post($baseUrl . '/ping', []);
+            ->post($baseUrl . '/ping', [
+                'vertical' => 'auto'  // Required vertical parameter for auto insurance
+            ]);
             
         $results = [
             'ping' => [
