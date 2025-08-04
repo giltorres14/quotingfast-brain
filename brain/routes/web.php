@@ -1645,14 +1645,27 @@ Route::get('/test/allstate/connection', function () {
             'base_url' => $baseUrl
         ]);
 
-        // Test API connection with ping endpoint
+        // Test API connection with ping endpoint - try Bearer token first
         $response = \Illuminate\Support\Facades\Http::timeout(30)
-            ->withBasicAuth($apiKey, '')
+            ->withToken($apiKey) // Try Bearer token authentication
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json'
             ])
             ->post($baseUrl . '/ping', []);
+
+        // If Bearer fails, try Basic Auth as fallback
+        if (!$response->successful() && $response->status() === 403) {
+            Log::info('Bearer token failed, trying Basic Auth', ['status' => $response->status()]);
+            
+            $response = \Illuminate\Support\Facades\Http::timeout(30)
+                ->withBasicAuth($apiKey, '')
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json'
+                ])
+                ->post($baseUrl . '/ping', []);
+        }
 
         if ($response->successful()) {
             return response()->json([
@@ -1661,6 +1674,7 @@ Route::get('/test/allstate/connection', function () {
                 'api_key' => substr($apiKey, 0, 10) . '...',
                 'environment' => env('ALLSTATE_API_ENV', 'testing'),
                 'base_url' => $baseUrl,
+                'auth_method' => $response->status() === 200 ? 'Bearer Token' : 'Basic Auth',
                 'response' => $response->json(),
                 'timestamp' => now()->toISOString()
             ]);
@@ -1671,7 +1685,13 @@ Route::get('/test/allstate/connection', function () {
                 'status' => $response->status(),
                 'error' => $response->body(),
                 'api_key' => substr($apiKey, 0, 10) . '...',
+                'api_key_length' => strlen($apiKey),
                 'base_url' => $baseUrl,
+                'headers_sent' => [
+                    'Content-Type' => 'application/json',
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer/Basic (hidden)'
+                ],
                 'timestamp' => now()->toISOString()
             ], 500);
         }
