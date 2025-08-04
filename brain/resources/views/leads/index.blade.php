@@ -673,10 +673,10 @@
 
                     
                     <div class="lead-actions">
-                        <a href="/agent/lead/{{ $lead->id }}" class="btn btn-sm btn-view">
+                        <a href="/agent/lead/{{ $lead->id }}?mode=view" class="btn btn-sm btn-view">
                             👁️ View
                         </a>
-                        <a href="/agent/lead/{{ $lead->id }}" class="btn btn-sm btn-edit">
+                        <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-sm btn-edit">
                             ✏️ Edit
                         </a>
                         <a href="#" class="btn btn-sm btn-sms" onclick="alert('SMS feature coming soon for {{ $lead->first_name ?? $lead->name }}!')">

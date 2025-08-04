@@ -32,6 +32,28 @@
             border-radius: 8px;
             margin-bottom: 16px;
             text-align: center;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+            text-decoration: none;
         }
         
         .header h1 {
@@ -685,7 +707,9 @@
 </head>
 <body>
     <!-- Save Lead Button -->
-    <button class="save-lead-btn" onclick="saveAllLeadData()">💾 Save Lead</button>
+    @if(!isset($mode) || $mode !== 'view')
+        <button class="save-lead-btn" onclick="saveAllLeadData()">💾 Save Lead</button>
+    @endif
     
     <!-- Validation Progress Indicator -->
     <div id="validation-progress" class="validation-progress" style="display: none;">
@@ -707,13 +731,23 @@
     <div class="container">
         <!-- Header - Agent View (No Admin Data) -->
         <div class="header">
-            <h1>{{ $lead->name }}</h1>
+            @if(isset($mode) && in_array($mode, ['view', 'edit']))
+                <a href="/leads" class="back-button">← Back to Leads</a>
+            @endif
+            <h1>{{ $lead->name }} 
+                @if(isset($mode) && $mode === 'view')
+                    <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
+                @elseif(isset($mode) && $mode === 'edit')
+                    <span style="font-size: 14px; opacity: 0.8;">(Edit Mode)</span>
+                @endif
+            </h1>
             <div class="meta">
                 Lead ID: {{ $lead->id }}
             </div>
         </div>
 
         <!-- Ringba Qualification Form -->
+        @if(!isset($mode) || $mode === 'agent')
         <div class="qualification-form">
             <div class="qualification-header section-title qualification">
                 🎯 Lead Qualification & Ringba Enrichment (Enhanced)
@@ -927,10 +961,15 @@
                 </button>
             </div>
         </div>
+        @endif
 
         <!-- Contact Information -->
         <div class="section">
-            <div class="section-title contact">📞 Contact Information <button class="edit-btn" onclick="toggleEdit('contact')">Edit</button></div>
+            <div class="section-title contact">📞 Contact Information 
+                @if(!isset($mode) || $mode !== 'view')
+                    <button class="edit-btn" onclick="toggleEdit('contact')">Edit</button>
+                @endif
+            </div>
             <div class="info-grid" id="contact-display">
                 <div class="info-item">
                     <div class="info-label">Phone</div>
@@ -1043,7 +1082,11 @@
         <!-- Drivers -->
         @if($lead->drivers && count($lead->drivers) > 0)
         <div class="section">
-            <div class="section-title drivers">👤 Drivers ({{ count($lead->drivers) }}) <button class="add-btn" onclick="addDriver()">Add Driver</button></div>
+            <div class="section-title drivers">👤 Drivers ({{ count($lead->drivers) }}) 
+                @if(!isset($mode) || $mode !== 'view')
+                    <button class="add-btn" onclick="addDriver()">Add Driver</button>
+                @endif
+            </div>
             @foreach($lead->drivers as $index => $driver)
             <div class="driver-card">
                 <h4>Driver {{ $index + 1 }}: {{ ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '') }}</h4>
@@ -1167,7 +1210,11 @@
         @else
         <!-- No Drivers Section -->
         <div class="section">
-            <div class="section-title drivers">👤 Drivers (0) <button class="add-btn" onclick="addDriver()">Add Driver</button></div>
+            <div class="section-title drivers">👤 Drivers (0) 
+                @if(!isset($mode) || $mode !== 'view')
+                    <button class="add-btn" onclick="addDriver()">Add Driver</button>
+                @endif
+            </div>
             <p style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">No drivers added yet. Click "Add Driver" to add driver information.</p>
         </div>
         @endif
@@ -1175,7 +1222,11 @@
         <!-- Vehicles -->
         @if($lead->vehicles && count($lead->vehicles) > 0)
         <div class="section">
-            <div class="section-title vehicles">🚗 Vehicles ({{ count($lead->vehicles) }}) <button class="add-btn" onclick="addVehicle()">Add Vehicle</button></div>
+            <div class="section-title vehicles">🚗 Vehicles ({{ count($lead->vehicles) }}) 
+                @if(!isset($mode) || $mode !== 'view')
+                    <button class="add-btn" onclick="addVehicle()">Add Vehicle</button>
+                @endif
+            </div>
             @foreach($lead->vehicles as $index => $vehicle)
             <div class="vehicle-card">
                 <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
@@ -1208,14 +1259,22 @@
         @else
         <!-- No Vehicles Section -->
         <div class="section">
-            <div class="section-title vehicles">🚗 Vehicles (0) <button class="add-btn" onclick="addVehicle()">Add Vehicle</button></div>
+            <div class="section-title vehicles">🚗 Vehicles (0) 
+                @if(!isset($mode) || $mode !== 'view')
+                    <button class="add-btn" onclick="addVehicle()">Add Vehicle</button>
+                @endif
+            </div>
             <p style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">No vehicles added yet. Click "Add Vehicle" to add vehicle information.</p>
         </div>
         @endif
 
         <!-- Current Policy - Always Show -->
         <div class="section">
-            <div class="section-title insurance">🛡️ Current Insurance <button class="edit-btn" onclick="toggleEdit('insurance')">Edit</button></div>
+            <div class="section-title insurance">🛡️ Current Insurance 
+                @if(!isset($mode) || $mode !== 'view')
+                    <button class="edit-btn" onclick="toggleEdit('insurance')">Edit</button>
+                @endif
+            </div>
             <div class="info-grid" id="insurance-display">
                 <div class="info-item">
                     <div class="info-label">Insurance Company</div>

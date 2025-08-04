@@ -892,8 +892,48 @@ Route::get('/leads', function (Request $request) {
             ]
         ]);
         
+        // Apply filters to test data
+        $filteredLeads = $testLeads;
+        
+        if ($search) {
+            $filteredLeads = $filteredLeads->filter(function($lead) use ($search) {
+                return stripos($lead->first_name, $search) !== false ||
+                       stripos($lead->last_name, $search) !== false ||
+                       stripos($lead->phone, $search) !== false ||
+                       stripos($lead->email, $search) !== false;
+            });
+        }
+        
+        if ($status && $status !== 'all') {
+            $filteredLeads = $filteredLeads->filter(function($lead) use ($status) {
+                return strtolower($lead->status) === strtolower($status);
+            });
+        }
+        
+        if ($source && $source !== 'all') {
+            $filteredLeads = $filteredLeads->filter(function($lead) use ($source) {
+                return strtolower($lead->source) === strtolower($source);
+            });
+        }
+        
+        if ($state_filter && $state_filter !== 'all') {
+            $filteredLeads = $filteredLeads->filter(function($lead) use ($state_filter) {
+                return $lead->state === $state_filter;
+            });
+        }
+        
+        if ($vici_status && $vici_status !== 'all') {
+            $filteredLeads = $filteredLeads->filter(function($lead) use ($vici_status) {
+                if ($vici_status === 'sent') {
+                    return $lead->sent_to_vici === true;
+                } else {
+                    return $lead->sent_to_vici === false;
+                }
+            });
+        }
+        
         return view('leads.index', [
-            'leads' => $testLeads,
+            'leads' => $filteredLeads,
             'statuses' => collect(['New', 'Contacted', 'Qualified', 'Converted']),
             'sources' => collect(['Manual', 'Web', 'Campaign']),
             'states' => collect(['NV', 'MD', 'AZ', 'FL']),
@@ -909,6 +949,7 @@ Route::get('/leads', function (Request $request) {
 
 // Agent iframe endpoint - displays full lead data with transfer button
 Route::get('/agent/lead/{leadId}', function ($leadId) {
+    $mode = request()->get('mode', 'agent'); // 'agent', 'view', or 'edit'
     try {
         // For test lead IDs, use mock data directly (no database query)
         if (str_starts_with($leadId, 'BRAIN_TEST') || str_starts_with($leadId, 'TEST_')) {
@@ -1068,7 +1109,8 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             'callMetrics' => $callMetrics,
             'transferUrl' => url("/api/transfer/{$leadId}"),
             'apiBase' => url('/api'),
-            'mockData' => !($lead instanceof App\Models\Lead) // Flag to show this is mock data
+            'mockData' => !($lead instanceof App\Models\Lead), // Flag to show this is mock data
+            'mode' => $mode // 'agent', 'view', or 'edit'
         ]);
 
     } catch (Exception $e) {
