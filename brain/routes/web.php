@@ -817,6 +817,57 @@ Route::get('/leads', function (Request $request) {
                 'vici_call_metrics' => null,
                 'latest_conversion' => null,
                 'sell_price' => 0.10
+            ],
+            (object)[
+                'id' => 'TEST_LEAD_2',
+                'first_name' => 'Cornelious',
+                'last_name' => 'Zulauf',
+                'phone' => '7668383228',
+                'email' => 'asa.prohaska@berge.com',
+                'city' => 'Riverdale',
+                'state' => 'MD',
+                'source' => 'Campaign',
+                'status' => 'Contacted',
+                'created_at' => now()->subHours(4),
+                'vehicles' => [['year' => 2002, 'make' => 'MAZDA', 'model' => 'B3000 CAB PLUS']],
+                'current_policy' => ['company' => 'Unknown'],
+                'vici_call_metrics' => null,
+                'latest_conversion' => null,
+                'sell_price' => 0.15
+            ],
+            (object)[
+                'id' => 'TEST_LEAD_3',
+                'first_name' => 'Sarah',
+                'last_name' => 'Johnson',
+                'phone' => '5551234567',
+                'email' => 'sarah.j@email.com',
+                'city' => 'Phoenix',
+                'state' => 'AZ',
+                'source' => 'Web',
+                'status' => 'Qualified',
+                'created_at' => now()->subHours(6),
+                'vehicles' => [['year' => 2020, 'make' => 'Honda', 'model' => 'Civic']],
+                'current_policy' => ['company' => 'State Farm'],
+                'vici_call_metrics' => null,
+                'latest_conversion' => null,
+                'sell_price' => 0.25
+            ],
+            (object)[
+                'id' => 'TEST_LEAD_4',
+                'first_name' => 'Michael',
+                'last_name' => 'Davis',
+                'phone' => '5559876543',
+                'email' => 'mdavis@test.com',
+                'city' => 'Miami',
+                'state' => 'FL',
+                'source' => 'Manual',
+                'status' => 'Converted',
+                'created_at' => now()->subDays(1),
+                'vehicles' => [['year' => 2021, 'make' => 'Toyota', 'model' => 'Camry']],
+                'current_policy' => ['company' => 'Geico'],
+                'vici_call_metrics' => null,
+                'latest_conversion' => null,
+                'sell_price' => 0.50
             ]
         ]);
         
