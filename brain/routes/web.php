@@ -2171,6 +2171,65 @@ Route::post('/agent/lead/{leadId}/driver', function (Request $request, $leadId) 
     }
 });
 
+// Route to update specific driver
+Route::put('/agent/lead/{leadId}/driver/{driverIndex}', function (Request $request, $leadId, $driverIndex) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        $drivers = $lead->drivers ?? [];
+        
+        if (!isset($drivers[$driverIndex])) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Driver not found'
+            ], 404);
+        }
+        
+        // Validate required fields
+        if (!$request->first_name || !$request->last_name) {
+            return response()->json([
+                'success' => false,
+                'error' => 'First name and last name are required'
+            ], 400);
+        }
+        
+        // Update the existing driver
+        $drivers[$driverIndex] = array_merge($drivers[$driverIndex], [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'birth_date' => $request->birth_date,
+            'gender' => $request->gender,
+            'marital_status' => $request->marital_status,
+            'license_state' => $request->license_state,
+            'license_status' => $request->license_status,
+            'years_licensed' => $request->years_licensed,
+            // Preserve existing violations and accidents
+            'violations' => $drivers[$driverIndex]['violations'] ?? [],
+            'accidents' => $drivers[$driverIndex]['accidents'] ?? []
+        ]);
+        
+        $lead->update(['drivers' => $drivers]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Driver updated successfully',
+            'drivers' => $drivers
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Error updating driver', [
+            'lead_id' => $leadId,
+            'driver_index' => $driverIndex,
+            'error' => $e->getMessage(),
+            'data' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to update driver: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
 // Route to add violation to driver
 Route::post('/agent/lead/{leadId}/driver/{driverIndex}/violation', function (Request $request, $leadId, $driverIndex) {
     try {
@@ -2440,6 +2499,17 @@ Route::post('/agent/lead/{leadId}/validate-allstate', function (Request $request
         // Update qualification data if provided
         if (!empty($qualificationData)) {
             $tempLead->qualification_data = array_merge($lead->qualification_data ?? [], $qualificationData);
+            
+            // Map qualification answers to expected fields for validation
+            if (isset($qualificationData['currently_insured'])) {
+                $tempLead->currently_insured = $qualificationData['currently_insured'];
+            }
+            if (isset($qualificationData['current_provider'])) {
+                $tempLead->insurance_company = $qualificationData['current_provider'];
+            }
+            if (isset($qualificationData['birth_date'])) {
+                $tempLead->birth_date = $qualificationData['birth_date'];
+            }
         }
         
         // Perform Allstate validation with current form data

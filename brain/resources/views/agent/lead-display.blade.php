@@ -2712,7 +2712,7 @@
         function showDriverModal(driverIndex = null) {
             const isEditing = driverIndex !== null;
             const drivers = @json($lead->drivers ?? []);
-            const driver = isEditing ? drivers[driverIndex] : null;
+            const driver = isEditing && drivers[driverIndex] ? drivers[driverIndex] : null;
             const modalHtml = `
                 <div id="driverModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
                     <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90%; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
@@ -2720,17 +2720,17 @@
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">First Name *:</label>
-                            <input type="text" id="driverFirstName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" value="${driver ? driver.first_name || '' : ''}" required>
+                            <input type="text" id="driverFirstName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
                         </div>
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Last Name *:</label>
-                            <input type="text" id="driverLastName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" value="${driver ? driver.last_name || '' : ''}" required>
+                            <input type="text" id="driverLastName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
                         </div>
                         
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Date of Birth (MM/DD/YYYY) *:</label>
-                            <input type="date" id="driverBirthDate" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                            <input type="date" id="driverBirthDate" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="calculateYearsLicensed()" required>
                         </div>
                         
                         <div style="margin-bottom: 15px;">
@@ -2815,6 +2815,75 @@
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Populate fields if editing
+            if (isEditing && driver) {
+                document.getElementById('driverFirstName').value = driver.first_name || '';
+                document.getElementById('driverLastName').value = driver.last_name || '';
+                
+                // Handle birth date
+                if (driver.birth_date) {
+                    document.getElementById('driverBirthDate').value = driver.birth_date;
+                }
+                
+                // Handle gender with smart selection
+                if (driver.gender) {
+                    smartSelectOption(document.getElementById('driverGender'), driver.gender, 'driverGenderOther');
+                }
+                
+                // Handle marital status with smart selection
+                if (driver.marital_status) {
+                    smartSelectOption(document.getElementById('driverMaritalStatus'), driver.marital_status, 'driverMaritalStatusOther');
+                }
+                
+                // Handle license state
+                if (driver.license_state) {
+                    smartSelectOption(document.getElementById('driverLicenseState'), driver.license_state, 'driverLicenseStateOther');
+                }
+                
+                // Handle license status
+                if (driver.license_status) {
+                    smartSelectOption(document.getElementById('driverLicenseStatus'), driver.license_status, 'driverLicenseStatusOther');
+                }
+                
+                // Handle years licensed
+                if (driver.years_licensed) {
+                    smartSelectOption(document.getElementById('driverYearsLicensed'), driver.years_licensed, 'driverYearsLicensedOther');
+                }
+                
+                // Update button text for editing
+                const saveButton = document.querySelector('#driverModal button[onclick="saveDriver()"]');
+                if (saveButton) {
+                    saveButton.textContent = 'Update Driver';
+                    saveButton.setAttribute('onclick', `updateDriver(${driverIndex})`);
+                }
+            }
+        }
+        
+        function calculateYearsLicensed() {
+            const birthDateInput = document.getElementById('driverBirthDate');
+            const yearsLicensedSelect = document.getElementById('driverYearsLicensed');
+            
+            if (birthDateInput.value) {
+                const birthDate = new Date(birthDateInput.value);
+                const today = new Date();
+                const age = today.getFullYear() - birthDate.getFullYear() - 
+                           (today < new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate()) ? 1 : 0);
+                
+                const estimatedYearsLicensed = Math.max(1, age - 17); // Assume licensed at 17
+                
+                // Set the closest option
+                if (estimatedYearsLicensed <= 10) {
+                    yearsLicensedSelect.value = estimatedYearsLicensed.toString();
+                } else {
+                    yearsLicensedSelect.value = "10"; // 10+ years
+                }
+            }
+        }
+        
+        async function updateDriver(driverIndex) {
+            // Use the same save logic but with update endpoint
+            await saveDriver(driverIndex);
         }
         
         function closeDriverModal() {
@@ -2824,7 +2893,8 @@
             }
         }
         
-        async function saveDriver() {
+        async function saveDriver(driverIndex = null) {
+            const isEditing = driverIndex !== null;
             const firstName = document.getElementById('driverFirstName').value;
             const lastName = document.getElementById('driverLastName').value;
             const birthDate = document.getElementById('driverBirthDate').value;
@@ -2859,8 +2929,13 @@
             };
             
             try {
-                const response = await fetch(`/agent/lead/{{ $lead->id }}/driver`, {
-                    method: 'POST',
+                const url = isEditing ? 
+                    `/agent/lead/{{ $lead->id }}/driver/${driverIndex}` : 
+                    `/agent/lead/{{ $lead->id }}/driver`;
+                const method = isEditing ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
@@ -2872,7 +2947,7 @@
                 
                 if (result.success) {
                     closeDriverModal();
-                    alert('Driver added successfully!');
+                    alert(isEditing ? 'Driver updated successfully!' : 'Driver added successfully!');
                     location.reload();
                 } else {
                     alert('Error: ' + result.error);
