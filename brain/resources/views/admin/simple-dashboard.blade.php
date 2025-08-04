@@ -553,14 +553,14 @@
                         <span class="stat-label">Qualified</span>
                     </div>
                 </div>
-                                            <div class="action-buttons">
-                                <a href="/leads" class="btn btn-primary">
-                                    View Leads
-                                </a>
-                                <a href="#" class="btn btn-secondary" onclick="alert('Add Lead feature coming soon!')">
-                                    Add Lead
-                                </a>
-                            </div>
+                                                            <div class="action-buttons">
+                    <a href="/leads" class="btn btn-primary">
+                        View Leads
+                    </a>
+                    <a href="#" class="btn btn-secondary" onclick="cleanupTestLeads()">
+                        🗑️ Cleanup Test Leads
+                    </a>
+                </div>
             </div>
 
             <!-- SMS Management -->
@@ -866,6 +866,25 @@
             const modal = document.getElementById('cost-report-modal');
             if (modal) {
                 modal.remove();
+            }
+        }
+
+        // Clean up test leads
+        function cleanupTestLeads() {
+            if (confirm('Are you sure you want to delete all test leads? This cannot be undone.')) {
+                fetch('/api/leads/cleanup', { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(`✅ Cleanup complete!\n\nDeleted: ${data.deleted_count} test leads\nRemaining: ${data.remaining_leads} leads`);
+                            location.reload(); // Refresh to update stats
+                        } else {
+                            alert('❌ Cleanup failed: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        alert('❌ Cleanup error: ' + error.message);
+                    });
             }
         }
 
