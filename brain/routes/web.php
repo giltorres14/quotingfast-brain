@@ -1643,43 +1643,32 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
 // Test Allstate API connection with multiple auth methods
 Route::get('/test/allstate/connection', function () {
     try {
-        $apiKey = env('ALLSTATE_API_KEY', 'quoting-fast');
+        $apiKey = env('ALLSTATE_API_KEY', 'dGVzdHZlbmRvcjo='); // Updated with test token from Allstate
         $baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
             ? 'https://api.allstateleadmarketplace.com/v2'
             : 'https://int.allstateleadmarketplace.com/v2';
 
-        Log::info('Testing Allstate API connection', [
+        Log::info('Testing Allstate API connection with new token', [
             'api_key' => substr($apiKey, 0, 10) . '...',
             'base_url' => $baseUrl
         ]);
 
-        // Test multiple endpoints to find the correct one
-        $endpoints = ['/ping', '/health', '/status', '/test'];
-        $results = [];
-        
-        foreach ($endpoints as $endpoint) {
-            // Use exact Base64 value provided by Allstate for testing
-            $authHeader = ($apiKey === 'quoting-fast') 
-                ? 'cXVvdGluZy1mYXN0Og==' 
-                : 'Basic ' . base64_encode($apiKey . ':');
+        // Test /ping endpoint with correct Basic Auth format from Allstate rep
+        $response = \Illuminate\Support\Facades\Http::timeout(30)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Basic ' . $apiKey
+            ])
+            ->post($baseUrl . '/ping', []);
             
-            $response = \Illuminate\Support\Facades\Http::timeout(30)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                    'Authorization' => $authHeader
-                ])
-                ->post($baseUrl . $endpoint, []);
-                
-            $results[$endpoint] = [
+        $results = [
+            'ping' => [
                 'status' => $response->status(),
-                'body' => $response->body()
-            ];
-            
-            if ($response->successful()) {
-                break; // Found working endpoint
-            }
-        }
+                'body' => $response->body(),
+                'success' => $response->successful()
+            ]
+        ];
 
         // We now use the correct Base64 encoded authorization format
 
