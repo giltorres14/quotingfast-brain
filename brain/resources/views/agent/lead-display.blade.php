@@ -118,6 +118,11 @@
             border-left-color: #9c27b0; 
             color: #6a1b9a; 
         }
+        .section-title.properties { 
+            background: linear-gradient(135deg, #fff3e0, #ffebee); 
+            border-left-color: #ff9800; 
+            color: #e65100; 
+        }
         .section-title.compliance { 
             background: linear-gradient(135deg, #e8f5e8, #f0f4f8); 
             border-left-color: #28a745; 
@@ -1456,18 +1461,43 @@
         </div>
         @endif
 
-        <!-- Vehicles -->
+        <!-- Vehicles (Auto Insurance) OR Properties (Home Insurance) -->
         @php
-            // Get vehicles from payload first, fallback to lead field
+            // Determine lead type and get appropriate data
+            $isAutoLead = false;
+            $isHomeLead = false;
             $vehicles = null;
+            $properties = null;
+            
             if (isset($lead->payload) && is_string($lead->payload)) {
                 $payload = json_decode($lead->payload, true);
+                
+                // Check for vehicles (Auto Insurance)
                 if (isset($payload['data']['vehicles']) && is_array($payload['data']['vehicles'])) {
                     $vehicles = $payload['data']['vehicles'];
+                    $isAutoLead = true;
+                }
+                
+                // Check for properties (Home Insurance)
+                if (isset($payload['data']['properties']) && is_array($payload['data']['properties'])) {
+                    $properties = $payload['data']['properties'];
+                    $isHomeLead = true;
                 }
             }
+            
+            // Fallback to lead fields
             if (!$vehicles && $lead->vehicles && is_array($lead->vehicles)) {
                 $vehicles = $lead->vehicles;
+                $isAutoLead = true;
+            }
+            if (!$properties && $lead->properties && is_array($lead->properties)) {
+                $properties = $lead->properties;
+                $isHomeLead = true;
+            }
+            
+            // Update lead type in database if not set
+            if (!$lead->type && ($isAutoLead || $isHomeLead)) {
+                $lead->update(['type' => $isAutoLead ? 'auto' : 'home']);
             }
         @endphp
         
@@ -1569,6 +1599,205 @@
                 @endif
             </div>
             <p style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">No vehicles added yet. Click "Add Vehicle" to add vehicle information.</p>
+        </div>
+        @endif
+
+        <!-- Properties (Home Insurance) -->
+        @if($properties && count($properties) > 0)
+        <div class="section">
+            <div class="section-title properties">🏠 Properties ({{ count($properties) }}) 
+                @if(!isset($mode) || $mode !== 'view')
+                    <button class="add-btn" onclick="addProperty()">Add Property</button>
+                @endif
+            </div>
+            @foreach($properties as $index => $property)
+            <div class="property-card" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h4 style="color: #495057; margin-bottom: 12px;">
+                        Property {{ $index + 1 }}: {{ $property['property_type'] ?? 'Residential Property' }}
+                        @if(isset($property['year_built']) && !empty($property['year_built']))
+                            <span style="font-size: 14px; color: #6c757d; font-weight: normal;">(Built {{ $property['year_built'] }})</span>
+                        @endif
+                    </h4>
+                    @if(!isset($mode) || $mode !== 'view')
+                        <button class="btn btn-sm btn-outline-primary" onclick="editProperty({{ $index }})">✏️ Edit</button>
+                    @endif
+                </div>
+                
+                <!-- Main Property Information -->
+                <div class="info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                    <div class="info-item">
+                        <div class="info-label">Property Type</div>
+                        <div class="info-value">{{ $property['property_type'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Square Footage</div>
+                        <div class="info-value">{{ isset($property['square_footage']) ? number_format($property['square_footage']) . ' sq ft' : 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Bedrooms</div>
+                        <div class="info-value">{{ $property['bedrooms'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Bathrooms</div>
+                        <div class="info-value">{{ $property['bathrooms'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Year Built</div>
+                        <div class="info-value">{{ $property['year_built'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Ownership</div>
+                        <div class="info-value">{{ $property['ownership'] ?? 'Not provided' }}</div>
+                    </div>
+                </div>
+
+                <!-- Property Details -->
+                <div class="info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                    <div class="info-item">
+                        <div class="info-label">Roof Type</div>
+                        <div class="info-value">{{ $property['roof_type'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Construction Type</div>
+                        <div class="info-value">{{ $property['construction_type'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Foundation</div>
+                        <div class="info-value">{{ $property['foundation'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Heating Type</div>
+                        <div class="info-value">{{ $property['heating_type'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Garage</div>
+                        <div class="info-value">{{ $property['garage'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Stories</div>
+                        <div class="info-value">{{ $property['stories'] ?? 'Not provided' }}</div>
+                    </div>
+                </div>
+
+                <!-- Safety & Security -->
+                @if(isset($property['home_security']) || isset($property['dog']) || isset($property['wiring_type']) || isset($property['panel_type']))
+                <div style="background: #e8f5e8; border: 1px solid #c3e6c3; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                    <h5 style="color: #2d5016; margin-bottom: 8px; font-size: 14px;">🔒 Safety & Security</h5>
+                    <div class="info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;">
+                        @if(isset($property['home_security']))
+                        <div class="info-item">
+                            <div class="info-label">Security System</div>
+                            <div class="info-value">{{ $property['home_security'] ?? 'Not provided' }}</div>
+                        </div>
+                        @endif
+                        @if(isset($property['dog']))
+                        <div class="info-item">
+                            <div class="info-label">Dog</div>
+                            <div class="info-value">{{ is_bool($property['dog']) ? ($property['dog'] ? 'Yes' : 'No') : ($property['dog'] ?? 'Not provided') }}</div>
+                        </div>
+                        @endif
+                        @if(isset($property['wiring_type']))
+                        <div class="info-item">
+                            <div class="info-label">Wiring Type</div>
+                            <div class="info-value">{{ $property['wiring_type'] ?? 'Not provided' }}</div>
+                        </div>
+                        @endif
+                        @if(isset($property['panel_type']))
+                        <div class="info-item">
+                            <div class="info-label">Electrical Panel</div>
+                            <div class="info-value">{{ $property['panel_type'] ?? 'Not provided' }}</div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
+                <!-- Financial Information -->
+                @if(isset($property['dwelling_value']) || isset($property['proximity_water']))
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                    <h5 style="color: #856404; margin-bottom: 8px; font-size: 14px;">💰 Financial & Risk Information</h5>
+                    <div class="info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;">
+                        @if(isset($property['dwelling_value']))
+                        <div class="info-item">
+                            <div class="info-label">Dwelling Value</div>
+                            <div class="info-value">${{ number_format($property['dwelling_value']) ?? 'Not provided' }}</div>
+                        </div>
+                        @endif
+                        @if(isset($property['proximity_water']))
+                        <div class="info-item">
+                            <div class="info-label">Proximity to Water</div>
+                            <div class="info-value">{{ $property['proximity_water'] ?? 'Not provided' }}</div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endif
+
+                <!-- Claims History -->
+                @if(isset($property['claims']) && is_array($property['claims']) && count($property['claims']) > 0)
+                <div style="background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                    <h5 style="color: #721c24; margin-bottom: 8px; font-size: 14px;">📋 Claims History ({{ count($property['claims']) }})</h5>
+                    @foreach($property['claims'] as $claim)
+                    <div style="background: white; border-radius: 4px; padding: 8px; margin-bottom: 6px; font-size: 12px;">
+                        <div style="font-weight: 600; color: #721c24;">{{ $claim['description'] ?? 'Claim' }}</div>
+                        @if(isset($claim['claim_date']))
+                        <div style="color: #6c757d;">Date: {{ $claim['claim_date'] }}</div>
+                        @endif
+                        @if(isset($claim['paid_amount']))
+                        <div style="color: #6c757d;">Amount: ${{ number_format($claim['paid_amount']) }}</div>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+                @elseif(isset($property['claims']))
+                <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; padding: 8px; margin-bottom: 12px;">
+                    <div style="color: #155724; font-size: 12px; text-align: center;">✅ No Claims History</div>
+                </div>
+                @endif
+                
+                <!-- View More Details Section for Properties -->
+                <div style="margin-top: 8px; padding: 6px; background: #f8f9fa; border-radius: 3px; border-left: 2px solid #dee2e6;">
+                    <details>
+                        <summary style="cursor: pointer; font-size: 11px; font-weight: 600; color: #6c757d; padding: 2px 0;">
+                            📋 View More Details
+                        </summary>
+                        <div style="margin-top: 6px; font-size: 10px; color: #6c757d;">
+                            <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 4px;">
+                                @foreach($property as $key => $value)
+                                    @if(!in_array($key, ['property_type', 'square_footage', 'bedrooms', 'bathrooms', 'year_built', 'ownership', 'roof_type', 'construction_type', 'foundation', 'heating_type', 'garage', 'stories', 'home_security', 'dog', 'wiring_type', 'panel_type', 'dwelling_value', 'proximity_water', 'claims']))
+                                    <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
+                                        <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
+                                        <div style="font-size: 10px; color: #495057; margin-top: 1px;">
+                                            @if(is_bool($value))
+                                                {{ $value ? 'Yes' : 'No' }}
+                                            @elseif(is_array($value) && count($value) > 0)
+                                                {{ count($value) }} item(s)
+                                            @elseif(is_array($value))
+                                                None
+                                            @else
+                                                {{ $value ?? 'Not provided' }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @elseif($isHomeLead)
+        <!-- No Properties Section for Home Leads -->
+        <div class="section">
+            <div class="section-title properties">🏠 Properties (0) 
+                @if(!isset($mode) || $mode !== 'view')
+                    <button class="add-btn" onclick="addProperty()">Add Property</button>
+                @endif
+            </div>
+            <p style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">No properties added yet. Click "Add Property" to add property information.</p>
         </div>
         @endif
 
