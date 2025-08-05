@@ -225,21 +225,21 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'echo "=== STARTUP: FORCING POSTGRESQL CONNECTION ==="' >> /usr/local/bin/startup.sh && \
     echo 'echo "Hardcoding PostgreSQL environment variables..."' >> /usr/local/bin/startup.sh && \
     echo 'export DB_CONNECTION=pgsql' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_HOST=dpg-d277kvk9c44c7388opg0-a' >> /usr/local/bin/startup.sh && \
+    echo 'export DB_HOST=dpg-d261qkfdiees738entk0-a' >> /usr/local/bin/startup.sh && \
     echo 'export DB_PORT=5432' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_DATABASE=brain_production' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_USERNAME=brain_user' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ' >> /usr/local/bin/startup.sh && \
+    echo 'export DB_DATABASE=parcelvoy_p64d' >> /usr/local/bin/startup.sh && \
+    echo 'export DB_USERNAME=parcelvoy' >> /usr/local/bin/startup.sh && \
+    echo 'export DB_PASSWORD=gGRLGwBBn90tEInwq9NeaG60uYhGXbE1' >> /usr/local/bin/startup.sh && \
     echo 'echo "🚨 UNSETTING RENDER AUTO-GENERATED DATABASE_URL - FORCING INDIVIDUAL PARAMS"' >> /usr/local/bin/startup.sh && \
     echo 'unset DATABASE_URL' >> /usr/local/bin/startup.sh && \
     echo 'export DATABASE_URL=""' >> /usr/local/bin/startup.sh && \
     echo 'echo "Updating .env file with PostgreSQL settings..."' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=pgsql/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/DB_HOST=.*/DB_HOST=dpg-d277kvk9c44c7388opg0-a/" .env' >> /usr/local/bin/startup.sh && \
+    echo 'sed -i "s/DB_HOST=.*/DB_HOST=dpg-d261qkfdiees738entk0-a/" .env' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/DB_PORT=.*/DB_PORT=5432/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s|DB_DATABASE=.*|DB_DATABASE=brain_production|" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/DB_USERNAME=.*/DB_USERNAME=brain_user/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ/" .env' >> /usr/local/bin/startup.sh && \
+    echo 'sed -i "s|DB_DATABASE=.*|DB_DATABASE=parcelvoy_p64d|" .env' >> /usr/local/bin/startup.sh && \
+    echo 'sed -i "s/DB_USERNAME=.*/DB_USERNAME=parcelvoy/" .env' >> /usr/local/bin/startup.sh && \
+    echo 'sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=gGRLGwBBn90tEInwq9NeaG60uYhGXbE1/" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "Final .env database configuration:"' >> /usr/local/bin/startup.sh && \
     echo 'grep "DB_" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "🧹 Clearing Laravel configuration cache..."' >> /usr/local/bin/startup.sh && \
