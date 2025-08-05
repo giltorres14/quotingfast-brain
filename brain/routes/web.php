@@ -2470,6 +2470,15 @@ Route::post('/buyer/payment/add-funds', function (Request $request) {
     $result = $qbService->processPayment($buyer, $validated['amount'], $validated['payment_method']);
 
     if ($result['success']) {
+        // Send payment notification
+        $notificationService = new \App\Services\NotificationService();
+        $notificationService->sendPaymentNotification($buyerId, [
+            'status' => 'completed',
+            'amount' => $validated['amount'],
+            'new_balance' => $result['new_balance'],
+            'payment_method' => $validated['payment_method']
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Payment processed successfully',
@@ -2477,6 +2486,15 @@ Route::post('/buyer/payment/add-funds', function (Request $request) {
             'payment_id' => $result['payment']->id
         ]);
     } else {
+        // Send payment failure notification
+        $notificationService = new \App\Services\NotificationService();
+        $notificationService->sendPaymentNotification($buyerId, [
+            'status' => 'failed',
+            'amount' => $validated['amount'],
+            'failure_reason' => $result['error'],
+            'payment_method' => $validated['payment_method']
+        ]);
+
         return response()->json([
             'success' => false,
             'message' => 'Payment failed: ' . $result['error']
@@ -2660,6 +2678,15 @@ Route::post('/buyer/documents/{documentId}/signature', function ($documentId, Re
                 'signer_name' => $validated['signer_name'],
                 'ip_address' => $request->ip()
             ]);
+
+            // Send contract signed notification
+            $notificationService = new \App\Services\NotificationService();
+            $notificationService->sendSystemNotification(
+                $buyer->id,
+                'Contract Signed Successfully',
+                'Your buyer agreement has been signed and your account is now active. Welcome to QuotingFast!',
+                ['contract_version' => 'v2.1', 'signed_at' => now()->toISOString()]
+            );
         }
 
         return response()->json([
@@ -2755,6 +2782,134 @@ Route::get('/buyer/documents/{documentId}/download', function ($documentId) {
         'success' => true,
         'message' => 'Document download initiated',
         'download_url' => '/storage/documents/' . $documentId . '.pdf'
+    ]);
+});
+
+// Buyer Notifications
+Route::get('/buyer/notifications', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer || $buyer->status !== 'active') {
+        session()->forget('buyer_id');
+        return redirect('/buyer/login')->with('error', 'Account not active');
+    }
+
+    return view('buyer.notifications', compact('buyer'));
+});
+
+// Get Notifications API
+Route::get('/api/buyer/notifications', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $notificationService = new \App\Services\NotificationService();
+    
+    $filter = $request->get('filter', 'all');
+    $limit = $request->get('limit', 20);
+    
+    $notifications = $notificationService->getBuyerNotifications($buyerId, $limit, $filter);
+    $stats = $notificationService->getNotificationStats($buyerId);
+
+    return response()->json([
+        'notifications' => $notifications,
+        'stats' => $stats
+    ]);
+});
+
+// Real-time Notifications Polling
+Route::get('/api/buyer/notifications/realtime', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $notificationService = new \App\Services\NotificationService();
+    $realtimeNotifications = $notificationService->getRealtimeNotifications($buyerId);
+
+    return response()->json([
+        'notifications' => $realtimeNotifications,
+        'timestamp' => now()->toISOString()
+    ]);
+});
+
+// Mark Notification as Read
+Route::post('/api/buyer/notifications/{notificationId}/read', function ($notificationId) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $notificationService = new \App\Services\NotificationService();
+    $success = $notificationService->markAsRead($buyerId, $notificationId);
+
+    return response()->json(['success' => $success]);
+});
+
+// Mark All Notifications as Read
+Route::post('/api/buyer/notifications/read-all', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $notificationService = new \App\Services\NotificationService();
+    $success = $notificationService->markAllAsRead($buyerId);
+
+    return response()->json(['success' => $success]);
+});
+
+// Update Notification Preferences
+Route::post('/api/buyer/notifications/preferences', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $validated = $request->validate([
+        'email.new_leads' => 'boolean',
+        'email.payment_confirmations' => 'boolean',
+        'email.low_balance_warnings' => 'boolean',
+        'email.weekly_summary' => 'boolean',
+        'push.browser_notifications' => 'boolean',
+        'push.sound_alerts' => 'boolean'
+    ]);
+
+    $notificationService = new \App\Services\NotificationService();
+    $success = $notificationService->updateNotificationPreferences($buyerId, $validated);
+
+    return response()->json(['success' => $success]);
+});
+
+// Test Notification (Admin/Development)
+Route::post('/api/buyer/notifications/test', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $type = $request->get('type', 'system');
+    $title = $request->get('title', 'Test Notification');
+    $message = $request->get('message', 'This is a test notification from The Brain.');
+
+    $notificationService = new \App\Services\NotificationService();
+    $success = $notificationService->sendNotification(
+        $buyerId,
+        $type,
+        $title,
+        $message,
+        ['test' => true],
+        ['database', 'realtime']
+    );
+
+    return response()->json([
+        'success' => $success,
+        'message' => 'Test notification sent'
     ]);
 });
 

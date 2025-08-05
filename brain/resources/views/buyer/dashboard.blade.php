@@ -519,6 +519,7 @@
             <a href="/buyer/leads" class="nav-tab">👥 My Leads</a>
             <a href="/buyer/billing" class="nav-tab">💳 Billing</a>
             <a href="/buyer/documents" class="nav-tab">📄 Documents</a>
+            <a href="/buyer/notifications" class="nav-tab">🔔 Notifications</a>
             <a href="/buyer/reports" class="nav-tab">📈 Reports</a>
             <a href="/buyer/settings" class="nav-tab">⚙️ Settings</a>
         </div>
