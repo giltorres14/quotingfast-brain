@@ -660,22 +660,25 @@
                                         @endif
           </div>
                                     
-                                    <!-- Badges moved to top line, center-right -->
-                                    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;">
-                                        @if($lead->type)
-                                            <span class="badge badge-type-{{ strtolower($lead->type) }}">
-                                                {{ ucfirst($lead->type) }}
-                                            </span>
-                                        @endif
+                                    <!-- Badges and datetime on top line -->
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <!-- Badges grouped together -->
+                                        <div style="display: flex; gap: 0.25rem;">
+                                            @if($lead->type)
+                                                <span class="badge badge-type-{{ strtolower($lead->type) }}">
+                                                    {{ ucfirst($lead->type) }}
+                                                </span>
+                                            @endif
+                                            
+                                            @if(isset($lead->sent_to_vici) && $lead->sent_to_vici)
+                                                <span class="badge badge-vici">
+                                                    Vici
+                                                </span>
+                                            @endif
+                                        </div>
                                         
-                                        @if(isset($lead->sent_to_vici) && $lead->sent_to_vici)
-                                            <span class="badge badge-vici">
-                                                Vici
-                                            </span>
-                                        @endif
-                                        
-                                        <!-- Datetime moved to top line -->
-                                        <span style="color: #6b7280; font-size: 0.75rem; margin-left: 0.5rem;">
+                                        <!-- Datetime pushed to far right -->
+                                        <span style="color: #6b7280; font-size: 0.75rem; margin-left: auto;">
                                             🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, g:i A') : 'Unknown' }}
                                         </span>
                                     </div>
@@ -704,15 +707,14 @@
                             </div>
         </div>
                         
-                        <div class="sms-status">
+                        <!-- SMS indicator only (no button) -->
+                        <div class="sms-status" style="margin-top: 0.25rem;">
                             <div class="sms-indicator sms-none"></div>
                             <span>SMS: None</span>
                         </div>
                     </div>
                     
-
-                    
-                    <div class="lead-actions">
+                    <div class="lead-actions" style="margin-top: 0.5rem;">
                         <a href="/agent/lead/{{ $lead->id }}?mode=view" class="btn btn-sm btn-view">
                             👁️ View
                         </a>
@@ -721,9 +723,6 @@
                         </a>
                         <a href="/api/lead/{{ $lead->id }}/payload" class="btn btn-sm btn-payload" target="_blank">
                             📄 Payload
-                        </a>
-                        <a href="#" class="btn btn-sm btn-sms" onclick="alert('SMS feature coming soon for {{ $lead->first_name ?? $lead->name }}!')">
-                            💬 SMS
                         </a>
                     </div>
                 </div>
