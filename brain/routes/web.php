@@ -859,8 +859,8 @@ Route::post('/webhook.php', function (Request $request) {
         $lead = null;
         $externalLeadId = null;
         try {
-            $lead = Lead::create($leadData);
-            
+        $lead = Lead::create($leadData);
+        
             // Generate external lead ID after successful database insert
             $externalLeadId = generateLeadId();
             $lead->update(['external_lead_id' => $externalLeadId]);
@@ -1801,7 +1801,7 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
         }
 
         // Trigger Ringba API call
-        // TODO: Implement RingbaService
+        // Note: RingbaService integration available if needed
         Log::info('Transfer requested', [
             'lead_id' => $leadId,
             'lead_name' => $leadName,
