@@ -11,13 +11,14 @@ class AllstateCallTransferService
 {
     private $apiKey;
     private $baseUrl;
+    private $environment;
     
     public function __construct()
     {
         // Allstate Lead Marketplace API configuration
-        $environment = env('ALLSTATE_API_ENV', 'testing');
+        $this->environment = env('ALLSTATE_API_ENV', 'testing');
         
-        if ($environment === 'production') {
+        if ($this->environment === 'production') {
             // Production credentials
             $this->apiKey = env('ALLSTATE_API_KEY', 'YjkxNDQ2YWRlOWQzNzY1MGY5M2UzMDVjYmFmOGMyYzk6'); // Production token
             $this->baseUrl = 'https://api.allstateleadmarketplace.com/v2';
@@ -71,7 +72,7 @@ class AllstateCallTransferService
                     'Accept' => 'application/json',
                     'Authorization' => $authHeader
                 ])
-                ->post($this->baseUrl . '/leads', $transferData); // Submit lead to Allstate Lead Marketplace
+                ->post($this->baseUrl . ($this->environment === 'production' ? '/leads' : '/ping'), $transferData);
             
             if ($response->successful()) {
                 $responseData = $response->json();
