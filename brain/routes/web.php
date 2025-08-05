@@ -853,27 +853,27 @@ Route::post('/webhook.php', function (Request $request) {
         ];
         
         // Generate unique lead ID - 9 digits starting with 100000001
-        $leadId = generateLeadId();
+        $customLeadId = generateLeadId();
         
         // Try to store in database, but continue if it fails
         $lead = null;
-        $actualLeadId = $leadId; // Use generated ID
+        $actualLeadId = $customLeadId; // Use generated custom ID for external systems
         try {
-            // Set the custom 9-digit ID format
-            $leadData['id'] = $leadId;
+            // Set the custom 9-digit ID format in a separate field
+            $leadData['external_lead_id'] = $customLeadId;
             $lead = Lead::create($leadData);
-            $actualLeadId = $lead->id; // Should match our generated ID
-            Log::info('LeadsQuotingFast lead stored in database', ['generated_id' => $leadId, 'actual_id' => $actualLeadId]);
+            $dbLeadId = $lead->id; // Database auto-increment ID for internal use
+            Log::info('LeadsQuotingFast lead stored in database', ['custom_lead_id' => $customLeadId, 'db_id' => $dbLeadId]);
         } catch (Exception $dbError) {
             Log::warning('Database storage failed, continuing with Vici integration', ['error' => $dbError->getMessage()]);
         }
         
         // CRITICAL: Send lead to Vici list 101
         try {
-            $viciResult = sendToViciList101($leadData, $leadId);
-            Log::info('Lead sent to Vici list 101', ['lead_id' => $leadId, 'vici_result' => $viciResult]);
+            $viciResult = sendToViciList101($leadData, $customLeadId);
+            Log::info('Lead sent to Vici list 101', ['custom_lead_id' => $customLeadId, 'vici_result' => $viciResult]);
         } catch (Exception $viciError) {
-            Log::error('Failed to send lead to Vici', ['error' => $viciError->getMessage(), 'lead_id' => $leadId]);
+            Log::error('Failed to send lead to Vici', ['error' => $viciError->getMessage(), 'custom_lead_id' => $customLeadId]);
         }
         
         // Store lead data in file cache for iframe testing (fallback if DB fails)
@@ -894,14 +894,17 @@ Route::post('/webhook.php', function (Request $request) {
         
         Log::info('LeadsQuotingFast lead processed successfully', ['lead_id' => $actualLeadId]);
         
-        // Return success response with actual lead ID for iframe testing
+        // Return success response with custom lead ID for external systems
+        $iframeId = $lead ? $lead->id : $actualLeadId; // Use DB ID for iframe if available
         return response()->json([
             'success' => true,
             'message' => 'Lead received and sent to Vici list 101',
-            'lead_id' => $actualLeadId, // Use actual saved ID
+            'lead_id' => $actualLeadId, // Custom 9-digit ID for external systems
+            'custom_lead_id' => $actualLeadId, // Explicit custom ID
+            'db_id' => $lead ? $lead->id : null, // Database ID for reference
             'name' => $leadData['name'],
             'vici_list' => 101,
-            'iframe_url' => url("/agent/lead/{$actualLeadId}"), // Use actual saved ID
+            'iframe_url' => url("/agent/lead/{$iframeId}"), // Use DB ID for iframe
             'timestamp' => now()->toISOString()
         ], 201);
         
