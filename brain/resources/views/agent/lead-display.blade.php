@@ -847,7 +847,7 @@
 
         <!-- Contact Information -->
         <div class="section">
-            <div class="section-title contact">📞 Contact Information 
+            <div class="section-title contact">📞 Lead Details 
                 @if(!isset($mode) || $mode !== 'view')
                     <button class="edit-btn" onclick="toggleEdit('contact')">Edit</button>
                 @endif
@@ -874,6 +874,14 @@
                         {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
                         </div>
                     </div>
+                    
+                    <!-- Campaign ID moved here from TCPA section -->
+                    @if(isset($lead->campaign_id) && $lead->campaign_id)
+                    <div class="info-item" id="contact-campaign">
+                        <div class="info-label">Campaign ID</div>
+                        <div class="info-value">{{ $lead->campaign_id }}</div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -896,7 +904,7 @@
         <!-- TCPA Compliance Section - VIEW ONLY -->
         @if(isset($mode) && $mode === 'view')
         <div class="section">
-                    <div class="section-title compliance">🛡️ TCPA Compliance & Lead Details</div>
+                    <div class="section-title compliance">🛡️ TCPA Compliance</div>
                     <div class="info-grid">
                         <!-- TCPA Compliance Status -->
                         <div class="info-item">
@@ -981,13 +989,7 @@
                         </div>
                         @endif
 
-                        <!-- Campaign & Lead IDs -->
-                        @if(isset($lead->campaign_id) && $lead->campaign_id)
-                        <div class="info-item">
-                            <div class="info-label">Campaign ID</div>
-                            <div class="info-value">{{ $lead->campaign_id }}</div>
-                        </div>
-                        @endif
+                        <!-- External Lead ID (Campaign ID moved to Lead Details section) -->
                         
                         @if(isset($lead->external_lead_id) && $lead->external_lead_id)
                         <div class="info-item">
