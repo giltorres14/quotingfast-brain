@@ -528,6 +528,7 @@
                 <li><a href="#messaging" class="nav-link" onclick="alert('SMS/Messaging feature coming soon!')">Messaging</a></li>
                 <li><a href="/analytics" class="nav-link">Analytics</a></li>
                 <li><a href="#campaigns" class="nav-link" onclick="alert('Campaign management feature coming soon!')">Campaigns</a></li>
+                <li><a href="/api-directory" class="nav-link">🔗 API</a></li>
                 <li><a href="#settings" class="nav-link" onclick="alert('Settings feature coming soon!')">Settings</a></li>
             </ul>
   </div>
