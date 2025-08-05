@@ -240,91 +240,109 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
-// Quick test to verify lead data is accessible and show payload structure
+// Simple lead browser - shows available leads and their data
 Route::get('/test-lead-data', function () {
-    return response()->json([
-        'message' => 'Lead Payload Structure for Allstate API Mapping',
-        'your_current_url' => 'https://quotingfast-brain-ohio.onrender.com',
-        'explanation' => 'Since we cannot access actual lead data right now, here is what your lead payload structure typically contains based on your webhooks',
-        'typical_lead_payload_structure' => [
-            'basic_info' => [
-                'name' => 'John Doe',
-                'email' => 'john@example.com', 
-                'phone' => '555-123-4567',
-                'city' => 'San Diego',
-                'state' => 'CA',
-                'zipcode' => '92101',
-                'dob' => '1980-01-01'
-            ],
-            'insurance_data' => [
-                'currently_insured' => 'yes',
-                'current_carrier' => 'State Farm',
-                'policy_expiration' => '2025-12-31',
-                'tcpa_compliant' => true,
-                'requested_policy' => 'auto_insurance'
-            ],
-            'drivers_data' => [
-                [
-                    'name' => 'John Doe',
-                    'license_status' => 'valid',
-                    'age' => 44,
-                    'gender' => 'male',
-                    'marital_status' => 'married'
+    try {
+        // Get all leads from database
+        $leads = \App\Models\Lead::orderBy('created_at', 'desc')->limit(10)->get();
+        
+        if ($leads->isEmpty()) {
+            return response()->json([
+                'message' => 'No leads found in database',
+                'explanation' => 'You need to submit a test lead first to see the payload structure',
+                'your_ui_urls' => [
+                    'main_ui' => 'https://quotingfast-brain-ohio.onrender.com',
+                    'leads_list' => 'https://quotingfast-brain-ohio.onrender.com/leads',
+                    'test_lead_viewer' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/TEST_LEAD_1',
+                    'webhook_endpoints' => [
+                        'leadquotingfast' => 'https://quotingfast-brain-ohio.onrender.com/webhook.php',
+                        'ringba' => 'https://quotingfast-brain-ohio.onrender.com/webhook/ringba',
+                        'vici' => 'https://quotingfast-brain-ohio.onrender.com/webhook/vici',
+                        'twilio' => 'https://quotingfast-brain-ohio.onrender.com/webhook/twilio'
+                    ]
+                ],
+                'next_steps' => [
+                    '1. Submit a test lead through one of your webhook endpoints',
+                    '2. Or visit the test lead viewer to see mock data structure',
+                    '3. Then call this endpoint again to see actual lead data'
+                ],
+                'test_allstate_api' => 'https://quotingfast-brain-ohio.onrender.com/test/allstate/connection',
+                'timestamp' => now()->toISOString()
+            ]);
+        }
+        
+        // Show available leads with their basic info and payload structure
+        $leadData = [];
+        foreach ($leads as $lead) {
+            $drivers = json_decode($lead->drivers ?? '[]', true) ?: [];
+            $vehicles = json_decode($lead->vehicles ?? '[]', true) ?: [];
+            $policy = json_decode($lead->current_policy ?? '{}', true) ?: [];
+            $meta = json_decode($lead->meta ?? '{}', true) ?: [];
+            
+            $leadData[] = [
+                'lead_id' => $lead->id,
+                'view_url' => "https://quotingfast-brain-ohio.onrender.com/agent/lead/{$lead->id}",
+                'basic_info' => [
+                    'name' => $lead->name,
+                    'email' => $lead->email,
+                    'phone' => $lead->phone,
+                    'city' => $lead->city,
+                    'state' => $lead->state,
+                    'zipcode' => $lead->zipcode,
+                    'dob' => $lead->dob,
+                    'created_at' => $lead->created_at
+                ],
+                'insurance_data' => [
+                    'currently_insured' => $lead->currently_insured,
+                    'current_carrier' => $lead->current_carrier,
+                    'policy_expiration' => $lead->policy_expiration,
+                    'tcpa_compliant' => $lead->tcpa_compliant,
+                    'requested_policy' => $lead->requested_policy
+                ],
+                'drivers_count' => count($drivers),
+                'vehicles_count' => count($vehicles),
+                'drivers_sample' => $drivers[0] ?? null,
+                'vehicles_sample' => $vehicles[0] ?? null,
+                'policy_keys' => array_keys($policy),
+                'meta_keys' => array_keys($meta),
+                'allstate_mapping' => [
+                    'external_id' => $lead->id,
+                    'city' => $lead->city,
+                    'state' => $lead->state,
+                    'zipcode' => $lead->zipcode,
+                    'date_of_birth' => $lead->dob,
+                    'tcpa_compliant' => $lead->tcpa_compliant,
+                    'currently_insured' => $lead->currently_insured,
+                    'phone' => $lead->phone,
+                    'email' => $lead->email,
+                    'name' => $lead->name,
+                    'missing_fields' => [
+                        'desired_coverage_type' => 'STATEMINIMUM, BASIC, STANDARD, SUPERIOR - need to map from policy data',
+                        'residence_status' => 'own, rent, live_with_parents - missing from current data'
+                    ]
                 ]
+            ];
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Found {$leads->count()} leads in database",
+            'leads' => $leadData,
+            'allstate_api_test' => 'https://quotingfast-brain-ohio.onrender.com/test/allstate/connection',
+            'timestamp' => now()->toISOString()
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to retrieve leads: ' . $e->getMessage(),
+            'your_ui_urls' => [
+                'test_lead_viewer' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/TEST_LEAD_1',
+                'allstate_api_test' => 'https://quotingfast-brain-ohio.onrender.com/test/allstate/connection'
             ],
-            'vehicles_data' => [
-                [
-                    'year' => 2020,
-                    'make' => 'Toyota',
-                    'model' => 'Camry',
-                    'vin' => 'ABC123456789'
-                ]
-            ],
-            'policy_data' => [
-                'coverage_type' => 'full_coverage',
-                'deductible' => 500,
-                'liability_limits' => '100/300/100'
-            ],
-            'meta_data' => [
-                'source' => 'leadquotingfast',
-                'campaign' => 'auto_insurance_2025',
-                'ip_address' => '192.168.1.1'
-            ]
-        ],
-        'allstate_api_requirements' => [
-            'required_fields' => [
-                'external_id' => 'Your lead ID',
-                'city' => 'Lead city',
-                'state' => 'Lead state (2-letter code)',
-                'zipcode' => 'Lead ZIP code',
-                'date_of_birth' => 'YYYY-MM-DD format',
-                'tcpa_compliant' => 'true/false',
-                'currently_insured' => 'true/false',
-                'vertical' => 'auto-insurance or home-insurance'
-            ],
-            'missing_from_current_data' => [
-                'desired_coverage_type' => 'STATEMINIMUM, BASIC, STANDARD, SUPERIOR',
-                'residence_status' => 'own, rent, live_with_parents, etc.'
-            ]
-        ],
-        'next_steps' => [
-            '1. Submit a test lead through your UI to populate the database',
-            '2. Then call this endpoint again to see actual lead data',
-            '3. Map missing fields (coverage_type, residence_status) to Allstate requirements',
-            '4. Test the Allstate API with complete data'
-        ],
-        'test_endpoints' => [
-            'submit_lead' => url('/'),
-            'test_allstate_api' => url('/test/allstate/connection'),
-            'webhook_endpoints' => [
-                'leadquotingfast' => url('/webhook.php'),
-                'ringba' => url('/webhook/ringba'),
-                'vici' => url('/webhook/vici'),
-                'twilio' => url('/webhook/twilio')
-            ]
-        ],
-        'timestamp' => now()->toISOString()
-    ]);
+            'timestamp' => now()->toISOString()
+        ], 500);
+    }
 });
 
 // Simple POST test endpoint for Brain Lead Flow (bypasses CSRF)
