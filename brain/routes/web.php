@@ -135,7 +135,7 @@ Route::get('/test', function () {
 });
 
 // ViciDial firewall whitelisting endpoint
-Route::match(['GET', 'POST'], '/vici/whitelist', function () {
+Route::get('/vici/whitelist', function () {
     try {
         $viciConfig = [
             'server' => env('VICI_SERVER', 'philli.callix.ai'),
@@ -143,30 +143,44 @@ Route::match(['GET', 'POST'], '/vici/whitelist', function () {
             'pass' => env('VICI_API_PASS', 'UZPATJ59GJAVKG8ES6'),
         ];
         
-        Log::info('Manual ViciDial firewall whitelist requested');
+        \Log::info('Manual ViciDial firewall whitelist requested');
         
-        $firewallAuth = Http::timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
+        $firewallAuth = \Http::timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
             'user' => $viciConfig['user'],
             'pass' => $viciConfig['pass']
         ]);
         
-        Cache::put('vici_last_whitelist', time(), 3600);
+        \Cache::put('vici_last_whitelist', time(), 3600);
         
         return response()->json([
             'success' => true,
             'message' => 'ViciDial firewall whitelist completed',
             'status' => $firewallAuth->status(),
+            'response_body' => substr($firewallAuth->body(), 0, 200),
             'timestamp' => now()->toISOString()
         ]);
         
     } catch (Exception $e) {
-        Log::error('Manual firewall whitelist failed', ['error' => $e->getMessage()]);
+        \Log::error('Manual firewall whitelist failed', ['error' => $e->getMessage()]);
         return response()->json([
             'success' => false,
             'message' => 'Firewall whitelist failed: ' . $e->getMessage(),
             'timestamp' => now()->toISOString()
         ], 500);
     }
+});
+
+// Debug Vici configuration
+Route::get('/debug/vici-config', function () {
+    return response()->json([
+        'vici_server' => env('VICI_SERVER', 'philli.callix.ai'),
+        'vici_user' => env('VICI_API_USER', 'apiuser'),
+        'vici_pass_set' => !empty(env('VICI_API_PASS')),
+        'whitelist_url' => 'https://' . env('VICI_SERVER', 'philli.callix.ai') . ':26793/92RG8UJYTW.php',
+        'api_url' => 'https://' . env('VICI_SERVER', 'philli.callix.ai') . env('VICI_API_ENDPOINT', '/vicidial/non_agent_api.php'),
+        'last_whitelist' => \Cache::get('vici_last_whitelist', 'never'),
+        'timestamp' => now()->toISOString()
+    ]);
 });
 
 // IMMEDIATE TEST ENDPOINT - No CSRF, works right now
@@ -2166,12 +2180,12 @@ function sendToViciList101($leadData, $leadId) {
     // Generate ViciDial-compatible lead_id (9 digits starting with 100000000)
     $viciLeadId = 100000000 + (int)(microtime(true) * 100) % 99999999;
     
-    // Prepare Vici lead data (using vendor_id instead of source_id)
+    // Prepare Vici lead data (using source parameter)
     $viciData = [
         'user' => $viciConfig['user'],
         'pass' => $viciConfig['pass'],
         'function' => 'add_lead',
-        'vendor_id' => 'TB_API',
+        'source' => 'LQF_API',
         'lead_id' => $viciLeadId,
         'list_id' => $viciConfig['list_id'],
         'phone_number' => preg_replace('/[^0-9]/', '', $leadData['phone']),
