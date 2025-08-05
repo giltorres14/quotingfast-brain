@@ -138,24 +138,46 @@ class AllstateCallTransferService
             $currentPolicy = is_string($lead->current_policy) ? json_decode($lead->current_policy, true) : $lead->current_policy;
         }
         
+        // Get driver data for primary driver fields
+        $primaryDriver = $drivers[0] ?? [];
+        
+        // Parse payload for additional data
+        $payload = [];
+        if (isset($lead->payload) && is_string($lead->payload)) {
+            $payload = json_decode($lead->payload, true) ?? [];
+        }
+        
         // Prepare data in Allstate Lead Marketplace API format
         $transferData = [
             'vertical' => 'auto-insurance',
-            'external_id' => $lead->id ?? uniqid('BRAIN_'),
+            'external_id' => $lead->external_lead_id ?? $lead->id ?? uniqid('BRAIN_'),
             'first_name' => $lead->first_name ?? '',
             'last_name' => $lead->last_name ?? '',
             'email' => $lead->email ?? '',
-            'home_phone' => $this->formatPhoneNumber($lead->phone ?? ''),
+            'phone' => $this->formatPhoneNumber($lead->phone ?? ''),
             'address1' => $lead->address ?? '',
             'city' => $lead->city ?? '',
-            'state' => $lead->state ?? 'CA', // Default to CA for testing
-            'zipcode' => $lead->zip_code ?? '',
+            'state' => $lead->state ?? 'CA',
+            'zipcode' => $lead->zip_code ?? '', // This should come from qualification questions
             'country' => 'USA',
-            'dob' => $lead->birth_date ?? '1990-01-01', // Default DOB if not provided
-            'tcpa' => true, // Assuming TCPA consent
-            'current_insurance_company' => strtolower($currentPolicy['current_insurance'] ?? $lead->insurance_company ?? 'other'),
-            'desired_coverage_type' => strtoupper($lead->coverage_type ?? 'BASIC'),
+            
+            // Use primary driver's birth date, formatted as YYYY-MM-DD
+            'date_of_birth' => isset($primaryDriver['birth_date']) ? 
+                \Carbon\Carbon::parse($primaryDriver['birth_date'])->format('Y-m-d') : 
+                '1990-01-01',
+                
+            // TCPA compliance from lead data
+            'tcpa_compliant' => $lead->tcpa_compliant ?? true,
+            
+            // Currently insured status
             'currently_insured' => !empty($currentPolicy['current_insurance'] ?? $lead->insurance_company),
+            
+            // Desired coverage type - map from payload or default
+            'desired_coverage_type' => $this->mapCoverageType($payload),
+            
+            // Residence status from driver data
+            'residence_status' => $this->mapResidenceStatus($primaryDriver['residence_type'] ?? null),
+            
             'drivers' => $this->formatDriversForAllstate($drivers),
             'vehicles' => $this->formatVehiclesForAllstate($vehicles),
             'ip_address' => request()->ip() ?? '127.0.0.1',
@@ -168,6 +190,61 @@ class AllstateCallTransferService
         ]);
         
         return $transferData;
+    }
+    
+    /**
+     * Map coverage type from payload to Allstate format
+     */
+    private function mapCoverageType($payload)
+    {
+        $coverageType = 'BASIC'; // Default
+        
+        if (isset($payload['data']['requested_policy']['coverage_type'])) {
+            $type = strtolower($payload['data']['requested_policy']['coverage_type']);
+            switch ($type) {
+                case 'superior coverage':
+                case 'superior':
+                    $coverageType = 'SUPERIOR';
+                    break;
+                case 'standard coverage':
+                case 'standard':
+                    $coverageType = 'STANDARD';
+                    break;
+                case 'basic coverage':
+                case 'basic':
+                    $coverageType = 'BASIC';
+                    break;
+                case 'state minimum':
+                case 'minimum':
+                    $coverageType = 'STATEMINIMUM';
+                    break;
+            }
+        }
+        
+        return $coverageType;
+    }
+    
+    /**
+     * Map residence status to Allstate format
+     */
+    private function mapResidenceStatus($residenceType)
+    {
+        if (!$residenceType) {
+            return 'own'; // Default
+        }
+        
+        $type = strtolower($residenceType);
+        switch ($type) {
+            case 'own':
+                return 'own';
+            case 'rent':
+                return 'rent';
+            case 'live_with_parents':
+            case 'parents':
+                return 'live_with_parents';
+            default:
+                return 'own';
+        }
     }
     
     /**

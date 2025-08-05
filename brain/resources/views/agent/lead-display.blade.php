@@ -709,6 +709,18 @@
                     </div>
                 </div>
 
+                <!-- Desired Coverage Question -->
+                <div class="question-group">
+                    <label class="question-label">Desired Coverage</label>
+                    <select class="question-select" id="desired_coverage">
+                        <option value="">Select...</option>
+                        <option value="STATEMINIMUM">State Minimum</option>
+                        <option value="BASIC">Basic</option>
+                        <option value="STANDARD">Standard</option>
+                        <option value="SUPERIOR">Superior</option>
+                    </select>
+                </div>
+
                 <!-- License Question -->
                 <div class="question-group">
                     <label class="question-label">Do you have an active driver's license?</label>
@@ -823,9 +835,18 @@
                     <label class="question-label">Do you own or rent your home?</label>
                     <select class="question-select" id="home_status">
                         <option value="">Select...</option>
-                        <option value="own">Own</option>
-                        <option value="rent">Rent</option>
-                        <option value="other">Other</option>
+                        @php
+                            $residenceType = null;
+                            if (isset($lead->payload) && is_string($lead->payload)) {
+                                $payload = json_decode($lead->payload, true);
+                                if (isset($payload['data']['drivers'][0]['residence_type'])) {
+                                    $residenceType = strtolower($payload['data']['drivers'][0]['residence_type']);
+                                }
+                            }
+                        @endphp
+                        <option value="own" {{ $residenceType === 'own' ? 'selected' : '' }}>Own</option>
+                        <option value="rent" {{ $residenceType === 'rent' ? 'selected' : '' }}>Rent</option>
+                        <option value="other" {{ $residenceType && !in_array($residenceType, ['own', 'rent']) ? 'selected' : '' }}>Other</option>
                     </select>
                 </div>
 
@@ -944,8 +965,8 @@
                 </div>
         @endif
         
-        <!-- TCPA Compliance Section - VIEW ONLY -->
-        @if(isset($mode) && $mode === 'view')
+        <!-- TCPA Compliance Section - BOTH VIEW AND EDIT -->
+        @if(isset($mode) && ($mode === 'view' || $mode === 'edit'))
         <div class="section">
                     <div class="section-title compliance">🛡️ TCPA Compliance</div>
                     <div class="info-grid">
@@ -1218,10 +1239,10 @@
                 </div>
                 <div class="info-grid">
                     <div class="info-item">
-                        <div class="info-label">Age</div>
+                        <div class="info-label">Date of Birth</div>
                         <div class="info-value">
                             @if(isset($driver['birth_date']))
-                                {{ \Carbon\Carbon::parse($driver['birth_date'])->age }} years
+                                {{ \Carbon\Carbon::parse($driver['birth_date'])->format('m-d-Y') }}
                             @else
                                 Not provided
                             @endif
@@ -1248,6 +1269,10 @@
                     <div class="info-item">
                         <div class="info-label">Relationship</div>
                         <div class="info-value">{{ $driver['relationship'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Residence Status</div>
+                        <div class="info-value">{{ ucfirst($driver['residence_type'] ?? 'Not provided') }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">License State</div>
