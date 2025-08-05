@@ -673,7 +673,8 @@
             <a href="/buyer/billing" class="nav-tab active">💳 Billing</a>
             <a href="/buyer/documents" class="nav-tab">📄 Documents</a>
             <a href="/buyer/notifications" class="nav-tab">🔔 Notifications</a>
-            <a href="/buyer/reports" class="nav-tab">📈 Reports</a>
+            <a href="/buyer/lead-outcomes" class="nav-tab">📈 Lead Outcomes</a>
+            <a href="/buyer/crm-settings" class="nav-tab">🔗 CRM Integration</a>
             <a href="/buyer/settings" class="nav-tab">⚙️ Settings</a>
         </div>
     </div>

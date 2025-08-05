@@ -2913,6 +2913,426 @@ Route::post('/api/buyer/notifications/test', function (Request $request) {
     ]);
 });
 
+// Buyer Lead Outcomes
+Route::get('/buyer/lead-outcomes', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer || $buyer->status !== 'active') {
+        session()->forget('buyer_id');
+        return redirect('/buyer/login')->with('error', 'Account not active');
+    }
+
+    // Get outcome statistics
+    $stats = [
+        'total_leads' => \App\Models\LeadOutcome::where('buyer_id', $buyerId)->count(),
+        'sold_leads' => \App\Models\LeadOutcome::where('buyer_id', $buyerId)->where('outcome', 'sold')->count(),
+        'conversion_rate' => 0,
+        'avg_quality' => \App\Models\LeadOutcome::where('buyer_id', $buyerId)->whereNotNull('quality_rating')->avg('quality_rating'),
+        'total_revenue' => \App\Models\LeadOutcome::where('buyer_id', $buyerId)->sum('sale_amount'),
+        'avg_close_time' => 0
+    ];
+
+    $totalLeads = $stats['total_leads'];
+    if ($totalLeads > 0) {
+        $stats['conversion_rate'] = round(($stats['sold_leads'] / $totalLeads) * 100, 1);
+    }
+
+    $stats['avg_quality'] = round($stats['avg_quality'] ?? 0, 1);
+
+    return view('buyer.lead-outcomes', compact('buyer', 'stats'));
+});
+
+// Submit Lead Outcome API
+Route::post('/api/buyer/lead-outcomes', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $validated = $request->validate([
+        'lead_id' => 'required|string',
+        'status' => 'nullable|string|in:new,contacted,qualified,proposal_sent,negotiating,closed_won,closed_lost,not_interested,bad_lead,duplicate',
+        'outcome' => 'nullable|string|in:pending,sold,not_sold,bad_lead,duplicate',
+        'sale_amount' => 'nullable|numeric|min:0',
+        'commission_amount' => 'nullable|numeric|min:0',
+        'quality_rating' => 'nullable|integer|min:1|max:5',
+        'notes' => 'nullable|string|max:1000',
+        'contact_attempts' => 'nullable|integer|min:0'
+    ]);
+
+    try {
+        // Find the lead
+        $lead = \App\Models\Lead::where('external_lead_id', $validated['lead_id'])->first();
+        if (!$lead) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lead not found'
+            ], 404);
+        }
+
+        // Create or update outcome
+        $outcome = \App\Models\LeadOutcome::updateOrCreate(
+            [
+                'lead_id' => $lead->id,
+                'buyer_id' => $buyerId
+            ],
+            [
+                'external_lead_id' => $validated['lead_id'],
+                'status' => $validated['status'] ?? 'new',
+                'outcome' => $validated['outcome'] ?? 'pending',
+                'sale_amount' => $validated['sale_amount'],
+                'commission_amount' => $validated['commission_amount'],
+                'quality_rating' => $validated['quality_rating'],
+                'notes' => $validated['notes'],
+                'contact_attempts' => $validated['contact_attempts'] ?? 0,
+                'reported_via' => 'api',
+                'last_contact_at' => now()
+            ]
+        );
+
+        // Set first contact if not set
+        if (!$outcome->first_contact_at && $validated['status'] !== 'new') {
+            $outcome->update(['first_contact_at' => now()]);
+        }
+
+        // Set closed date for final statuses
+        if (in_array($validated['status'], ['closed_won', 'closed_lost', 'not_interested', 'bad_lead'])) {
+            $outcome->update(['closed_at' => now()]);
+        }
+
+        // Send notification to QuotingFast about outcome
+        $notificationService = new \App\Services\NotificationService();
+        $notificationService->sendSystemNotification(
+            $buyerId,
+            'Lead Outcome Reported',
+            "Thank you for reporting the outcome of lead {$validated['lead_id']}. This helps us improve lead quality!",
+            ['lead_id' => $validated['lead_id'], 'outcome' => $validated['outcome']]
+        );
+
+        // Log for QuotingFast internal tracking
+        \Illuminate\Support\Facades\Log::info("Lead outcome reported", [
+            'buyer_id' => $buyerId,
+            'lead_id' => $validated['lead_id'],
+            'outcome' => $validated['outcome'],
+            'status' => $validated['status'],
+            'sale_amount' => $validated['sale_amount'],
+            'quality_rating' => $validated['quality_rating']
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Outcome reported successfully',
+            'outcome_id' => $outcome->id
+        ]);
+
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error("Lead outcome submission failed", [
+            'buyer_id' => $buyerId,
+            'lead_id' => $validated['lead_id'],
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to submit outcome report'
+        ], 500);
+    }
+});
+
+// Get Lead Outcomes API
+Route::get('/api/buyer/lead-outcomes', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $filter = $request->get('filter', 'all');
+    $limit = $request->get('limit', 20);
+    $page = $request->get('page', 1);
+
+    $query = \App\Models\LeadOutcome::where('buyer_id', $buyerId)
+        ->with('lead')
+        ->orderBy('updated_at', 'desc');
+
+    // Apply filters
+    if ($filter !== 'all') {
+        $query->where('outcome', $filter);
+    }
+
+    $outcomes = $query->paginate($limit, ['*'], 'page', $page);
+
+    return response()->json([
+        'outcomes' => $outcomes->items(),
+        'pagination' => [
+            'current_page' => $outcomes->currentPage(),
+            'total_pages' => $outcomes->lastPage(),
+            'total_items' => $outcomes->total()
+        ]
+    ]);
+});
+
+// Webhook for CRM outcome reports
+Route::post('/webhook/crm-outcome/{buyerId}', function (Request $request, $buyerId) {
+    try {
+        $buyer = \App\Models\Buyer::find($buyerId);
+        if (!$buyer) {
+            return response()->json(['error' => 'Buyer not found'], 404);
+        }
+
+        // Validate webhook signature if configured
+        $crmConfig = $buyer->crm_config ?? [];
+        if (isset($crmConfig['webhook_secret'])) {
+            $signature = $request->header('X-Webhook-Signature');
+            $expectedSignature = hash_hmac('sha256', $request->getContent(), $crmConfig['webhook_secret']);
+            
+            if (!hash_equals($expectedSignature, $signature)) {
+                return response()->json(['error' => 'Invalid signature'], 401);
+            }
+        }
+
+        $data = $request->all();
+        
+        // Map CRM data to our format (this would vary by CRM)
+        $leadId = $data['lead_id'] ?? $data['external_id'] ?? null;
+        $status = $data['status'] ?? 'new';
+        $outcome = $data['outcome'] ?? 'pending';
+        
+        if (!$leadId) {
+            return response()->json(['error' => 'Lead ID required'], 400);
+        }
+
+        // Find the lead
+        $lead = \App\Models\Lead::where('external_lead_id', $leadId)->first();
+        if (!$lead) {
+            return response()->json(['error' => 'Lead not found'], 404);
+        }
+
+        // Create or update outcome
+        $outcome = \App\Models\LeadOutcome::updateOrCreate(
+            [
+                'lead_id' => $lead->id,
+                'buyer_id' => $buyerId
+            ],
+            [
+                'external_lead_id' => $leadId,
+                'crm_lead_id' => $data['crm_lead_id'] ?? null,
+                'status' => $status,
+                'outcome' => $outcome,
+                'sale_amount' => $data['sale_amount'] ?? null,
+                'commission_amount' => $data['commission_amount'] ?? null,
+                'quality_rating' => $data['quality_rating'] ?? null,
+                'contact_attempts' => $data['contact_attempts'] ?? 0,
+                'notes' => $data['notes'] ?? null,
+                'feedback' => $data['feedback'] ?? null,
+                'source_system' => $data['source_system'] ?? 'crm',
+                'reported_via' => 'webhook',
+                'metadata' => $data,
+                'last_contact_at' => now()
+            ]
+        );
+
+        \Illuminate\Support\Facades\Log::info("CRM outcome webhook received", [
+            'buyer_id' => $buyerId,
+            'lead_id' => $leadId,
+            'status' => $status,
+            'outcome' => $outcome,
+            'source' => $data['source_system'] ?? 'unknown'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Outcome received',
+            'outcome_id' => $outcome->id
+        ]);
+
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error("CRM outcome webhook failed", [
+            'buyer_id' => $buyerId,
+            'error' => $e->getMessage(),
+            'data' => $request->all()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => 'Webhook processing failed'
+        ], 500);
+    }
+});
+
+// Buyer CRM Settings
+Route::get('/buyer/crm-settings', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer || $buyer->status !== 'active') {
+        session()->forget('buyer_id');
+        return redirect('/buyer/login')->with('error', 'Account not active');
+    }
+
+    return view('buyer.crm-settings', compact('buyer'));
+});
+
+// Get CRM Configuration API
+Route::get('/api/buyer/crm/config', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    $config = $buyer->crm_config ?? [];
+    $stats = $buyer->crm_stats ?? [];
+
+    return response()->json([
+        'config' => $config,
+        'stats' => $stats
+    ]);
+});
+
+// Save CRM Configuration API
+Route::post('/api/buyer/crm/config', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer) {
+        return response()->json(['error' => 'Buyer not found'], 404);
+    }
+
+    $validated = $request->validate([
+        'type' => 'required|string|in:salesforce,hubspot,pipedrive,zoho,dynamics,freshsales,activecampaign,gohighlevel,webhook',
+        'enabled' => 'boolean',
+        'instance_url' => 'nullable|string',
+        'access_token' => 'nullable|string',
+        'api_key' => 'nullable|string',
+        'portal_id' => 'nullable|string',
+        'domain' => 'nullable|string',
+        'api_token' => 'nullable|string',
+        'webhook_url' => 'nullable|url',
+        'auth_method' => 'nullable|string|in:none,bearer,api_key,basic',
+        'field_mapping' => 'nullable|array'
+    ]);
+
+    try {
+        $buyer->update(['crm_config' => $validated]);
+
+        // Send notification about CRM setup
+        $notificationService = new \App\Services\NotificationService();
+        $notificationService->sendSystemNotification(
+            $buyerId,
+            'CRM Integration Configured',
+            "Your {$validated['type']} integration has been set up successfully. Leads will now be automatically delivered to your CRM.",
+            ['crm_type' => $validated['type']]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'CRM configuration saved successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error("CRM config save failed", [
+            'buyer_id' => $buyerId,
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to save CRM configuration'
+        ], 500);
+    }
+});
+
+// Test CRM Connection API
+Route::post('/api/buyer/crm/test', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $validated = $request->validate([
+        'type' => 'required|string',
+        'instance_url' => 'nullable|string',
+        'access_token' => 'nullable|string',
+        'api_key' => 'nullable|string',
+        'domain' => 'nullable|string',
+        'api_token' => 'nullable|string',
+        'webhook_url' => 'nullable|url'
+    ]);
+
+    try {
+        $crmService = new \App\Services\CRMIntegrationService();
+        $result = $crmService->testCRMConnection($buyerId, $validated);
+
+        return response()->json($result);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Connection test failed: ' . $e->getMessage()
+        ]);
+    }
+});
+
+// Disable CRM Integration API
+Route::post('/api/buyer/crm/disable', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer) {
+        return response()->json(['error' => 'Buyer not found'], 404);
+    }
+
+    try {
+        $currentConfig = $buyer->crm_config ?? [];
+        $currentConfig['enabled'] = false;
+        
+        $buyer->update(['crm_config' => $currentConfig]);
+
+        // Send notification about CRM disable
+        $notificationService = new \App\Services\NotificationService();
+        $notificationService->sendSystemNotification(
+            $buyerId,
+            'CRM Integration Disabled',
+            'Your CRM integration has been disabled. Leads will no longer be automatically delivered to your CRM system.',
+            ['action' => 'disabled']
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'CRM integration disabled successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to disable CRM integration'
+        ], 500);
+    }
+});
+
+// Get CRM Templates API
+Route::get('/api/buyer/crm/templates', function () {
+    $crmService = new \App\Services\CRMIntegrationService();
+    $templates = $crmService->getCRMTemplates();
+
+    return response()->json([
+        'templates' => $templates
+    ]);
+});
+
 // Buyer Logout
 Route::post('/buyer/logout', function () {
     session()->forget('buyer_id');
