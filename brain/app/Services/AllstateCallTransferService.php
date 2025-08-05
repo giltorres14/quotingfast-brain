@@ -15,7 +15,7 @@ class AllstateCallTransferService
     public function __construct()
     {
         // Allstate Lead Marketplace API key - updated with correct tokens from Allstate
-        $this->apiKey = env('ALLSTATE_API_KEY', 'dGVzdHZlbmRvcjo='); // Testing token from Allstate
+        $this->apiKey = env('ALLSTATE_API_KEY', 'cXVvdGluZy1mYXN0Og=='); // Updated testing token from Allstate
         // Use testing environment first, then switch to production
         $this->baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
             ? 'https://api.allstateleadmarketplace.com/v2'

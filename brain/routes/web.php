@@ -1926,7 +1926,7 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
 // Test Allstate API connection with multiple auth methods
 Route::get('/test/allstate/connection', function () {
     try {
-        $apiKey = env('ALLSTATE_API_KEY', 'dGVzdHZlbmRvcjo='); // Updated with test token from Allstate
+        $apiKey = env('ALLSTATE_API_KEY', 'cXVvdGluZy1mYXN0Og=='); // Updated with new test token from Allstate
         $baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
             ? 'https://api.allstateleadmarketplace.com/v2'
             : 'https://int.allstateleadmarketplace.com/v2';
