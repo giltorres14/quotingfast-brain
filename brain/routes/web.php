@@ -865,9 +865,27 @@ Route::post('/webhook.php', function (Request $request) {
             $externalLeadId = generateLeadId();
             $lead->update(['external_lead_id' => $externalLeadId]);
             
+            // 🚨 CAMPAIGN AUTO-DETECTION: Check if this is a new campaign ID
+            if (!empty($leadData['campaign_id'])) {
+                $campaign = \App\Models\Campaign::autoCreateFromId($leadData['campaign_id']);
+                
+                // If this was a newly created campaign, log it for notification
+                if ($campaign->wasRecentlyCreated) {
+                    Log::warning('🆕 NEW CAMPAIGN DETECTED', [
+                        'campaign_id' => $leadData['campaign_id'],
+                        'lead_id' => $externalLeadId,
+                        'message' => "New campaign ID '{$leadData['campaign_id']}' detected and auto-created. Please add campaign name in directory."
+                    ]);
+                } else {
+                    // Update existing campaign activity
+                    $campaign->recordLeadActivity();
+                }
+            }
+            
             Log::info('LeadsQuotingFast lead stored in database', [
                 'db_id' => $lead->id, 
-                'external_lead_id' => $externalLeadId
+                'external_lead_id' => $externalLeadId,
+                'campaign_id' => $leadData['campaign_id'] ?? 'none'
             ]);
         } catch (Exception $dbError) {
             Log::warning('Database storage failed, continuing with Vici integration', ['error' => $dbError->getMessage()]);
@@ -2007,6 +2025,71 @@ Route::get('/test/allstate/connection', function () {
             'timestamp' => now()->toISOString()
         ], 500);
     }
+});
+
+// Campaign Directory - Admin only
+Route::get('/campaign-directory', function () {
+    $isAdmin = true; // Placeholder for auth - replace with actual admin check
+    if (!$isAdmin) {
+        abort(403, 'Access denied. Admin only.');
+    }
+    
+    // Get search and sort parameters
+    $search = request('search');
+    $sortBy = request('sort', 'last_lead_received_at');
+    $sortDir = request('dir', 'desc');
+    
+    // Build query
+    $query = \App\Models\Campaign::query();
+    
+    // Apply search filter
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            $q->where('campaign_id', 'like', "%{$search}%")
+              ->orWhere('name', 'like', "%{$search}%")
+              ->orWhere('description', 'like', "%{$search}%");
+        });
+    }
+    
+    // Apply sorting
+    $allowedSorts = ['campaign_id', 'name', 'last_lead_received_at', 'total_leads', 'status', 'created_at'];
+    if (in_array($sortBy, $allowedSorts)) {
+        $query->orderBy($sortBy, $sortDir);
+    }
+    
+    $campaigns = $query->paginate(20)->withQueryString();
+    
+    // Get statistics
+    $stats = [
+        'total_campaigns' => \App\Models\Campaign::count(),
+        'active_campaigns' => \App\Models\Campaign::where('status', 'active')->count(),
+        'auto_detected' => \App\Models\Campaign::needsAttention()->count(),
+        'recent_activity' => \App\Models\Campaign::recentActivity(7)->count(),
+        'total_leads_from_campaigns' => \App\Models\Lead::whereNotNull('campaign_id')->count(),
+    ];
+    
+    return view('campaigns.directory', compact('campaigns', 'stats', 'search', 'sortBy', 'sortDir'));
+});
+
+// Update Campaign Name - converts auto-detected campaigns to managed campaigns
+Route::post('/campaign-directory/{campaign}/update', function (\App\Models\Campaign $campaign) {
+    $name = request('name');
+    $description = request('description');
+    
+    if (empty($name)) {
+        return response()->json(['success' => false, 'message' => 'Campaign name is required'], 400);
+    }
+    
+    // Update campaign and get count of affected leads
+    $leadsCount = $campaign->leads()->count();
+    $campaign->updateWithName($name, $description);
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Campaign updated successfully',
+        'campaign_id' => $campaign->campaign_id,
+        'leads_updated' => $leadsCount
+    ]);
 });
 
 // Fix Tony Clark lead type

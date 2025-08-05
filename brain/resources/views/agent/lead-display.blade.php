@@ -949,29 +949,46 @@
                     <div class="info-item" id="contact-campaign">
                         <div class="info-label">Campaign ID</div>
                         <div class="info-value">{{ $campaignId }}</div>
-                    </div>
-                    @endif
-                </div>
             </div>
+                    @endif
         </div>
+                </div>
+                </div>
 
         <!-- Additional Lead Data - Only show in view mode -->
         @if(isset($mode) && $mode === 'view')
         <div class="section">
             <div class="section-title">💰 Cost and Buyer</div>
             <div class="info-grid">
-                <!-- Campaign ID -->
+                <!-- Campaign Information -->
                 @php
                     $campaignId = $lead->campaign_id;
                     if (!$campaignId && isset($lead->payload) && is_string($lead->payload)) {
                         $payload = json_decode($lead->payload, true);
                         $campaignId = $payload['campaign_id'] ?? null;
                     }
+                    
+                    $campaign = null;
+                    $campaignName = null;
+                    if ($campaignId) {
+                        $campaign = \App\Models\Campaign::where('campaign_id', $campaignId)->first();
+                        $campaignName = $campaign ? $campaign->display_name : null;
+                    }
                 @endphp
                 @if($campaignId)
                 <div class="info-item">
-                    <div class="info-label">Campaign ID</div>
-                    <div class="info-value">{{ $campaignId }}</div>
+                    <div class="info-label">Campaign</div>
+                    <div class="info-value">
+                        @if($campaignName && !$campaign->is_auto_created)
+                            <strong>{{ $campaignName }}</strong><br>
+                            <small style="color: #6b7280;">ID: {{ $campaignId }}</small>
+                        @else
+                            <span style="font-family: monospace; color: #667eea;">{{ $campaignId }}</span>
+                            @if($campaign && $campaign->is_auto_created)
+                            <br><small style="color: #dc2626;">⚠️ Campaign needs name in directory</small>
+                            @endif
+                        @endif
+                    </div>
                 </div>
                 @endif
                 
@@ -999,10 +1016,10 @@
                     <div class="info-value">${{ number_format($lead->sell_price, 2) }}</div>
                 </div>
                 @endif
-                </div>
-                </div>
+            </div>
+        </div>
         @endif
-        
+
         <!-- TCPA Compliance Section - BOTH VIEW AND EDIT -->
         @if(isset($mode) && ($mode === 'view' || $mode === 'edit'))
         <div class="section">
@@ -1393,7 +1410,7 @@
                                 <span style="color: #28a745;">No accidents</span>
                                 @if(!isset($mode) || $mode !== 'view')
                                     <button type="button" class="add-btn" style="margin-left: 8px; padding: 2px 6px; font-size: 9px;" onclick="addAccident({{ $index }})">Add Accident</button>
-                                @endif
+        @endif
                             @else
                                 Not provided
                                 @if(!isset($mode) || $mode !== 'view')
@@ -1540,13 +1557,13 @@
                     <div class="info-item">
                         <div class="info-label">Comprehensive Deductible</div>
                         <div class="info-value">${{ number_format($vehicle['comprehensive_deductible']) }}</div>
-                    </div>
+                </div>
                     @endif
                     @if(isset($vehicle['collision_deductible']) && $vehicle['collision_deductible'])
                     <div class="info-item">
                         <div class="info-label">Collision Deductible</div>
                         <div class="info-value">${{ number_format($vehicle['collision_deductible']) }}</div>
-                    </div>
+            </div>
                     @endif
                 </div>
                 

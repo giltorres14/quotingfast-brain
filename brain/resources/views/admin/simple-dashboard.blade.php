@@ -484,8 +484,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#campaigns" class="nav-link" onclick="alert('Campaign management feature coming soon!')">
-                        Campaigns
+                    <a href="/campaign-directory" class="nav-link">
+                        📊 Campaign Directory
                     </a>
                 </li>
                 <li class="nav-item">

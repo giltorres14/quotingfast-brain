@@ -12,7 +12,7 @@ class AllstateCallTransferService
     private $apiKey;
     private $baseUrl;
     private $environment;
-    
+
     public function __construct()
     {
         // Allstate Lead Marketplace API configuration
@@ -94,8 +94,8 @@ class AllstateCallTransferService
                     'body' => $response->body(),
                     'lead_id' => $lead->id ?? 'unknown'
                 ]);
-                
-                return [
+
+            return [
                     'success' => false,
                     'error' => 'Allstate API returned status: ' . $response->status(),
                     'response_body' => $response->body()
@@ -108,14 +108,14 @@ class AllstateCallTransferService
                 'lead_id' => $lead->id ?? 'unknown',
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return [
                 'success' => false,
                 'error' => $e->getMessage()
             ];
         }
     }
-    
+
     /**
      * Prepare lead data in Allstate's expected format
      */
@@ -140,7 +140,7 @@ class AllstateCallTransferService
         
         // Get driver data for primary driver fields
         $primaryDriver = $drivers[0] ?? [];
-        
+
         // Parse payload for additional data
         $payload = [];
         if (isset($lead->payload) && is_string($lead->payload)) {

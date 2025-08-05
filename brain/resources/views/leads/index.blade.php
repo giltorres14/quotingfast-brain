@@ -334,6 +334,12 @@
             color: #d97706;
         }
         
+        /* Campaign Badge */
+        .badge-campaign {
+            background: #f0f9ff;
+            color: #0369a1;
+        }
+        
         /* SMS Status */
         .sms-status {
             display: flex;
@@ -528,9 +534,9 @@
                 <li><a href="/leads" class="nav-link active">Leads</a></li>
                 <li><a href="#messaging" class="nav-link" onclick="alert('SMS/Messaging feature coming soon!')">Messaging</a></li>
                 <li><a href="/analytics" class="nav-link">Analytics</a></li>
-                <li><a href="#campaigns" class="nav-link" onclick="alert('Campaign management feature coming soon!')">Campaigns</a></li>
+                <li><a href="/campaign-directory" class="nav-link">📊 Campaigns</a></li>
                 <li><a href="/api-directory" class="nav-link">🔗 API</a></li>
-                <li><a href="#settings" class="nav-link" onclick="alert('Settings feature coming soon!')">Settings</a></li>
+                    <li><a href="#settings" class="nav-link" onclick="alert('Settings feature coming soon!')">Settings</a></li>
             </ul>
   </div>
     </nav>
@@ -667,6 +673,16 @@
                                             @if($lead->type)
                                                 <span class="badge badge-type-{{ strtolower($lead->type) }}">
                                                     {{ ucfirst($lead->type) }}
+                                                </span>
+                                            @endif
+                                            
+                                            @if($lead->campaign_id)
+                                                @php
+                                                    $campaign = \App\Models\Campaign::where('campaign_id', $lead->campaign_id)->first();
+                                                    $campaignName = $campaign ? $campaign->display_name : "Campaign #{$lead->campaign_id}";
+                                                @endphp
+                                                <span class="badge badge-campaign">
+                                                    {{ $campaignName }}
                                                 </span>
                                             @endif
                                             
