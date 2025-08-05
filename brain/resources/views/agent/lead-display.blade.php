@@ -1323,14 +1323,23 @@
                         <div style="margin-top: 6px; font-size: 10px; color: #6c757d;">
                             <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 4px;">
                                 @foreach($driver as $key => $value)
-                                    @if(!in_array($key, ['first_name', 'last_name', 'birth_date', 'gender', 'marital_status', 'license_state', 'violations', 'accidents', 'license_status', 'years_licensed']))
+                                    @if(!in_array($key, ['first_name', 'last_name', 'birth_date', 'gender', 'marital_status', 'license_state']))
                                     <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
                                         <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
                                         <div style="font-size: 10px; color: #495057; margin-top: 1px;">
                                             @if(is_bool($value))
                                                 {{ $value ? 'Yes' : 'No' }}
+                                            @elseif(is_array($value) && count($value) > 0)
+                                                @if(in_array($key, ['tickets', 'accidents', 'claims', 'major_violations']) && isset($value[0]) && is_array($value[0]))
+                                                    <div style="font-weight: 600;">{{ count($value) }} item(s):</div>
+                                                    @foreach($value[0] as $subKey => $subValue)
+                                                        <div style="font-size: 9px; color: #6c757d; margin-left: 4px;">{{ ucwords(str_replace('_', ' ', $subKey)) }}: {{ $subValue }}</div>
+                                                    @endforeach
+                                                @else
+                                                    {{ count($value) }} item(s)
+                                                @endif
                                             @elseif(is_array($value))
-                                                {{ json_encode($value) }}
+                                                None
                                             @elseif($value === 1 || $value === '1')
                                                 Yes
                                             @elseif($value === 0 || $value === '0')
@@ -1410,14 +1419,16 @@
                         <div style="margin-top: 6px; font-size: 10px; color: #6c757d;">
                             <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 4px;">
                                 @foreach($vehicle as $key => $value)
-                                    @if(!in_array($key, ['year', 'make', 'model', 'vin', 'primary_use', 'annual_miles', 'ownership', 'garage']))
+                                    @if(!in_array($key, ['year', 'make', 'model', 'vin']))
                                     <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
                                         <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
                                         <div style="font-size: 10px; color: #495057; margin-top: 1px;">
                                             @if(is_bool($value))
                                                 {{ $value ? 'Yes' : 'No' }}
+                                            @elseif(is_array($value) && count($value) > 0)
+                                                {{ count($value) }} item(s)
                                             @elseif(is_array($value))
-                                                {{ json_encode($value) }}
+                                                None
                                             @elseif($value === 1 || $value === '1')
                                                 Yes
                                             @elseif($value === 0 || $value === '0')
@@ -1425,10 +1436,10 @@
                                             @else
                                                 {{ $value ?? 'Not provided' }}
                                             @endif
-            </div>
+                                        </div>
                                     </div>
                                     @endif
-            @endforeach
+                                @endforeach
                             </div>
                         </div>
                     </details>
