@@ -3110,7 +3110,56 @@ Route::get('/admin', function () {
 
 // API & Webhooks Directory - Beautiful unified page matching lead layout
 Route::get('/api-directory', function () {
-    $html = '<!DOCTYPE html>
+    // Get statistics for the dashboard
+    $stats = [
+        'total_leads' => \App\Models\Lead::count(),
+        'today_leads' => \App\Models\Lead::whereBetween('created_at', [
+            \Carbon\Carbon::now('America/New_York')->startOfDay()->utc(), 
+            \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
+        ])->count(),
+        'active_sources' => \App\Models\Lead::distinct('source')->count('source'),
+    ];
+
+    // Get webhook configurations
+    $webhooks = [
+        'leadsquotingfast' => [
+            'name' => 'LeadsQuotingFast',
+            'endpoint' => '/webhook.php',
+            'method' => 'POST',
+            'status' => 'active',
+            'description' => 'Primary lead capture webhook'
+        ],
+        'ringba' => [
+            'name' => 'Ringba',
+            'endpoint' => '/webhook/ringba',
+            'method' => 'POST', 
+            'status' => 'active',
+            'description' => 'Call tracking integration'
+        ],
+        'vici' => [
+            'name' => 'ViciDial',
+            'endpoint' => '/webhook/vici',
+            'method' => 'POST',
+            'status' => 'active',
+            'description' => 'Dialer system callbacks'
+        ],
+        'allstate' => [
+            'name' => 'Allstate',
+            'endpoint' => '/webhook/allstate',
+            'method' => 'POST',
+            'status' => 'active',
+            'description' => 'Lead marketplace integration'
+        ],
+        'twilio' => [
+            'name' => 'Twilio',
+            'endpoint' => '/webhook/twilio',
+            'method' => 'POST',
+            'status' => 'active',
+            'description' => 'SMS/Voice communications'
+        ]
+    ];
+
+    return view('api.directory', compact('stats', 'webhooks'));
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -3519,7 +3568,6 @@ Route::get('/api-directory', function () {
 </body>
 </html>';
     
-    return response($html)->header('Content-Type', 'text/html');
 });
 
 // Generic date range route - MUST COME AFTER SPECIFIC ROUTES
