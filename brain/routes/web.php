@@ -2009,10 +2009,9 @@ Route::get('/test/allstate/connection', function () {
     }
 });
 
-// Manually update lead type
-Route::post('/admin/lead/{leadId}/update-type', function ($leadId) {
+// Manually update lead type (GET for easy testing)
+Route::get('/admin/lead/{leadId}/update-type/{type}', function ($leadId, $type) {
     $lead = Lead::findOrFail($leadId);
-    $type = request('type'); // 'auto' or 'home'
     
     if (!in_array($type, ['auto', 'home'])) {
         return response()->json(['error' => 'Invalid type. Must be auto or home.'], 400);
@@ -2024,7 +2023,8 @@ Route::post('/admin/lead/{leadId}/update-type', function ($leadId) {
         'success' => true,
         'message' => "Lead type updated to {$type}",
         'lead_id' => $lead->id,
-        'new_type' => $type
+        'new_type' => $type,
+        'redirect' => "/agent/lead/{$leadId}"
     ]);
 });
 
