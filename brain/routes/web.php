@@ -170,6 +170,39 @@ Route::get('/vici/whitelist', function () {
     }
 });
 
+// External lead lookup by external_lead_id (for Vici/RingBa callbacks)
+Route::get('/api/external-lead/{externalLeadId}', function ($externalLeadId) {
+    try {
+        $lead = Lead::where('external_lead_id', $externalLeadId)->first();
+        
+        if (!$lead) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Lead not found',
+                'external_lead_id' => $externalLeadId
+            ], 404);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'lead_id' => $lead->id,
+            'external_lead_id' => $lead->external_lead_id,
+            'name' => $lead->name,
+            'phone' => $lead->phone,
+            'email' => $lead->email,
+            'status' => $lead->status,
+            'created_at' => $lead->created_at,
+            'iframe_url' => url("/agent/lead/{$lead->id}")
+        ]);
+        
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Debug Vici configuration
 Route::get('/debug/vici-config', function () {
     return response()->json([
@@ -852,33 +885,38 @@ Route::post('/webhook.php', function (Request $request) {
             'payload' => json_encode($data),
         ];
         
-        // Generate unique lead ID - 9 digits starting with 100000001
-        $customLeadId = generateLeadId();
-        
-        // Try to store in database, but continue if it fails
+        // Try to store in database first to get auto-increment ID
         $lead = null;
-        $actualLeadId = $customLeadId; // Use generated custom ID for external systems
+        $externalLeadId = null;
         try {
-            // Set the custom 9-digit ID format in a separate field
-            $leadData['external_lead_id'] = $customLeadId;
             $lead = Lead::create($leadData);
-            $dbLeadId = $lead->id; // Database auto-increment ID for internal use
-            Log::info('LeadsQuotingFast lead stored in database', ['custom_lead_id' => $customLeadId, 'db_id' => $dbLeadId]);
+            
+            // Generate external lead ID after successful database insert
+            $externalLeadId = generateLeadId();
+            $lead->update(['external_lead_id' => $externalLeadId]);
+            
+            Log::info('LeadsQuotingFast lead stored in database', [
+                'db_id' => $lead->id, 
+                'external_lead_id' => $externalLeadId
+            ]);
         } catch (Exception $dbError) {
             Log::warning('Database storage failed, continuing with Vici integration', ['error' => $dbError->getMessage()]);
         }
         
-        // CRITICAL: Send lead to Vici list 101
-        try {
-            $viciResult = sendToViciList101($leadData, $customLeadId);
-            Log::info('Lead sent to Vici list 101', ['custom_lead_id' => $customLeadId, 'vici_result' => $viciResult]);
-        } catch (Exception $viciError) {
-            Log::error('Failed to send lead to Vici', ['error' => $viciError->getMessage(), 'custom_lead_id' => $customLeadId]);
+        // CRITICAL: Send lead to Vici list 101 (use external_lead_id for callbacks)
+        if ($externalLeadId) {
+            try {
+                $viciResult = sendToViciList101($leadData, $externalLeadId);
+                Log::info('Lead sent to Vici list 101', ['external_lead_id' => $externalLeadId, 'vici_result' => $viciResult]);
+            } catch (Exception $viciError) {
+                Log::error('Failed to send lead to Vici', ['error' => $viciError->getMessage(), 'external_lead_id' => $externalLeadId]);
+            }
         }
         
-        // Store lead data in file cache for iframe testing (fallback if DB fails)
+        // Store lead data in file cache for iframe testing
+        $cacheId = $lead ? $lead->id : 'fallback';
         try {
-            Cache::put("lead_data_{$actualLeadId}", $leadData, now()->addHours(24));
+            Cache::put("lead_data_{$cacheId}", $leadData, now()->addHours(24));
         } catch (Exception $cacheError) {
             // File-based fallback if cache also fails
             $cacheDir = storage_path('app/lead_cache');
@@ -886,25 +924,26 @@ Route::post('/webhook.php', function (Request $request) {
                 mkdir($cacheDir, 0755, true);
             }
             file_put_contents(
-                "{$cacheDir}/{$actualLeadId}.json", 
+                "{$cacheDir}/{$cacheId}.json", 
                 json_encode(array_merge($leadData, ['cached_at' => now()->toISOString()]))
             );
-            Log::info('Lead stored in file cache', ['lead_id' => $actualLeadId]);
+            Log::info('Lead stored in file cache', ['cache_id' => $cacheId]);
         }
         
-        Log::info('LeadsQuotingFast lead processed successfully', ['lead_id' => $actualLeadId]);
+        Log::info('LeadsQuotingFast lead processed successfully', [
+            'db_id' => $lead ? $lead->id : null,
+            'external_lead_id' => $externalLeadId
+        ]);
         
-        // Return success response with custom lead ID for external systems
-        $iframeId = $lead ? $lead->id : $actualLeadId; // Use DB ID for iframe if available
+        // Return success response - external systems use external_lead_id for callbacks
         return response()->json([
             'success' => true,
             'message' => 'Lead received and sent to Vici list 101',
-            'lead_id' => $actualLeadId, // Custom 9-digit ID for external systems
-            'custom_lead_id' => $actualLeadId, // Explicit custom ID
-            'db_id' => $lead ? $lead->id : null, // Database ID for reference
+            'lead_id' => $lead ? $lead->id : null, // Database ID for Brain internal use
+            'external_lead_id' => $externalLeadId, // 9-digit ID for Vici/RingBa callbacks
             'name' => $leadData['name'],
             'vici_list' => 101,
-            'iframe_url' => url("/agent/lead/{$iframeId}"), // Use DB ID for iframe
+            'iframe_url' => $lead ? url("/agent/lead/{$lead->id}") : null, // Use DB ID for iframe
             'timestamp' => now()->toISOString()
         ], 201);
         
