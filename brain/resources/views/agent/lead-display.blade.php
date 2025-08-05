@@ -917,8 +917,23 @@
         <!-- Additional Lead Data - Only show in view mode -->
         @if(isset($mode) && $mode === 'view')
         <div class="section">
-            <div class="section-title">📋 TCPA Compliance</div>
+            <div class="section-title">💰 Cost and Buyer</div>
             <div class="info-grid">
+                <!-- Campaign ID -->
+                @php
+                    $campaignId = $lead->campaign_id;
+                    if (!$campaignId && isset($lead->payload) && is_string($lead->payload)) {
+                        $payload = json_decode($lead->payload, true);
+                        $campaignId = $payload['campaign_id'] ?? null;
+                    }
+                @endphp
+                @if($campaignId)
+                <div class="info-item">
+                    <div class="info-label">Campaign ID</div>
+                    <div class="info-value">{{ $campaignId }}</div>
+                </div>
+                @endif
+                
                 @if(isset($lead->sell_price) && $lead->sell_price)
                 <div class="info-item">
                     <div class="info-label">Lead Cost</div>
@@ -1231,6 +1246,10 @@
                         </div>
                     </div>
                     <div class="info-item">
+                        <div class="info-label">Relationship</div>
+                        <div class="info-value">{{ $driver['relationship'] ?? 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item">
                         <div class="info-label">License State</div>
                         <div class="info-value">{{ $driver['license_state'] ?? 'Not provided' }}</div>
                     </div>
@@ -1337,7 +1356,7 @@
                         <div style="margin-top: 6px; font-size: 10px; color: #6c757d;">
                             <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 4px;">
                                 @foreach($driver as $key => $value)
-                                    @if(!in_array($key, ['first_name', 'last_name', 'birth_date', 'gender', 'marital_status', 'license_state']))
+                                    @if(!in_array($key, ['first_name', 'last_name', 'birth_date', 'gender', 'marital_status', 'license_state', 'license_status', 'years_licensed', 'relationship']))
                                     <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
                                         <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
                                         <div style="font-size: 10px; color: #495057; margin-top: 1px;">
@@ -1436,6 +1455,19 @@
                         <div class="info-label">Garage</div>
                         <div class="info-value">{{ $vehicle['garage'] ?? 'Not provided' }}</div>
                     </div>
+                    <!-- Moved deductibles to main vehicle section -->
+                    @if(isset($vehicle['comprehensive_deductible']) && $vehicle['comprehensive_deductible'])
+                    <div class="info-item">
+                        <div class="info-label">Comprehensive Deductible</div>
+                        <div class="info-value">${{ number_format($vehicle['comprehensive_deductible']) }}</div>
+                    </div>
+                    @endif
+                    @if(isset($vehicle['collision_deductible']) && $vehicle['collision_deductible'])
+                    <div class="info-item">
+                        <div class="info-label">Collision Deductible</div>
+                        <div class="info-value">${{ number_format($vehicle['collision_deductible']) }}</div>
+                    </div>
+                    @endif
                 </div>
                 
                 <!-- View More Details Section for Vehicles -->
@@ -1447,7 +1479,7 @@
                         <div style="margin-top: 6px; font-size: 10px; color: #6c757d;">
                             <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 4px;">
                                 @foreach($vehicle as $key => $value)
-                                    @if(!in_array($key, ['year', 'make', 'model', 'vin']))
+                                    @if(!in_array($key, ['year', 'make', 'model', 'vin', 'primary_use', 'annual_miles', 'ownership', 'garage', 'comprehensive_deductible', 'collision_deductible']))
                                     <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
                                         <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
                                         <div style="font-size: 10px; color: #495057; margin-top: 1px;">

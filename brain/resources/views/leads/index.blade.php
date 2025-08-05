@@ -651,7 +651,7 @@
                                             #{{ $lead->external_lead_id }}
                                         </span>
                                     @endif
-                                </div>
+          </div>
                                 <div class="lead-contact">
                                     📞 @if($lead->phone)
                                         @php
@@ -672,6 +672,9 @@
                                 </div>
                                 <div class="lead-location">
                                     📍 {{ $lead->city ?? '' }}@if($lead->city && $lead->state), @endif{{ $lead->state ?? '' }}
+                                </div>
+                                <div class="lead-datetime" style="color: #6b7280; font-size: 0.8rem; margin-top: 0.25rem;">
+                                    🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, Y g:i A T') : 'Unknown' }}
                                 </div>
                             </div>
         </div>
