@@ -828,7 +828,7 @@ Route::post('/webhook.php', function (Request $request) {
             'state' => $contact['state'] ?? 'Unknown',
             'zip_code' => $contact['zip_code'] ?? null,
             'source' => 'leadsquotingfast',
-            'type' => 'auto',
+            'type' => detectLeadType($data),
             'received_at' => now(),
             'joined_at' => now(),
             
@@ -2169,6 +2169,49 @@ Route::get('/login', function() {
 })->name('login');
 
 // Generate unique 9-digit lead ID starting with 100000001
+// Helper function to detect lead type from payload
+function detectLeadType($data) {
+    // Check for explicit type in payload
+    if (isset($data['type'])) {
+        return strtolower($data['type']);
+    }
+    
+    // Check for vertical field (common in lead forms)
+    if (isset($data['vertical'])) {
+        $vertical = strtolower($data['vertical']);
+        if (strpos($vertical, 'home') !== false || strpos($vertical, 'property') !== false) {
+            return 'home';
+        }
+        if (strpos($vertical, 'auto') !== false || strpos($vertical, 'car') !== false) {
+            return 'auto';
+        }
+    }
+    
+    // Check for vehicles data (indicates auto insurance)
+    if (isset($data['data']['vehicles']) && !empty($data['data']['vehicles'])) {
+        return 'auto';
+    }
+    
+    // Check for property data (indicates home insurance)
+    if (isset($data['data']['property']) || isset($data['data']['home']) || isset($data['data']['dwelling'])) {
+        return 'home';
+    }
+    
+    // Check form URL or source for clues
+    if (isset($data['landing_page_url'])) {
+        $url = strtolower($data['landing_page_url']);
+        if (strpos($url, 'home') !== false || strpos($url, 'property') !== false) {
+            return 'home';
+        }
+        if (strpos($url, 'auto') !== false || strpos($url, 'car') !== false) {
+            return 'auto';
+        }
+    }
+    
+    // Default to auto if can't determine
+    return 'auto';
+}
+
 function generateLeadId() {
     try {
         // Get the highest existing lead ID from database

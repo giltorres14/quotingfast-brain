@@ -955,6 +955,24 @@
                 </div>
                 @endif
                 
+                @if($lead->type)
+                <div class="info-item">
+                    <div class="info-label">Lead Type</div>
+                    <div class="info-value">
+                        <span style="
+                            padding: 0.25rem 0.75rem; 
+                            border-radius: 1rem; 
+                            font-size: 0.875rem; 
+                            font-weight: 600;
+                            background: {{ $lead->type === 'auto' ? '#dbeafe' : '#fef3c7' }};
+                            color: {{ $lead->type === 'auto' ? '#1e40af' : '#d97706' }};
+                        ">
+                            {{ ucfirst($lead->type) }} Insurance
+                        </span>
+                    </div>
+                </div>
+                @endif
+                
                 @if(isset($lead->sell_price) && $lead->sell_price)
                 <div class="info-item">
                     <div class="info-label">Lead Cost</div>

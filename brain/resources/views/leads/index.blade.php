@@ -330,6 +330,17 @@
             color: #01579b;
         }
         
+        /* Lead Type Badges */
+        .badge-type-auto {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge-type-home {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
         /* SMS Status */
         .sms-status {
             display: flex;
@@ -692,6 +703,12 @@
                                     <span class="badge badge-{{ strtolower($lead->source) }}">
             {{ $lead->source }}
           </span>
+                                @endif
+                                
+                                @if($lead->type)
+                                    <span class="badge badge-type-{{ strtolower($lead->type) }}">
+                                        {{ ucfirst($lead->type) }}
+                                    </span>
                                 @endif
                                 
                                 @if(isset($lead->sent_to_vici) && $lead->sent_to_vici)
