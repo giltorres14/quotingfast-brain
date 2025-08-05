@@ -48,15 +48,9 @@
         }
         
         .brand-logo {
-            width: 32px;
-            height: 32px;
-            background: #4f46e5;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: white;
+            height: 40px;
+            width: auto;
+            filter: brightness(1.1);
         }
         
         .nav-menu {
@@ -459,7 +453,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
-                <div class="brand-logo">B</div>
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="brand-logo">
                 <span>The Brain</span>
             </div>
             <ul class="nav-menu">

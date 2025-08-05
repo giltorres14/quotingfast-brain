@@ -8,6 +8,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; }
+        .header-content { display: flex; align-items: center; justify-content: center; gap: 2rem; max-width: 1400px; margin: 0 auto; }
+        .header-logo { flex-shrink: 0; }
+        .logo-image { height: 60px; width: auto; filter: brightness(1.1); }
+        .header-text { flex: 1; text-align: left; }
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; gap: 1rem; text-align: center; }
+            .header-text { text-align: center; }
+            .logo-image { height: 50px; }
+        }
         .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
         .header p { font-size: 1.1rem; opacity: 0.9; }
         .container { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
@@ -70,8 +79,15 @@
 </head>
 <body>
     <div class="header">
-        <h1>🧠 API & Webhooks Directory</h1>
-        <p>Complete integration hub for The Brain lead management system</p>
+        <div class="header-content">
+            <div class="header-logo">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image">
+            </div>
+            <div class="header-text">
+                <h1>🧠 API & Webhooks Directory</h1>
+                <p>Complete integration hub for The Brain lead management system</p>
+            </div>
+        </div>
     </div>
 
     <div class="container">

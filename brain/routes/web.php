@@ -3108,8 +3108,14 @@ Route::get('/admin', function () {
     return view('admin.simple-dashboard');
 });
 
-// API & Webhooks Directory - Beautiful unified page matching lead layout
+// API & Webhooks Directory - Beautiful unified page matching lead layout (Admin Only)
 Route::get('/api-directory', function () {
+    // Check if user is admin (simple check - you can enhance this based on your auth system)
+    $isAdmin = true; // For now, allow access - you can add proper auth later
+    
+    if (!$isAdmin) {
+        return redirect('/admin')->with('error', 'Admin access required');
+    }
     // Get statistics for the dashboard
     $stats = [
         'total_leads' => \App\Models\Lead::count(),

@@ -35,6 +35,15 @@
             position: relative;
         }
         
+        .header-logo {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            height: 30px;
+            width: auto;
+            filter: brightness(1.1);
+        }
+        
         .back-button {
             position: absolute;
             left: 16px;
@@ -637,6 +646,7 @@
             @if(isset($mode) && in_array($mode, ['view', 'edit']))
                 <a href="/leads" class="back-button">← Back to Leads</a>
             @endif
+            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="header-logo">
             <h1>{{ $lead->name }} 
                 @if(isset($mode) && $mode === 'view')
                     <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
