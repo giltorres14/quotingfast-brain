@@ -14,12 +14,18 @@ class AllstateCallTransferService
     
     public function __construct()
     {
-        // Allstate Lead Marketplace API key - updated with correct tokens from Allstate
-        $this->apiKey = env('ALLSTATE_API_KEY', 'cXVvdGluZy1mYXN0Og=='); // Updated testing token from Allstate
-        // Use testing environment first, then switch to production
-        $this->baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
-            ? 'https://api.allstateleadmarketplace.com/v2'
-            : 'https://int.allstateleadmarketplace.com/v2';
+        // Allstate Lead Marketplace API configuration
+        $environment = env('ALLSTATE_API_ENV', 'testing');
+        
+        if ($environment === 'production') {
+            // Production credentials
+            $this->apiKey = env('ALLSTATE_API_KEY', 'YjkxNDQ2YWRlOWQzNzY1MGY5M2UzMDVjYmFmOGMyYzk6'); // Production token
+            $this->baseUrl = 'https://api.allstateleadmarketplace.com/v2';
+        } else {
+            // Testing credentials  
+            $this->apiKey = env('ALLSTATE_API_KEY', 'cXVvdGluZy1mYXN0Og=='); // Testing token
+            $this->baseUrl = 'https://int.allstateleadmarketplace.com/v2';
+        }
     }
     
     /**

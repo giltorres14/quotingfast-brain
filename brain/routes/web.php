@@ -1926,10 +1926,18 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
 // Test Allstate API connection with multiple auth methods
 Route::get('/test/allstate/connection', function () {
     try {
-        $apiKey = env('ALLSTATE_API_KEY', 'cXVvdGluZy1mYXN0Og=='); // Updated with new test token from Allstate
-        $baseUrl = env('ALLSTATE_API_ENV', 'testing') === 'production' 
-            ? 'https://api.allstateleadmarketplace.com/v2'
-            : 'https://int.allstateleadmarketplace.com/v2';
+        // Allstate API configuration based on environment
+        $environment = env('ALLSTATE_API_ENV', 'testing');
+        
+        if ($environment === 'production') {
+            // Production credentials
+            $apiKey = env('ALLSTATE_API_KEY', 'YjkxNDQ2YWRlOWQzNzY1MGY5M2UzMDVjYmFmOGMyYzk6'); // Production token
+            $baseUrl = 'https://api.allstateleadmarketplace.com/v2';
+        } else {
+            // Testing credentials
+            $apiKey = env('ALLSTATE_API_KEY', 'cXVvdGluZy1mYXN0Og=='); // Testing token  
+            $baseUrl = 'https://int.allstateleadmarketplace.com/v2';
+        }
 
         Log::info('Testing Allstate API connection with new token', [
             'api_key' => substr($apiKey, 0, 10) . '...',
