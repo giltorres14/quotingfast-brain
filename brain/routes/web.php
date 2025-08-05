@@ -1654,6 +1654,8 @@ Route::get('/test/allstate/connection', function () {
         ]);
 
         // Test /ping endpoint with correct Basic Auth format and vertical parameter
+        $testVertical = request('vertical', 'auto-insurance'); // Allow testing different verticals
+        
         $response = \Illuminate\Support\Facades\Http::timeout(30)
             ->withHeaders([
                 'Content-Type' => 'application/json',
@@ -1661,7 +1663,7 @@ Route::get('/test/allstate/connection', function () {
                 'Authorization' => 'Basic ' . $apiKey
             ])
             ->post($baseUrl . '/ping', [
-                'vertical' => 'auto-insurance'  // Required vertical parameter from Allstate docs
+                'vertical' => $testVertical  // Required vertical parameter from Allstate docs
             ]);
             
         $results = [
