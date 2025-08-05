@@ -244,7 +244,7 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
 Route::get('/test-lead-data', function () {
     try {
         // Get the most recent lead
-        $lead = App\Models\Lead::orderBy('created_at', 'desc')->first();
+        $lead = \App\Models\Lead::orderBy('created_at', 'desc')->first();
         
         if (!$lead) {
             return response()->json([
@@ -260,68 +260,68 @@ Route::get('/test-lead-data', function () {
             ]);
         }
         
-        // Decode JSON fields
-        $drivers = json_decode($lead->drivers, true);
-        $vehicles = json_decode($lead->vehicles, true);
-        $policy = json_decode($lead->current_policy, true);
-        $meta = json_decode($lead->meta, true);
+        // Decode JSON fields safely
+        $drivers = json_decode($lead->drivers ?? '[]', true) ?: [];
+        $vehicles = json_decode($lead->vehicles ?? '[]', true) ?: [];
+        $policy = json_decode($lead->current_policy ?? '{}', true) ?: [];
+        $meta = json_decode($lead->meta ?? '{}', true) ?: [];
         
         return response()->json([
             'success' => true,
             'lead_found' => true,
             'lead_id' => $lead->id,
             'lead_basic_info' => [
-                'name' => $lead->name,
-                'email' => $lead->email,
-                'phone' => $lead->phone,
-                'city' => $lead->city,
-                'state' => $lead->state,
-                'zipcode' => $lead->zipcode,
-                'dob' => $lead->dob,
-                'created_at' => $lead->created_at
+                'name' => $lead->name ?? null,
+                'email' => $lead->email ?? null,
+                'phone' => $lead->phone ?? null,
+                'city' => $lead->city ?? null,
+                'state' => $lead->state ?? null,
+                'zipcode' => $lead->zipcode ?? null,
+                'dob' => $lead->dob ?? null,
+                'created_at' => $lead->created_at ?? null
             ],
             'lead_insurance_data' => [
-                'currently_insured' => $lead->currently_insured,
-                'current_carrier' => $lead->current_carrier,
-                'policy_expiration' => $lead->policy_expiration,
-                'tcpa_compliant' => $lead->tcpa_compliant,
-                'requested_policy' => $lead->requested_policy
+                'currently_insured' => $lead->currently_insured ?? null,
+                'current_carrier' => $lead->current_carrier ?? null,
+                'policy_expiration' => $lead->policy_expiration ?? null,
+                'tcpa_compliant' => $lead->tcpa_compliant ?? null,
+                'requested_policy' => $lead->requested_policy ?? null
             ],
             'drivers_data' => [
-                'count' => count($drivers ?? []),
+                'count' => count($drivers),
                 'structure' => $drivers[0] ?? null,
                 'all_drivers' => $drivers
             ],
             'vehicles_data' => [
-                'count' => count($vehicles ?? []),
+                'count' => count($vehicles),
                 'structure' => $vehicles[0] ?? null,
                 'all_vehicles' => $vehicles
             ],
             'policy_data' => [
-                'keys' => array_keys($policy ?? []),
+                'keys' => array_keys($policy),
                 'full_policy' => $policy
             ],
             'meta_data' => [
-                'keys' => array_keys($meta ?? []),
+                'keys' => array_keys($meta),
                 'full_meta' => $meta
             ],
             'allstate_mapping_ready' => [
-                'external_id' => $lead->id,
-                'city' => $lead->city,
-                'state' => $lead->state,
-                'zipcode' => $lead->zipcode,
-                'date_of_birth' => $lead->dob,
-                'tcpa_compliant' => $lead->tcpa_compliant,
-                'currently_insured' => $lead->currently_insured,
-                'phone' => $lead->phone,
-                'email' => $lead->email,
-                'name' => $lead->name
+                'external_id' => $lead->id ?? null,
+                'city' => $lead->city ?? null,
+                'state' => $lead->state ?? null,
+                'zipcode' => $lead->zipcode ?? null,
+                'date_of_birth' => $lead->dob ?? null,
+                'tcpa_compliant' => $lead->tcpa_compliant ?? null,
+                'currently_insured' => $lead->currently_insured ?? null,
+                'phone' => $lead->phone ?? null,
+                'email' => $lead->email ?? null,
+                'name' => $lead->name ?? null
             ],
             'timestamp' => now()->toISOString()
         ]);
         
     } catch (\Exception $e) {
-        Log::error('Test lead data endpoint error', [
+        \Illuminate\Support\Facades\Log::error('Test lead data endpoint error', [
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
