@@ -90,8 +90,8 @@ class DashboardController extends Controller
                 'vici_leads' => Lead::where('source', 'vici')->count(),
                 'twilio_leads' => Lead::where('source', 'twilio')->count(),
                 'today_leads' => Lead::whereBetween('created_at', [
-                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
-                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->utc(), 
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
                 ])->count(),
                 'recent_activity' => Lead::latest()->take(10)->get(['id', 'name', 'source', 'created_at']),
             ];
@@ -129,8 +129,8 @@ class DashboardController extends Controller
                     'endpoint' => '/webhook.php',
                     'total_leads' => Lead::where('source', 'leadsquotingfast')->count(),
                     'today_leads' => Lead::where('source', 'leadsquotingfast')->whereBetween('created_at', [
-                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
-                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->utc(), 
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
                 ])->count(),
                     'last_received' => Lead::where('source', 'leadsquotingfast')->latest()->first()?->created_at,
                     'active' => true,
@@ -141,8 +141,8 @@ class DashboardController extends Controller
                     'endpoint' => '/webhook/ringba',
                     'total_leads' => Lead::where('source', 'ringba')->count(),
                     'today_leads' => Lead::where('source', 'ringba')->whereBetween('created_at', [
-                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
-                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->utc(), 
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
                 ])->count(),
                     'last_received' => Lead::where('source', 'ringba')->latest()->first()?->created_at,
                     'active' => true,
@@ -153,8 +153,8 @@ class DashboardController extends Controller
                     'endpoint' => '/webhook/vici',
                     'total_leads' => Lead::where('source', 'vici')->count(),
                     'today_leads' => Lead::where('source', 'vici')->whereBetween('created_at', [
-                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
-                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->utc(), 
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
                 ])->count(),
                     'last_received' => Lead::where('source', 'vici')->latest()->first()?->created_at,
                     'active' => true,
@@ -165,8 +165,8 @@ class DashboardController extends Controller
                     'endpoint' => '/webhook/twilio',
                     'total_leads' => Lead::where('source', 'twilio')->count(),
                     'today_leads' => Lead::where('source', 'twilio')->whereBetween('created_at', [
-                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
-                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->utc(), 
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
                 ])->count(),
                     'last_received' => Lead::where('source', 'twilio')->latest()->first()?->created_at,
                     'active' => true,
@@ -177,8 +177,8 @@ class DashboardController extends Controller
                     'endpoint' => '/webhook/allstate',
                     'total_leads' => Lead::where('source', 'allstate_ready')->count(),
                     'today_leads' => Lead::where('source', 'allstate_ready')->whereBetween('created_at', [
-                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
-                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->utc(), 
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
                 ])->count(),
                     'last_received' => Lead::where('source', 'allstate_ready')->latest()->first()?->created_at,
                     'transferred_leads' => Lead::where('source', 'allstate_ready')->where('status', 'transferred_to_allstate')->count(),
@@ -196,8 +196,8 @@ class DashboardController extends Controller
             'summary' => [
                 'total_leads' => Lead::count(),
                 'today_leads' => Lead::whereBetween('created_at', [
-                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
-                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->utc(), 
+                    \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
                 ])->count(),
                 'active_sources' => Lead::distinct('source')->count('source'),
                 'last_activity' => Lead::latest()->first()?->created_at

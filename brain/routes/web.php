@@ -1413,7 +1413,8 @@ Route::get('/leads', function (Request $request) {
             $stats['total_leads'] = Lead::count();
             
             // Fix today's leads calculation with proper EST timezone handling
-            $todayEST = now()->setTimezone('America/New_York')->startOfDay();
+            $estNow = \Carbon\Carbon::now('America/New_York');
+            $todayEST = $estNow->copy()->startOfDay();
             $tomorrowEST = $todayEST->copy()->addDay();
             $stats['today_leads'] = Lead::whereBetween('created_at', [
                 $todayEST->utc(), 
