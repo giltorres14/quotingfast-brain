@@ -88,6 +88,83 @@
             font-weight: 600;
         }
         
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .dropdown-toggle::after {
+            content: '▼';
+            font-size: 0.7rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .dropdown.open .dropdown-toggle::after {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .dropdown.open .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .dropdown-item:hover {
+            background: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
+            text-decoration: none;
+            padding-left: 1.25rem;
+        }
+        
+        .dropdown-item.active {
+            background: rgba(79, 70, 229, 0.1);
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        
         /* Page Header */
         .page-header {
             background: white;
@@ -458,45 +535,56 @@
                 <span>The Brain</span>
             </div>
             <ul class="nav-menu">
+                <!-- Dashboard -->
                 <li class="nav-item">
-                    <a href="/admin" class="nav-link active">
-                        Dashboard
-                    </a>
+                    <a href="/admin" class="nav-link active">📊 Dashboard</a>
                 </li>
-                                                        <li class="nav-item">
-                    <a href="/leads" class="nav-link">
-                        Leads
-                    </a>
+                
+                <!-- Leads Dropdown -->
+                <li class="nav-item dropdown" id="leadsDropdown">
+                    <a href="#" class="nav-link dropdown-toggle">👥 Leads</a>
+                    <div class="dropdown-menu">
+                        <a href="/leads" class="dropdown-item">📋 View All Leads</a>
+                        <a href="/lead-upload" class="dropdown-item">📁 Upload CSV</a>
+                        <a href="#" class="dropdown-item" onclick="alert('Lead Types management coming soon!')">🏷️ Lead Types</a>
+                    </div>
                 </li>
+                
+                <!-- Management Dropdown -->
+                <li class="nav-item dropdown" id="managementDropdown">
+                    <a href="#" class="nav-link dropdown-toggle">⚙️ Management</a>
+                    <div class="dropdown-menu">
+                        <a href="/api-directory" class="dropdown-item">🔗 API Directory</a>
+                        <a href="/campaign-directory" class="dropdown-item">📊 Campaigns</a>
+                        <a href="#" class="dropdown-item" onclick="alert('Buyer Portal coming soon!')">👤 Buyer Portal</a>
+                        <a href="#" class="dropdown-item" onclick="alert('Integrations management coming soon!')">🔌 Integrations</a>
+                    </div>
+                </li>
+                
+                <!-- Analytics -->
                 <li class="nav-item">
-                    <a href="/lead-upload" class="nav-link">
-                        📁 Upload CSV
-                    </a>
+                    <a href="/analytics" class="nav-link" onclick="alert('Analytics dashboard coming soon!')">📈 Analytics</a>
                 </li>
-                <li class="nav-item">
-                    <a href="#messaging" class="nav-link" onclick="alert('SMS/Messaging feature coming soon!')">
-                        Messaging
-                    </a>
+                
+                <!-- Communications -->
+                <li class="nav-item dropdown" id="communicationsDropdown">
+                    <a href="#" class="nav-link dropdown-toggle">💬 Communications</a>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item" onclick="alert('SMS/Messaging feature coming soon!')">📱 SMS Center</a>
+                        <a href="#" class="dropdown-item" onclick="alert('Email campaigns coming soon!')">📧 Email Campaigns</a>
+                        <a href="#" class="dropdown-item" onclick="alert('Call tracking coming soon!')">📞 Call Tracking</a>
+                    </div>
                 </li>
-                <li class="nav-item">
-                    <a href="/analytics" class="nav-link">
-                        Analytics
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/api-directory" class="nav-link">
-                        🔗 API Directory
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="/campaign-directory" class="nav-link">
-                        📊 Campaign Directory
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="#settings" class="nav-link" onclick="alert('Settings feature coming soon!')">
-                        Settings
-                    </a>
+                
+                <!-- Settings -->
+                <li class="nav-item dropdown" id="settingsDropdown">
+                    <a href="#" class="nav-link dropdown-toggle">🔧 Settings</a>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item" onclick="alert('User management coming soon!')">👥 Users</a>
+                        <a href="#" class="dropdown-item" onclick="alert('System settings coming soon!')">⚙️ System</a>
+                        <a href="#" class="dropdown-item" onclick="alert('API keys management coming soon!')">🔑 API Keys</a>
+                        <a href="#" class="dropdown-item" onclick="alert('Backup settings coming soon!')">💾 Backup</a>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -875,6 +963,48 @@
         // REMOVED: cleanupTestLeads function per user request
         // This was automatically deleting leads on deployment
 
+        // Dropdown functionality
+        const dropdowns = document.querySelectorAll('.dropdown');
+        
+        dropdowns.forEach(dropdown => {
+            const toggle = dropdown.querySelector('.dropdown-toggle');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            
+            if (toggle && menu) {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Close other dropdowns
+                    dropdowns.forEach(otherDropdown => {
+                        if (otherDropdown !== dropdown) {
+                            otherDropdown.classList.remove('open');
+                        }
+                    });
+                    
+                    // Toggle current dropdown
+                    dropdown.classList.toggle('open');
+                });
+            }
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('open');
+                });
+            }
+        });
+        
+        // Close dropdowns on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('open');
+                });
+            }
+        });
+        
         // Load cost analytics on page load
         loadCostAnalytics();
         
