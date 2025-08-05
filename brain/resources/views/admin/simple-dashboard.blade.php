@@ -469,7 +469,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="/leads" class="nav-link">
+                    <a href="/leads-simple" class="nav-link">
                         Leads
                     </a>
                 </li>
@@ -481,6 +481,11 @@
                 <li class="nav-item">
                     <a href="/analytics" class="nav-link">
                         Analytics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/api-directory" class="nav-link">
+                        🔗 API Directory
                     </a>
                 </li>
                 <li class="nav-item">
@@ -554,7 +559,7 @@
                     </div>
                 </div>
                                                             <div class="action-buttons">
-                    <a href="/leads" class="btn btn-primary">
+                    <a href="/leads-simple" class="btn btn-primary">
                         View Leads
                     </a>
                 </div>
