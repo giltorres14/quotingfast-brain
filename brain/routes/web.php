@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
@@ -2350,6 +2351,40 @@ Route::get('/buyer/leads', function () {
     $leads = $buyer->leads()->with('lead')->latest()->paginate(20);
 
     return view('buyer.leads', compact('buyer', 'leads'));
+});
+
+// Buyer Lead Return
+Route::post('/buyer/leads/{leadId}/return', function ($leadId, Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    $buyerLead = \App\Models\BuyerLead::where('id', $leadId)
+        ->where('buyer_id', $buyerId)
+        ->first();
+
+    if (!$buyerLead) {
+        return response()->json(['success' => false, 'message' => 'Lead not found'], 404);
+    }
+
+    $validated = $request->validate([
+        'return_reason' => 'required|string|max:255',
+        'return_notes' => 'nullable|string|max:1000'
+    ]);
+
+    if ($buyerLead->returnLead($validated['return_reason'], $validated['return_notes'])) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Lead returned successfully. Your account has been credited.',
+            'refund_amount' => $buyerLead->price
+        ]);
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => 'Unable to return lead. Return window may have expired.'
+        ], 400);
+    }
 });
 
 // Buyer Logout
