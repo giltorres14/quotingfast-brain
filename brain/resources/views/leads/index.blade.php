@@ -647,17 +647,39 @@
                                 {{ strtoupper(substr($lead->first_name ?? $lead->name ?? 'L', 0, 1)) }}{{ strtoupper(substr($lead->last_name ?? '', 0, 1)) }}
                             </div>
                             <div class="lead-info">
-                                                                <div class="lead-name">
-                                    {{ $lead->first_name ?? '' }} {{ $lead->last_name ?? '' }}
-                                    @if(!$lead->first_name && !$lead->last_name)
-                                        {{ $lead->name ?? 'Unknown Lead' }}
-                                    @endif
-                                    @if($lead->external_lead_id)
-                                        <span style="font-size: 0.8rem; color: #6b7280; font-weight: 400; margin-left: 0.5rem;">
-                                            #{{ $lead->external_lead_id }}
-                                        </span>
-                                    @endif
+                                                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                    <div class="lead-name">
+                                        {{ $lead->first_name ?? '' }} {{ $lead->last_name ?? '' }}
+                                        @if(!$lead->first_name && !$lead->last_name)
+                                            {{ $lead->name ?? 'Unknown Lead' }}
+                                        @endif
+                                        @if($lead->external_lead_id)
+                                            <span style="font-size: 0.8rem; color: #6b7280; font-weight: 400; margin-left: 0.5rem;">
+                                                #{{ $lead->external_lead_id }}
+                                            </span>
+                                        @endif
           </div>
+                                    
+                                    <!-- Badges moved to top line, center-right -->
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;">
+                                        @if($lead->type)
+                                            <span class="badge badge-type-{{ strtolower($lead->type) }}">
+                                                {{ ucfirst($lead->type) }}
+                                            </span>
+                                        @endif
+                                        
+                                        @if(isset($lead->sent_to_vici) && $lead->sent_to_vici)
+                                            <span class="badge badge-vici">
+                                                Vici
+                                            </span>
+                                        @endif
+                                        
+                                        <!-- Datetime moved to top line -->
+                                        <span style="color: #6b7280; font-size: 0.75rem; margin-left: 0.5rem;">
+                                            🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, g:i A') : 'Unknown' }}
+                                        </span>
+                                    </div>
+                                </div>
                                 <div class="lead-contact">
                                     📞 @if($lead->phone)
                                         @php
@@ -682,41 +704,9 @@
                             </div>
         </div>
                         
-                        <div class="lead-badges">
-                            <!-- Datetime in top right -->
-                            <div class="lead-datetime" style="color: #6b7280; font-size: 0.75rem; margin-bottom: 0.5rem; text-align: right;">
-                                🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, g:i A') : 'Unknown' }}
-                            </div>
-                            <div class="badge-row">
-                                @if($lead->status)
-                                    <span class="badge badge-{{ strtolower(str_replace(' ', '', $lead->status)) }}">
-                                        {{ $lead->status }}
-                                    </span>
-                                @endif
-                                
-                                @if($lead->source)
-                                    <span class="badge badge-{{ strtolower($lead->source) }}">
-            {{ $lead->source }}
-          </span>
-                                @endif
-                                
-                                @if($lead->type)
-                                    <span class="badge badge-type-{{ strtolower($lead->type) }}">
-                                        {{ ucfirst($lead->type) }}
-                                    </span>
-                                @endif
-                                
-                                @if(isset($lead->sent_to_vici) && $lead->sent_to_vici)
-                                    <span class="badge badge-vici">
-                                        Vici
-          </span>
-                                @endif
-                            </div>
-                            
-                            <div class="sms-status">
-                                <div class="sms-indicator sms-none"></div>
-                                <span>SMS: None</span>
-                            </div>
+                        <div class="sms-status">
+                            <div class="sms-indicator sms-none"></div>
+                            <span>SMS: None</span>
                         </div>
                     </div>
                     

@@ -661,6 +661,11 @@
             </h1>
             <div class="meta">
                 Lead ID: {{ $lead->external_lead_id ?? $lead->id }}
+                @if($lead->type)
+                    <span style="margin-left: 15px; padding: 4px 12px; background: {{ $lead->type === 'auto' ? '#dbeafe' : '#fef3c7' }}; color: {{ $lead->type === 'auto' ? '#1e40af' : '#d97706' }}; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
+                        {{ ucfirst($lead->type) }} Insurance
+                    </span>
+                @endif
             </div>
         </div>
 

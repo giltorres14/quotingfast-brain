@@ -2009,6 +2009,25 @@ Route::get('/test/allstate/connection', function () {
     }
 });
 
+// Manually update lead type
+Route::post('/admin/lead/{leadId}/update-type', function ($leadId) {
+    $lead = Lead::findOrFail($leadId);
+    $type = request('type'); // 'auto' or 'home'
+    
+    if (!in_array($type, ['auto', 'home'])) {
+        return response()->json(['error' => 'Invalid type. Must be auto or home.'], 400);
+    }
+    
+    $lead->update(['type' => $type]);
+    
+    return response()->json([
+        'success' => true,
+        'message' => "Lead type updated to {$type}",
+        'lead_id' => $lead->id,
+        'new_type' => $type
+    ]);
+});
+
 // Test Allstate transfer endpoint
 Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
     try {
