@@ -294,6 +294,7 @@ Route::get('/leads-simple', function () {
         <div class="nav-links">
             <a href="/admin">Full Admin Dashboard</a>
             <a href="/analytics">Analytics</a>
+            <a href="/api-directory">🔗 API Directory</a>
             <a href="/test/allstate/connection">Test Allstate API</a>
             <a href="/agent/lead/TEST_LEAD_1">View Test Lead</a>
         </div>';
@@ -2993,6 +2994,420 @@ Route::get('/analytics', function () {
 // Simple Admin Dashboard (No Authentication Required)
 Route::get('/admin', function () {
     return view('admin.simple-dashboard');
+});
+
+// API & Webhooks Directory - Beautiful unified page matching lead layout
+Route::get('/api-directory', function () {
+    $html = '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API & Webhooks Directory - The Brain</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+        .container { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
+        .stat-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        .stat-number { font-size: 3rem; font-weight: bold; color: #667eea; margin-bottom: 0.5rem; }
+        .stat-label { color: #666; font-size: 1.1rem; font-weight: 500; }
+        .nav-links { margin-bottom: 2rem; text-align: center; }
+        .nav-links a { background: #667eea; color: white; padding: 0.75rem 1.5rem; margin: 0.5rem; text-decoration: none; border-radius: 6px; display: inline-block; transition: all 0.3s; }
+        .nav-links a:hover { background: #5a67d8; transform: translateY(-2px); }
+        .section { margin-bottom: 3rem; }
+        .section-title { font-size: 1.8rem; color: #333; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 4px solid #667eea; }
+        .endpoints-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; }
+        .endpoint-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .endpoint-card:hover { transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,0.15); }
+        .endpoint-header { padding: 1.5rem; border-bottom: 1px solid #eee; }
+        .endpoint-method { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .method-get { background: #dcfce7; color: #166534; }
+        .method-post { background: #fef3c7; color: #92400e; }
+        .endpoint-path { font-family: "Monaco", "Consolas", monospace; font-size: 1.1rem; font-weight: 600; color: #333; margin-bottom: 0.5rem; }
+        .endpoint-description { color: #666; font-size: 0.95rem; }
+        .endpoint-body { padding: 1.5rem; }
+        .endpoint-features { list-style: none; }
+        .endpoint-features li { padding: 0.25rem 0; color: #555; font-size: 0.9rem; }
+        .endpoint-features li:before { content: "✓"; color: #10b981; font-weight: bold; margin-right: 0.5rem; }
+        .test-btn { background: #10b981; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-top: 1rem; transition: all 0.3s; }
+        .test-btn:hover { background: #059669; }
+        .copy-btn { background: #6b7280; color: white; padding: 0.25rem 0.5rem; border: none; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem; cursor: pointer; }
+        .copy-btn:hover { background: #4b5563; }
+        .status-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.5rem; }
+        .status-active { background: #10b981; }
+        .status-testing { background: #f59e0b; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔗 API & Webhooks Directory</h1>
+        <p>Complete reference for The Brain integration endpoints</p>
+    </div>
+    
+    <div class="container">
+        <div class="nav-links">
+            <a href="/leads-simple">📊 Leads Dashboard</a>
+            <a href="/admin">🔧 Admin Panel</a>
+            <a href="/analytics">📈 Analytics</a>
+            <a href="/test/allstate/connection">🧪 Test Allstate</a>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Webhook Endpoints</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">API Endpoints</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">9</div>
+                <div class="stat-label">Test Utilities</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🎣 Webhook Endpoints</h2>
+            <div class="endpoints-grid">
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <div class="endpoint-path">/webhook.php <button class="copy-btn" onclick="copyToClipboard(\'/webhook.php\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>LeadsQuotingFast webhook - Primary lead capture</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Receives leads from LeadsQuotingFast platform</li>
+                            <li>Stores lead data in PostgreSQL database</li>
+                            <li>Triggers auto-enrichment workflows</li>
+                            <li>CSRF protection disabled for external calls</li>
+                        </ul>
+                        <a href="/webhook.php" class="test-btn">View Endpoint</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <div class="endpoint-path">/webhook/ringba <button class="copy-btn" onclick="copyToClipboard(\'/webhook/ringba\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Ringba call tracking webhook</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Receives call tracking data from Ringba</li>
+                            <li>Links calls to existing leads</li>
+                            <li>Tracks call duration and outcomes</li>
+                            <li>Updates lead status automatically</li>
+                        </ul>
+                        <a href="/webhook/ringba" class="test-btn">View Endpoint</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <div class="endpoint-path">/webhook/vici <button class="copy-btn" onclick="copyToClipboard(\'/webhook/vici\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>ViciDial CRM integration webhook</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Sends leads to ViciDial CRM system</li>
+                            <li>Handles firewall authentication</li>
+                            <li>Tracks lead transfer status</li>
+                            <li>Retry logic for failed transfers</li>
+                        </ul>
+                        <a href="/webhook/vici" class="test-btn">View Endpoint</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <div class="endpoint-path">/webhook/allstate <button class="copy-btn" onclick="copyToClipboard(\'/webhook/allstate\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Allstate Lead Marketplace integration</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Transfers leads to Allstate API</li>
+                            <li>Supports auto & home insurance verticals</li>
+                            <li>Data normalization & validation</li>
+                            <li>Real-time transfer status tracking</li>
+                        </ul>
+                        <a href="/webhook/allstate" class="test-btn">View Endpoint</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <div class="endpoint-path">/webhook/twilio <button class="copy-btn" onclick="copyToClipboard(\'/webhook/twilio\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Twilio SMS/Voice webhook</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Handles SMS and voice callbacks</li>
+                            <li>Links communications to leads</li>
+                            <li>Tracks engagement metrics</li>
+                            <li>Automated response workflows</li>
+                        </ul>
+                        <a href="/webhook/twilio" class="test-btn">View Endpoint</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <div class="endpoint-path">/webhook/ringba-decision <button class="copy-btn" onclick="copyToClipboard(\'/webhook/ringba-decision\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Ringba buyer decision webhook</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Receives buyer routing decisions</li>
+                            <li>Triggers lead transfers to chosen buyers</li>
+                            <li>Supports multiple buyer integrations</li>
+                            <li>Decision tracking & analytics</li>
+                        </ul>
+                        <a href="/webhook/ringba-decision" class="test-btn">View Endpoint</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <div class="endpoint-path">/webhook/ringba-conversion <button class="copy-btn" onclick="copyToClipboard(\'/webhook/ringba-conversion\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Ringba conversion tracking</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Tracks lead conversion events</li>
+                            <li>Calculates ROI and performance metrics</li>
+                            <li>Links to ViciDial call data</li>
+                            <li>Revenue attribution tracking</li>
+                        </ul>
+                        <a href="/webhook/ringba-conversion" class="test-btn">View Endpoint</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/webhook/status <button class="copy-btn" onclick="copyToClipboard(\'/webhook/status\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Webhook health monitoring</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Real-time webhook status monitoring</li>
+                            <li>Error rate and performance metrics</li>
+                            <li>Integration health dashboard</li>
+                            <li>Uptime and reliability stats</li>
+                        </ul>
+                        <a href="/webhook/status" class="test-btn">Check Status</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🔌 API Endpoints</h2>
+            <div class="endpoints-grid">
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/api/webhooks <button class="copy-btn" onclick="copyToClipboard(\'/api/webhooks\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Webhook dashboard API</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Returns webhook activity dashboard data</li>
+                            <li>Real-time statistics and metrics</li>
+                            <li>JSON formatted response</li>
+                        </ul>
+                        <a href="/api/webhooks" class="test-btn">Test API</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/api/analytics/quick/{period} <button class="copy-btn" onclick="copyToClipboard(\'/api/analytics/quick/{period}\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Quick analytics API</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Fast analytics for common time periods</li>
+                            <li>Supports: today, week, month, quarter</li>
+                            <li>Lead volume and conversion metrics</li>
+                        </ul>
+                        <a href="/api/analytics/quick/today" class="test-btn">Test Today</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/api/analytics/{start}/{end} <button class="copy-btn" onclick="copyToClipboard(\'/api/analytics/{start}/{end}\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Custom date range analytics</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Analytics for custom date ranges</li>
+                            <li>Detailed breakdown by source, state</li>
+                            <li>Performance and cost analysis</li>
+                        </ul>
+                        <a href="/api/analytics/2025-01-01/2025-01-31" class="test-btn">Test Range</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/api/lead/{leadId}/payload <button class="copy-btn" onclick="copyToClipboard(\'/api/lead/{leadId}/payload\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Lead payload inspector</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>View complete lead data structure</li>
+                            <li>JSON formatted lead information</li>
+                            <li>Useful for API integration testing</li>
+                        </ul>
+                        <a href="/api/lead/1/payload" class="test-btn">Test Lead 1</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-post">POST</span>
+                        <div class="endpoint-path">/api/transfer/{leadId} <button class="copy-btn" onclick="copyToClipboard(\'/api/transfer/{leadId}\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Lead transfer API</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Manually trigger lead transfers</li>
+                            <li>Supports multiple buyer destinations</li>
+                            <li>Real-time transfer status response</li>
+                        </ul>
+                        <a href="/api/transfer/1" class="test-btn">Test Transfer</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/api/reports/cost/today <button class="copy-btn" onclick="copyToClipboard(\'/api/reports/cost/today\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Daily cost reporting</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Today\'s lead costs and volume</li>
+                            <li>Breakdown by source and state</li>
+                            <li>ROI and performance metrics</li>
+                        </ul>
+                        <a href="/api/reports/cost/today" class="test-btn">View Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">🧪 Test & Debug Utilities</h2>
+            <div class="endpoints-grid">
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/test/allstate/connection <button class="copy-btn" onclick="copyToClipboard(\'/test/allstate/connection\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-testing"></span>Allstate API connection tester</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Test Allstate API authentication</li>
+                            <li>Verify API endpoints and verticals</li>
+                            <li>Debug connection issues</li>
+                        </ul>
+                        <a href="/test/allstate/connection" class="test-btn">Run Test</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/test/vici/{leadId} <button class="copy-btn" onclick="copyToClipboard(\'/test/vici/{leadId}\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-testing"></span>ViciDial integration tester</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>Test ViciDial API connection</li>
+                            <li>Verify firewall authentication</li>
+                            <li>Test lead submission process</li>
+                        </ul>
+                        <a href="/test/vici/1" class="test-btn">Test Vici</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/test-lead-data <button class="copy-btn" onclick="copyToClipboard(\'/test-lead-data\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-testing"></span>Lead data structure viewer</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>View all leads in database</li>
+                            <li>Inspect lead data structure</li>
+                            <li>Allstate API mapping preview</li>
+                        </ul>
+                        <a href="/test-lead-data" class="test-btn">View Data</a>
+                    </div>
+                </div>
+                
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-get">GET</span>
+                        <div class="endpoint-path">/debug-env <button class="copy-btn" onclick="copyToClipboard(\'/debug-env\')">Copy</button></div>
+                        <div class="endpoint-description"><span class="status-indicator status-testing"></span>Environment debugger</div>
+                    </div>
+                    <div class="endpoint-body">
+                        <ul class="endpoint-features">
+                            <li>View environment variables</li>
+                            <li>Database connection status</li>
+                            <li>Configuration debugging</li>
+                        </ul>
+                        <a href="/debug-env" class="test-btn">Debug Env</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function copyToClipboard(text) {
+            const baseUrl = window.location.origin;
+            const fullUrl = baseUrl + text;
+            navigator.clipboard.writeText(fullUrl).then(function() {
+                // Show a temporary success message
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = "Copied!";
+                btn.style.background = "#10b981";
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = "#6b7280";
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>';
+    
+    return response($html)->header('Content-Type', 'text/html');
 });
 
 // Generic date range route - MUST COME AFTER SPECIFIC ROUTES
