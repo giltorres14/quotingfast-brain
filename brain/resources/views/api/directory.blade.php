@@ -6,342 +6,550 @@
     <title>API & Webhooks Directory - The Brain</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; text-align: center; }
-        .header-content { display: flex; align-items: center; justify-content: center; gap: 2rem; max-width: 1400px; margin: 0 auto; }
-        .header-logo { flex-shrink: 0; }
-        .logo-image { height: 60px; width: auto; filter: brightness(1.1); }
-        .header-text { flex: 1; text-align: left; }
-        @media (max-width: 768px) {
-            .header-content { flex-direction: column; gap: 1rem; text-align: center; }
-            .header-text { text-align: center; }
-            .logo-image { height: 50px; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2d3748;
         }
-        .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .header p { font-size: 1.1rem; opacity: 0.9; }
-        .container { max-width: 1400px; margin: 2rem auto; padding: 0 1rem; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; }
-        .stat-card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
-        .stat-number { font-size: 3rem; font-weight: bold; color: #667eea; margin-bottom: 0.5rem; }
-        .stat-label { color: #666; font-size: 1.1rem; font-weight: 500; }
-        .nav-links { margin-bottom: 2rem; text-align: center; }
-        .nav-links a { background: #667eea; color: white; padding: 0.75rem 1.5rem; margin: 0.5rem; text-decoration: none; border-radius: 6px; display: inline-block; transition: all 0.3s; }
-        .nav-links a:hover { background: #5a67d8; transform: translateY(-2px); }
-        .section { margin-bottom: 3rem; }
-        .section-title { font-size: 1.8rem; color: #333; margin-bottom: 1.5rem; padding-left: 1rem; border-left: 4px solid #667eea; }
-        .endpoints-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; }
-        .endpoint-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s; }
-        .endpoint-card:hover { transform: translateY(-4px); box-shadow: 0 8px 15px rgba(0,0,0,0.15); }
-        .endpoint-header { padding: 1.5rem; border-bottom: 1px solid #eee; }
-        .endpoint-method { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.5rem; }
-        .method-get { background: #dcfce7; color: #166534; }
-        .method-post { background: #fef3c7; color: #92400e; }
-        .endpoint-path { font-family: "Monaco", "Consolas", monospace; font-size: 1.1rem; font-weight: 600; color: #333; margin-bottom: 0.5rem; display: flex; align-items: center; }
-        .endpoint-description { color: #666; font-size: 0.95rem; }
-        .endpoint-body { padding: 1.5rem; }
-        .endpoint-features { list-style: none; }
-        .endpoint-features li { padding: 0.25rem 0; color: #555; font-size: 0.9rem; }
-        .endpoint-features li:before { content: "✓"; color: #10b981; font-weight: bold; margin-right: 0.5rem; }
-        .test-btn { background: #10b981; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-top: 1rem; transition: all 0.3s; }
-        .test-btn:hover { background: #059669; }
-        .copy-btn { background: #6b7280; color: white; padding: 0.25rem 0.5rem; border: none; border-radius: 4px; font-size: 0.8rem; margin-left: 0.5rem; cursor: pointer; }
-        .copy-btn:hover { background: #4b5563; }
-        .status-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.5rem; }
-        .status-active { background: #10b981; }
-        .status-inactive { background: #ef4444; }
-        .status-warning { background: #f59e0b; }
-        .footer { text-align: center; padding: 2rem; color: #666; }
-        .add-endpoint-btn { 
-            background: #3b82f6; 
-            color: white; 
-            padding: 1rem 2rem; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 1rem; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: all 0.3s;
-            margin: 1rem;
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+        
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .add-endpoint-btn:hover { 
-            background: #2563eb; 
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .header-logo {
+            flex-shrink: 0;
+        }
+        .logo-image {
+            height: 60px;
+            width: auto;
+        }
+        .header-text h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        .header-text p {
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+        
+        /* Navigation */
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .nav-link {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .nav-link:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Statistics Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s ease;
+        }
+        .stat-card:hover {
             transform: translateY(-2px);
         }
-        .management-section {
-            background: white;
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+        
+        /* Sections */
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .section-subtitle {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+        
+        /* Category Groups */
+        .category-group {
+            margin-bottom: 2rem;
+        }
+        .category-group:last-child {
+            margin-bottom: 0;
+        }
+        .category-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            padding-left: 1rem;
+            border-left: 4px solid #667eea;
+            text-transform: capitalize;
+        }
+        
+        /* Endpoint Grid */
+        .endpoints-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        .endpoint-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        .endpoint-card:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Endpoint Header */
+        .endpoint-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .endpoint-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        .endpoint-path {
+            font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+            font-size: 0.875rem;
+            color: #3730a3;
+            background: #e0e7ff;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            display: inline-block;
+            word-break: break-all;
+        }
+        .endpoint-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        /* Method Badge */
+        .method-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .method-get { background: #dbeafe; color: #1d4ed8; }
+        .method-post { background: #fef3c7; color: #92400e; }
+        .method-put { background: #fed7d7; color: #c53030; }
+        .method-delete { background: #fee2e2; color: #dc2626; }
+        .method-patch { background: #e9d5ff; color: #7c3aed; }
+        
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .status-active { background: #dcfce7; color: #166534; }
+        .status-testing { background: #fef3c7; color: #92400e; }
+        .status-inactive { background: #fee2e2; color: #dc2626; }
+        
+        /* Endpoint Body */
+        .endpoint-body {
+            padding: 1.5rem;
+        }
+        .endpoint-description {
+            color: #64748b;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        .endpoint-features {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+        .endpoint-features li {
+            padding: 0.25rem 0;
+            color: #4b5563;
+            font-size: 0.875rem;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .endpoint-features li:before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        /* Action Buttons */
+        .endpoint-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+        .btn-test {
+            background: #10b981;
+            color: white;
+        }
+        .btn-test:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        .btn-copy {
+            background: #6b7280;
+            color: white;
+        }
+        .btn-copy:hover {
+            background: #4b5563;
+        }
+        .btn-copy.copied {
+            background: #10b981;
+        }
+        
+        /* Management Section */
+        .management-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             text-align: center;
+            padding: 2rem;
+        }
+        .management-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .btn-manage {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .btn-manage:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header-content { flex-direction: column; text-align: center; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .endpoints-grid { grid-template-columns: 1fr; }
+            .nav-links { flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="header-content">
-            <div class="header-logo">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image">
-            </div>
-            <div class="header-text">
-                <h1>🧠 API & Webhooks Directory</h1>
-                <p>Complete integration hub for The Brain lead management system</p>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-logo">
+                    <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                    <span style="display: none; font-weight: 800; color: #667eea; font-size: 1.5rem;">QuotingFast</span>
+                </div>
+                <div class="header-text">
+                    <h1>🧠 API & Webhooks Directory</h1>
+                    <p>Complete integration hub for The Brain lead management system</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="container">
-        <!-- Quick Stats -->
-        <div class="stats">
+        <!-- Navigation -->
+        <div class="nav-links">
+            <a href="/admin" class="nav-link">← Back to Dashboard</a>
+            <a href="/leads" class="nav-link">📊 Leads</a>
+            <a href="/analytics" class="nav-link">📈 Analytics</a>
+            <a href="#manage" class="nav-link">⚙️ Manage</a>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ $stats['total_webhooks'] ?? 0 }}</div>
+                <div class="stat-label">Webhooks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ $stats['total_apis'] ?? 0 }}</div>
+                <div class="stat-label">API Endpoints</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ $stats['total_tests'] ?? 0 }}</div>
+                <div class="stat-label">Test Utilities</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ $stats['active_endpoints'] ?? 0 }}</div>
+                <div class="stat-label">Active</div>
+            </div>
             <div class="stat-card">
                 <div class="stat-number">{{ $stats['total_leads'] ?? 0 }}</div>
-                <div class="stat-label">Total Leads Processed</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ $stats['today_leads'] ?? 0 }}</div>
-                <div class="stat-label">Today's Leads</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ $stats['active_sources'] ?? 0 }}</div>
-                <div class="stat-label">Active Sources</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">{{ count($webhooks ?? []) }}</div>
-                <div class="stat-label">Webhook Endpoints</div>
+                <div class="stat-label">Total Leads</div>
             </div>
         </div>
 
-        <!-- Navigation Links -->
-        <div class="nav-links">
-            <a href="/leads">📊 Leads Dashboard</a>
-            <a href="/api/webhooks">📈 Webhook Analytics</a>
-            <a href="/webhook/status">🔍 System Status</a>
-            <a href="/admin">⚙️ Admin Panel</a>
-        </div>
-
-        <!-- Endpoint Management -->
-        <div class="management-section">
-            <h2 style="margin-bottom: 1rem; color: #333;">🔧 Endpoint Management</h2>
-            <p style="margin-bottom: 1.5rem; color: #666;">Add new API endpoints or webhooks to expand system capabilities</p>
-            <button class="add-endpoint-btn" onclick="addNewEndpoint()">➕ Add New API Endpoint</button>
-            <button class="add-endpoint-btn" onclick="addNewWebhook()">🔗 Add New Webhook</button>
-        </div>
-
-        <!-- Webhook Endpoints -->
+        <!-- Webhooks Section -->
         <div class="section">
-            <h2 class="section-title">🔗 Webhook Endpoints</h2>
-            <div class="endpoints-grid">
-                <!-- LeadsQuotingFast Webhook -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-post">POST</span>
-                        <div class="endpoint-path">/webhook.php <button class="copy-btn" onclick="copyToClipboard('/webhook.php')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>LeadsQuotingFast primary webhook</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>Receives auto & home insurance leads</li>
-                            <li>Automatic lead type detection</li>
-                            <li>Vici integration & external lead ID generation</li>
-                            <li>TCPA compliance tracking</li>
-                        </ul>
-                        <a href="/webhook.php" class="test-btn">View Endpoint</a>
-                    </div>
-                </div>
-
-                <!-- Ringba Webhook -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-post">POST</span>
-                        <div class="endpoint-path">/webhook/ringba <button class="copy-btn" onclick="copyToClipboard('/webhook/ringba')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Ringba call tracking webhook</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>Call tracking and routing data</li>
-                            <li>Lead enrichment from call events</li>
-                            <li>Performance analytics integration</li>
-                            <li>Real-time call status updates</li>
-                        </ul>
-                        <a href="/webhook/ringba" class="test-btn">View Endpoint</a>
-                    </div>
-                </div>
-
-                <!-- Vici Webhook -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-post">POST</span>
-                        <div class="endpoint-path">/webhook/vici <button class="copy-btn" onclick="copyToClipboard('/webhook/vici')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>ViciDial system webhook</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>Dialer system integration callbacks</li>
-                            <li>Call disposition and outcome tracking</li>
-                            <li>Agent performance metrics</li>
-                            <li>Lead status synchronization</li>
-                        </ul>
-                        <a href="/webhook/vici" class="test-btn">View Endpoint</a>
-                    </div>
-                </div>
-
-                <!-- Allstate Webhook -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-post">POST</span>
-                        <div class="endpoint-path">/webhook/allstate <button class="copy-btn" onclick="copyToClipboard('/webhook/allstate')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Allstate Lead Marketplace</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>Transfers leads to Allstate API</li>
-                            <li>Supports auto & home insurance verticals</li>
-                            <li>Data normalization & validation</li>
-                            <li>Real-time transfer status tracking</li>
-                        </ul>
-                        <a href="/webhook/allstate" class="test-btn">View Endpoint</a>
-                    </div>
-                </div>
-
-                <!-- Twilio Webhook -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-post">POST</span>
-                        <div class="endpoint-path">/webhook/twilio <button class="copy-btn" onclick="copyToClipboard('/webhook/twilio')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Twilio SMS/Voice webhook</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>Handles SMS and voice callbacks</li>
-                            <li>Links communications to leads</li>
-                            <li>Tracks engagement metrics</li>
-                            <li>Automated response workflows</li>
-                        </ul>
-                        <a href="/webhook/twilio" class="test-btn">View Endpoint</a>
-                    </div>
-                </div>
-
-                <!-- Ringba Decision Webhook -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-post">POST</span>
-                        <div class="endpoint-path">/webhook/ringba-decision <button class="copy-btn" onclick="copyToClipboard('/webhook/ringba-decision')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Ringba buyer decision webhook</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>Receives buyer routing decisions</li>
-                            <li>Triggers lead transfers to chosen buyers</li>
-                            <li>Supports multiple buyer integrations</li>
-                            <li>Decision tracking & analytics</li>
-                        </ul>
-                        <a href="/webhook/ringba-decision" class="test-btn">View Endpoint</a>
-                    </div>
-                </div>
+            <div class="section-title">
+                🎣 Webhook Endpoints
             </div>
+            <div class="section-subtitle">
+                Data intake points for external systems
+            </div>
+            
+            @forelse($webhooks as $category => $categoryWebhooks)
+                <div class="category-group">
+                    <div class="category-title">{{ str_replace('_', ' ', $category) }}</div>
+                    <div class="endpoints-grid">
+                        @foreach($categoryWebhooks as $webhook)
+                            <div class="endpoint-card">
+                                <div class="endpoint-header">
+                                    <div class="endpoint-name">{{ $webhook->name }}</div>
+                                    <div class="endpoint-path">{{ $webhook->endpoint }}</div>
+                                    <div class="endpoint-meta">
+                                        <span class="method-badge method-{{ strtolower($webhook->method) }}">{{ $webhook->method }}</span>
+                                        <span class="status-badge status-{{ $webhook->status }}">{{ $webhook->status }}</span>
+                                    </div>
+                                </div>
+                                <div class="endpoint-body">
+                                    <div class="endpoint-description">{{ $webhook->description }}</div>
+                                    @if($webhook->features)
+                                        <ul class="endpoint-features">
+                                            @foreach($webhook->features as $feature)
+                                                <li>{{ $feature }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                    <div class="endpoint-actions">
+                                        @if($webhook->test_url)
+                                            <a href="{{ $webhook->test_url }}" class="btn btn-test" target="_blank">🧪 Test</a>
+                                        @endif
+                                        <button class="btn btn-copy" onclick="copyToClipboard('{{ $webhook->full_url }}', this)">📋 Copy URL</button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @empty
+                <p>No webhooks configured.</p>
+            @endforelse
         </div>
-        
-        <!-- API Endpoints -->
+
+        <!-- API Endpoints Section -->
         <div class="section">
-            <h2 class="section-title">🔌 API Endpoints</h2>
-            <div class="endpoints-grid">
-                <!-- Webhooks API -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-get">GET</span>
-                        <div class="endpoint-path">/api/webhooks <button class="copy-btn" onclick="copyToClipboard('/api/webhooks')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Webhook dashboard API</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>Returns webhook activity dashboard data</li>
-                            <li>Real-time statistics and metrics</li>
-                            <li>JSON formatted response</li>
-                        </ul>
-                        <a href="/api/webhooks" class="test-btn">Test API</a>
+            <div class="section-title">
+                🔌 API Endpoints
+            </div>
+            <div class="section-subtitle">
+                Programmatic access to system data and functions
+            </div>
+            
+            @forelse($apis as $category => $categoryApis)
+                <div class="category-group">
+                    <div class="category-title">{{ str_replace('_', ' ', $category) }}</div>
+                    <div class="endpoints-grid">
+                        @foreach($categoryApis as $api)
+                            <div class="endpoint-card">
+                                <div class="endpoint-header">
+                                    <div class="endpoint-name">{{ $api->name }}</div>
+                                    <div class="endpoint-path">{{ $api->endpoint }}</div>
+                                    <div class="endpoint-meta">
+                                        <span class="method-badge method-{{ strtolower($api->method) }}">{{ $api->method }}</span>
+                                        <span class="status-badge status-{{ $api->status }}">{{ $api->status }}</span>
+                                    </div>
+                                </div>
+                                <div class="endpoint-body">
+                                    <div class="endpoint-description">{{ $api->description }}</div>
+                                    @if($api->features)
+                                        <ul class="endpoint-features">
+                                            @foreach($api->features as $feature)
+                                                <li>{{ $feature }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                    <div class="endpoint-actions">
+                                        @if($api->test_url)
+                                            <a href="{{ $api->test_url }}" class="btn btn-test" target="_blank">🧪 Test</a>
+                                        @endif
+                                        <button class="btn btn-copy" onclick="copyToClipboard('{{ $api->full_url }}', this)">📋 Copy URL</button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
+            @empty
+                <p>No API endpoints configured.</p>
+            @endforelse
+        </div>
 
-                <!-- Analytics API -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-get">GET</span>
-                        <div class="endpoint-path">/api/analytics/quick/{period} <button class="copy-btn" onclick="copyToClipboard('/api/analytics/quick/{period}')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Quick analytics API</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>Fast analytics for common time periods</li>
-                            <li>Supports: today, week, month, quarter</li>
-                            <li>Lead volume and conversion metrics</li>
-                        </ul>
-                        <a href="/api/analytics/quick/today" class="test-btn">Test Today</a>
+        <!-- Test Utilities Section -->
+        <div class="section">
+            <div class="section-title">
+                🧪 Test & Debug Utilities
+            </div>
+            <div class="section-subtitle">
+                Tools for testing integrations and debugging issues
+            </div>
+            
+            @forelse($tests as $category => $categoryTests)
+                <div class="category-group">
+                    <div class="category-title">{{ str_replace('_', ' ', $category) }}</div>
+                    <div class="endpoints-grid">
+                        @foreach($categoryTests as $test)
+                            <div class="endpoint-card">
+                                <div class="endpoint-header">
+                                    <div class="endpoint-name">{{ $test->name }}</div>
+                                    <div class="endpoint-path">{{ $test->endpoint }}</div>
+                                    <div class="endpoint-meta">
+                                        <span class="method-badge method-{{ strtolower($test->method) }}">{{ $test->method }}</span>
+                                        <span class="status-badge status-{{ $test->status }}">{{ $test->status }}</span>
+                                    </div>
+                                </div>
+                                <div class="endpoint-body">
+                                    <div class="endpoint-description">{{ $test->description }}</div>
+                                    @if($test->features)
+                                        <ul class="endpoint-features">
+                                            @foreach($test->features as $feature)
+                                                <li>{{ $feature }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                    <div class="endpoint-actions">
+                                        @if($test->test_url)
+                                            <a href="{{ $test->test_url }}" class="btn btn-test" target="_blank">🧪 Run Test</a>
+                                        @endif
+                                        <button class="btn btn-copy" onclick="copyToClipboard('{{ $test->full_url }}', this)">📋 Copy URL</button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
+            @empty
+                <p>No test utilities configured.</p>
+            @endforelse
+        </div>
 
-                <!-- Lead Payload API -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-get">GET</span>
-                        <div class="endpoint-path">/api/lead/{leadId}/payload <button class="copy-btn" onclick="copyToClipboard('/api/lead/{leadId}/payload')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Lead payload inspector</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>View complete lead data structure</li>
-                            <li>JSON formatted lead information</li>
-                            <li>Useful for API integration testing</li>
-                        </ul>
-                        <a href="/api/lead/1/payload" class="test-btn">Test Lead 1</a>
-                    </div>
-                </div>
-
-                <!-- Webhook Status -->
-                <div class="endpoint-card">
-                    <div class="endpoint-header">
-                        <span class="endpoint-method method-get">GET</span>
-                        <div class="endpoint-path">/webhook/status <button class="copy-btn" onclick="copyToClipboard('/webhook/status')">Copy</button></div>
-                        <div class="endpoint-description"><span class="status-indicator status-active"></span>Webhook health monitoring</div>
-                    </div>
-                    <div class="endpoint-body">
-                        <ul class="endpoint-features">
-                            <li>Real-time webhook status monitoring</li>
-                            <li>Error rate and performance metrics</li>
-                            <li>Integration health dashboard</li>
-                            <li>Uptime and reliability stats</li>
-                        </ul>
-                        <a href="/webhook/status" class="test-btn">Check Status</a>
-                    </div>
-                </div>
+        <!-- Management Section -->
+        <div class="section management-section" id="manage">
+            <h3>🔧 Endpoint Management</h3>
+            <p style="margin-bottom: 1.5rem;">Add, edit, or remove API endpoints and webhooks</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="/api-directory/create?type=webhook" class="btn btn-manage">+ Add Webhook</a>
+                <a href="/api-directory/create?type=api" class="btn btn-manage">+ Add API Endpoint</a>
+                <a href="/api-directory/create?type=test" class="btn btn-manage">+ Add Test Utility</a>
+                <a href="/api-directory/manage" class="btn btn-manage">📝 Manage All</a>
             </div>
         </div>
-    </div>
-
-    <div class="footer">
-        <p>🧠 The Brain - Lead Management System | Last updated: {{ now()->format('M j, Y g:i A') }}</p>
     </div>
 
     <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(window.location.origin + text).then(function() {
-                // Show temporary success message
-                const btn = event.target;
-                const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
-                btn.style.background = '#10b981';
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(function() {
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.classList.add('copied');
+                
                 setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.style.background = '#6b7280';
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                button.textContent = '❌ Failed';
+                setTimeout(() => {
+                    button.textContent = '📋 Copy URL';
                 }, 2000);
             });
-        }
-
-        function addNewEndpoint() {
-            alert('🚧 Coming Soon!\n\nEndpoint management interface will allow you to:\n• Add custom API endpoints\n• Configure webhook destinations\n• Set up authentication\n• Monitor endpoint performance');
-        }
-
-        function addNewWebhook() {
-            alert('🚧 Coming Soon!\n\nWebhook management interface will allow you to:\n• Add new webhook sources\n• Configure data transformations\n• Set up routing rules\n• Test webhook integrations');
         }
     </script>
 </body>

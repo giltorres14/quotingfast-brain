@@ -3108,7 +3108,7 @@ Route::get('/admin', function () {
     return view('admin.simple-dashboard');
 });
 
-// API & Webhooks Directory - Beautiful unified page matching lead layout (Admin Only)
+// API & Webhooks Directory - Dynamic data from database (Admin Only)
 Route::get('/api-directory', function () {
     // Check if user is admin (simple check - you can enhance this based on your auth system)
     $isAdmin = true; // For now, allow access - you can add proper auth later
@@ -3116,6 +3116,7 @@ Route::get('/api-directory', function () {
     if (!$isAdmin) {
         return redirect('/admin')->with('error', 'Admin access required');
     }
+    
     // Get statistics for the dashboard
     $stats = [
         'total_leads' => \App\Models\Lead::count(),
@@ -3124,48 +3125,18 @@ Route::get('/api-directory', function () {
             \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
         ])->count(),
         'active_sources' => \App\Models\Lead::distinct('source')->count('source'),
+        'total_webhooks' => \App\Models\ApiEndpoint::webhooks()->count(),
+        'total_apis' => \App\Models\ApiEndpoint::apis()->count(), 
+        'total_tests' => \App\Models\ApiEndpoint::tests()->count(),
+        'active_endpoints' => \App\Models\ApiEndpoint::active()->count(),
     ];
 
-    // Get webhook configurations
-    $webhooks = [
-        'leadsquotingfast' => [
-            'name' => 'LeadsQuotingFast',
-            'endpoint' => '/webhook.php',
-            'method' => 'POST',
-            'status' => 'active',
-            'description' => 'Primary lead capture webhook'
-        ],
-        'ringba' => [
-            'name' => 'Ringba',
-            'endpoint' => '/webhook/ringba',
-            'method' => 'POST', 
-            'status' => 'active',
-            'description' => 'Call tracking integration'
-        ],
-        'vici' => [
-            'name' => 'ViciDial',
-            'endpoint' => '/webhook/vici',
-            'method' => 'POST',
-            'status' => 'active',
-            'description' => 'Dialer system callbacks'
-        ],
-        'allstate' => [
-            'name' => 'Allstate',
-            'endpoint' => '/webhook/allstate',
-            'method' => 'POST',
-            'status' => 'active',
-            'description' => 'Lead marketplace integration'
-        ],
-        'twilio' => [
-            'name' => 'Twilio',
-            'endpoint' => '/webhook/twilio',
-            'method' => 'POST',
-            'status' => 'active',
-            'description' => 'SMS/Voice communications'
-        ]
-    ];
+    // Get endpoints organized by category and type
+    $webhooks = \App\Models\ApiEndpoint::webhooks()->ordered()->get()->groupBy('category');
+    $apis = \App\Models\ApiEndpoint::apis()->ordered()->get()->groupBy('category');
+    $tests = \App\Models\ApiEndpoint::tests()->ordered()->get()->groupBy('category');
 
-    return view('api.directory', compact('stats', 'webhooks'));
+    return view('api.directory', compact('stats', 'webhooks', 'apis', 'tests'));
 });
 
 // Generic date range route - MUST COME AFTER SPECIFIC ROUTES
