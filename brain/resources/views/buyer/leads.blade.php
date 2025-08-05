@@ -667,6 +667,7 @@
             <a href="/buyer/dashboard" class="nav-tab">📊 Dashboard</a>
             <a href="/buyer/leads" class="nav-tab active">👥 My Leads</a>
             <a href="/buyer/billing" class="nav-tab">💳 Billing</a>
+            <a href="/buyer/documents" class="nav-tab">📄 Documents</a>
             <a href="/buyer/reports" class="nav-tab">📈 Reports</a>
             <a href="/buyer/settings" class="nav-tab">⚙️ Settings</a>
         </div>

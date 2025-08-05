@@ -2536,6 +2536,228 @@ Route::post('/buyer/settings/auto-reload', function (Request $request) {
     ]);
 });
 
+// Buyer Documents
+Route::get('/buyer/documents', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer || $buyer->status !== 'active') {
+        session()->forget('buyer_id');
+        return redirect('/buyer/login')->with('error', 'Account not active');
+    }
+
+    // Sample documents data (in real app, this would come from database)
+    $documents = [
+        [
+            'id' => 'doc_001',
+            'name' => 'Insurance License Copy',
+            'type' => 'pdf',
+            'size' => '2.1 MB',
+            'uploaded_at' => '2 days ago',
+            'requires_signature' => false,
+            'signed' => false
+        ],
+        [
+            'id' => 'doc_002', 
+            'name' => 'W-9 Tax Form',
+            'type' => 'pdf',
+            'size' => '1.3 MB',
+            'uploaded_at' => '1 week ago',
+            'requires_signature' => true,
+            'signed' => false
+        ],
+        [
+            'id' => 'doc_003',
+            'name' => 'Company Logo',
+            'type' => 'image',
+            'size' => '245 KB',
+            'uploaded_at' => '2 weeks ago',
+            'requires_signature' => false,
+            'signed' => false
+        ]
+    ];
+
+    return view('buyer.documents', compact('buyer', 'documents'));
+});
+
+// Document Signing Interface
+Route::get('/buyer/documents/{documentId}/sign', function ($documentId) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer) {
+        return redirect('/buyer/login');
+    }
+
+    // Sample document data
+    $document = [
+        'id' => $documentId,
+        'name' => $documentId === 'contract' ? 'QuotingFast Buyer Agreement' : 'Document ' . $documentId,
+        'type' => 'contract',
+        'requires_signature' => true
+    ];
+
+    return view('buyer.sign-document', compact('buyer', 'document'));
+});
+
+// Process Document Signature
+Route::post('/buyer/documents/{documentId}/signature', function ($documentId, Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer) {
+        return response()->json(['success' => false, 'message' => 'Buyer not found'], 404);
+    }
+
+    $validated = $request->validate([
+        'signer_name' => 'required|string|max:255',
+        'signer_email' => 'required|email',
+        'signer_title' => 'nullable|string|max:255',
+        'signature_data' => 'required|string',
+        'consent_agreed' => 'required|boolean|accepted'
+    ]);
+
+    try {
+        // If this is the main contract, update buyer's contract status
+        if ($documentId === 'contract') {
+            $buyer->update([
+                'contract_signed' => true,
+                'contract_signed_at' => now(),
+                'contract_ip' => $request->ip(),
+                'status' => 'active' // Activate account upon contract signing
+            ]);
+
+            // Create contract record
+            $buyer->contracts()->create([
+                'contract_version' => 'v2.1',
+                'contract_content' => 'QuotingFast Buyer Agreement - Full Terms',
+                'signed_at' => now(),
+                'signature_ip' => $request->ip(),
+                'signature_method' => 'digital_canvas',
+                'signature_data' => [
+                    'signer_name' => $validated['signer_name'],
+                    'signer_email' => $validated['signer_email'],
+                    'signer_title' => $validated['signer_title'],
+                    'signature_canvas_data' => $validated['signature_data'],
+                    'user_agent' => $request->userAgent(),
+                    'timestamp' => now()->toISOString()
+                ],
+                'is_active' => true
+            ]);
+
+            \Illuminate\Support\Facades\Log::info("Buyer contract signed", [
+                'buyer_id' => $buyer->id,
+                'document_id' => $documentId,
+                'signer_name' => $validated['signer_name'],
+                'ip_address' => $request->ip()
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Document signed successfully',
+            'signed_at' => now()->toISOString(),
+            'certificate_id' => 'CERT_' . strtoupper(uniqid())
+        ]);
+
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error("Document signature failed", [
+            'buyer_id' => $buyer->id,
+            'document_id' => $documentId,
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Signature processing failed'
+        ], 500);
+    }
+});
+
+// Document Upload
+Route::post('/buyer/documents/upload', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    $validated = $request->validate([
+        'document' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240', // 10MB max
+        'document_name' => 'nullable|string|max:255',
+        'document_type' => 'required|string|in:contract,license,tax_form,identity,other'
+    ]);
+
+    try {
+        $file = $request->file('document');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        
+        // In a real app, you'd store this in cloud storage (S3, etc.)
+        $path = $file->storeAs('buyer_documents/' . $buyerId, $filename, 'local');
+
+        // Store document metadata in database (would need a documents table)
+        $documentData = [
+            'buyer_id' => $buyerId,
+            'original_name' => $file->getClientOriginalName(),
+            'stored_name' => $filename,
+            'file_path' => $path,
+            'file_size' => $file->getSize(),
+            'mime_type' => $file->getMimeType(),
+            'document_type' => $validated['document_type'],
+            'uploaded_at' => now()
+        ];
+
+        \Illuminate\Support\Facades\Log::info("Document uploaded", $documentData);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Document uploaded successfully',
+            'document' => [
+                'id' => 'doc_' . uniqid(),
+                'name' => $validated['document_name'] ?? $file->getClientOriginalName(),
+                'size' => number_format($file->getSize() / 1024 / 1024, 1) . ' MB',
+                'type' => $file->getClientOriginalExtension(),
+                'uploaded_at' => 'Just now'
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error("Document upload failed", [
+            'buyer_id' => $buyerId,
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Upload failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Document Download
+Route::get('/buyer/documents/{documentId}/download', function ($documentId) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    // In a real app, you'd fetch the document from database and serve the file
+    // For now, return a success message
+    return response()->json([
+        'success' => true,
+        'message' => 'Document download initiated',
+        'download_url' => '/storage/documents/' . $documentId . '.pdf'
+    ]);
+});
+
 // Buyer Logout
 Route::post('/buyer/logout', function () {
     session()->forget('buyer_id');
