@@ -872,8 +872,8 @@
                     <div class="info-label">City, State ZIP</div>
                     <div class="info-value">
                         {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
-                        </div>
                     </div>
+                </div>
                     
                     <!-- Campaign ID moved here from TCPA section -->
                     @if(isset($lead->campaign_id) && $lead->campaign_id)
@@ -1079,6 +1079,65 @@
                 
                 <label>ZIP Code:</label>
                 <input type="text" id="edit-zip" value="{{ $lead->zip_code ?? '' }}" placeholder="ZIP code">
+                
+                <!-- Prefill Questions Section -->
+                <div style="border-top: 1px solid #e0e0e0; margin: 20px 0 15px 0; padding-top: 15px;">
+                    <h4 style="color: #495057; margin-bottom: 15px; font-size: 14px;">📋 Qualification Questions</h4>
+                    
+                    <label>Do you have an active driver's license?</label>
+                    <select id="edit-drivers-license">
+                        <option value="yes" selected>Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                    
+                    <label>DUI or SR22 required?</label>
+                    <select id="edit-dui-sr22">
+                        <option value="no" selected>No</option>
+                        <option value="yes">Yes</option>
+                    </select>
+                    
+                    <label>How many cars do you need to insure?</label>
+                    @php
+                        $vehicleCount = 1; // Default
+                        if (isset($lead->vehicles) && is_array($lead->vehicles)) {
+                            $vehicleCount = count($lead->vehicles);
+                        } elseif (isset($lead->vehicles) && is_string($lead->vehicles)) {
+                            $vehiclesArray = json_decode($lead->vehicles, true);
+                            if (is_array($vehiclesArray)) {
+                                $vehicleCount = count($vehiclesArray);
+                            }
+                        }
+                    @endphp
+                    <select id="edit-vehicle-count">
+                        <option value="1" {{ $vehicleCount == 1 ? 'selected' : '' }}>1 car</option>
+                        <option value="2" {{ $vehicleCount == 2 ? 'selected' : '' }}>2 cars</option>
+                        <option value="3" {{ $vehicleCount == 3 ? 'selected' : '' }}>3 cars</option>
+                        <option value="4" {{ $vehicleCount == 4 ? 'selected' : '' }}>4 cars</option>
+                        <option value="5" {{ $vehicleCount >= 5 ? 'selected' : '' }}>5+ cars</option>
+                    </select>
+                    
+                    <label>Do you own or rent your home?</label>
+                    @php
+                        $residenceStatus = 'own'; // Default
+                        // Check for residence info in drivers data
+                        if (isset($lead->drivers) && is_array($lead->drivers) && !empty($lead->drivers)) {
+                            $firstDriver = $lead->drivers[0];
+                            if (isset($firstDriver['residence_type'])) {
+                                $residenceStatus = strtolower($firstDriver['residence_type']) === 'rent' ? 'rent' : 'own';
+                            }
+                        } elseif (isset($lead->drivers) && is_string($lead->drivers)) {
+                            $driversArray = json_decode($lead->drivers, true);
+                            if (is_array($driversArray) && !empty($driversArray) && isset($driversArray[0]['residence_type'])) {
+                                $residenceStatus = strtolower($driversArray[0]['residence_type']) === 'rent' ? 'rent' : 'own';
+                            }
+                        }
+                    @endphp
+                    <select id="edit-residence-status">
+                        <option value="own" {{ $residenceStatus === 'own' ? 'selected' : '' }}>Own</option>
+                        <option value="rent" {{ $residenceStatus === 'rent' ? 'selected' : '' }}>Rent</option>
+                        <option value="live_with_parents">Live with parents</option>
+                    </select>
+                </div>
                 
                 <div class="edit-form-buttons">
                     <button class="save-btn" onclick="saveContact()">Save</button>
@@ -1839,7 +1898,12 @@
                 address: document.getElementById('edit-address').value,
                 city: document.getElementById('edit-city').value,
                 state: document.getElementById('edit-state').value,
-                zip_code: document.getElementById('edit-zip').value
+                zip_code: document.getElementById('edit-zip').value,
+                // Qualification questions
+                drivers_license: document.getElementById('edit-drivers-license').value,
+                dui_sr22: document.getElementById('edit-dui-sr22').value,
+                vehicle_count: document.getElementById('edit-vehicle-count').value,
+                residence_status: document.getElementById('edit-residence-status').value
             };
             
             try {
