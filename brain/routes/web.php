@@ -3339,6 +3339,415 @@ Route::post('/buyer/logout', function () {
     return redirect('/buyer/login');
 });
 
+// Admin Buyer Management
+Route::get('/admin/buyer-management', function () {
+    return view('admin.buyer-management');
+});
+
+// Admin Impersonation - Login as any buyer
+Route::get('/admin/impersonate/{buyerId}', function ($buyerId) {
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer) {
+        return redirect('/admin/buyer-management')->with('error', 'Buyer not found');
+    }
+
+    // Set buyer session to impersonate
+    session(['buyer_id' => $buyerId, 'impersonating' => true, 'admin_impersonation' => true]);
+    
+    // Log the impersonation
+    \Illuminate\Support\Facades\Log::info("Admin impersonation started", [
+        'buyer_id' => $buyerId,
+        'buyer_name' => $buyer->full_name,
+        'buyer_email' => $buyer->email,
+        'admin_ip' => request()->ip()
+    ]);
+
+    return redirect('/buyer/dashboard')->with('success', "Now viewing as {$buyer->full_name}");
+});
+
+// Stop Admin Impersonation
+Route::get('/admin/stop-impersonation', function () {
+    $buyerId = session('buyer_id');
+    $buyer = \App\Models\Buyer::find($buyerId);
+    
+    // Log the end of impersonation
+    if ($buyer) {
+        \Illuminate\Support\Facades\Log::info("Admin impersonation ended", [
+            'buyer_id' => $buyerId,
+            'buyer_name' => $buyer->full_name,
+            'admin_ip' => request()->ip()
+        ]);
+    }
+
+    // Clear buyer session
+    session()->forget(['buyer_id', 'impersonating', 'admin_impersonation']);
+    
+    return redirect('/admin/buyer-management')->with('success', 'Impersonation ended');
+});
+
+// Create Dummy Buyer API
+Route::post('/admin/create-dummy-buyer', function (Request $request) {
+    $validated = $request->validate([
+        'account_type' => 'required|string|in:realistic,demo,minimal',
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'email' => 'required|email|unique:buyers,email',
+        'company' => 'nullable|string|max:255',
+        'phone' => 'nullable|string|max:20',
+        'balance' => 'nullable|numeric|min:0',
+        'include_sample_leads' => 'boolean',
+        'include_sample_payments' => 'boolean',
+        'include_sample_documents' => 'boolean',
+        'include_crm_config' => 'boolean'
+    ]);
+
+    try {
+        // Create buyer
+        $buyer = \App\Models\Buyer::create([
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'email' => $validated['email'],
+            'company' => $validated['company'],
+            'phone' => $validated['phone'],
+            'password' => bcrypt('password123'), // Default password for test accounts
+            'balance' => $validated['balance'] ?? 0,
+            'status' => 'active',
+            'is_test_account' => true,
+            'account_type' => $validated['account_type'],
+            'created_via' => 'admin_dummy'
+        ]);
+
+        // Generate sample data if requested
+        if ($validated['include_sample_leads'] ?? false) {
+            generateSampleLeads($buyer->id, $validated['account_type']);
+        }
+
+        if ($validated['include_sample_payments'] ?? false) {
+            generateSamplePayments($buyer->id, $validated['account_type']);
+        }
+
+        if ($validated['include_sample_documents'] ?? false) {
+            generateSampleDocuments($buyer->id);
+        }
+
+        if ($validated['include_crm_config'] ?? false) {
+            generateSampleCRMConfig($buyer->id);
+        }
+
+        \Illuminate\Support\Facades\Log::info("Dummy buyer created", [
+            'buyer_id' => $buyer->id,
+            'buyer_name' => $buyer->full_name,
+            'account_type' => $validated['account_type'],
+            'created_by' => 'admin'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Dummy buyer created successfully',
+            'buyer_id' => $buyer->id,
+            'login_url' => "/admin/impersonate/{$buyer->id}"
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to create dummy buyer: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Generate sample data for specific buyer
+Route::post('/admin/generate-sample-data/{buyerId}', function ($buyerId) {
+    try {
+        $buyer = \App\Models\Buyer::find($buyerId);
+        if (!$buyer) {
+            return response()->json(['success' => false, 'message' => 'Buyer not found'], 404);
+        }
+
+        generateSampleLeads($buyerId, 'demo');
+        generateSamplePayments($buyerId, 'demo');
+        generateSampleDocuments($buyerId);
+        generateSampleOutcomes($buyerId);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sample data generated successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to generate sample data: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Generate sample data for all buyers
+Route::post('/admin/generate-all-sample-data', function () {
+    try {
+        $buyers = \App\Models\Buyer::where('is_test_account', true)->get();
+        
+        foreach ($buyers as $buyer) {
+            generateSampleLeads($buyer->id, 'demo');
+            generateSamplePayments($buyer->id, 'demo');
+            generateSampleDocuments($buyer->id);
+            generateSampleOutcomes($buyer->id);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Sample data generated for {$buyers->count()} buyers"
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to generate sample data: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Clear all test data
+Route::post('/admin/clear-test-data', function () {
+    try {
+        // Delete test buyers and all related data
+        $testBuyers = \App\Models\Buyer::where('is_test_account', true)->get();
+        
+        foreach ($testBuyers as $buyer) {
+            // Delete related data first
+            \App\Models\LeadOutcome::where('buyer_id', $buyer->id)->delete();
+            \App\Models\BuyerPayment::where('buyer_id', $buyer->id)->delete();
+            \App\Models\BuyerLead::where('buyer_id', $buyer->id)->delete();
+            \App\Models\BuyerContract::where('buyer_id', $buyer->id)->delete();
+            
+            // Delete the buyer
+            $buyer->delete();
+        }
+
+        // Delete sample leads
+        \App\Models\Lead::where('is_sample_data', true)->delete();
+
+        \Illuminate\Support\Facades\Log::info("Test data cleared", [
+            'buyers_deleted' => $testBuyers->count(),
+            'cleared_by' => 'admin'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Cleared {$testBuyers->count()} test buyers and all sample data"
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to clear test data: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Get buyers list API
+Route::get('/admin/buyers-list', function () {
+    try {
+        $buyers = \App\Models\Buyer::with(['payments', 'leads'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($buyer) {
+                return [
+                    'id' => $buyer->id,
+                    'name' => $buyer->full_name,
+                    'email' => $buyer->email,
+                    'company' => $buyer->company,
+                    'status' => $buyer->status,
+                    'balance' => $buyer->formatted_balance,
+                    'leads_count' => $buyer->leads->count(),
+                    'is_test_account' => $buyer->is_test_account,
+                    'created_at' => $buyer->created_at->diffForHumans()
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'buyers' => $buyers
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to load buyers list'
+        ], 500);
+    }
+});
+
+// Delete buyer
+Route::delete('/admin/delete-buyer/{buyerId}', function ($buyerId) {
+    try {
+        $buyer = \App\Models\Buyer::find($buyerId);
+        if (!$buyer) {
+            return response()->json(['success' => false, 'message' => 'Buyer not found'], 404);
+        }
+
+        // Delete related data first
+        \App\Models\LeadOutcome::where('buyer_id', $buyerId)->delete();
+        \App\Models\BuyerPayment::where('buyer_id', $buyerId)->delete();
+        \App\Models\BuyerLead::where('buyer_id', $buyerId)->delete();
+        \App\Models\BuyerContract::where('buyer_id', $buyerId)->delete();
+        
+        $buyerName = $buyer->full_name;
+        $buyer->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Buyer {$buyerName} deleted successfully"
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to delete buyer: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Sample data generation functions
+function generateSampleLeads($buyerId, $accountType = 'demo') {
+    $leadCount = $accountType === 'demo' ? 25 : ($accountType === 'realistic' ? 15 : 5);
+    
+    $sampleLeads = [
+        [
+            'first_name' => 'Sarah',
+            'last_name' => 'Johnson',
+            'email' => 'sarah.johnson@email.com',
+            'phone' => '(555) 123-4567',
+            'city' => 'Miami',
+            'state' => 'FL',
+            'zip' => '33101',
+            'vertical' => 'auto',
+            'type' => 'auto'
+        ],
+        [
+            'first_name' => 'Michael',
+            'last_name' => 'Chen',
+            'email' => 'michael.chen@email.com',
+            'phone' => '(555) 234-5678',
+            'city' => 'Los Angeles',
+            'state' => 'CA',
+            'zip' => '90210',
+            'vertical' => 'home',
+            'type' => 'home'
+        ],
+        [
+            'first_name' => 'Emily',
+            'last_name' => 'Davis',
+            'email' => 'emily.davis@email.com',
+            'phone' => '(555) 345-6789',
+            'city' => 'Houston',
+            'state' => 'TX',
+            'zip' => '77001',
+            'vertical' => 'auto',
+            'type' => 'auto'
+        ]
+    ];
+
+    for ($i = 0; $i < $leadCount; $i++) {
+        $sampleLead = $sampleLeads[$i % count($sampleLeads)];
+        $externalLeadId = 'DEMO' . str_pad($i + 1, 6, '0', STR_PAD_LEFT);
+        
+        \App\Models\Lead::create(array_merge($sampleLead, [
+            'external_lead_id' => $externalLeadId,
+            'address' => '123 Sample St',
+            'age' => rand(25, 65),
+            'campaign_id' => 'DEMO_CAMPAIGN_' . rand(1, 5),
+            'is_sample_data' => true,
+            'created_at' => now()->subDays(rand(0, 30))
+        ]));
+    }
+}
+
+function generateSamplePayments($buyerId, $accountType = 'demo') {
+    $paymentCount = $accountType === 'demo' ? 10 : ($accountType === 'realistic' ? 6 : 3);
+    
+    for ($i = 0; $i < $paymentCount; $i++) {
+        \App\Models\BuyerPayment::create([
+            'buyer_id' => $buyerId,
+            'transaction_id' => 'DEMO_' . uniqid(),
+            'type' => rand(0, 1) ? 'credit' : 'debit',
+            'amount' => rand(50, 500),
+            'status' => 'completed',
+            'payment_method' => ['quickbooks', 'credit_card', 'bank_transfer'][rand(0, 2)],
+            'payment_processor' => 'demo',
+            'description' => 'Sample payment transaction',
+            'processed_at' => now()->subDays(rand(1, 60)),
+            'created_at' => now()->subDays(rand(1, 60))
+        ]);
+    }
+}
+
+function generateSampleDocuments($buyerId) {
+    \App\Models\BuyerContract::create([
+        'buyer_id' => $buyerId,
+        'contract_type' => 'buyer_agreement',
+        'contract_version' => 'v2.1',
+        'status' => 'signed',
+        'signed_at' => now()->subDays(rand(1, 30)),
+        'signer_name' => 'Demo Signer',
+        'signer_email' => 'demo@example.com',
+        'signature_data' => 'data:image/png;base64,sample_signature_data',
+        'is_active' => true
+    ]);
+}
+
+function generateSampleCRMConfig($buyerId) {
+    $buyer = \App\Models\Buyer::find($buyerId);
+    $buyer->update([
+        'crm_config' => [
+            'type' => 'webhook',
+            'enabled' => true,
+            'webhook_url' => 'https://demo.example.com/webhook',
+            'auth_method' => 'none',
+            'field_mapping' => [
+                'name' => 'first_name',
+                'email' => 'email',
+                'phone' => 'phone'
+            ]
+        ],
+        'crm_stats' => [
+            'total_attempts' => rand(10, 50),
+            'successful_deliveries' => rand(8, 45),
+            'failed_deliveries' => rand(0, 5),
+            'success_rate' => rand(85, 98),
+            'last_attempt' => now()->subHours(rand(1, 24))->toISOString()
+        ]
+    ]);
+}
+
+function generateSampleOutcomes($buyerId) {
+    $leads = \App\Models\Lead::where('is_sample_data', true)->limit(10)->get();
+    
+    foreach ($leads as $lead) {
+        $outcomes = ['sold', 'not_sold', 'bad_lead', 'pending'];
+        $statuses = ['closed_won', 'closed_lost', 'bad_lead', 'qualified'];
+        
+        $outcome = $outcomes[rand(0, 3)];
+        $status = $statuses[rand(0, 3)];
+        
+        \App\Models\LeadOutcome::create([
+            'lead_id' => $lead->id,
+            'buyer_id' => $buyerId,
+            'external_lead_id' => $lead->external_lead_id,
+            'status' => $status,
+            'outcome' => $outcome,
+            'sale_amount' => $outcome === 'sold' ? rand(500, 5000) : null,
+            'quality_rating' => rand(1, 5),
+            'contact_attempts' => rand(1, 8),
+            'first_contact_at' => now()->subDays(rand(1, 10)),
+            'last_contact_at' => now()->subDays(rand(0, 5)),
+            'closed_at' => in_array($status, ['closed_won', 'closed_lost', 'bad_lead']) ? now()->subDays(rand(0, 3)) : null,
+            'notes' => 'Sample outcome data for demonstration',
+            'reported_via' => 'api'
+        ]);
+    }
+}
+
 // Manually update lead type (GET for easy testing)
 Route::get('/admin/lead/{leadId}/update-type/{type}', function ($leadId, $type) {
     $lead = Lead::findOrFail($leadId);

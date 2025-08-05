@@ -481,6 +481,14 @@
     </style>
 </head>
 <body>
+    <!-- Admin Impersonation Banner -->
+    @if(session('admin_impersonation'))
+    <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 0.75rem 0; text-align: center; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        🎭 ADMIN IMPERSONATION MODE: Viewing as {{ $buyer->full_name }} ({{ $buyer->email }})
+        <a href="/admin/stop-impersonation" style="color: white; text-decoration: underline; margin-left: 1rem;">Exit Impersonation</a>
+    </div>
+    @endif
+
     <!-- Header -->
     <div class="header">
         <div class="header-container">
