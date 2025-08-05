@@ -134,4 +134,89 @@ class Buyer extends Authenticatable
     {
         $this->increment('balance', $amount);
     }
+
+    /**
+     * Adjust buyer balance with logging
+     */
+    public function adjustBalance($amount, $description = null)
+    {
+        if ($amount > 0) {
+            $this->increment('balance', $amount);
+        } else {
+            $this->decrement('balance', abs($amount));
+        }
+        
+        // Log the balance change
+        \Illuminate\Support\Facades\Log::info("Buyer balance adjusted", [
+            'buyer_id' => $this->id,
+            'amount' => $amount,
+            'new_balance' => $this->fresh()->balance,
+            'description' => $description
+        ]);
+        
+        return $this->fresh()->balance;
+    }
+    
+    /**
+     * Purchase a lead (deduct from balance)
+     */
+    public function purchaseLead($amount, $description = 'Lead purchase')
+    {
+        if ($this->balance < $amount) {
+            return false; // Insufficient funds
+        }
+        
+        $this->decrement('balance', $amount);
+        
+        // Check if auto-reload is needed
+        if ($this->needsAutoReload()) {
+            $this->triggerAutoReload();
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Trigger auto-reload if enabled and conditions are met
+     */
+    public function triggerAutoReload()
+    {
+        if (!$this->auto_reload_enabled || !$this->auto_reload_amount) {
+            return false;
+        }
+        
+        try {
+            // In a real implementation, this would call the payment processor
+            // For now, we'll simulate successful auto-reload
+            $this->increment('balance', $this->auto_reload_amount);
+            
+            // Create payment record
+            $this->payments()->create([
+                'transaction_id' => 'AUTO_' . uniqid(),
+                'type' => 'credit',
+                'amount' => $this->auto_reload_amount,
+                'status' => 'completed',
+                'payment_method' => 'auto_reload',
+                'payment_processor' => 'quickbooks',
+                'description' => "Auto-reload: $" . number_format($this->auto_reload_amount, 2),
+                'processed_at' => now()
+            ]);
+            
+            \Illuminate\Support\Facades\Log::info("Auto-reload triggered", [
+                'buyer_id' => $this->id,
+                'amount' => $this->auto_reload_amount,
+                'new_balance' => $this->fresh()->balance
+            ]);
+            
+            return true;
+            
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Auto-reload failed", [
+                'buyer_id' => $this->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return false;
+        }
+    }
 }

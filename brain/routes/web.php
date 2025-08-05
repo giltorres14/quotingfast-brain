@@ -2353,6 +2353,22 @@ Route::get('/buyer/leads', function () {
     return view('buyer.leads', compact('buyer', 'leads'));
 });
 
+// Buyer Billing
+Route::get('/buyer/billing', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    $buyer = \App\Models\Buyer::with('payments')->find($buyerId);
+    if (!$buyer || $buyer->status !== 'active') {
+        session()->forget('buyer_id');
+        return redirect('/buyer/login')->with('error', 'Account not active');
+    }
+
+    return view('buyer.billing', compact('buyer'));
+});
+
 // Buyer Lead Return
 Route::post('/buyer/leads/{leadId}/return', function ($leadId, Request $request) {
     $buyerId = session('buyer_id');
@@ -2385,6 +2401,139 @@ Route::post('/buyer/leads/{leadId}/return', function ($leadId, Request $request)
             'message' => 'Unable to return lead. Return window may have expired.'
         ], 400);
     }
+});
+
+// QuickBooks OAuth Routes
+Route::get('/buyer/quickbooks/connect', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    $qbService = new \App\Services\QuickBooksService();
+    $authUrl = $qbService->getAuthUrl($buyerId);
+    
+    return redirect($authUrl);
+});
+
+Route::get('/buyer/quickbooks/callback', function (Request $request) {
+    $code = $request->get('code');
+    $state = $request->get('state');
+    $realmId = $request->get('realmId');
+    
+    if (!$code || !$state || !$realmId) {
+        return redirect('/buyer/billing')->with('error', 'QuickBooks connection failed');
+    }
+
+    $qbService = new \App\Services\QuickBooksService();
+    $result = $qbService->exchangeCodeForTokens($code, $state, $realmId);
+    
+    if ($result['success']) {
+        return redirect('/buyer/billing')->with('success', 'QuickBooks connected successfully!');
+    } else {
+        return redirect('/buyer/billing')->with('error', 'QuickBooks connection failed: ' . $result['error']);
+    }
+});
+
+Route::post('/buyer/quickbooks/disconnect', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    $qbService = new \App\Services\QuickBooksService();
+    if ($qbService->disconnect($buyerId)) {
+        return response()->json(['success' => true, 'message' => 'QuickBooks disconnected successfully']);
+    } else {
+        return response()->json(['success' => false, 'message' => 'Failed to disconnect QuickBooks']);
+    }
+});
+
+// Payment Processing Routes
+Route::post('/buyer/payment/add-funds', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    $validated = $request->validate([
+        'amount' => 'required|numeric|min:10|max:10000',
+        'payment_method' => 'required|string|in:quickbooks,credit_card,bank_account'
+    ]);
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer) {
+        return response()->json(['success' => false, 'message' => 'Buyer not found'], 404);
+    }
+
+    $qbService = new \App\Services\QuickBooksService();
+    $result = $qbService->processPayment($buyer, $validated['amount'], $validated['payment_method']);
+
+    if ($result['success']) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Payment processed successfully',
+            'new_balance' => $result['new_balance'],
+            'payment_id' => $result['payment']->id
+        ]);
+    } else {
+        return response()->json([
+            'success' => false,
+            'message' => 'Payment failed: ' . $result['error']
+        ], 400);
+    }
+});
+
+Route::get('/buyer/payment/quickbooks/{paymentId}', function ($paymentId) {
+    $paymentData = Cache::get("qb_payment_{$paymentId}");
+    
+    if (!$paymentData) {
+        return redirect('/buyer/billing')->with('error', 'Payment link expired or invalid');
+    }
+
+    $buyer = \App\Models\Buyer::find($paymentData['buyer_id']);
+    if (!$buyer) {
+        return redirect('/buyer/billing')->with('error', 'Invalid payment request');
+    }
+
+    // This would render a QuickBooks payment form
+    // For now, redirect to billing with success message
+    return redirect('/buyer/billing')->with('success', 'Payment link accessed successfully');
+});
+
+// Auto-reload Settings
+Route::post('/buyer/settings/auto-reload', function (Request $request) {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+    }
+
+    $validated = $request->validate([
+        'enabled' => 'required|boolean',
+        'amount' => 'required_if:enabled,true|nullable|numeric|min:25|max:1000',
+        'threshold' => 'required_if:enabled,true|nullable|numeric|min:5|max:500'
+    ]);
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    if (!$buyer) {
+        return response()->json(['success' => false, 'message' => 'Buyer not found'], 404);
+    }
+
+    $buyer->update([
+        'auto_reload_enabled' => $validated['enabled'],
+        'auto_reload_amount' => $validated['enabled'] ? $validated['amount'] : null,
+        'auto_reload_threshold' => $validated['enabled'] ? $validated['threshold'] : null
+    ]);
+
+    return response()->json([
+        'success' => true,
+        'message' => $validated['enabled'] ? 'Auto-reload enabled' : 'Auto-reload disabled',
+        'settings' => [
+            'enabled' => $buyer->auto_reload_enabled,
+            'amount' => $buyer->auto_reload_amount,
+            'threshold' => $buyer->auto_reload_threshold
+        ]
+    ]);
 });
 
 // Buyer Logout
