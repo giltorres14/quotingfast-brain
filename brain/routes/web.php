@@ -1376,13 +1376,22 @@ Route::get('/leads', function (Request $request) {
         $sources = Lead::distinct('source')->pluck('source')->filter()->sort();
         $states = Lead::distinct('state')->pluck('state')->filter()->sort();
         
-        // Calculate statistics for dashboard cards
+        // Calculate statistics for dashboard cards (with error handling)
         $stats = [
-            'total_leads' => Lead::count(),
-            'today_leads' => Lead::whereDate('created_at', today())->count(),
-            'vici_sent' => Lead::whereNotNull('vici_lead_id')->count(),
-            'allstate_sent' => Lead::whereNotNull('allstate_lead_id')->count()
+            'total_leads' => 0,
+            'today_leads' => 0,
+            'vici_sent' => 0,
+            'allstate_sent' => 0
         ];
+        
+        try {
+            $stats['total_leads'] = Lead::count();
+            $stats['today_leads'] = Lead::whereDate('created_at', today())->count();
+            $stats['vici_sent'] = Lead::whereNotNull('vici_lead_id')->count();
+            $stats['allstate_sent'] = Lead::whereNotNull('allstate_lead_id')->count();
+        } catch (\Exception $statsError) {
+            Log::warning('Statistics calculation failed, using defaults', ['error' => $statsError->getMessage()]);
+        }
         
         return view('leads.index', compact('leads', 'statuses', 'sources', 'states', 'search', 'status', 'source', 'state_filter', 'vici_status', 'stats'));
         
