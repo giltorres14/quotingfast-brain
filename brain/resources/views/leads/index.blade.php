@@ -519,7 +519,8 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="/admin" class="nav-brand">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="brand-logo">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span style="display: none; font-weight: 800; color: #ffffff; font-size: 1.1rem;">QuotingFast</span>
                 <span>The Brain</span>
             </a>
             <ul class="nav-menu">
