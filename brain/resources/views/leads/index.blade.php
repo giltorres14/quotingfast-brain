@@ -539,6 +539,26 @@
 
     <!-- Main Content -->
     <div class="main-container">
+        <!-- DEBUG: Stats should appear here -->
+        <!-- Statistics Cards -->
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #4f46e5; margin-bottom: 0.5rem;">{{ $stats['total_leads'] ?? 0 }}</div>
+                <div class="stat-label" style="color: #6b7280; font-size: 1rem; font-weight: 500;">Total Leads</div>
+            </div>
+            <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #10b981; margin-bottom: 0.5rem;">{{ $stats['today_leads'] ?? 0 }}</div>
+                <div class="stat-label" style="color: #6b7280; font-size: 1rem; font-weight: 500;">Today's Leads</div>
+            </div>
+            <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.5rem;">{{ $stats['vici_sent'] ?? 0 }}</div>
+                <div class="stat-label" style="color: #6b7280; font-size: 1rem; font-weight: 500;">Sent to Vici</div>
+            </div>
+            <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #8b5cf6; margin-bottom: 0.5rem;">{{ $stats['allstate_sent'] ?? 0 }}</div>
+                <div class="stat-label" style="color: #6b7280; font-size: 1rem; font-weight: 500;">Sent to Allstate</div>
+            </div>
+        </div>
         <!-- Search and Filters -->
         <div class="search-section">
             <form method="GET" action="/leads">

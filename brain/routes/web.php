@@ -9,7 +9,7 @@ use App\Http\Controllers\DashboardController;
 
 // Main landing page - redirect to leads dashboard
 Route::get('/', function () {
-    return redirect('/leads-simple');
+    return redirect('/leads');
 });
 
 /*
@@ -384,7 +384,7 @@ Route::get('/test-lead-data', function () {
         $leads = \App\Models\Lead::orderBy('created_at', 'desc')->limit(10)->get();
         
         if ($leads->isEmpty()) {
-            return response()->json([
+    return response()->json([
                 'message' => 'No leads found in database',
                 'explanation' => 'You need to submit a test lead first to see the payload structure',
                 'your_ui_urls' => [
@@ -421,7 +421,7 @@ Route::get('/test-lead-data', function () {
                 'lead_id' => $lead->id,
                 'view_url' => "https://quotingfast-brain-ohio.onrender.com/agent/lead/{$lead->id}",
                 'basic_info' => [
-                    'name' => $lead->name,
+        'name' => $lead->name,
                     'email' => $lead->email,
                     'phone' => $lead->phone,
                     'city' => $lead->city,
@@ -846,7 +846,7 @@ Route::post('/webhook.php', function (Request $request) {
         $actualLeadId = $leadId; // Default to generated ID for fallback
         try {
             // Don't set custom ID - let database auto-increment
-            $lead = Lead::create($leadData);
+        $lead = Lead::create($leadData);
             $actualLeadId = $lead->id; // Use the actual auto-generated ID
             Log::info('LeadsQuotingFast lead stored in database', ['generated_id' => $leadId, 'actual_id' => $actualLeadId]);
         } catch (Exception $dbError) {
@@ -1376,7 +1376,15 @@ Route::get('/leads', function (Request $request) {
         $sources = Lead::distinct('source')->pluck('source')->filter()->sort();
         $states = Lead::distinct('state')->pluck('state')->filter()->sort();
         
-        return view('leads.index', compact('leads', 'statuses', 'sources', 'states', 'search', 'status', 'source', 'state_filter', 'vici_status'));
+        // Calculate statistics for dashboard cards
+        $stats = [
+            'total_leads' => Lead::count(),
+            'today_leads' => Lead::whereDate('created_at', today())->count(),
+            'vici_sent' => Lead::whereNotNull('vici_lead_id')->count(),
+            'allstate_sent' => Lead::whereNotNull('allstate_lead_id')->count()
+        ];
+        
+        return view('leads.index', compact('leads', 'statuses', 'sources', 'states', 'search', 'status', 'source', 'state_filter', 'vici_status', 'stats'));
         
     } catch (\Exception $e) {
         Log::error('Leads listing error', [
@@ -1531,8 +1539,8 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             $callMetrics = null;
             $isTestLead = false;
             
-            try {
-                $lead = App\Models\Lead::find($leadId);
+    try {
+        $lead = App\Models\Lead::find($leadId);
                 if ($lead) {
                     // Ensure JSON fields are properly decoded as arrays for view compatibility
                     if (is_string($lead->drivers)) {
@@ -1559,7 +1567,7 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             }
             
             // If database failed, try to get from cache (for recent LQF leads)
-            if (!$lead) {
+        if (!$lead) {
                 try {
                     $cachedData = Cache::get("lead_data_{$leadId}");
                     if ($cachedData) {
@@ -1743,8 +1751,8 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
         $leadName = 'Unknown Lead';
         
         // Try database first, fallback to mock data
-        try {
-            $lead = App\Models\Lead::find($leadId);
+    try {
+        $lead = App\Models\Lead::find($leadId);
             if ($lead) {
                 $leadName = $lead->name;
             }
@@ -1770,9 +1778,9 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
         // Try to update call metrics if database is available
         try {
             if ($lead) {
-                $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
-                if ($callMetrics) {
-                    $callMetrics->requestTransfer('ringba');
+        $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
+        if ($callMetrics) {
+            $callMetrics->requestTransfer('ringba');
                 }
             }
         } catch (Exception $dbError) {
@@ -1945,8 +1953,8 @@ Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
     try {
         // Try to get lead from database, fallback to mock data
         $lead = null;
-        try {
-            $lead = App\Models\Lead::find($leadId);
+    try {
+        $lead = App\Models\Lead::find($leadId);
         } catch (Exception $dbError) {
             Log::info('Database unavailable for Allstate test, using mock data');
         }

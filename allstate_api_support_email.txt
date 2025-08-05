@@ -1,0 +1,46 @@
+Subject: Testing API Authentication Issue - Need Assistance with Test Credentials
+
+Hi [Allstate Rep Name],
+
+I hope this email finds you well. I'm reaching out regarding the testing API credentials you provided for the Allstate Lead Marketplace integration.
+
+I've been working on implementing the API integration using the test credentials you shared:
+- Testing Endpoint: https://int.allstateleadmarketplace.com/v2/
+- API Key: quoting-fast
+- Base64 Encoded: cXVvdGluZy1mYXN0Og==
+
+However, I'm consistently receiving "Authentication Failed" responses (403 status) when attempting to connect to the API, even when using the exact credentials and format you specified.
+
+Here's what I've tested and verified:
+✅ Using the exact Base64 value you provided: cXVvdGluZy1mYXN0Og==
+✅ Testing against the correct testing endpoint: https://int.allstateleadmarketplace.com
+✅ Tried multiple authentication formats (Basic Auth, Bearer token, custom headers)
+✅ Confirmed the /leads endpoint exists (returns Method Not Allowed for POST, accepts GET)
+✅ Verified our Base64 encoding matches your specification exactly
+
+All attempts result in:
+```json
+{
+  "message": "Authentication Failed.",
+  "statusCode": 403,
+  "error": "Unauthorized"
+}
+```
+
+Could you please help me troubleshoot this issue? I'm wondering if:
+1. The test API key needs to be activated on your end?
+2. Our server IP addresses need to be whitelisted for API access?
+3. There are additional setup steps or headers required that I might be missing?
+4. The test environment has any specific requirements I should be aware of?
+
+I'm eager to get this integration working so we can start testing the lead submission flow. Any guidance you can provide would be greatly appreciated.
+
+Our development is hosted on Render.com if that's relevant for IP whitelisting purposes.
+
+Thank you for your time and assistance!
+
+Best regards,
+Gil Torres
+QuotingFast
+[Your Phone Number]
+[Your Email]

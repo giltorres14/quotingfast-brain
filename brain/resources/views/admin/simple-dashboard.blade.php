@@ -468,11 +468,11 @@
                         Dashboard
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="/leads-simple" class="nav-link">
-                        Leads
-                    </a>
-                </li>
+                                        <li class="nav-item">
+                            <a href="/leads" class="nav-link">
+                                Leads
+                            </a>
+                        </li>
                 <li class="nav-item">
                     <a href="#messaging" class="nav-link" onclick="alert('SMS/Messaging feature coming soon!')">
                         Messaging
@@ -559,9 +559,9 @@
                     </div>
                 </div>
                                                             <div class="action-buttons">
-                    <a href="/leads-simple" class="btn btn-primary">
-                        View Leads
-                    </a>
+                                            <a href="/leads" class="btn btn-primary">
+                            View Leads
+                        </a>
                 </div>
             </div>
 
