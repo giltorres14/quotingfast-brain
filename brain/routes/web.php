@@ -240,26 +240,98 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
-// Quick test to verify lead data is accessible
+// Quick test to verify lead data is accessible and show payload structure
 Route::get('/test-lead-data', function () {
-    $lead = App\Models\Lead::find(4); // Pairlee Witting
-    if (!$lead) {
-        return response()->json(['error' => 'Lead not found']);
+    try {
+        // Get the most recent lead
+        $lead = App\Models\Lead::orderBy('created_at', 'desc')->first();
+        
+        if (!$lead) {
+            return response()->json([
+                'error' => 'No leads found in database',
+                'message' => 'Please submit a test lead first',
+                'submit_test_lead_url' => url('/'),
+                'webhook_endpoints' => [
+                    'leadquotingfast' => url('/webhook.php'),
+                    'ringba' => url('/webhook/ringba'),
+                    'vici' => url('/webhook/vici'),
+                    'twilio' => url('/webhook/twilio')
+                ]
+            ]);
+        }
+        
+        // Decode JSON fields
+        $drivers = json_decode($lead->drivers, true);
+        $vehicles = json_decode($lead->vehicles, true);
+        $policy = json_decode($lead->current_policy, true);
+        $meta = json_decode($lead->meta, true);
+        
+        return response()->json([
+            'success' => true,
+            'lead_found' => true,
+            'lead_id' => $lead->id,
+            'lead_basic_info' => [
+                'name' => $lead->name,
+                'email' => $lead->email,
+                'phone' => $lead->phone,
+                'city' => $lead->city,
+                'state' => $lead->state,
+                'zipcode' => $lead->zipcode,
+                'dob' => $lead->dob,
+                'created_at' => $lead->created_at
+            ],
+            'lead_insurance_data' => [
+                'currently_insured' => $lead->currently_insured,
+                'current_carrier' => $lead->current_carrier,
+                'policy_expiration' => $lead->policy_expiration,
+                'tcpa_compliant' => $lead->tcpa_compliant,
+                'requested_policy' => $lead->requested_policy
+            ],
+            'drivers_data' => [
+                'count' => count($drivers ?? []),
+                'structure' => $drivers[0] ?? null,
+                'all_drivers' => $drivers
+            ],
+            'vehicles_data' => [
+                'count' => count($vehicles ?? []),
+                'structure' => $vehicles[0] ?? null,
+                'all_vehicles' => $vehicles
+            ],
+            'policy_data' => [
+                'keys' => array_keys($policy ?? []),
+                'full_policy' => $policy
+            ],
+            'meta_data' => [
+                'keys' => array_keys($meta ?? []),
+                'full_meta' => $meta
+            ],
+            'allstate_mapping_ready' => [
+                'external_id' => $lead->id,
+                'city' => $lead->city,
+                'state' => $lead->state,
+                'zipcode' => $lead->zipcode,
+                'date_of_birth' => $lead->dob,
+                'tcpa_compliant' => $lead->tcpa_compliant,
+                'currently_insured' => $lead->currently_insured,
+                'phone' => $lead->phone,
+                'email' => $lead->email,
+                'name' => $lead->name
+            ],
+            'timestamp' => now()->toISOString()
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Test lead data endpoint error', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to retrieve lead data: ' . $e->getMessage(),
+            'timestamp' => now()->toISOString()
+        ], 500);
     }
-    
-    $drivers = json_decode($lead->drivers, true);
-    $vehicles = json_decode($lead->vehicles, true);
-    $policy = json_decode($lead->current_policy, true);
-    
-    return response()->json([
-        'name' => $lead->name,
-        'drivers_count' => count($drivers ?? []),
-        'vehicles_count' => count($vehicles ?? []),
-        'policy_keys' => array_keys($policy ?? []),
-        'first_driver' => $drivers[0] ?? null,
-        'first_vehicle' => $vehicles[0] ?? null,
-        'policy' => $policy
-    ]);
 });
 
 // Simple POST test endpoint for Brain Lead Flow (bypasses CSRF)
