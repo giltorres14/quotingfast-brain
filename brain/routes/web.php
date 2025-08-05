@@ -2009,6 +2009,27 @@ Route::get('/test/allstate/connection', function () {
     }
 });
 
+// Fix Tony Clark lead type
+Route::get('/fix-tony-clark', function () {
+    $lead = Lead::find(17); // Tony Clark
+    if (!$lead) {
+        return response()->json(['error' => 'Tony Clark lead not found'], 404);
+    }
+    
+    $oldType = $lead->type;
+    $lead->update(['type' => 'home']);
+    
+    return response()->json([
+        'success' => true,
+        'message' => "Tony Clark updated from {$oldType} to home",
+        'lead_id' => $lead->id,
+        'external_lead_id' => $lead->external_lead_id,
+        'name' => $lead->name,
+        'old_type' => $oldType,
+        'new_type' => 'home'
+    ]);
+});
+
 // Manually update lead type (GET for easy testing)
 Route::get('/admin/lead/{leadId}/update-type/{type}', function ($leadId, $type) {
     $lead = Lead::findOrFail($leadId);
