@@ -673,13 +673,14 @@
                                 <div class="lead-location">
                                     📍 {{ $lead->city ?? '' }}@if($lead->city && $lead->state), @endif{{ $lead->state ?? '' }}
                                 </div>
-                                <div class="lead-datetime" style="color: #6b7280; font-size: 0.8rem; margin-top: 0.25rem;">
-                                    🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, Y g:i A T') : 'Unknown' }}
-                                </div>
                             </div>
         </div>
                         
                         <div class="lead-badges">
+                            <!-- Datetime in top right -->
+                            <div class="lead-datetime" style="color: #6b7280; font-size: 0.75rem; margin-bottom: 0.5rem; text-align: right;">
+                                🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, g:i A') : 'Unknown' }}
+                            </div>
                             <div class="badge-row">
                                 @if($lead->status)
                                     <span class="badge badge-{{ strtolower(str_replace(' ', '', $lead->status)) }}">

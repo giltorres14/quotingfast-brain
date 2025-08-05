@@ -1411,7 +1411,15 @@ Route::get('/leads', function (Request $request) {
         
         try {
             $stats['total_leads'] = Lead::count();
-            $stats['today_leads'] = Lead::whereDate('created_at', today())->count();
+            
+            // Fix today's leads calculation with proper EST timezone handling
+            $todayEST = now()->setTimezone('America/New_York')->startOfDay();
+            $tomorrowEST = $todayEST->copy()->addDay();
+            $stats['today_leads'] = Lead::whereBetween('created_at', [
+                $todayEST->utc(), 
+                $tomorrowEST->utc()
+            ])->count();
+            
             $stats['vici_sent'] = Lead::whereNotNull('vici_lead_id')->count();
             $stats['allstate_sent'] = Lead::whereNotNull('allstate_lead_id')->count();
         } catch (\Exception $statsError) {

@@ -89,7 +89,10 @@ class DashboardController extends Controller
                 'ringba_leads' => Lead::where('source', 'ringba')->count(),
                 'vici_leads' => Lead::where('source', 'vici')->count(),
                 'twilio_leads' => Lead::where('source', 'twilio')->count(),
-                'today_leads' => Lead::whereDate('created_at', today())->count(),
+                'today_leads' => Lead::whereBetween('created_at', [
+                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
+                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                ])->count(),
                 'recent_activity' => Lead::latest()->take(10)->get(['id', 'name', 'source', 'created_at']),
             ];
         }
@@ -125,7 +128,10 @@ class DashboardController extends Controller
                     'name' => 'LeadsQuotingFast',
                     'endpoint' => '/webhook.php',
                     'total_leads' => Lead::where('source', 'leadsquotingfast')->count(),
-                    'today_leads' => Lead::where('source', 'leadsquotingfast')->whereDate('created_at', today())->count(),
+                    'today_leads' => Lead::where('source', 'leadsquotingfast')->whereBetween('created_at', [
+                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
+                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                ])->count(),
                     'last_received' => Lead::where('source', 'leadsquotingfast')->latest()->first()?->created_at,
                     'active' => true,
                     'description' => 'Auto insurance lead capture'
@@ -134,7 +140,10 @@ class DashboardController extends Controller
                     'name' => 'Ringba',
                     'endpoint' => '/webhook/ringba',
                     'total_leads' => Lead::where('source', 'ringba')->count(),
-                    'today_leads' => Lead::where('source', 'ringba')->whereDate('created_at', today())->count(),
+                    'today_leads' => Lead::where('source', 'ringba')->whereBetween('created_at', [
+                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
+                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                ])->count(),
                     'last_received' => Lead::where('source', 'ringba')->latest()->first()?->created_at,
                     'active' => true,
                     'description' => 'Call tracking and routing'
@@ -143,7 +152,10 @@ class DashboardController extends Controller
                     'name' => 'Vici',
                     'endpoint' => '/webhook/vici',
                     'total_leads' => Lead::where('source', 'vici')->count(),
-                    'today_leads' => Lead::where('source', 'vici')->whereDate('created_at', today())->count(),
+                    'today_leads' => Lead::where('source', 'vici')->whereBetween('created_at', [
+                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
+                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                ])->count(),
                     'last_received' => Lead::where('source', 'vici')->latest()->first()?->created_at,
                     'active' => true,
                     'description' => 'Dialer system integration'
@@ -152,7 +164,10 @@ class DashboardController extends Controller
                     'name' => 'Twilio',
                     'endpoint' => '/webhook/twilio',
                     'total_leads' => Lead::where('source', 'twilio')->count(),
-                    'today_leads' => Lead::where('source', 'twilio')->whereDate('created_at', today())->count(),
+                    'today_leads' => Lead::where('source', 'twilio')->whereBetween('created_at', [
+                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
+                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                ])->count(),
                     'last_received' => Lead::where('source', 'twilio')->latest()->first()?->created_at,
                     'active' => true,
                     'description' => 'SMS/Voice webhook integration'
@@ -161,7 +176,10 @@ class DashboardController extends Controller
                     'name' => 'Allstate',
                     'endpoint' => '/webhook/allstate',
                     'total_leads' => Lead::where('source', 'allstate_ready')->count(),
-                    'today_leads' => Lead::where('source', 'allstate_ready')->whereDate('created_at', today())->count(),
+                    'today_leads' => Lead::where('source', 'allstate_ready')->whereBetween('created_at', [
+                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
+                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                ])->count(),
                     'last_received' => Lead::where('source', 'allstate_ready')->latest()->first()?->created_at,
                     'transferred_leads' => Lead::where('source', 'allstate_ready')->where('status', 'transferred_to_allstate')->count(),
                     'failed_transfers' => Lead::where('source', 'allstate_ready')->where('status', 'transfer_failed')->count(),
@@ -177,7 +195,10 @@ class DashboardController extends Controller
                 ->get(['id', 'name', 'phone', 'source', 'type', 'created_at', 'assigned_user_id']),
             'summary' => [
                 'total_leads' => Lead::count(),
-                'today_leads' => Lead::whereDate('created_at', today())->count(),
+                'today_leads' => Lead::whereBetween('created_at', [
+                    now()->setTimezone('America/New_York')->startOfDay()->utc(), 
+                    now()->setTimezone('America/New_York')->startOfDay()->addDay()->utc()
+                ])->count(),
                 'active_sources' => Lead::distinct('source')->count('source'),
                 'last_activity' => Lead::latest()->first()?->created_at
             ]
