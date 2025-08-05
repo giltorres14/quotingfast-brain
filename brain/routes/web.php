@@ -135,7 +135,7 @@ Route::get('/test', function () {
 });
 
 // ViciDial firewall whitelisting endpoint
-Route::post('/vici/whitelist', function () {
+Route::match(['GET', 'POST'], '/vici/whitelist', function () {
     try {
         $viciConfig = [
             'server' => env('VICI_SERVER', 'philli.callix.ai'),
@@ -1366,9 +1366,8 @@ Route::get('/leads', function (Request $request) {
             }
         }
         
-        // Get leads with pagination
-        $leads = $query->with(['viciCallMetrics', 'latestConversion'])
-                      ->orderBy('created_at', 'desc')
+        // Get leads with pagination (simplified query to avoid relationship errors)
+        $leads = $query->orderBy('created_at', 'desc')
                       ->paginate(20);
         
         // Get unique statuses, sources, and states for filters
@@ -1820,7 +1819,7 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
     }
 });
 
-// Test Vici lead push endpoint
+// Test Vici lead push endpoint (using same function as webhook)
 Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
     try {
         $lead = App\Models\Lead::find($leadId);
@@ -1838,17 +1837,28 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
             'test_endpoint' => true
         ]);
 
-        // Push lead to Vici
-        $viciService = new \App\Services\ViciDialerService();
-        $pushResult = $viciService->pushLead($lead, 'TEST_CAMPAIGN');
+        // Prepare lead data in the same format as webhook
+        $leadData = [
+            'first_name' => $lead->first_name ?? explode(' ', $lead->name)[0] ?? 'Unknown',
+            'last_name' => $lead->last_name ?? (count(explode(' ', $lead->name)) > 1 ? end(explode(' ', $lead->name)) : ''),
+            'phone' => $lead->phone,
+            'email' => $lead->email,
+            'address' => $lead->address,
+            'city' => $lead->city,
+            'state' => $lead->state,
+            'zip_code' => $lead->zip_code
+        ];
 
-        if ($pushResult['success']) {
+        // Use the same function that works in the webhook
+        $viciResult = sendToViciList101($leadData, $lead->id);
+
+        if ($viciResult) {
             return response()->json([
                 'success' => true,
                 'message' => 'Vici lead push test completed successfully',
                 'lead_id' => $lead->id,
                 'lead_name' => $lead->name,
-                'push_result' => $pushResult,
+                'vici_result' => $viciResult,
                 'webhook_url' => url('/webhook/vici'),
                 'timestamp' => now()->toISOString()
             ]);
@@ -1858,8 +1868,7 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
                 'message' => 'Vici lead push test failed',
                 'lead_id' => $lead->id,
                 'lead_name' => $lead->name,
-                'error' => $pushResult['error'] ?? 'Unknown error',
-                'push_result' => $pushResult,
+                'error' => 'Vici function returned null/false',
                 'timestamp' => now()->toISOString()
             ], 400);
         }
