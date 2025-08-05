@@ -2225,6 +2225,139 @@ Route::get('/fix-tony-clark', function () {
     ]);
 });
 
+// ===== BUYER PORTAL ROUTES =====
+
+// Buyer Registration
+Route::get('/buyer/signup', function () {
+    return view('buyer.signup');
+});
+
+Route::post('/buyer/signup', function (Request $request) {
+    try {
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:buyers,email',
+            'phone' => 'required|string|max:20',
+            'password' => 'required|string|min:8|confirmed',
+            'terms_accepted' => 'required|accepted'
+        ]);
+
+        $buyer = \App\Models\Buyer::create([
+            'first_name' => $validated['first_name'],
+            'last_name' => $validated['last_name'],
+            'company' => $validated['company'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'password' => bcrypt($validated['password']),
+            'status' => 'pending'
+        ]);
+
+        // Send activation email (placeholder)
+        Log::info('New buyer registered', ['buyer_id' => $buyer->id, 'email' => $buyer->email]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration successful! Please check your email for activation instructions.',
+            'buyer_id' => $buyer->id
+        ]);
+
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Registration failed: ' . $e->getMessage()
+        ], 400);
+    }
+});
+
+// Buyer Login
+Route::get('/buyer/login', function () {
+    return view('buyer.login');
+});
+
+Route::post('/buyer/login', function (Request $request) {
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required'
+    ]);
+
+    $buyer = \App\Models\Buyer::where('email', $credentials['email'])->first();
+    
+    if (!$buyer || !Hash::check($credentials['password'], $buyer->password)) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid credentials'
+        ], 401);
+    }
+
+    if ($buyer->status !== 'active') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Account is not active. Please contact support.'
+        ], 403);
+    }
+
+    // Update last login
+    $buyer->update(['last_login_at' => now()]);
+
+    // Create session (simplified)
+    session(['buyer_id' => $buyer->id]);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Login successful',
+        'redirect' => '/buyer/dashboard'
+    ]);
+});
+
+// Buyer Dashboard
+Route::get('/buyer/dashboard', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    $buyer = \App\Models\Buyer::with(['leads' => function($query) {
+        $query->latest()->limit(10);
+    }])->find($buyerId);
+
+    if (!$buyer) {
+        return redirect('/buyer/login');
+    }
+
+    // Get statistics
+    $stats = [
+        'total_leads' => $buyer->leads()->count(),
+        'delivered_leads' => $buyer->leads()->delivered()->count(),
+        'returned_leads' => $buyer->leads()->returned()->count(),
+        'current_balance' => $buyer->balance,
+        'total_spent' => $buyer->leads()->sum('price'),
+        'auto_reload_status' => $buyer->auto_reload_enabled
+    ];
+
+    return view('buyer.dashboard', compact('buyer', 'stats'));
+});
+
+// Buyer Leads
+Route::get('/buyer/leads', function () {
+    $buyerId = session('buyer_id');
+    if (!$buyerId) {
+        return redirect('/buyer/login');
+    }
+
+    $buyer = \App\Models\Buyer::find($buyerId);
+    $leads = $buyer->leads()->with('lead')->latest()->paginate(20);
+
+    return view('buyer.leads', compact('buyer', 'leads'));
+});
+
+// Buyer Logout
+Route::post('/buyer/logout', function () {
+    session()->forget('buyer_id');
+    return redirect('/buyer/login');
+});
+
 // Manually update lead type (GET for easy testing)
 Route::get('/admin/lead/{leadId}/update-type/{type}', function ($leadId, $type) {
     $lead = Lead::findOrFail($leadId);
