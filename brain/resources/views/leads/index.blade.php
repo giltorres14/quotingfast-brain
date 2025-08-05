@@ -661,8 +661,8 @@
           </div>
                                     
                                     <!-- Badges and datetime on top line -->
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <!-- Badges grouped together -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                        <!-- Badges grouped together on left -->
                                         <div style="display: flex; gap: 0.25rem;">
                                             @if($lead->type)
                                                 <span class="badge badge-type-{{ strtolower($lead->type) }}">
@@ -677,8 +677,8 @@
                                             @endif
                                         </div>
                                         
-                                        <!-- Datetime pushed to far right -->
-                                        <span style="color: #6b7280; font-size: 0.75rem; margin-left: auto; text-align: right; min-width: 120px;">
+                                        <!-- Datetime on far right -->
+                                        <span style="color: #6b7280; font-size: 0.75rem;">
                                             🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, g:i A') : 'Unknown' }}
                                         </span>
                                     </div>
