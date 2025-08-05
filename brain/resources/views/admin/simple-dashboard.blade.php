@@ -463,11 +463,16 @@
                         Dashboard
                     </a>
                 </li>
-                                        <li class="nav-item">
-                            <a href="/leads" class="nav-link">
-                                Leads
-                            </a>
-                        </li>
+                                                        <li class="nav-item">
+                    <a href="/leads" class="nav-link">
+                        Leads
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/lead-upload" class="nav-link">
+                        📁 Upload CSV
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="#messaging" class="nav-link" onclick="alert('SMS/Messaging feature coming soon!')">
                         Messaging

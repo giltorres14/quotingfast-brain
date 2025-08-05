@@ -2027,6 +2027,118 @@ Route::get('/test/allstate/connection', function () {
     }
 });
 
+// CSV Lead Upload Portal - Admin only
+Route::get('/lead-upload', function () {
+    $isAdmin = true; // Placeholder for auth - replace with actual admin check
+    if (!$isAdmin) {
+        abort(403, 'Access denied. Admin only.');
+    }
+    
+    // Get upload history
+    $recentUploads = collect(); // Will be replaced with actual upload history from database
+    
+    return view('leads.upload', compact('recentUploads'));
+});
+
+// Process CSV Upload
+Route::post('/lead-upload/process', function (Request $request) {
+    try {
+        if (!$request->hasFile('csv_file')) {
+            return response()->json(['success' => false, 'message' => 'No file uploaded'], 400);
+        }
+        
+        $file = $request->file('csv_file');
+        $campaignId = $request->input('campaign_id');
+        $leadType = $request->input('lead_type', 'auto');
+        
+        // Validate file
+        if ($file->getClientOriginalExtension() !== 'csv') {
+            return response()->json(['success' => false, 'message' => 'File must be a CSV'], 400);
+        }
+        
+        if ($file->getSize() > 10 * 1024 * 1024) { // 10MB limit
+            return response()->json(['success' => false, 'message' => 'File too large. Maximum 10MB'], 400);
+        }
+        
+        // Read and parse CSV
+        $csvData = array_map('str_getcsv', file($file->getPathname()));
+        $headers = array_shift($csvData); // First row as headers
+        
+        if (empty($csvData)) {
+            return response()->json(['success' => false, 'message' => 'CSV file is empty'], 400);
+        }
+        
+        $successCount = 0;
+        $errorCount = 0;
+        $errors = [];
+        
+        foreach ($csvData as $rowIndex => $row) {
+            try {
+                // Map CSV row to lead data
+                $leadData = [];
+                foreach ($headers as $colIndex => $header) {
+                    $leadData[strtolower(trim($header))] = $row[$colIndex] ?? '';
+                }
+                
+                // Prepare lead for database
+                $processedLead = [
+                    'name' => trim(($leadData['first_name'] ?? '') . ' ' . ($leadData['last_name'] ?? '')) ?: ($leadData['name'] ?? 'Unknown'),
+                    'first_name' => $leadData['first_name'] ?? null,
+                    'last_name' => $leadData['last_name'] ?? null,
+                    'phone' => $leadData['phone'] ?? 'Unknown',
+                    'email' => $leadData['email'] ?? null,
+                    'address' => $leadData['address'] ?? null,
+                    'city' => $leadData['city'] ?? null,
+                    'state' => $leadData['state'] ?? 'Unknown',
+                    'zip_code' => $leadData['zip_code'] ?? $leadData['zip'] ?? null,
+                    'source' => 'csv_upload',
+                    'type' => $leadType,
+                    'campaign_id' => $campaignId,
+                    'received_at' => now(),
+                    'joined_at' => now(),
+                    'payload' => json_encode($leadData),
+                ];
+                
+                // Create lead
+                $lead = Lead::create($processedLead);
+                
+                // Generate external lead ID
+                $externalLeadId = generateLeadId();
+                $lead->update(['external_lead_id' => $externalLeadId]);
+                
+                // Handle campaign auto-detection
+                if (!empty($campaignId)) {
+                    $campaign = \App\Models\Campaign::autoCreateFromId($campaignId);
+                    $campaign->recordLeadActivity();
+                }
+                
+                $successCount++;
+                
+            } catch (Exception $e) {
+                $errorCount++;
+                $errors[] = "Row " . ($rowIndex + 2) . ": " . $e->getMessage();
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Upload completed! {$successCount} leads imported successfully.",
+            'stats' => [
+                'total_rows' => count($csvData),
+                'successful' => $successCount,
+                'errors' => $errorCount,
+                'error_details' => array_slice($errors, 0, 10) // First 10 errors
+            ]
+        ]);
+        
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'Upload failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
 // Campaign Directory - Admin only
 Route::get('/campaign-directory', function () {
     $isAdmin = true; // Placeholder for auth - replace with actual admin check

@@ -532,6 +532,7 @@
             <ul class="nav-menu">
                 <li><a href="/admin" class="nav-link">Dashboard</a></li>
                 <li><a href="/leads" class="nav-link active">Leads</a></li>
+                <li><a href="/lead-upload" class="nav-link">📁 Upload CSV</a></li>
                 <li><a href="#messaging" class="nav-link" onclick="alert('SMS/Messaging feature coming soon!')">Messaging</a></li>
                 <li><a href="/analytics" class="nav-link">Analytics</a></li>
                 <li><a href="/campaign-directory" class="nav-link">📊 Campaigns</a></li>
