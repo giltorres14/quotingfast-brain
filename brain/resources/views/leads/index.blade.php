@@ -1,199 +1,329 @@
-@include('components.header', ['title' => 'Leads Dashboard'])
-
-<style>
-        /* Page-specific styles */
-        .leads-container {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Leads - The Brain</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+        
+        /* Header Navigation */
+        .navbar {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            height: 70px;
+        }
+        
+        .nav-brand {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .brand-logo {
+            height: 40px;
+            width: auto;
+            filter: brightness(1.1);
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-weight: 600;
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 2rem 0;
+        }
+        
+        .page-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        
+        /* Main Container */
+        .main-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
         }
         
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .stat-card {
+        /* Search Section */
+        .search-section {
             background: white;
             border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .search-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto auto;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .form-input, .form-select {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.95rem;
             transition: all 0.2s ease;
         }
         
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .stat-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .stat-icon {
-            font-size: 1.5rem;
-            opacity: 0.7;
-        }
-        
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-change {
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        
-        .stat-change.positive {
-            color: #10b981;
-        }
-        
-        .stat-change.negative {
-            color: #ef4444;
-        }
-        
-        /* Leads Grid */
-        .leads-section {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 1px solid rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-        
-        .leads-header {
-            background: #f8fafc;
-            padding: 1.5rem;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .leads-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #1f2937;
-        }
-        
-        .leads-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-        .search-box {
-            position: relative;
-        }
-        
-        .search-input {
-            padding: 0.5rem 1rem 0.5rem 2.5rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            width: 250px;
-            transition: border-color 0.2s;
-        }
-        
-        .search-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
         
-        .search-icon {
-            position: absolute;
-            left: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
-        
-        .filter-btn {
-            padding: 0.5rem 1rem;
-            background: #667eea;
-            color: white;
-            border: none;
+        .btn {
+            padding: 0.75rem 1.5rem;
             border-radius: 8px;
             font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            border: none;
             cursor: pointer;
-            transition: background-color 0.2s;
+            font-size: 0.95rem;
         }
         
-        .filter-btn:hover {
-            background: #5a67d8;
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
         }
         
-        /* Leads Grid */
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #edf2f7;
+        }
+        
+        /* Lead Cards */
         .leads-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 1.5rem;
-            padding: 1.5rem;
         }
         
         .lead-card {
-            background: #fafafa;
-            border: 1px solid #e5e7eb;
+            background: white;
             border-radius: 12px;
-            padding: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
             transition: all 0.2s ease;
-            position: relative;
         }
         
         .lead-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
         
         .lead-header {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .lead-main {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .lead-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+        
+        .lead-info {
+            flex: 1;
         }
         
         .lead-name {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #1f2937;
+            color: #1a202c;
             margin-bottom: 0.25rem;
+        }
+        
+        .lead-contact {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .lead-location {
+            color: #718096;
+            font-size: 0.85rem;
         }
         
         .lead-badges {
             display: flex;
+            flex-direction: column;
             gap: 0.5rem;
-            flex-wrap: wrap;
-            margin-bottom: 0.75rem;
+            align-items: flex-end;
+        }
+        
+        .badge-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
         }
         
         .badge {
             padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
+        /* Status Badges */
+        .badge-new {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge-contacted {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-qualified {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-converted {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        /* Source Badges */
+        .badge-manual {
+            background: #f3e8ff;
+            color: #7c3aed;
+        }
+        
+        .badge-web {
+            background: #e0f2fe;
+            color: #0277bd;
+        }
+        
+                .badge-campaign {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+        
+        /* Vici Badge */
+        .badge-vici {
+            background: #e1f5fe;
+            color: #01579b;
+        }
+        
+        /* Lead Type Badges */
         .badge-type-auto {
             background: #dbeafe;
             color: #1e40af;
@@ -204,283 +334,327 @@
             color: #d97706;
         }
         
+        /* Campaign Badge */
         .badge-campaign {
             background: #f0f9ff;
             color: #0369a1;
         }
         
-        .badge-vici {
-            background: #dcfce7;
-            color: #166534;
-        }
-        
-        .lead-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #6b7280;
-        }
-        
-        .info-icon {
-            font-size: 0.8rem;
-        }
-        
+        /* SMS Status */
         .sms-status {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.85rem;
-            color: #6b7280;
-            margin-bottom: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #718096;
         }
         
         .sms-indicator {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
         }
         
-        .sms-none {
-            background: #d1d5db;
+        .sms-delivered { background: #10b981; }
+        .sms-pending { background: #f59e0b; }
+        .sms-failed { background: #ef4444; }
+        .sms-none { background: #9ca3af; }
+        
+        /* Lead Details */
+        .lead-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
         }
         
-        .sms-sent {
-            background: #10b981;
+        .detail-item {
+            text-align: center;
         }
         
-        .sms-failed {
-            background: #ef4444;
+        .detail-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
         }
         
+        .detail-value {
+            font-weight: 700;
+            color: #1a202c;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-label {
+            color: #718096;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Lead Actions */
         .lead-actions {
             display: flex;
-            gap: 0.5rem;
-        }
-        
-        .btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
         }
         
         .btn-sm {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
         }
         
         .btn-view {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #d1d5db;
+            background: #4f46e5;
+            color: white;
         }
         
         .btn-view:hover {
-            background: #e5e7eb;
-            text-decoration: none;
-            color: #374151;
+            background: #4338ca;
         }
         
         .btn-edit {
-            background: #667eea;
-            color: white;
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
         }
         
         .btn-edit:hover {
-            background: #5a67d8;
-            text-decoration: none;
-            color: white;
+            background: #edf2f7;
         }
         
         .btn-payload {
-            background: #f59e0b;
+            background: #8b5cf6;
             color: white;
         }
         
         .btn-payload:hover {
-            background: #d97706;
-            text-decoration: none;
+            background: #7c3aed;
+        }
+        
+        .btn-sms {
+            background: #10b981;
             color: white;
         }
         
-        /* Pagination */
-        .pagination-wrapper {
-            padding: 1.5rem;
-            border-top: 1px solid #e5e7eb;
-            background: #f8fafc;
-        }
-        
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .pagination a, .pagination span {
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .pagination a {
-            color: #6b7280;
-            background: white;
-            border: 1px solid #d1d5db;
-        }
-        
-        .pagination a:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-        
-        .pagination .current {
-            background: #667eea;
-            color: white;
-            border: 1px solid #667eea;
+        .btn-sms:hover {
+            background: #059669;
         }
         
         /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
-            color: #6b7280;
+            padding: 3rem;
+            color: #718096;
         }
         
-        .empty-icon {
+        .empty-state-icon {
             font-size: 4rem;
             margin-bottom: 1rem;
             opacity: 0.5;
         }
         
-        .empty-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #374151;
+        .create-lead-btn {
+            background: #4f46e5;
+            color: white;
+            margin-top: 1rem;
         }
         
-        .empty-description {
-            font-size: 1rem;
-            margin-bottom: 2rem;
+        .create-lead-btn:hover {
+            background: #4338ca;
         }
         
-        /* Responsive */
-        @media (max-width: 768px) {
-            .leads-container {
-                padding: 1rem;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .leads-grid {
-                grid-template-columns: 1fr;
-                padding: 1rem;
-            }
-            
-            .leads-header {
-                flex-direction: column;
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .search-grid {
+                grid-template-columns: 1fr 1fr 1fr;
                 gap: 1rem;
-                align-items: stretch;
             }
             
-            .leads-actions {
-                flex-direction: column;
-            }
-            
-            .search-input {
-                width: 100%;
+            .search-grid .form-group:first-child {
+                grid-column: span 3;
             }
         }
-</style>
+        
+        @media (max-width: 900px) {
+            .search-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .search-grid .form-group:first-child {
+                grid-column: span 2;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .lead-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .lead-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .lead-actions {
+                justify-content: center;
+            }
+            
+            .lead-badges {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/admin" class="nav-brand">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span style="display: none; font-weight: 800; color: #ffffff; font-size: 1.1rem;">QuotingFast</span>
+                <span>The Brain</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="/admin" class="nav-link">Dashboard</a></li>
+                <li><a href="/leads" class="nav-link active">Leads</a></li>
+                <li><a href="/lead-upload" class="nav-link">📁 Upload CSV</a></li>
+                <li><a href="#messaging" class="nav-link" onclick="alert('SMS/Messaging feature coming soon!')">Messaging</a></li>
+                <li><a href="/analytics" class="nav-link">Analytics</a></li>
+                <li><a href="/campaign-directory" class="nav-link">📊 Campaigns</a></li>
+                <li><a href="/api-directory" class="nav-link">🔗 API</a></li>
+                    <li><a href="#settings" class="nav-link" onclick="alert('Settings feature coming soon!')">Settings</a></li>
+            </ul>
+  </div>
+    </nav>
 
-<div class="page-content">
-    <div class="leads-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1 class="page-title">All Leads</h1>
+            <p class="page-subtitle">Manage and track your auto insurance leads</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- DEBUG: Stats should appear here -->
         <!-- Statistics Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-title">Total Leads</div>
-                    <div class="stat-icon">👥</div>
-                </div>
-                <div class="stat-number">{{ $totalLeads }}</div>
-                <div class="stat-change positive">+{{ $newLeadsToday }} today</div>
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #4f46e5; margin-bottom: 0.5rem;">{{ $stats['total_leads'] ?? 0 }}</div>
+                <div class="stat-label" style="color: #6b7280; font-size: 1rem; font-weight: 500;">Total Leads</div>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-title">Today's Leads</div>
-                    <div class="stat-icon">📅</div>
-                </div>
-                <div class="stat-number">{{ $newLeadsToday }}</div>
-                <div class="stat-change {{ $todayChange >= 0 ? 'positive' : 'negative' }}">
-                    {{ $todayChange >= 0 ? '+' : '' }}{{ $todayChange }} from yesterday
-                </div>
+            <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #10b981; margin-bottom: 0.5rem;">{{ $stats['today_leads'] ?? 0 }}</div>
+                <div class="stat-label" style="color: #6b7280; font-size: 1rem; font-weight: 500;">Today's Leads</div>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-title">This Week</div>
-                    <div class="stat-icon">📊</div>
-                </div>
-                <div class="stat-number">{{ $weekLeads }}</div>
-                <div class="stat-change {{ $weekChange >= 0 ? 'positive' : 'negative' }}">
-                    {{ $weekChange >= 0 ? '+' : '' }}{{ $weekChange }} from last week
-                </div>
+            <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.5rem;">{{ $stats['vici_sent'] ?? 0 }}</div>
+                <div class="stat-label" style="color: #6b7280; font-size: 1rem; font-weight: 500;">Sent to Vici</div>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-title">Conversion Rate</div>
-                    <div class="stat-icon">🎯</div>
-                </div>
-                <div class="stat-number">{{ number_format($conversionRate, 1) }}%</div>
-                <div class="stat-change positive">Above industry avg</div>
+            <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #8b5cf6; margin-bottom: 0.5rem;">{{ $stats['allstate_sent'] ?? 0 }}</div>
+                <div class="stat-label" style="color: #6b7280; font-size: 1rem; font-weight: 500;">Sent to Allstate</div>
             </div>
         </div>
-
-        <!-- Leads Section -->
-        <div class="leads-section">
-            <div class="leads-header">
-                <div class="leads-title">Recent Leads ({{ $leads->total() }})</div>
-                <div class="leads-actions">
-                    <div class="search-box">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" class="search-input" placeholder="Search leads..." id="searchInput">
+        <!-- Search and Filters -->
+        <div class="search-section">
+            <form method="GET" action="/leads">
+                <div class="search-grid">
+                    <div class="form-group">
+                        <label class="form-label">Search</label>
+                        <input type="text" name="search" class="form-input" 
+                               placeholder="Name, phone, or email" 
+                               value="{{ $search ?? '' }}">
                     </div>
-                    <button class="filter-btn" onclick="toggleFilters()">
-                        🔧 Filters
-                    </button>
-                </div>
-            </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="all">All Statuses</option>
+                            @foreach($statuses as $statusOption)
+                                <option value="{{ $statusOption }}" 
+                                        {{ ($status ?? '') === $statusOption ? 'selected' : '' }}>
+                                    {{ ucfirst($statusOption) }}
+          </option>
+        @endforeach
+      </select>
+    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Source</label>
+                        <select name="source" class="form-select">
+                            <option value="all">All Sources</option>
+                            @foreach($sources as $sourceOption)
+                                <option value="{{ $sourceOption }}" 
+                                        {{ ($source ?? '') === $sourceOption ? 'selected' : '' }}>
+                                    {{ ucfirst($sourceOption) }}
+          </option>
+        @endforeach
+      </select>
+    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">State</label>
+                        <select name="state_filter" class="form-select">
+                            <option value="all">All States</option>
+                            @foreach($states as $stateOption)
+                                <option value="{{ $stateOption }}" 
+                                        {{ ($state_filter ?? '') === $stateOption ? 'selected' : '' }}>
+                                    {{ $stateOption }}
+          </option>
+        @endforeach
+      </select>
+    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Vici Status</label>
+                        <select name="vici_status" class="form-select">
+                            <option value="all">All</option>
+                            <option value="sent" {{ ($vici_status ?? '') === 'sent' ? 'selected' : '' }}>Sent to Vici</option>
+                            <option value="not_sent" {{ ($vici_status ?? '') === 'not_sent' ? 'selected' : '' }}>Not Sent</option>
+                        </select>
+    </div>
 
-            @if($leads->count() > 0)
-                <div class="leads-grid">
-                    @foreach($leads as $lead)
-                        <div class="lead-card">
-                            <div class="lead-header">
-                                <div>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="/leads" class="btn btn-secondary">Clear</a>
+    </div>
+            </form>
+    </div>
+
+        <!-- Test Message -->
+        @if(isset($isTestMode) && $isTestMode)
+            <div style="background: #fef3c7; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; color: #92400e;">
+                <strong>Test Mode:</strong> Showing sample data. Database connection may be unavailable.
+            </div>
+        @endif
+
+        <!-- Leads Grid -->
+        <div class="leads-grid">
+            @forelse($leads as $lead)
+                <div class="lead-card">
+                    <div class="lead-header">
+                        <div class="lead-main">
+                            <div class="lead-avatar">
+                                {{ strtoupper(substr($lead->first_name ?? $lead->name ?? 'L', 0, 1)) }}{{ strtoupper(substr($lead->last_name ?? '', 0, 1)) }}
+                            </div>
+                            <div class="lead-info">
+                                                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                                     <div class="lead-name">
                                         {{ $lead->first_name ?? '' }} {{ $lead->last_name ?? '' }}
                                         @if(!$lead->first_name && !$lead->last_name)
@@ -491,132 +665,95 @@
                                                 #{{ $lead->external_lead_id }}
                                             </span>
                                         @endif
-                                    </div>
+          </div>
                                     
-                                    <!-- Date/Time in header -->
-                                    <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
-                                        🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, g:i A') : 'Unknown' }}
+                                    <!-- Badges and datetime on top line -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                        <!-- Badges grouped together on left -->
+                                        <div style="display: flex; gap: 0.25rem;">
+                                            @if($lead->type)
+                                                <span class="badge badge-type-{{ strtolower($lead->type) }}">
+                                                    {{ ucfirst($lead->type) }}
+                                                </span>
+                                            @endif
+                                            
+                                            @if($lead->campaign_id)
+                                                @php
+                                                    $campaign = \App\Models\Campaign::where('campaign_id', $lead->campaign_id)->first();
+                                                    $campaignName = $campaign ? $campaign->display_name : "Campaign #{$lead->campaign_id}";
+                                                @endphp
+                                                <span class="badge badge-campaign">
+                                                    {{ $campaignName }}
+                                                </span>
+                                            @endif
+                                            
+                                            @if(isset($lead->sent_to_vici) && $lead->sent_to_vici)
+                                                <span class="badge badge-vici">
+                                                    Vici
+                                                </span>
+                                            @endif
+                                        </div>
+                                        
+                                        <!-- Datetime on far right -->
+                                        <span style="color: #6b7280; font-size: 0.75rem;">
+                                            🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, g:i A') : 'Unknown' }}
+                                        </span>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Badges -->
-                            <div class="lead-badges">
-                                @if($lead->type)
-                                    <span class="badge badge-type-{{ strtolower($lead->type) }}">
-                                        {{ ucfirst($lead->type) }}
-                                    </span>
-                                @endif
-                                
-                                @if($lead->campaign_id)
-                                    @php
-                                        $campaign = \App\Models\Campaign::where('campaign_id', $lead->campaign_id)->first();
-                                        $campaignName = $campaign ? $campaign->display_name : "Campaign #{$lead->campaign_id}";
-                                    @endphp
-                                    <span class="badge badge-campaign">
-                                        {{ $campaignName }}
-                                    </span>
-                                @endif
-                                
-                                @if(isset($lead->sent_to_vici) && $lead->sent_to_vici)
-                                    <span class="badge badge-vici">
-                                        Vici
-                                    </span>
-                                @endif
-                            </div>
-                            
-                            <!-- Lead Info -->
-                            <div class="lead-info">
-                                <div class="info-item">
-                                    <span class="info-icon">📱</span>
-                                    {{ $lead->phone ?? 'No phone' }}
+                                <div class="lead-contact">
+                                    📞 @if($lead->phone)
+                                        @php
+                                            $phone = preg_replace('/[^0-9]/', '', $lead->phone);
+                                            if(strlen($phone) == 10) {
+                                                $formatted = '(' . substr($phone, 0, 3) . ')' . substr($phone, 3, 3) . '-' . substr($phone, 6, 4);
+                                            } else {
+                                                $formatted = $lead->phone;
+                                            }
+                @endphp
+                {{ $formatted }}
+                                    @else
+                                        No phone
+                                    @endif
+                                    @if($lead->email)
+                                        • ✉️ {{ $lead->email }}
+                                    @endif
                                 </div>
-                                <div class="info-item">
-                                    <span class="info-icon">📧</span>
-                                    {{ $lead->email ?? 'No email' }}
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-icon">📍</span>
-                                    {{ $lead->city ?? 'Unknown' }}, {{ $lead->state ?? 'Unknown' }}
-                                </div>
-                                <div class="info-item">
-                                    <span class="info-icon">🏷️</span>
-                                    {{ $lead->source ?? 'Unknown source' }}
+                                <div class="lead-location">
+                                    📍 {{ $lead->city ?? '' }}@if($lead->city && $lead->state), @endif{{ $lead->state ?? '' }}
                                 </div>
                             </div>
-                            
-                            <!-- SMS Status -->
-                            <div class="sms-status">
-                                <div class="sms-indicator sms-none"></div>
-                                <span>SMS: None</span>
-                            </div>
-                            
-                            <!-- Actions -->
-                            <div class="lead-actions">
-                                <a href="/agent/lead/{{ $lead->id }}?mode=view" class="btn btn-sm btn-view">
-                                    👁️ View
-                                </a>
-                                <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-sm btn-edit">
-                                    ✏️ Edit
-                                </a>
-                                <a href="/api/lead/{{ $lead->id }}/payload" class="btn btn-sm btn-payload" target="_blank">
-                                    📄 Payload
-                                </a>
-                            </div>
+        </div>
+                        
+                        <!-- SMS indicator only (no button) -->
+                        <div class="sms-status" style="margin-top: 0.25rem;">
+                            <div class="sms-indicator sms-none"></div>
+                            <span>SMS: None</span>
                         </div>
-                    @endforeach
-                </div>
-                
-                <!-- Pagination -->
-                <div class="pagination-wrapper">
-                    <div class="pagination">
-                        {{ $leads->links('pagination::bootstrap-4') }}
+                    </div>
+                    
+                    <div class="lead-actions" style="margin-top: 0.5rem;">
+                        <a href="/agent/lead/{{ $lead->id }}?mode=view" class="btn btn-sm btn-view">
+                            👁️ View
+                        </a>
+                        <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-sm btn-edit">
+                            ✏️ Edit
+                        </a>
+                        <a href="/api/lead/{{ $lead->id }}/payload" class="btn btn-sm btn-payload" target="_blank">
+                            📄 Payload
+                        </a>
                     </div>
                 </div>
-            @else
+            @empty
                 <div class="empty-state">
-                    <div class="empty-icon">📭</div>
-                    <div class="empty-title">No leads found</div>
-                    <div class="empty-description">
-                        Leads will appear here when they are received through webhooks or uploaded via CSV.
-                    </div>
-                    <a href="/lead-upload" class="btn btn-edit">📁 Upload CSV Leads</a>
+                    <div class="empty-state-icon">📋</div>
+                    <h3>No leads found</h3>
+                    <p>Try adjusting your search criteria or create a new lead.</p>
+                    <a href="#" class="btn create-lead-btn" onclick="alert('Create lead feature coming soon!')">
+                        + Create New Lead
+                    </a>
                 </div>
-            @endif
+            @endforelse
         </div>
     </div>
-</div>
-
-<script>
-    // Search functionality
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const leadCards = document.querySelectorAll('.lead-card');
-        
-        leadCards.forEach(card => {
-            const leadName = card.querySelector('.lead-name').textContent.toLowerCase();
-            const leadInfo = card.querySelector('.lead-info').textContent.toLowerCase();
-            
-            if (leadName.includes(searchTerm) || leadInfo.includes(searchTerm)) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    });
-    
-    // Filter toggle (placeholder)
-    function toggleFilters() {
-        alert('Advanced filters coming soon! You can search leads using the search box above.');
-    }
-    
-    // Auto-refresh every 30 seconds
-    setInterval(() => {
-        if (document.visibilityState === 'visible') {
-            window.location.reload();
-        }
-    }, 30000);
-</script>
-
 </body>
 </html>

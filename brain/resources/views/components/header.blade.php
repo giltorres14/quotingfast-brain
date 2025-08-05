@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -240,6 +241,40 @@
             font-size: 0.8rem;
         }
         
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .quick-action-btn {
+            padding: 0.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.1rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .quick-action-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        /* Page Content Wrapper */
+        .page-content {
+            min-height: calc(100vh - 70px);
+            padding: 2rem 0;
+        }
+        
         /* Mobile Responsiveness */
         @media (max-width: 1024px) {
             .header-container {
@@ -274,7 +309,7 @@
             }
             
             .nav-menu {
-                display: none; /* Will implement mobile menu later */
+                display: none;
             }
             
             .mobile-menu-toggle {
@@ -285,93 +320,6 @@
                 color: #4a5568;
                 cursor: pointer;
             }
-        }
-        
-        /* Notification Badge */
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #e53e3e;
-            color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        
-        /* Page Content Wrapper */
-        .page-content {
-            min-height: calc(100vh - 70px);
-            padding: 2rem 0;
-        }
-        
-        .content-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-        
-        /* Quick Actions */
-        .quick-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .quick-action-btn {
-            padding: 0.5rem;
-            background: rgba(102, 126, 234, 0.1);
-            border: none;
-            border-radius: 8px;
-            color: #667eea;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 1.1rem;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .quick-action-btn:hover {
-            background: rgba(102, 126, 234, 0.2);
-            transform: translateY(-1px);
-        }
-        
-        /* Status Indicators */
-        .status-indicator {
-            position: relative;
-        }
-        
-        .status-dot {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #48bb78;
-            border: 2px solid white;
-            animation: pulse-green 2s infinite;
-        }
-        
-        @keyframes pulse-green {
-            0% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(72, 187, 120, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(72, 187, 120, 0); }
         }
     </style>
 </head>
@@ -486,9 +434,8 @@
             <!-- User Section -->
             <div class="user-section">
                 <div class="quick-actions">
-                    <button class="quick-action-btn status-indicator" title="System Status" onclick="alert('All systems operational!')">
+                    <button class="quick-action-btn" title="System Status" onclick="alert('All systems operational!')">
                         🟢
-                        <div class="status-dot"></div>
                     </button>
                     <button class="quick-action-btn" title="Notifications" onclick="alert('No new notifications')">
                         🔔
