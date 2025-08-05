@@ -645,7 +645,7 @@
                 @endif
             </h1>
             <div class="meta">
-                Lead ID: {{ $lead->id }}
+                Lead ID: {{ $lead->external_lead_id ?? $lead->id }}
             </div>
         </div>
 
@@ -1019,14 +1019,7 @@
                         </div>
                         @endif
 
-                        <!-- External Lead ID (Campaign ID moved to Lead Details section) -->
-                        
-                        @if(isset($lead->external_lead_id) && $lead->external_lead_id)
-                        <div class="info-item">
-                            <div class="info-label">External Lead ID</div>
-                            <div class="info-value">{{ $lead->external_lead_id }}</div>
-                        </div>
-                        @endif
+                        <!-- External Lead ID now shown in header -->
                     </div>
                 </div>
         @endif
@@ -1471,10 +1464,10 @@
                                             @else
                                                 {{ $value ?? 'Not provided' }}
                                             @endif
-                                        </div>
+            </div>
                                     </div>
                                     @endif
-                                @endforeach
+            @endforeach
                             </div>
                         </div>
                     </details>

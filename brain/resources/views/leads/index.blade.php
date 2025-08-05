@@ -641,12 +641,17 @@
                                 {{ strtoupper(substr($lead->first_name ?? $lead->name ?? 'L', 0, 1)) }}{{ strtoupper(substr($lead->last_name ?? '', 0, 1)) }}
                             </div>
                             <div class="lead-info">
-                                <div class="lead-name">
+                                                                <div class="lead-name">
                                     {{ $lead->first_name ?? '' }} {{ $lead->last_name ?? '' }}
                                     @if(!$lead->first_name && !$lead->last_name)
                                         {{ $lead->name ?? 'Unknown Lead' }}
                                     @endif
-          </div>
+                                    @if($lead->external_lead_id)
+                                        <span style="font-size: 0.8rem; color: #6b7280; font-weight: 400; margin-left: 0.5rem;">
+                                            #{{ $lead->external_lead_id }}
+                                        </span>
+                                    @endif
+                                </div>
                                 <div class="lead-contact">
                                     📞 @if($lead->phone)
                                         @php

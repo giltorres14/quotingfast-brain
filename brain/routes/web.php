@@ -935,15 +935,14 @@ Route::post('/webhook.php', function (Request $request) {
             'external_lead_id' => $externalLeadId
         ]);
         
-        // Return success response - external systems use external_lead_id for callbacks
+        // Return success response - only show external_lead_id to users
         return response()->json([
             'success' => true,
             'message' => 'Lead received and sent to Vici list 101',
-            'lead_id' => $lead ? $lead->id : null, // Database ID for Brain internal use
-            'external_lead_id' => $externalLeadId, // 9-digit ID for Vici/RingBa callbacks
+            'lead_id' => $externalLeadId, // Show only the business lead ID
             'name' => $leadData['name'],
             'vici_list' => 101,
-            'iframe_url' => $lead ? url("/agent/lead/{$lead->id}") : null, // Use DB ID for iframe
+            'iframe_url' => $lead ? url("/agent/lead/{$lead->id}") : null, // Internal routing uses DB ID
             'timestamp' => now()->toISOString()
         ], 201);
         
