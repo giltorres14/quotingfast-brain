@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use App\Models\Lead;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\DashboardController;
 
 // Main landing page - redirect to leads dashboard
@@ -91,39 +93,7 @@ Route::get('/debug-env', function () {
     ]);
 });
 
-Route::get('/', function () {
-    return response()->json([
-        'success' => true,
-        'message' => 'The Brain - Full Admin System LIVE & WORKING!',
-        'debug_info' => [
-            'laravel_version' => app()->version(),
-            'environment' => app()->environment(),
-            'routes_cached' => app()->routesAreCached(),
-            'config_cached' => app()->configurationIsCached(),
-            'debug_mode' => config('app.debug'),
-            'app_url' => config('app.url'),
-            'document_root' => $_SERVER['DOCUMENT_ROOT'] ?? 'unknown',
-        ],
-        'endpoints' => [
-            '/test' => 'Basic functionality test',
-            '/test-lead-data' => 'Lead data test',
-            '/webhook.php' => 'LeadsQuotingFast webhook (POST)',
-            '/webhook/ringba' => 'Ringba webhook (POST)',
-            '/webhook/vici' => 'Vici webhook (POST)',
-            '/webhook/twilio' => 'Twilio webhook (POST)',
-            '/webhook/allstate' => 'Allstate call transfer webhook (POST)',
-            '/webhook/ringba-decision' => 'Ringba buyer decision webhook (POST)',
-            '/webhook/ringba-conversion' => 'Ringba conversion tracking webhook (POST)',
-            '/webhook/status' => 'Webhook status monitoring (GET)',
-            '/api/webhooks' => 'Webhook dashboard API (GET)',
-            '/analytics' => 'Analytics dashboard (GET)',
-            '/api/analytics/quick/{period}' => 'Quick analytics API (GET)',
-            '/api/analytics/{start}/{end}' => 'Custom date range analytics API (GET)',
-            '/api/analytics/date-ranges' => 'Available date ranges API (GET)'
-        ],
-        'timestamp' => now()->toISOString()
-    ]);
-});
+// REMOVED: Duplicate root route - consolidated with main root route at top of file
 
 // Simple test route
 Route::get('/test', function () {

@@ -139,7 +139,7 @@ class Lead extends Model
      */
     public function viciCallMetrics()
     {
-        return $this->hasMany(ViciCallMetrics::class);
+        return $this->hasMany(ViciCallMetrics::class, 'lead_id', 'id');
     }
 
     /**
@@ -147,7 +147,7 @@ class Lead extends Model
      */
     public function conversions()
     {
-        return $this->hasMany(LeadConversion::class);
+        return $this->hasMany(LeadConversion::class, 'lead_id', 'id');
     }
 
     /**
@@ -155,6 +155,30 @@ class Lead extends Model
      */
     public function latestConversion()
     {
-        return $this->hasOne(LeadConversion::class)->latest();
+        return $this->hasOne(LeadConversion::class, 'lead_id', 'id')->latest();
+    }
+
+    /**
+     * Get lead qualifications relationship
+     */
+    public function qualifications()
+    {
+        return $this->hasMany(LeadQualification::class, 'lead_id', 'id');
+    }
+
+    /**
+     * Check if lead has external ID
+     */
+    public function hasExternalId(): bool
+    {
+        return !is_null($this->external_lead_id);
+    }
+
+    /**
+     * Get display ID (external if available, otherwise database ID)
+     */
+    public function getDisplayIdAttribute(): string
+    {
+        return $this->external_lead_id ?? $this->id;
     }
 }
