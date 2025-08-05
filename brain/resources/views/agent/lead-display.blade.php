@@ -491,6 +491,27 @@
         .edit-form-buttons {
             margin-top: 8px;
         }
+        
+        /* Copy button styles */
+        .copy-btn {
+            background: #6b7280;
+            color: white;
+            padding: 2px 6px;
+            border: none;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #4b5563;
+        }
+        
+        .copy-btn.copied {
+            background: #10b981;
+        }
 
         .save-btn, .cancel-btn, .add-btn {
             padding: 4px 12px;
@@ -967,6 +988,7 @@
                                 <a href="{{ $lead->meta['landing_page_url'] }}" target="_blank" style="color: #007bff; text-decoration: none;">
                                     🔗 View Landing Page
                                 </a>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['landing_page_url'] }}', this)">Copy</button>
                                 <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
                                     {{ $lead->meta['landing_page_url'] }}
                                 </div>
@@ -982,6 +1004,7 @@
                                 <a href="{{ $lead->meta['trusted_form_cert_url'] }}" target="_blank" style="color: #28a745; text-decoration: none;">
                                     📜 View Certificate
                                 </a>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['trusted_form_cert_url'] }}', this)">Copy</button>
                                 <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
                                     {{ $lead->meta['trusted_form_cert_url'] }}
                                 </div>
@@ -2989,6 +3012,44 @@
                 saveBtn.innerHTML = originalText;
                 saveBtn.disabled = false;
             }
+        }
+        
+        // Copy to clipboard function for URLs
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(function() {
+                // Show success feedback
+                const originalText = button.textContent;
+                button.textContent = "Copied!";
+                button.classList.add("copied");
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove("copied");
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+                // Fallback for older browsers
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalText = button.textContent;
+                    button.textContent = "Copied!";
+                    button.classList.add("copied");
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.classList.remove("copied");
+                    }, 2000);
+                } catch (err) {
+                    console.error('Fallback copy failed: ', err);
+                }
+                document.body.removeChild(textArea);
+            });
         }
         
         // Notify parent window that iframe is loaded
