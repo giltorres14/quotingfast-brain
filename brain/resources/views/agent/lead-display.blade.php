@@ -910,7 +910,7 @@
         <!-- Additional Lead Data - Only show in view mode -->
         @if(isset($mode) && $mode === 'view')
         <div class="section">
-            <div class="section-title">📋 Lead Details & Compliance</div>
+            <div class="section-title">📋 TCPA Compliance</div>
             <div class="info-grid">
                 @if(isset($lead->sell_price) && $lead->sell_price)
                 <div class="info-item">
