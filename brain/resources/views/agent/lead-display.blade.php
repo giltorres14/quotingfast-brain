@@ -897,10 +897,17 @@
                 </div>
                     
                     <!-- Campaign ID moved here from TCPA section -->
-                    @if(isset($lead->campaign_id) && $lead->campaign_id)
+                    @php
+                        $campaignId = $lead->campaign_id;
+                        if (!$campaignId && isset($lead->payload) && is_string($lead->payload)) {
+                            $payload = json_decode($lead->payload, true);
+                            $campaignId = $payload['campaign_id'] ?? null;
+                        }
+                    @endphp
+                    @if($campaignId)
                     <div class="info-item" id="contact-campaign">
                         <div class="info-label">Campaign ID</div>
-                        <div class="info-value">{{ $lead->campaign_id }}</div>
+                        <div class="info-value">{{ $campaignId }}</div>
                     </div>
                     @endif
                 </div>
