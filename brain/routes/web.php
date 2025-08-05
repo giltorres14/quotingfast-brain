@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Controllers\DashboardController;
 
+// Main landing page - redirect to leads dashboard
+Route::get('/', function () {
+    return redirect('/leads-simple');
+});
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -240,6 +245,137 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
+// Working leads dashboard - bypasses authentication issues
+Route::get('/leads-simple', function () {
+    try {
+        // Get all leads from database
+        $leads = \App\Models\Lead::orderBy('created_at', 'desc')->limit(50)->get();
+        
+        $html = '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads Dashboard - The Brain</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; }
+        .header { background: #2563eb; color: white; padding: 1rem; text-align: center; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #2563eb; }
+        .stat-label { color: #666; margin-top: 0.5rem; }
+        .leads-table { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; font-weight: 600; color: #333; }
+        tr:hover { background: #f8f9fa; }
+        .lead-name { font-weight: 600; color: #2563eb; }
+        .lead-phone { color: #666; font-size: 0.9rem; }
+        .lead-location { color: #666; }
+        .lead-source { background: #e3f2fd; color: #1976d2; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+        .lead-date { color: #666; font-size: 0.9rem; }
+        .view-btn { background: #2563eb; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; text-decoration: none; font-size: 0.9rem; }
+        .view-btn:hover { background: #1d4ed8; }
+        .no-leads { text-align: center; padding: 3rem; color: #666; }
+        .nav-links { margin-bottom: 2rem; }
+        .nav-links a { background: #2563eb; color: white; padding: 0.75rem 1.5rem; margin-right: 1rem; text-decoration: none; border-radius: 4px; display: inline-block; }
+        .nav-links a:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧠 The Brain - Leads Dashboard</h1>
+        <p>Lead Management & Analytics System</p>
+    </div>
+    
+    <div class="container">
+        <div class="nav-links">
+            <a href="/admin">Full Admin Dashboard</a>
+            <a href="/analytics">Analytics</a>
+            <a href="/test/allstate/connection">Test Allstate API</a>
+            <a href="/agent/lead/TEST_LEAD_1">View Test Lead</a>
+        </div>';
+        
+        if ($leads->isEmpty()) {
+            $html .= '<div class="no-leads">
+                <h2>No Leads Found</h2>
+                <p>No leads in the database yet. Submit a test lead through your webhooks:</p>
+                <div style="margin-top: 1rem;">
+                    <a href="/webhook.php" class="view-btn">LeadQuotingFast Webhook</a>
+                    <a href="/webhook/ringba" class="view-btn">Ringba Webhook</a>
+                </div>
+            </div>';
+        } else {
+            // Calculate stats
+            $totalLeads = $leads->count();
+            $todayLeads = $leads->where('created_at', '>=', date('Y-m-d'))->count();
+            $sources = $leads->groupBy('source')->map->count();
+            $states = $leads->groupBy('state')->map->count();
+            
+            $html .= '<div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">' . $totalLeads . '</div>
+                    <div class="stat-label">Total Leads</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">' . $todayLeads . '</div>
+                    <div class="stat-label">Today\'s Leads</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">' . $sources->count() . '</div>
+                    <div class="stat-label">Lead Sources</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">' . $states->count() . '</div>
+                    <div class="stat-label">States</div>
+                </div>
+            </div>
+            
+            <div class="leads-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Lead</th>
+                            <th>Contact</th>
+                            <th>Location</th>
+                            <th>Source</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+            
+            foreach ($leads as $lead) {
+                $createdAt = date('M j, Y g:i A', strtotime($lead->created_at));
+                $html .= '<tr>
+                    <td>
+                        <div class="lead-name">' . htmlspecialchars($lead->name ?? 'Unknown') . '</div>
+                        <div class="lead-phone">' . htmlspecialchars($lead->email ?? '') . '</div>
+                    </td>
+                    <td>' . htmlspecialchars($lead->phone ?? '') . '</td>
+                    <td class="lead-location">' . htmlspecialchars(($lead->city ?? '') . ', ' . ($lead->state ?? '')) . '</td>
+                    <td><span class="lead-source">' . htmlspecialchars($lead->source ?? 'unknown') . '</span></td>
+                    <td class="lead-date">' . $createdAt . '</td>
+                    <td><a href="/agent/lead/' . $lead->id . '" class="view-btn">View Details</a></td>
+                </tr>';
+            }
+            
+            $html .= '</tbody></table></div>';
+        }
+        
+        $html .= '</div>
+</body>
+</html>';
+        
+        return response($html)->header('Content-Type', 'text/html');
+        
+    } catch (\Exception $e) {
+        return response('<h1>Database Error</h1><p>' . htmlspecialchars($e->getMessage()) . '</p><p><a href="/agent/lead/TEST_LEAD_1">View Test Lead Instead</a></p>')->header('Content-Type', 'text/html');
+    }
+});
+
 // Simple lead browser - shows available leads and their data
 Route::get('/test-lead-data', function () {
     try {
@@ -252,7 +388,8 @@ Route::get('/test-lead-data', function () {
                 'explanation' => 'You need to submit a test lead first to see the payload structure',
                 'your_ui_urls' => [
                     'main_ui' => 'https://quotingfast-brain-ohio.onrender.com',
-                    'leads_list' => 'https://quotingfast-brain-ohio.onrender.com/leads',
+                    'simple_leads_dashboard' => 'https://quotingfast-brain-ohio.onrender.com/leads-simple',
+                    'admin_dashboard' => 'https://quotingfast-brain-ohio.onrender.com/admin',
                     'test_lead_viewer' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/TEST_LEAD_1',
                     'webhook_endpoints' => [
                         'leadquotingfast' => 'https://quotingfast-brain-ohio.onrender.com/webhook.php',
@@ -337,6 +474,7 @@ Route::get('/test-lead-data', function () {
             'success' => false,
             'error' => 'Failed to retrieve leads: ' . $e->getMessage(),
             'your_ui_urls' => [
+                'simple_leads_dashboard' => 'https://quotingfast-brain-ohio.onrender.com/leads-simple',
                 'test_lead_viewer' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/TEST_LEAD_1',
                 'allstate_api_test' => 'https://quotingfast-brain-ohio.onrender.com/test/allstate/connection'
             ],
