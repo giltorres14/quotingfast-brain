@@ -1172,14 +1172,28 @@
         <!-- Call Metrics removed from agent view - admin only data -->
 
         <!-- Drivers -->
-        @if($lead->drivers && is_array($lead->drivers) && count($lead->drivers) > 0)
+        @php
+            // Get drivers from payload first, fallback to lead field
+            $drivers = null;
+            if (isset($lead->payload) && is_string($lead->payload)) {
+                $payload = json_decode($lead->payload, true);
+                if (isset($payload['data']['drivers']) && is_array($payload['data']['drivers'])) {
+                    $drivers = $payload['data']['drivers'];
+                }
+            }
+            if (!$drivers && $lead->drivers && is_array($lead->drivers)) {
+                $drivers = $lead->drivers;
+            }
+        @endphp
+        
+        @if($drivers && count($drivers) > 0)
         <div class="section">
-            <div class="section-title drivers">👤 Drivers ({{ count($lead->drivers) }}) 
+            <div class="section-title drivers">👤 Drivers ({{ count($drivers) }}) 
                 @if(!isset($mode) || $mode !== 'view')
                     <button class="add-btn" onclick="addDriver()">Add Driver</button>
                 @endif
             </div>
-            @foreach($lead->drivers as $index => $driver)
+            @foreach($drivers as $index => $driver)
             <div class="driver-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h4>Driver {{ $index + 1 }}: {{ ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '') }}</h4>
@@ -1371,14 +1385,28 @@
         @endif
 
         <!-- Vehicles -->
-        @if($lead->vehicles && is_array($lead->vehicles) && count($lead->vehicles) > 0)
+        @php
+            // Get vehicles from payload first, fallback to lead field
+            $vehicles = null;
+            if (isset($lead->payload) && is_string($lead->payload)) {
+                $payload = json_decode($lead->payload, true);
+                if (isset($payload['data']['vehicles']) && is_array($payload['data']['vehicles'])) {
+                    $vehicles = $payload['data']['vehicles'];
+                }
+            }
+            if (!$vehicles && $lead->vehicles && is_array($lead->vehicles)) {
+                $vehicles = $lead->vehicles;
+            }
+        @endphp
+        
+        @if($vehicles && count($vehicles) > 0)
         <div class="section">
-            <div class="section-title vehicles">🚗 Vehicles ({{ count($lead->vehicles) }}) 
+            <div class="section-title vehicles">🚗 Vehicles ({{ count($vehicles) }}) 
                 @if(!isset($mode) || $mode !== 'view')
                     <button class="add-btn" onclick="addVehicle()">Add Vehicle</button>
                 @endif
             </div>
-            @foreach($lead->vehicles as $index => $vehicle)
+            @foreach($vehicles as $index => $vehicle)
             <div class="vehicle-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
