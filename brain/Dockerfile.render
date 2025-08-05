@@ -229,7 +229,7 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'export DB_PORT=5432' >> /usr/local/bin/startup.sh && \
     echo 'export DB_DATABASE=brain_production' >> /usr/local/bin/startup.sh && \
     echo 'export DB_USERNAME=brain_user' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ' >> /usr/local/bin/startup.sh && \
+    echo 'export DB_PASSWORD=KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ' >> /usr/local/bin/startup.sh && \
     echo 'echo "🚨 UNSETTING RENDER AUTO-GENERATED DATABASE_URL - FORCING INDIVIDUAL PARAMS"' >> /usr/local/bin/startup.sh && \
     echo 'unset DATABASE_URL' >> /usr/local/bin/startup.sh && \
     echo 'export DATABASE_URL=""' >> /usr/local/bin/startup.sh && \
@@ -239,7 +239,7 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'sed -i "s/DB_PORT=.*/DB_PORT=5432/" .env' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s|DB_DATABASE=.*|DB_DATABASE=brain_production|" .env' >> /usr/local/bin/startup.sh && \
     echo 'sed -i "s/DB_USERNAME=.*/DB_USERNAME=brain_user/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ/" .env' >> /usr/local/bin/startup.sh && \
+    echo 'sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ/" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "Final .env database configuration:"' >> /usr/local/bin/startup.sh && \
     echo 'grep "DB_" .env' >> /usr/local/bin/startup.sh && \
     echo 'echo "🧹 Clearing Laravel configuration cache..."' >> /usr/local/bin/startup.sh && \
