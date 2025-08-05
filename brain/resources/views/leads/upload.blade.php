@@ -1,76 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>CSV Lead Upload - The Brain</title>
-    <style>
+@include('components.header', ['title' => 'CSV Lead Upload'])
+
+<style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        
-        .header {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-        }
-        
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-        
-        .header-logo img {
-            height: 50px;
-            width: auto;
-            filter: brightness(1.2);
-        }
-        
-        .header-text h1 {
-            color: white;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .header-text p {
-            color: rgba(255,255,255,0.9);
-            font-size: 1.1rem;
-        }
-        
-        .nav-back {
-            position: absolute;
-            left: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            color: white;
-            text-decoration: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-        
-        .nav-back:hover {
-            background: rgba(255,255,255,0.3);
-            color: white;
-            text-decoration: none;
+        /* Page-specific overrides */
+        .page-content {
+            padding: 1rem 0;
         }
         
         .container {
@@ -317,21 +256,8 @@
             margin-bottom: 0.5rem;
         }
     </style>
-</head>
-<body>
-    <div class="header">
-        <div class="header-content" style="position: relative;">
-            <a href="/leads" class="nav-back">← Back to Leads</a>
-            <div class="header-logo">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" onerror="this.style.display='none';">
-            </div>
-            <div class="header-text">
-                <h1>📁 CSV Lead Upload</h1>
-                <p>Bulk import leads from CSV files with validation and processing</p>
-            </div>
-        </div>
-    </div>
 
+<div class="page-content">
     <div class="container">
         <!-- Requirements Section -->
         <div class="requirements">
@@ -582,5 +508,7 @@ Jane,Smith,555-987-6543,jane@example.com,Orlando,FL,32801
             alertContainer.innerHTML = statsHtml;
         }
     </script>
+</div>
+
 </body>
 </html>

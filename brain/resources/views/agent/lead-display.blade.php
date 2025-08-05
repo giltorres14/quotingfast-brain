@@ -988,7 +988,7 @@
                             <br><small style="color: #dc2626;">⚠️ Campaign needs name in directory</small>
                             @endif
                         @endif
-                    </div>
+                </div>
                 </div>
                 @endif
                 
