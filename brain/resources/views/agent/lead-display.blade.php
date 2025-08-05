@@ -1245,22 +1245,24 @@
 
         <!-- Call Metrics removed from agent view - admin only data -->
 
-        <!-- Drivers -->
+        <!-- Drivers (Auto Insurance Only) -->
         @php
-            // Get drivers from payload first, fallback to lead field
+            // Only show drivers for Auto insurance leads
             $drivers = null;
-            if (isset($lead->payload) && is_string($lead->payload)) {
-                $payload = json_decode($lead->payload, true);
-                if (isset($payload['data']['drivers']) && is_array($payload['data']['drivers'])) {
-                    $drivers = $payload['data']['drivers'];
+            if ($lead->type === 'auto') {
+                if (isset($lead->payload) && is_string($lead->payload)) {
+                    $payload = json_decode($lead->payload, true);
+                    if (isset($payload['data']['drivers']) && is_array($payload['data']['drivers'])) {
+                        $drivers = $payload['data']['drivers'];
+                    }
                 }
-            }
-            if (!$drivers && $lead->drivers && is_array($lead->drivers)) {
-                $drivers = $lead->drivers;
+                if (!$drivers && $lead->drivers && is_array($lead->drivers)) {
+                    $drivers = $lead->drivers;
+                }
             }
         @endphp
         
-        @if($drivers && count($drivers) > 0)
+        @if($lead->type === 'auto' && $drivers && count($drivers) > 0)
         <div class="section">
             <div class="section-title drivers">👤 Drivers ({{ count($drivers) }}) 
                 @if(!isset($mode) || $mode !== 'view')
@@ -1454,8 +1456,8 @@
             </div>
             @endforeach
         </div>
-        @else
-        <!-- No Drivers Section -->
+        @elseif($lead->type === 'auto')
+        <!-- No Drivers Section (Auto Insurance Only) -->
         <div class="section">
             <div class="section-title drivers">👤 Drivers (0) 
                 @if(!isset($mode) || $mode !== 'view')
@@ -1468,45 +1470,35 @@
 
         <!-- Vehicles (Auto Insurance) OR Properties (Home Insurance) -->
         @php
-            // Determine lead type and get appropriate data
-            $isAutoLead = false;
-            $isHomeLead = false;
+            // Use database lead type as primary source of truth
+            $isAutoLead = ($lead->type === 'auto');
+            $isHomeLead = ($lead->type === 'home');
             $vehicles = null;
             $properties = null;
             
+            // Only get data for the appropriate lead type
             if (isset($lead->payload) && is_string($lead->payload)) {
                 $payload = json_decode($lead->payload, true);
                 
-                // Check for vehicles (Auto Insurance)
-                if (isset($payload['data']['vehicles']) && is_array($payload['data']['vehicles'])) {
+                if ($isAutoLead && isset($payload['data']['vehicles']) && is_array($payload['data']['vehicles'])) {
                     $vehicles = $payload['data']['vehicles'];
-                    $isAutoLead = true;
                 }
                 
-                // Check for properties (Home Insurance)
-                if (isset($payload['data']['properties']) && is_array($payload['data']['properties'])) {
+                if ($isHomeLead && isset($payload['data']['properties']) && is_array($payload['data']['properties'])) {
                     $properties = $payload['data']['properties'];
-                    $isHomeLead = true;
                 }
             }
             
-            // Fallback to lead fields
-            if (!$vehicles && $lead->vehicles && is_array($lead->vehicles)) {
+            // Fallback to lead fields only for the appropriate type
+            if ($isAutoLead && !$vehicles && $lead->vehicles && is_array($lead->vehicles)) {
                 $vehicles = $lead->vehicles;
-                $isAutoLead = true;
             }
-            if (!$properties && $lead->properties && is_array($lead->properties)) {
+            if ($isHomeLead && !$properties && $lead->properties && is_array($lead->properties)) {
                 $properties = $lead->properties;
-                $isHomeLead = true;
-            }
-            
-            // Update lead type in database if not set
-            if (!$lead->type && ($isAutoLead || $isHomeLead)) {
-                $lead->update(['type' => $isAutoLead ? 'auto' : 'home']);
             }
         @endphp
         
-        @if($vehicles && count($vehicles) > 0)
+        @if($isAutoLead && $vehicles && count($vehicles) > 0)
         <div class="section">
             <div class="section-title vehicles">🚗 Vehicles ({{ count($vehicles) }}) 
                 @if(!isset($mode) || $mode !== 'view')
@@ -1595,8 +1587,8 @@
             </div>
             @endforeach
         </div>
-        @else
-        <!-- No Vehicles Section -->
+        @elseif($isAutoLead)
+        <!-- No Vehicles Section (Auto Insurance Only) -->
         <div class="section">
             <div class="section-title vehicles">🚗 Vehicles (0) 
                 @if(!isset($mode) || $mode !== 'view')

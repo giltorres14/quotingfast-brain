@@ -678,7 +678,7 @@
                                         </div>
                                         
                                         <!-- Datetime pushed to far right -->
-                                        <span style="color: #6b7280; font-size: 0.75rem; margin-left: auto;">
+                                        <span style="color: #6b7280; font-size: 0.75rem; margin-left: auto; text-align: right; min-width: 120px;">
                                             🕒 {{ $lead->created_at ? $lead->created_at->setTimezone('America/New_York')->format('M j, g:i A') : 'Unknown' }}
                                         </span>
                                     </div>
