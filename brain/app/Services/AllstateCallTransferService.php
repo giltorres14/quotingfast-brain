@@ -25,19 +25,16 @@ class AllstateCallTransferService
     /**
      * Transfer a lead to Allstate DMS system
      * @param mixed $lead The lead data
-     * @param string|null $vertical Override vertical detection (auto-insurance, home-insurance)
+     * @param string $vertical The vertical type (auto-insurance, home-insurance)
      */
-    public function transferCall($lead, $vertical = null)
+    public function transferCall($lead, $vertical = 'auto-insurance')
     {
         try {
-            // Detect or use provided vertical
-            $detectedVertical = $vertical ?? $this->detectVertical($lead);
-            
             Log::info('Starting Allstate transfer', [
                 'lead_id' => $lead->id ?? 'unknown',
                 'lead_name' => $lead->name ?? 'unknown',
-                'vertical' => $detectedVertical,
-                'vertical_source' => $vertical ? 'explicit' : 'auto-detected'
+                'vertical' => $vertical,
+                'vertical_source' => 'enrichment_button_selection'
             ]);
             
             // Prepare and normalize lead data for Allstate API
@@ -60,7 +57,7 @@ class AllstateCallTransferService
             $authHeader = 'Basic ' . $this->apiKey;
             
             // Add required vertical parameter to transfer data
-            $transferData['vertical'] = $detectedVertical;
+            $transferData['vertical'] = $vertical;
             
             $response = Http::timeout(30)
                 ->withHeaders([
@@ -292,115 +289,19 @@ class AllstateCallTransferService
     }
     
     /**
-     * Automatically detect the vertical based on lead data
-     * @param mixed $lead The lead data
-     * @return string The detected vertical (auto-insurance, home-insurance)
+     * Get the vertical mapping for enrichment button types
+     * @param string $enrichmentType The enrichment button type (insured, homeowner)
+     * @return string The corresponding Allstate vertical
      */
-    private function detectVertical($lead)
+    public static function getVerticalFromEnrichment($enrichmentType)
     {
-        // Convert to array if it's an object
-        $leadData = is_object($lead) ? (array) $lead : $lead;
-        
-        // Check for home insurance indicators
-        if ($this->hasHomeInsuranceFields($leadData)) {
-            Log::info('Detected home insurance vertical', [
-                'lead_id' => $lead->id ?? 'unknown',
-                'indicators' => $this->getHomeInsuranceIndicators($leadData)
-            ]);
-            return 'home-insurance';
-        }
-        
-        // Check for auto insurance indicators (more specific check)
-        if ($this->hasAutoInsuranceFields($leadData)) {
-            Log::info('Detected auto insurance vertical', [
-                'lead_id' => $lead->id ?? 'unknown',
-                'indicators' => $this->getAutoInsuranceIndicators($leadData)
-            ]);
-            return 'auto-insurance';
-        }
-        
-        // Default to auto insurance
-        Log::info('Defaulting to auto insurance vertical', [
-            'lead_id' => $lead->id ?? 'unknown',
-            'reason' => 'No specific indicators found'
-        ]);
-        return 'auto-insurance';
-    }
-    
-    /**
-     * Check if lead has home insurance specific fields
-     */
-    private function hasHomeInsuranceFields($leadData)
-    {
-        $homeFields = [
-            'home_value', 'property_value', 'dwelling_value',
-            'property_type', 'dwelling_type', 'home_type',
-            'square_footage', 'year_built', 'construction_type',
-            'roof_type', 'foundation_type', 'heating_type',
-            'home_ownership', 'mortgage_company'
+        $mapping = [
+            'insured' => 'auto-insurance',
+            'homeowner' => 'home-insurance',
+            'auto' => 'auto-insurance',
+            'home' => 'home-insurance'
         ];
         
-        foreach ($homeFields as $field) {
-            if (isset($leadData[$field]) && !empty($leadData[$field])) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Check if lead has auto insurance specific fields
-     */
-    private function hasAutoInsuranceFields($leadData)
-    {
-        $autoFields = [
-            'vehicles', 'drivers', 'current_insurance_company',
-            'policy_expiration', 'desired_coverage_type',
-            'currently_insured', 'vehicle_year', 'vehicle_make',
-            'vehicle_model', 'annual_mileage', 'primary_use'
-        ];
-        
-        foreach ($autoFields as $field) {
-            if (isset($leadData[$field]) && !empty($leadData[$field])) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Get home insurance indicators for logging
-     */
-    private function getHomeInsuranceIndicators($leadData)
-    {
-        $indicators = [];
-        $homeFields = ['home_value', 'property_type', 'square_footage', 'year_built'];
-        
-        foreach ($homeFields as $field) {
-            if (isset($leadData[$field]) && !empty($leadData[$field])) {
-                $indicators[] = $field;
-            }
-        }
-        
-        return $indicators;
-    }
-    
-    /**
-     * Get auto insurance indicators for logging
-     */
-    private function getAutoInsuranceIndicators($leadData)
-    {
-        $indicators = [];
-        $autoFields = ['vehicles', 'drivers', 'current_insurance_company', 'vehicle_year'];
-        
-        foreach ($autoFields as $field) {
-            if (isset($leadData[$field]) && !empty($leadData[$field])) {
-                $indicators[] = $field;
-            }
-        }
-        
-        return $indicators;
+        return $mapping[strtolower($enrichmentType)] ?? 'auto-insurance';
     }
 }
