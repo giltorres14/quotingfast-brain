@@ -892,15 +892,47 @@ Route::post('/webhook.php', function (Request $request) {
             Log::warning('Database storage failed, continuing with Vici integration', ['error' => $dbError->getMessage()]);
         }
         
-        // CRITICAL: Send lead to Vici list 101 (use external_lead_id for callbacks)
-        if ($externalLeadId) {
+        // 🧪 TEMPORARY TESTING MODE: Bypass Vici and send directly to Allstate for API testing
+        // TODO: RESTORE VICI INTEGRATION AFTER TESTING (see memory ID: 5307562)
+        if ($externalLeadId && $lead) {
             try {
-                $viciResult = sendToViciList101($leadData, $externalLeadId);
-                Log::info('Lead sent to Vici list 101', ['external_lead_id' => $externalLeadId, 'vici_result' => $viciResult]);
-            } catch (Exception $viciError) {
-                Log::error('Failed to send lead to Vici', ['error' => $viciError->getMessage(), 'external_lead_id' => $externalLeadId]);
+                Log::info('🧪 TESTING MODE: Bypassing Vici, sending directly to Allstate', [
+                    'lead_id' => $lead->id,
+                    'external_lead_id' => $externalLeadId,
+                    'testing_mode' => true
+                ]);
+                
+                $testingService = new \App\Services\AllstateTestingService();
+                $testSession = 'live_testing_' . date('Y-m-d_H');
+                
+                $testResult = $testingService->processLeadForTesting($lead, $testSession);
+                
+                Log::info('🧪 Allstate testing completed', [
+                    'lead_id' => $lead->id,
+                    'external_lead_id' => $externalLeadId,
+                    'success' => $testResult['success'],
+                    'test_log_id' => $testResult['test_log_id'] ?? null,
+                    'response_time_ms' => $testResult['response_time_ms'] ?? null
+                ]);
+                
+            } catch (Exception $testingError) {
+                Log::error('🧪 Allstate testing failed', [
+                    'lead_id' => $lead->id,
+                    'external_lead_id' => $externalLeadId,
+                    'error' => $testingError->getMessage()
+                ]);
             }
         }
+        
+        // ORIGINAL VICI INTEGRATION (TEMPORARILY DISABLED FOR TESTING):
+        // if ($externalLeadId) {
+        //     try {
+        //         $viciResult = sendToViciList101($leadData, $externalLeadId);
+        //         Log::info('Lead sent to Vici list 101', ['external_lead_id' => $externalLeadId, 'vici_result' => $viciResult]);
+        //     } catch (Exception $viciError) {
+        //         Log::error('Failed to send lead to Vici', ['error' => $viciError->getMessage(), 'external_lead_id' => $externalLeadId]);
+        //     }
+        // }
         
         // Store lead data in file cache for iframe testing
         $cacheId = $lead ? $lead->id : 'fallback';
@@ -3342,6 +3374,39 @@ Route::post('/buyer/logout', function () {
 // Admin Buyer Management
 Route::get('/admin/buyer-management', function () {
     return view('admin.buyer-management');
+});
+
+// 🧪 Allstate API Testing Dashboard
+Route::get('/admin/allstate-testing', function () {
+    $testingService = new \App\Services\AllstateTestingService();
+    
+    $testLogs = $testingService->getRecentTestResults(100);
+    $stats = $testingService->getTestStatistics();
+    
+    return view('admin.allstate-testing', compact('testLogs', 'stats'));
+});
+
+// API endpoint to get test details (for modal)
+Route::get('/admin/allstate-testing/details/{logId}', function ($logId) {
+    $log = \App\Models\AllstateTestLog::findOrFail($logId);
+    
+    return response()->json([
+        'id' => $log->id,
+        'lead_name' => $log->lead_name,
+        'lead_type' => $log->lead_type,
+        'qualification_data' => $log->qualification_data,
+        'data_sources' => $log->data_sources,
+        'allstate_payload' => $log->allstate_payload,
+        'allstate_endpoint' => $log->allstate_endpoint,
+        'allstate_response' => $log->allstate_response,
+        'success' => $log->success,
+        'error_message' => $log->error_message,
+        'validation_errors' => $log->validation_errors,
+        'response_status' => $log->response_status,
+        'response_time_ms' => $log->response_time_ms,
+        'test_environment' => $log->test_environment,
+        'sent_at' => $log->sent_at->toISOString()
+    ]);
 });
 
 // Admin Impersonation - Login as any buyer
