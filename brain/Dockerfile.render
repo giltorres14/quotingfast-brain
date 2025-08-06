@@ -40,7 +40,7 @@ RUN echo "=== DOCKER ENVIRONMENT DEBUG ===" && \
     echo "=== ENVIRONMENT VERIFIED ==="
 
 # CUMULATIVE LESSON #1: Copy existing Laravel application and install dependencies
-COPY . /var/www/html/
+COPY brain/ /var/www/html/
 RUN echo "=== USING EXISTING LARAVEL APPLICATION WITH DOCKER DEBUG ===" && \
     composer install --no-dev --prefer-dist --no-cache --optimize-autoloader && \
     echo "✅ Existing Laravel application dependencies installed" && \
