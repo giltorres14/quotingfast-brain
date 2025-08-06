@@ -4183,15 +4183,16 @@ function detectLeadType($data) {
 
 function generateLeadId() {
     try {
-        // Get the highest existing lead ID from database
-        $lastLead = Lead::where('id', 'REGEXP', '^[0-9]{9}$')
-                       ->orderBy('id', 'desc')
+        // Get the highest existing external_lead_id from database (9 digits starting with 10000001)
+        $lastLead = Lead::whereNotNull('external_lead_id')
+                       ->where('external_lead_id', 'REGEXP', '^[0-9]{9}$')
+                       ->orderBy('external_lead_id', 'desc')
                        ->first();
         
-        if ($lastLead && is_numeric($lastLead->id)) {
-            $nextId = intval($lastLead->id) + 1;
+        if ($lastLead && is_numeric($lastLead->external_lead_id)) {
+            $nextId = intval($lastLead->external_lead_id) + 1;
         } else {
-            $nextId = 100000001; // Starting number
+            $nextId = 10000001; // Starting number: 9 digits starting with 10000001
         }
         
         // Ensure it's always 9 digits
@@ -4200,7 +4201,7 @@ function generateLeadId() {
     } catch (Exception $e) {
         // Fallback: use timestamp-based ID if database fails
         $timestamp = time();
-        $fallbackId = 100000000 + ($timestamp % 999999);
+        $fallbackId = 10000000 + ($timestamp % 9999999);
         return str_pad($fallbackId, 9, '0', STR_PAD_LEFT);
     }
 }
