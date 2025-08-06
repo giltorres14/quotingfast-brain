@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\DashboardController;
+use App\Services\AllstateTestingService;
 
 // Main landing page - redirect to leads dashboard
 Route::get('/', function () {
@@ -909,12 +910,23 @@ Route::post('/webhook.php', function (Request $request) {
                     'timestamp' => now()->toIso8601String()
                 ]);
                 
-                $testingService = new \App\Services\AllstateTestingService();
+                // Create testing service with error handling
+                try {
+                    $testingService = new AllstateTestingService();
+                } catch (\Exception $e) {
+                    Log::error('🚨 Failed to create AllstateTestingService', [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    throw $e;
+                }
+                
                 $testSession = 'live_testing_' . date('Y-m-d_H');
                 
                 Log::info('🧪 Calling processLeadForTesting', [
                     'session' => $testSession,
-                    'lead_id' => $lead->id
+                    'lead_id' => $lead->id,
+                    'lead_data' => $lead->toArray()
                 ]);
                 
                 $testResult = $testingService->processLeadForTesting($lead, $testSession);
@@ -3510,7 +3522,7 @@ Route::post('/admin/allstate-testing/bulk-process', function (Request $request) 
             ]);
         }
         
-        $testingService = new \App\Services\AllstateTestingService();
+        $testingService = new AllstateTestingService();
         $results = [];
         $successCount = 0;
         $failCount = 0;
