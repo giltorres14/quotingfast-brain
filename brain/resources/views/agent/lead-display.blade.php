@@ -12,6 +12,12 @@
             box-sizing: border-box;
         }
         
+        html, body {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 14px;
@@ -23,6 +29,7 @@
         .container {
             max-width: 100%;
             padding: 16px;
+            min-height: 90vh; /* Ensures iframe content is tall enough for Vici */
         }
         
         .header {
