@@ -16,6 +16,9 @@ class ViciDialerService
     private string $apiKey;
     private bool $isTestMode;
     
+    // FIXED: Hard-coded list ID to prevent wrong list assignment
+    private int $targetListId = 101; // ALWAYS use list 101 for LeadsQuotingFast leads
+    
     // Database connection details
     private string $mysqlHost;
     private string $mysqlDb;
@@ -36,6 +39,14 @@ class ViciDialerService
         $this->mysqlUser = config('services.vici.mysql_user', 'Superman');
         $this->mysqlPass = config('services.vici.mysql_pass', '8ZDWGAAQRD');
         $this->mysqlPort = config('services.vici.mysql_port', 3306);
+        
+        // Log configuration on startup to verify list ID
+        Log::info('ViciDialerService initialized', [
+            'target_list_id' => $this->targetListId,
+            'server' => $this->mysqlHost,
+            'database' => $this->mysqlDb,
+            'test_mode' => $this->isTestMode
+        ]);
     }
 
     /**
@@ -192,7 +203,7 @@ class ViciDialerService
             'city' => $lead->city ?? '',
             'state' => $lead->state ?? '',
             'postal_code' => $lead->zip_code ?? '',
-            'list_id' => '101', // Target list as specified
+            'list_id' => $this->targetListId, // FIXED: Use hard-coded list 101
             'status' => 'NEW',
             'entry_date' => now()->format('Y-m-d H:i:s'),
             'modify_date' => now()->format('Y-m-d H:i:s'),
@@ -254,7 +265,7 @@ class ViciDialerService
             'state' => $lead->state,
             'postal_code' => $lead->zip_code,
             'campaign_id' => $campaignId ?? config('services.vici.default_campaign'),
-            'list_id' => config('services.vici.default_list'),
+            'list_id' => $this->targetListId, // FIXED: Use hard-coded list 101
             'source' => 'brain-system',
             'brain_lead_id' => $lead->id,
             'created_at' => now()->toISOString()

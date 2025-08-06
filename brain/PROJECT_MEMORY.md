@@ -57,6 +57,15 @@
 - Status: 🧪 TEMPORARILY BYPASSED for Allstate testing
 - **RESTORE AFTER TESTING**: See memory ID 5307562
 
+**🔧 VICI LIST ID ISSUE - FIXED:**
+- **Problem**: Leads were going to List 87878787 instead of List 101
+- **Root Cause**: Environment variable `VICI_DEFAULT_LIST` was overriding hard-coded list ID
+- **Solution**: Hard-coded `targetListId = 101` in ViciDialerService class
+- **Files Fixed**:
+  - `app/Services/ViciDialerService.php` - Hard-coded list 101
+  - `routes/web.php` - Enhanced logging for sendToViciList101 function
+- **Verification**: Added logging to confirm list ID 101 in all Vici API calls
+
 ---
 
 ## 🔄 CURRENT LEAD FLOW

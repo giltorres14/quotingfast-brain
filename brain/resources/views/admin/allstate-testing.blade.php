@@ -277,6 +277,142 @@
             background: #3182ce;
             transform: rotate(180deg);
         }
+        
+        /* Bulk Processing Styles */
+        .bulk-process-form {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.875rem;
+        }
+        
+        .form-select {
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.875rem;
+            min-width: 150px;
+        }
+        
+        .process-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(72, 187, 120, 0.3);
+        }
+        
+        .process-btn:hover {
+            background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(72, 187, 120, 0.4);
+        }
+        
+        .process-btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .process-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .process-status.processing {
+            background: #bee3f8;
+            color: #2b6cb0;
+            border: 1px solid #90cdf4;
+        }
+        
+        .process-status.success {
+            background: #c6f6d5;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .process-status.error {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+        
+        .process-results {
+            margin-top: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .result-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f7fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-item.success {
+            background: #f0fff4;
+        }
+        
+        .result-item.failed {
+            background: #fff5f5;
+        }
+        
+        .result-lead {
+            font-weight: 500;
+        }
+        
+        .result-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .result-status.success {
+            background: #c6f6d5;
+            color: #2f855a;
+        }
+        
+        .result-status.failed {
+            background: #fed7d7;
+            color: #c53030;
+        }
     </style>
 </head>
 <body>
@@ -320,6 +456,50 @@
             <div class="stat-card">
                 <div class="stat-number">{{ $stats['last_test'] ? $stats['last_test']->diffForHumans() : 'None' }}</div>
                 <div class="stat-label">Last Test</div>
+            </div>
+        </div>
+
+        <!-- Bulk Processing Section -->
+        <div class="main-content" style="margin-bottom: 2rem;">
+            <div class="section-title">
+                🚀 Bulk Process Existing Leads
+                <span style="font-size: 0.875rem; color: #718096; font-weight: normal;">
+                    Process leads that were received before testing was enabled
+                </span>
+            </div>
+            
+            <div class="bulk-process-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Date Filter:</label>
+                        <select id="dateFilter" class="form-select">
+                            <option value="today">Today's Leads</option>
+                            <option value="yesterday">Yesterday's Leads</option>
+                            <option value="last_7_days">Last 7 Days</option>
+                            <option value="last_30_days">Last 30 Days</option>
+                            <option value="all">All Leads</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Limit:</label>
+                        <select id="limitFilter" class="form-select">
+                            <option value="25">25 leads</option>
+                            <option value="50" selected>50 leads</option>
+                            <option value="100">100 leads</option>
+                            <option value="200">200 leads</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button id="bulkProcessBtn" class="process-btn" onclick="startBulkProcessing()">
+                            🧪 Process Leads
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="bulkProcessStatus" class="process-status" style="display: none;"></div>
+                <div id="bulkProcessResults" class="process-results" style="display: none;"></div>
             </div>
         </div>
 
@@ -502,6 +682,92 @@
             if (event.target === modal) {
                 modal.style.display = 'none';
             }
+        }
+        
+        // Bulk Processing Functionality
+        function startBulkProcessing() {
+            const dateFilter = document.getElementById('dateFilter').value;
+            const limit = document.getElementById('limitFilter').value;
+            const button = document.getElementById('bulkProcessBtn');
+            const statusDiv = document.getElementById('bulkProcessStatus');
+            const resultsDiv = document.getElementById('bulkProcessResults');
+            
+            // Disable button and show processing status
+            button.disabled = true;
+            button.textContent = '🔄 Processing...';
+            
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'process-status processing';
+            statusDiv.textContent = `Processing ${dateFilter} leads (limit: ${limit})...`;
+            
+            resultsDiv.style.display = 'none';
+            resultsDiv.innerHTML = '';
+            
+            // Make API call
+            fetch('/admin/allstate-testing/bulk-process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify({
+                    date_filter: dateFilter,
+                    limit: parseInt(limit)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Re-enable button
+                button.disabled = false;
+                button.textContent = '🧪 Process Leads';
+                
+                if (data.success) {
+                    // Show success status
+                    statusDiv.className = 'process-status success';
+                    statusDiv.innerHTML = `
+                        <strong>✅ Processing Complete!</strong><br>
+                        ${data.message}<br>
+                        <small>Successful: ${data.stats.successful} | Failed: ${data.stats.failed}</small>
+                    `;
+                    
+                    // Show detailed results
+                    if (data.results && data.results.length > 0) {
+                        resultsDiv.style.display = 'block';
+                        resultsDiv.innerHTML = data.results.map(result => `
+                            <div class="result-item ${result.success ? 'success' : 'failed'}">
+                                <div class="result-lead">
+                                    ${result.lead_name} (ID: ${result.lead_id})
+                                </div>
+                                <div class="result-status ${result.success ? 'success' : 'failed'}">
+                                    ${result.success ? '✅ Success' : '❌ Failed'}
+                                    ${result.response_time_ms ? ` (${result.response_time_ms}ms)` : ''}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                    
+                    // Auto-refresh the page after 3 seconds to show new results
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                    
+                } else {
+                    // Show error status
+                    statusDiv.className = 'process-status error';
+                    statusDiv.innerHTML = `<strong>❌ Processing Failed</strong><br>${data.message}`;
+                }
+            })
+            .catch(error => {
+                console.error('Bulk processing error:', error);
+                
+                // Re-enable button
+                button.disabled = false;
+                button.textContent = '🧪 Process Leads';
+                
+                // Show error status
+                statusDiv.className = 'process-status error';
+                statusDiv.innerHTML = `<strong>❌ Network Error</strong><br>Failed to process leads. Please try again.`;
+            });
         }
     </script>
 </body>

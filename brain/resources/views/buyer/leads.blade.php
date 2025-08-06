@@ -632,6 +632,79 @@
                 flex-direction: column;
             }
         }
+        
+        /* Phone copy functionality */
+        .phone-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .copy-btn {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: #e5e7eb;
+            border-color: #9ca3af;
+        }
+        
+        .copy-btn:active {
+            background: #10b981;
+            border-color: #059669;
+            color: white;
+        }
+        
+        /* Pagination styles */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pagination-info {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .pagination-links {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .pagination-links a,
+        .pagination-links span {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #374151;
+            background: white;
+            transition: all 0.2s;
+        }
+        
+        .pagination-links a:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+        
+        .pagination-links .active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -703,12 +776,33 @@
                     </div>
                     
                     <div class="filter-group">
+                        <label class="filter-label">Date From</label>
+                        <input type="date" name="date_from" class="filter-input" value="{{ request('date_from') }}">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Date To</label>
+                        <input type="date" name="date_to" class="filter-input" value="{{ request('date_to') }}">
+                    </div>
+                    
+                    <div class="filter-group">
                         <label class="filter-label">Status</label>
                         <select name="status" class="filter-select">
                             <option value="">All Statuses</option>
                             <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>Delivered</option>
                             <option value="returned" {{ request('status') === 'returned' ? 'selected' : '' }}>Returned</option>
                             <option value="disputed" {{ request('status') === 'disputed' ? 'selected' : '' }}>Disputed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Per Page</label>
+                        <select name="per_page" class="filter-select">
+                            <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                            <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                            <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>All</option>
                         </select>
                     </div>
                     
@@ -781,8 +875,15 @@
                                         {{ $buyerLead->lead_data['name'] ?? $buyerLead->lead_data['first_name'] . ' ' . $buyerLead->lead_data['last_name'] ?? 'Unknown' }}
                                     </div>
                                     <div class="lead-contact">
-                                        📞 {{ $buyerLead->lead_data['phone'] ?? 'No phone' }}<br>
-                                        📧 {{ $buyerLead->lead_data['email'] ?? 'No email' }}
+                                        <div class="phone-container">
+                                            📞 {{ $buyerLead->lead_data['phone'] ?? 'No phone' }}
+                                            @if(!empty($buyerLead->lead_data['phone']) && $buyerLead->lead_data['phone'] !== 'No phone')
+                                                <button class="copy-btn" onclick="copyPhone('{{ $buyerLead->lead_data['phone'] }}')" title="Copy phone number">
+                                                    📋
+                                                </button>
+                                            @endif
+                                        </div>
+                                        <div>📧 {{ $buyerLead->lead_data['email'] ?? 'No email' }}</div>
                                     </div>
                                 @else
                                     <div class="lead-name">Lead Data</div>
@@ -834,11 +935,41 @@
                     </tbody>
                 </table>
                 
-                <!-- Pagination -->
-                <div class="pagination-wrapper">
-                    <div class="pagination">
-                        {{ $leads->links('pagination::bootstrap-4') }}
+                <!-- Enhanced Pagination -->
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing {{ $leads->firstItem() ?? 0 }} to {{ $leads->lastItem() ?? 0 }} of {{ $leads->total() }} results
+                        @if(request('per_page') != 'all')
+                            ({{ $leads->count() }} per page)
+                        @endif
                     </div>
+                    
+                    @if($leads->hasPages())
+                    <div class="pagination-links">
+                        {{-- Previous Page Link --}}
+                        @if ($leads->onFirstPage())
+                            <span>← Previous</span>
+                        @else
+                            <a href="{{ $leads->previousPageUrl() }}">← Previous</a>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        @foreach ($leads->getUrlRange(1, $leads->lastPage()) as $page => $url)
+                            @if ($page == $leads->currentPage())
+                                <span class="active">{{ $page }}</span>
+                            @else
+                                <a href="{{ $url }}">{{ $page }}</a>
+                            @endif
+                        @endforeach
+
+                        {{-- Next Page Link --}}
+                        @if ($leads->hasMorePages())
+                            <a href="{{ $leads->nextPageUrl() }}">Next →</a>
+                        @else
+                            <span>Next →</span>
+                        @endif
+                    </div>
+                    @endif
                 </div>
             @else
                 <div class="empty-state">
@@ -968,6 +1099,67 @@
                 closeReturnModal();
             }
         });
+        
+        // Copy phone number functionality
+        function copyPhone(phoneNumber) {
+            navigator.clipboard.writeText(phoneNumber).then(function() {
+                // Visual feedback
+                const button = event.target;
+                const originalText = button.textContent;
+                button.textContent = '✓';
+                button.style.background = '#10b981';
+                button.style.color = 'white';
+                button.style.borderColor = '#059669';
+                
+                setTimeout(function() {
+                    button.textContent = originalText;
+                    button.style.background = '#f3f4f6';
+                    button.style.color = 'inherit';
+                    button.style.borderColor = '#d1d5db';
+                }, 1500);
+                
+                // Show temporary toast
+                showToast('Phone number copied: ' + phoneNumber);
+            }).catch(function(err) {
+                console.error('Failed to copy phone number: ', err);
+                showToast('Failed to copy phone number', 'error');
+            });
+        }
+        
+        // Simple toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#ef4444' : '#10b981'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                transform: translateX(100%);
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 10);
+            
+            // Remove after delay
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
     </script>
 </body>
 </html>

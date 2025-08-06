@@ -2373,14 +2373,45 @@ Route::get('/buyer/dashboard', function () {
 });
 
 // Buyer Leads
-Route::get('/buyer/leads', function () {
+Route::get('/buyer/leads', function (Request $request) {
     $buyerId = session('buyer_id');
     if (!$buyerId) {
         return redirect('/buyer/login');
     }
 
     $buyer = \App\Models\Buyer::find($buyerId);
-    $leads = $buyer->leads()->with('lead')->latest()->paginate(20);
+    
+    // Get pagination parameters
+    $perPage = $request->get('per_page', 20);
+    if ($perPage === 'all') {
+        $perPage = 10000; // Large number for "all"
+    } else {
+        $perPage = in_array($perPage, [20, 50, 100, 200]) ? (int)$perPage : 20;
+    }
+    
+    // Build query with filters
+    $query = $buyer->leads()->with('lead')->latest();
+    
+    // Date filter
+    if ($request->filled('date_from')) {
+        $query->whereDate('created_at', '>=', $request->date_from);
+    }
+    if ($request->filled('date_to')) {
+        $query->whereDate('created_at', '<=', $request->date_to);
+    }
+    
+    // Search filter
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->whereHas('lead', function($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('external_lead_id', 'like', "%{$search}%");
+        });
+    }
+    
+    $leads = $query->paginate($perPage)->appends($request->query());
 
     return view('buyer.leads', compact('buyer', 'leads'));
 });
@@ -3409,6 +3440,117 @@ Route::get('/admin/allstate-testing/details/{logId}', function ($logId) {
     ]);
 });
 
+// Bulk Process Existing Leads Through Allstate API
+Route::post('/admin/allstate-testing/bulk-process', function (Request $request) {
+    try {
+        $dateFilter = $request->get('date_filter', 'today');
+        $limit = $request->get('limit', 50);
+        
+        // Build query based on date filter
+        $query = \App\Models\Lead::orderBy('created_at', 'desc');
+        
+        switch ($dateFilter) {
+            case 'today':
+                $query->whereDate('created_at', today());
+                break;
+            case 'yesterday':
+                $query->whereDate('created_at', today()->subDay());
+                break;
+            case 'last_7_days':
+                $query->where('created_at', '>=', now()->subDays(7));
+                break;
+            case 'last_30_days':
+                $query->where('created_at', '>=', now()->subDays(30));
+                break;
+            case 'all':
+                // No date filter
+                break;
+        }
+        
+        // Get leads that haven't been tested yet
+        $leads = $query->whereNotIn('id', function($subQuery) {
+            $subQuery->select('lead_id')
+                     ->from('allstate_test_logs')
+                     ->whereNotNull('lead_id');
+        })->limit($limit)->get();
+        
+        if ($leads->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No untested leads found for the selected criteria'
+            ]);
+        }
+        
+        $testingService = new \App\Services\AllstateTestingService();
+        $results = [];
+        $successCount = 0;
+        $failCount = 0;
+        
+        foreach ($leads as $lead) {
+            try {
+                $testSession = 'bulk_processing_' . date('Y-m-d_H-i');
+                $result = $testingService->processLeadForTesting($lead, $testSession);
+                
+                $results[] = [
+                    'lead_id' => $lead->id,
+                    'lead_name' => $lead->name,
+                    'success' => $result['success'],
+                    'test_log_id' => $result['test_log_id'] ?? null,
+                    'response_time_ms' => $result['response_time_ms'] ?? null,
+                    'error' => $result['error'] ?? null
+                ];
+                
+                if ($result['success']) {
+                    $successCount++;
+                } else {
+                    $failCount++;
+                }
+                
+                // Small delay to avoid overwhelming the API
+                usleep(250000); // 0.25 seconds
+                
+            } catch (Exception $e) {
+                $results[] = [
+                    'lead_id' => $lead->id,
+                    'lead_name' => $lead->name,
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+                $failCount++;
+            }
+        }
+        
+        \Illuminate\Support\Facades\Log::info('Bulk Allstate testing completed', [
+            'total_processed' => count($results),
+            'successful' => $successCount,
+            'failed' => $failCount,
+            'date_filter' => $dateFilter
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => "Processed {$leads->count()} leads: {$successCount} successful, {$failCount} failed",
+            'stats' => [
+                'total_processed' => count($results),
+                'successful' => $successCount,
+                'failed' => $failCount
+            ],
+            'results' => $results
+        ]);
+        
+    } catch (Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Bulk processing failed', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Bulk processing failed: ' . $e->getMessage()
+        ], 500);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
 // Admin Impersonation - Login as any buyer
 Route::get('/admin/impersonate/{buyerId}', function ($buyerId) {
     $buyer = \App\Models\Buyer::find($buyerId);
@@ -4062,12 +4204,13 @@ function generateLeadId() {
 // Vici integration function (shared between webhooks)
 function sendToViciList101($leadData, $leadId) {
     // Your Vici API configuration (with firewall-aware endpoint)
+    // FIXED: Ensure list_id is always 101, not from env variable that might be wrong
     $viciConfig = [
         'server' => env('VICI_SERVER', 'philli.callix.ai'),
         'api_endpoint' => env('VICI_API_ENDPOINT', '/vicidial/non_agent_api.php'), // Can be updated for firewall
         'user' => env('VICI_API_USER', 'apiuser'),
         'pass' => env('VICI_API_PASS', 'UZPATJ59GJAVKG8ES6'),
-        'list_id' => 101,
+        'list_id' => 101, // FIXED: Hard-coded to 101 - do NOT use env variable
         'phone_code' => '1',
         'source' => 'LQF_API'
     ];
@@ -4098,7 +4241,14 @@ function sendToViciList101($leadData, $leadId) {
     
     // Send to Vici - Enhanced firewall authentication with proactive whitelisting
     try {
-        Log::info('Attempting Vici API call with vendor_id: TB_API', ['vici_data' => $viciData]);
+        Log::info('Attempting Vici API call - CONFIRMED LIST 101', [
+            'list_id_config' => $viciConfig['list_id'],
+            'list_id_payload' => $viciData['list_id'],
+            'lead_id' => $leadId,
+            'vici_lead_id' => $viciLeadId,
+            'phone' => $viciData['phone_number'],
+            'name' => $viciData['first_name'] . ' ' . $viciData['last_name']
+        ]);
         
         // Check if we should proactively whitelist (every 30 minutes or if never done)
         $lastWhitelist = Cache::get('vici_last_whitelist', 0);
