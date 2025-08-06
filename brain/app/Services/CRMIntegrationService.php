@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Cache;
 class CRMIntegrationService
 {
     protected $supportedCRMs = [
+        'allstate_lead_manager' => 'Allstate Lead Manager',
         'salesforce' => 'Salesforce',
         'hubspot' => 'HubSpot',
         'pipedrive' => 'Pipedrive',
@@ -87,6 +88,8 @@ class CRMIntegrationService
     private function sendToCRMType($crmType, $crmConfig, $leadData, $buyer)
     {
         switch ($crmType) {
+            case 'allstate_lead_manager':
+                return $this->sendToAllstateLeadManager($crmConfig, $leadData, $buyer);
             case 'salesforce':
                 return $this->sendToSalesforce($crmConfig, $leadData, $buyer);
             case 'hubspot':
@@ -107,6 +110,135 @@ class CRMIntegrationService
                 return $this->sendToWebhook($crmConfig, $leadData, $buyer);
             default:
                 return ['success' => false, 'error' => 'Unsupported CRM type'];
+        }
+    }
+
+    /**
+     * Send to Allstate Lead Manager
+     */
+    private function sendToAllstateLeadManager($config, $leadData, $buyer)
+    {
+        $postingUrl = $config['posting_url'] ?? '';
+        $providerId = $config['provider_id'] ?? '';
+        $leadType = $config['lead_type'] ?? 'Auto'; // Auto, Home, Renter, LiveTransfer-Auto, LiveTransfer-Home
+        
+        if (empty($postingUrl) || empty($providerId)) {
+            return ['success' => false, 'error' => 'Missing required Allstate Lead Manager configuration'];
+        }
+        
+        // Build the JSON payload according to Allstate Lead Manager API spec
+        $payload = [
+            // Required fields
+            'ProviderId' => $providerId,
+            'LeadType' => $leadType,
+            'FirstName' => $leadData['first_name'] ?? '',
+            'LastName' => $leadData['last_name'] ?? '',
+            'Address1' => $leadData['address'] ?? ($leadData['street_address'] ?? ''),
+            'City' => $leadData['city'] ?? '',
+            'State' => $leadData['state'] ?? '',
+            'ZipCode' => $leadData['zip_code'] ?? ($leadData['zip'] ?? ''),
+        ];
+        
+        // Optional fields - only include if they have values
+        $optionalFields = [
+            'ProviderLeadId' => $leadData['external_lead_id'] ?? $leadData['id'] ?? null,
+            'Address2' => $leadData['address2'] ?? null,
+            'HomePhone' => $leadData['home_phone'] ?? $leadData['phone'] ?? null,
+            'MobilePhone' => $leadData['mobile_phone'] ?? $leadData['cell_phone'] ?? null,
+            'WorkPhone' => $leadData['work_phone'] ?? null,
+            'WorkExt' => $leadData['work_ext'] ?? null,
+            'EmailAddress' => $leadData['email'] ?? null,
+            'AltEmailAddress' => $leadData['alt_email'] ?? null,
+            'Website' => $leadData['website'] ?? null,
+            'PolicyExpirationDate' => $leadData['policy_expiration_date'] ?? null,
+            'DOB' => $leadData['date_of_birth'] ?? $leadData['dob'] ?? null,
+            'MaritalStatus' => $leadData['marital_status'] ?? null,
+            'Homeowner' => isset($leadData['homeowner']) ? (bool)$leadData['homeowner'] : null,
+            'Renter' => isset($leadData['renter']) ? (bool)$leadData['renter'] : null,
+        ];
+        
+        // Add Home insurance specific fields
+        if ($leadType === 'Home') {
+            $homeFields = [
+                'HomePersonalPty' => $leadData['home_personal_property'] ?? null,
+                'HomeCurrentInsured' => isset($leadData['home_current_insured']) ? (bool)$leadData['home_current_insured'] : null,
+                'HomeCurrentCarrier' => $leadData['home_current_carrier'] ?? null,
+                'YearBuilt' => $leadData['year_built'] ?? null,
+                'PurchaseDate' => $leadData['purchase_date'] ?? null,
+                'ConstructionType' => $leadData['construction_type'] ?? null,
+                'GarageType' => $leadData['garage_type'] ?? null,
+                'Stories' => $leadData['stories'] ?? null,
+                'Baths' => $leadData['baths'] ?? null,
+                'Bedrooms' => $leadData['bedrooms'] ?? null,
+                'SqFootage' => $leadData['sq_footage'] ?? null,
+                'RoofType' => $leadData['roof_type'] ?? null,
+                'AgeOfRoof' => $leadData['age_of_roof'] ?? null,
+                'BurglarAlarm' => isset($leadData['burglar_alarm']) ? (bool)$leadData['burglar_alarm'] : null,
+            ];
+            $optionalFields = array_merge($optionalFields, $homeFields);
+        }
+        
+        // Add Auto insurance specific fields
+        if ($leadType === 'Auto' || $leadType === 'LiveTransfer-Auto') {
+            $autoFields = [
+                'AutoInsured' => isset($leadData['auto_insured']) ? (bool)$leadData['auto_insured'] : null,
+                'AutoCurrentCarrier' => $leadData['auto_current_carrier'] ?? null,
+            ];
+            
+            // Add up to 4 vehicles
+            for ($i = 1; $i <= 4; $i++) {
+                $autoFields["Auto{$i}Make"] = $leadData["auto_{$i}_make"] ?? null;
+                $autoFields["Auto{$i}Model"] = $leadData["auto_{$i}_model"] ?? null;
+                $autoFields["Auto{$i}Year"] = $leadData["auto_{$i}_year"] ?? null;
+                $autoFields["Auto{$i}Vin"] = $leadData["auto_{$i}_vin"] ?? null;
+                $autoFields["Auto{$i}Trim"] = $leadData["auto_{$i}_trim"] ?? null;
+            }
+            
+            $optionalFields = array_merge($optionalFields, $autoFields);
+        }
+        
+        // Add non-null optional fields to payload
+        foreach ($optionalFields as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $payload[$key] = $value;
+            }
+        }
+        
+        // Add additional fields if any custom data exists
+        $additionalFields = [];
+        foreach ($leadData as $key => $value) {
+            // Skip fields we've already mapped
+            if (!in_array($key, ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'state', 'zip_code', 'zip'])) {
+                // Convert snake_case to Title Case for display
+                $displayKey = ucwords(str_replace('_', ' ', $key));
+                $additionalFields[$displayKey] = $value;
+            }
+        }
+        
+        if (!empty($additionalFields)) {
+            $payload['AdditionalFields'] = $additionalFields;
+        }
+        
+        // Send the request
+        $response = Http::timeout(30)
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->post($postingUrl, $payload);
+        
+        if ($response->successful()) {
+            return [
+                'success' => true,
+                'crm_id' => 'LML_' . uniqid(),
+                'response_code' => $response->status(),
+                'response' => $response->json(),
+                'message' => 'Lead successfully sent to Allstate Lead Manager'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error_code' => $response->status(),
+                'error' => 'Failed to send lead to Allstate Lead Manager: ' . $response->body(),
+                'response' => $response->body()
+            ];
         }
     }
 
@@ -465,6 +597,8 @@ class CRMIntegrationService
         
         try {
             switch ($crmType) {
+                case 'allstate_lead_manager':
+                    return $this->testAllstateLeadManagerConnection($crmConfig);
                 case 'salesforce':
                     return $this->testSalesforceConnection($crmConfig);
                 case 'hubspot':
@@ -478,6 +612,63 @@ class CRMIntegrationService
             }
         } catch (\Exception $e) {
             return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
+     * Test Allstate Lead Manager connection
+     */
+    private function testAllstateLeadManagerConnection($config)
+    {
+        $postingUrl = $config['posting_url'] ?? '';
+        $providerId = $config['provider_id'] ?? '';
+        
+        if (empty($postingUrl) || empty($providerId)) {
+            return [
+                'success' => false,
+                'error' => 'Missing required configuration (posting_url or provider_id)'
+            ];
+        }
+        
+        // Send a test lead
+        $testPayload = [
+            'ProviderId' => $providerId,
+            'LeadType' => 'Auto',
+            'FirstName' => 'Test',
+            'LastName' => 'Lead',
+            'Address1' => '123 Test St',
+            'City' => 'Test City',
+            'State' => 'TX',
+            'ZipCode' => '12345',
+            'EmailAddress' => 'test@quotingfast.com',
+            'HomePhone' => '555-555-5555',
+            'AdditionalFields' => [
+                'Test Field' => 'This is a test lead from QuotingFast Brain CRM Integration'
+            ]
+        ];
+        
+        $response = Http::timeout(30)
+            ->withHeaders(['Content-Type' => 'application/json'])
+            ->post($postingUrl, $testPayload);
+        
+        if ($response->successful()) {
+            return [
+                'success' => true,
+                'message' => 'Successfully connected to Allstate Lead Manager',
+                'test_data' => [
+                    'response_code' => $response->status(),
+                    'posting_url' => $postingUrl,
+                    'provider_id' => $providerId,
+                    'response_body' => $response->body()
+                ]
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error' => 'Connection test failed: HTTP ' . $response->status() . ' - ' . $response->body(),
+                'error_code' => $response->status(),
+                'response_body' => $response->body()
+            ];
         }
     }
 
@@ -563,6 +754,23 @@ class CRMIntegrationService
     public function getCRMTemplates()
     {
         return [
+            'allstate_lead_manager' => [
+                'name' => 'Allstate Lead Manager',
+                'fields' => [
+                    'posting_url' => 'Posting URL (e.g., https://www.leadmanagementlab.com/api/accounts/abc123/leads/)',
+                    'provider_id' => 'Provider ID (unique code from LML setup)',
+                    'lead_type' => 'Default Lead Type (Auto, Home, Renter, LiveTransfer-Auto, LiveTransfer-Home)'
+                ],
+                'auth_type' => 'provider_id',
+                'documentation' => 'Lead Manager Lead Post Integration API v1.6',
+                'supported_fields' => [
+                    'required' => ['ProviderId', 'LeadType', 'FirstName', 'LastName', 'Address1', 'City', 'State', 'ZipCode'],
+                    'optional_contact' => ['HomePhone', 'MobilePhone', 'WorkPhone', 'EmailAddress', 'AltEmailAddress'],
+                    'optional_personal' => ['DOB', 'MaritalStatus', 'Homeowner', 'Renter'],
+                    'home_insurance' => ['HomeCurrentCarrier', 'YearBuilt', 'ConstructionType', 'GarageType', 'Stories', 'Baths', 'Bedrooms', 'SqFootage', 'RoofType', 'AgeOfRoof', 'BurglarAlarm'],
+                    'auto_insurance' => ['AutoInsured', 'AutoCurrentCarrier', 'Auto1Make', 'Auto1Model', 'Auto1Year', 'Auto1Vin', 'Auto1Trim', 'Auto2Make', 'Auto2Model', 'Auto2Year', 'Auto3Make', 'Auto3Model', 'Auto3Year', 'Auto4Make', 'Auto4Model', 'Auto4Year']
+                ]
+            ],
             'salesforce' => [
                 'name' => 'Salesforce',
                 'fields' => [

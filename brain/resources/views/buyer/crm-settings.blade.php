@@ -601,6 +601,12 @@
                 
                 <!-- CRM Selection -->
                 <div class="crm-selection">
+                    <div class="crm-option" data-crm="allstate_lead_manager" onclick="selectCRM('allstate_lead_manager')">
+                        <div class="crm-logo">🏠</div>
+                        <div class="crm-name">Allstate Lead Manager</div>
+                        <div class="crm-description">Insurance lead platform</div>
+                    </div>
+                    
                     <div class="crm-option" data-crm="salesforce" onclick="selectCRM('salesforce')">
                         <div class="crm-logo">☁️</div>
                         <div class="crm-name">Salesforce</div>
@@ -635,6 +641,46 @@
                         <div class="crm-logo">🔗</div>
                         <div class="crm-name">Custom Webhook</div>
                         <div class="crm-description">Any system</div>
+                    </div>
+                </div>
+                
+                <!-- Allstate Lead Manager Configuration -->
+                <div class="config-form" id="allstate_lead_manager-config">
+                    <h3 style="margin-bottom: 1rem; color: #1a202c;">Allstate Lead Manager Configuration</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Posting URL</label>
+                        <input type="text" class="form-input" id="alm-posting-url" placeholder="https://www.leadmanagementlab.com/api/accounts/abc123def456ghi/leads/">
+                        <div class="form-help">Your unique LML posting URL from Administration → Web Lead Setup</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Provider ID</label>
+                        <input type="text" class="form-input" id="alm-provider-id" placeholder="lmn345opq678rst">
+                        <div class="form-help">Unique Provider ID from your LML setup configuration</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Default Lead Type</label>
+                        <select class="form-input" id="alm-lead-type">
+                            <option value="Auto">Auto Insurance</option>
+                            <option value="Home">Home Insurance</option>
+                            <option value="Renter">Renter Insurance</option>
+                            <option value="LiveTransfer-Auto">Live Transfer - Auto</option>
+                            <option value="LiveTransfer-Home">Live Transfer - Home</option>
+                        </select>
+                        <div class="form-help">Default lead type for leads sent to Allstate Lead Manager</div>
+                    </div>
+                    
+                    <div class="field-mapping">
+                        <div class="mapping-header">Supported Fields</div>
+                        <div style="font-size: 0.85rem; color: #6b7280; line-height: 1.5;">
+                            <strong>Required:</strong> FirstName, LastName, Address1, City, State, ZipCode<br>
+                            <strong>Optional Contact:</strong> HomePhone, MobilePhone, WorkPhone, EmailAddress<br>
+                            <strong>Personal:</strong> DOB, MaritalStatus, Homeowner, Renter<br>
+                            <strong>Auto Insurance:</strong> AutoInsured, AutoCurrentCarrier, Auto1-4 (Make, Model, Year, VIN, Trim)<br>
+                            <strong>Home Insurance:</strong> HomeCurrentCarrier, YearBuilt, ConstructionType, GarageType, Stories, Baths, Bedrooms, SqFootage, RoofType, AgeOfRoof, BurglarAlarm
+                        </div>
                     </div>
                 </div>
                 
@@ -879,6 +925,11 @@
         // Populate form with existing config
         function populateForm(config) {
             switch (config.type) {
+                case 'allstate_lead_manager':
+                    document.getElementById('alm-posting-url').value = config.posting_url || '';
+                    document.getElementById('alm-provider-id').value = config.provider_id || '';
+                    document.getElementById('alm-lead-type').value = config.lead_type || 'Auto';
+                    break;
                 case 'salesforce':
                     document.getElementById('sf-instance-url').value = config.instance_url || '';
                     document.getElementById('sf-access-token').value = config.access_token || '';
@@ -993,6 +1044,11 @@
             };
 
             switch (selectedCRM) {
+                case 'allstate_lead_manager':
+                    config.posting_url = document.getElementById('alm-posting-url').value;
+                    config.provider_id = document.getElementById('alm-provider-id').value;
+                    config.lead_type = document.getElementById('alm-lead-type').value;
+                    break;
                 case 'salesforce':
                     config.instance_url = document.getElementById('sf-instance-url').value;
                     config.access_token = document.getElementById('sf-access-token').value;
