@@ -607,6 +607,12 @@
                         <div class="crm-description">Insurance lead platform</div>
                     </div>
                     
+                    <div class="crm-option" data-crm="ricochet360" onclick="selectCRM('ricochet360')">
+                        <div class="crm-logo">🚀</div>
+                        <div class="crm-name">Ricochet360</div>
+                        <div class="crm-description">All-in-one sales automation</div>
+                    </div>
+                    
                     <div class="crm-option" data-crm="salesforce" onclick="selectCRM('salesforce')">
                         <div class="crm-logo">☁️</div>
                         <div class="crm-name">Salesforce</div>
@@ -680,6 +686,41 @@
                             <strong>Personal:</strong> DOB, MaritalStatus, Homeowner, Renter<br>
                             <strong>Auto Insurance:</strong> AutoInsured, AutoCurrentCarrier, Auto1-4 (Make, Model, Year, VIN, Trim)<br>
                             <strong>Home Insurance:</strong> HomeCurrentCarrier, YearBuilt, ConstructionType, GarageType, Stories, Baths, Bedrooms, SqFootage, RoofType, AgeOfRoof, BurglarAlarm
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ricochet360 Configuration -->
+                <div class="config-form" id="ricochet360-config">
+                    <h3 style="margin-bottom: 1rem; color: #1a202c;">Ricochet360 Configuration</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">API URL</label>
+                        <input type="text" class="form-input" id="r360-api-url" placeholder="https://yourcompany.ricochet360.com/api/leads">
+                        <div class="form-help">Your Ricochet360 API endpoint URL for lead posting</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">API Key</label>
+                        <input type="password" class="form-input" id="r360-api-key" placeholder="Your Ricochet360 API Key">
+                        <div class="form-help">API Key from your Ricochet360 account settings</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">List ID (Optional)</label>
+                        <input type="text" class="form-input" id="r360-list-id" placeholder="123">
+                        <div class="form-help">Specific lead list ID to add leads to (leave blank for default)</div>
+                    </div>
+                    
+                    <div class="field-mapping">
+                        <div class="mapping-header">Supported Features</div>
+                        <div style="font-size: 0.85rem; color: #6b7280; line-height: 1.5;">
+                            <strong>✅ Real-time Lead Capture:</strong> Instant lead posting to your Ricochet360 system<br>
+                            <strong>✅ Auto Dialer Integration:</strong> Leads automatically available for calling<br>
+                            <strong>✅ Lead Distribution:</strong> Automatic assignment based on skill-level and availability<br>
+                            <strong>✅ Custom Fields:</strong> All additional lead data preserved as custom fields<br>
+                            <strong>✅ Marketing Automation:</strong> Triggers email/SMS campaigns based on lead data<br>
+                            <strong>✅ Call Tracking:</strong> Full integration with Ricochet360 call center features
                         </div>
                     </div>
                 </div>
@@ -930,6 +971,11 @@
                     document.getElementById('alm-provider-id').value = config.provider_id || '';
                     document.getElementById('alm-lead-type').value = config.lead_type || 'Auto';
                     break;
+                case 'ricochet360':
+                    document.getElementById('r360-api-url').value = config.api_url || '';
+                    document.getElementById('r360-api-key').value = config.api_key || '';
+                    document.getElementById('r360-list-id').value = config.list_id || '';
+                    break;
                 case 'salesforce':
                     document.getElementById('sf-instance-url').value = config.instance_url || '';
                     document.getElementById('sf-access-token').value = config.access_token || '';
@@ -1048,6 +1094,11 @@
                     config.posting_url = document.getElementById('alm-posting-url').value;
                     config.provider_id = document.getElementById('alm-provider-id').value;
                     config.lead_type = document.getElementById('alm-lead-type').value;
+                    break;
+                case 'ricochet360':
+                    config.api_url = document.getElementById('r360-api-url').value;
+                    config.api_key = document.getElementById('r360-api-key').value;
+                    config.list_id = document.getElementById('r360-list-id').value;
                     break;
                 case 'salesforce':
                     config.instance_url = document.getElementById('sf-instance-url').value;

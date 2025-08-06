@@ -12,6 +12,7 @@ class CRMIntegrationService
 {
     protected $supportedCRMs = [
         'allstate_lead_manager' => 'Allstate Lead Manager',
+        'ricochet360' => 'Ricochet360',
         'salesforce' => 'Salesforce',
         'hubspot' => 'HubSpot',
         'pipedrive' => 'Pipedrive',
@@ -90,6 +91,8 @@ class CRMIntegrationService
         switch ($crmType) {
             case 'allstate_lead_manager':
                 return $this->sendToAllstateLeadManager($crmConfig, $leadData, $buyer);
+            case 'ricochet360':
+                return $this->sendToRicochet360($crmConfig, $leadData, $buyer);
             case 'salesforce':
                 return $this->sendToSalesforce($crmConfig, $leadData, $buyer);
             case 'hubspot':
@@ -237,6 +240,102 @@ class CRMIntegrationService
                 'success' => false,
                 'error_code' => $response->status(),
                 'error' => 'Failed to send lead to Allstate Lead Manager: ' . $response->body(),
+                'response' => $response->body()
+            ];
+        }
+    }
+
+    /**
+     * Send to Ricochet360
+     */
+    private function sendToRicochet360($config, $leadData, $buyer)
+    {
+        $apiUrl = $config['api_url'] ?? '';
+        $apiKey = $config['api_key'] ?? '';
+        $listId = $config['list_id'] ?? '';
+        
+        if (empty($apiUrl) || empty($apiKey)) {
+            return ['success' => false, 'error' => 'Missing required Ricochet360 configuration (API URL or API Key)'];
+        }
+        
+        // Build the JSON payload for Ricochet360 lead posting
+        $payload = [
+            'api_key' => $apiKey,
+            'lead' => [
+                'first_name' => $leadData['first_name'] ?? '',
+                'last_name' => $leadData['last_name'] ?? '',
+                'email' => $leadData['email'] ?? '',
+                'phone' => $leadData['phone'] ?? ($leadData['home_phone'] ?? $leadData['mobile_phone'] ?? ''),
+                'address' => $leadData['address'] ?? ($leadData['street_address'] ?? ''),
+                'city' => $leadData['city'] ?? '',
+                'state' => $leadData['state'] ?? '',
+                'zip_code' => $leadData['zip_code'] ?? ($leadData['zip'] ?? ''),
+                'source' => 'QuotingFast Brain',
+                'status' => 'new',
+                'notes' => 'Lead imported from QuotingFast Brain CRM Integration',
+                'external_id' => $leadData['external_lead_id'] ?? $leadData['id'] ?? null,
+            ]
+        ];
+        
+        // Add list ID if provided
+        if ($listId) {
+            $payload['list_id'] = $listId;
+        }
+        
+        // Add optional contact fields
+        $optionalFields = [
+            'mobile_phone' => $leadData['mobile_phone'] ?? $leadData['cell_phone'] ?? null,
+            'work_phone' => $leadData['work_phone'] ?? null,
+            'alt_email' => $leadData['alt_email'] ?? null,
+            'company' => $leadData['company'] ?? null,
+            'website' => $leadData['website'] ?? null,
+            'date_of_birth' => $leadData['date_of_birth'] ?? $leadData['dob'] ?? null,
+            'lead_type' => $leadData['vertical'] ?? $leadData['lead_type'] ?? null,
+        ];
+        
+        // Add non-null optional fields to lead data
+        foreach ($optionalFields as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $payload['lead'][$key] = $value;
+            }
+        }
+        
+        // Add custom fields if any
+        $customFields = [];
+        foreach ($leadData as $key => $value) {
+            // Skip fields we've already mapped
+            if (!in_array($key, ['first_name', 'last_name', 'email', 'phone', 'address', 'city', 'state', 'zip_code', 'zip', 'id', 'external_lead_id'])) {
+                $customFields[$key] = $value;
+            }
+        }
+        
+        if (!empty($customFields)) {
+            $payload['lead']['custom_fields'] = $customFields;
+        }
+        
+        // Send the request to Ricochet360 API
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'User-Agent' => 'QuotingFast-Brain/1.0'
+            ])
+            ->post($apiUrl, $payload);
+        
+        if ($response->successful()) {
+            $responseData = $response->json();
+            return [
+                'success' => true,
+                'crm_id' => $responseData['lead_id'] ?? ('R360_' . uniqid()),
+                'response_code' => $response->status(),
+                'response' => $responseData,
+                'message' => 'Lead successfully sent to Ricochet360'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error_code' => $response->status(),
+                'error' => 'Failed to send lead to Ricochet360: ' . $response->body(),
                 'response' => $response->body()
             ];
         }
@@ -599,6 +698,8 @@ class CRMIntegrationService
             switch ($crmType) {
                 case 'allstate_lead_manager':
                     return $this->testAllstateLeadManagerConnection($crmConfig);
+                case 'ricochet360':
+                    return $this->testRicochet360Connection($crmConfig);
                 case 'salesforce':
                     return $this->testSalesforceConnection($crmConfig);
                 case 'hubspot':
@@ -660,6 +761,70 @@ class CRMIntegrationService
                     'posting_url' => $postingUrl,
                     'provider_id' => $providerId,
                     'response_body' => $response->body()
+                ]
+            ];
+        } else {
+            return [
+                'success' => false,
+                'error' => 'Connection test failed: HTTP ' . $response->status() . ' - ' . $response->body(),
+                'error_code' => $response->status(),
+                'response_body' => $response->body()
+            ];
+        }
+    }
+
+    /**
+     * Test Ricochet360 connection
+     */
+    private function testRicochet360Connection($config)
+    {
+        $apiUrl = $config['api_url'] ?? '';
+        $apiKey = $config['api_key'] ?? '';
+        
+        if (empty($apiUrl) || empty($apiKey)) {
+            return [
+                'success' => false,
+                'error' => 'Missing required configuration (API URL or API Key)'
+            ];
+        }
+        
+        // Send a test lead to Ricochet360
+        $testPayload = [
+            'api_key' => $apiKey,
+            'lead' => [
+                'first_name' => 'Test',
+                'last_name' => 'Lead',
+                'email' => 'test@quotingfast.com',
+                'phone' => '555-555-5555',
+                'address' => '123 Test St',
+                'city' => 'Test City',
+                'state' => 'TX',
+                'zip_code' => '12345',
+                'source' => 'QuotingFast Brain - Connection Test',
+                'status' => 'test',
+                'notes' => 'This is a test lead from QuotingFast Brain CRM Integration test',
+                'external_id' => 'TEST_' . uniqid(),
+            ]
+        ];
+        
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'User-Agent' => 'QuotingFast-Brain/1.0'
+            ])
+            ->post($apiUrl, $testPayload);
+        
+        if ($response->successful()) {
+            $responseData = $response->json();
+            return [
+                'success' => true,
+                'message' => 'Successfully connected to Ricochet360',
+                'test_data' => [
+                    'response_code' => $response->status(),
+                    'api_url' => $apiUrl,
+                    'response_body' => $responseData,
+                    'lead_id' => $responseData['lead_id'] ?? 'Unknown'
                 ]
             ];
         } else {
@@ -769,6 +934,31 @@ class CRMIntegrationService
                     'optional_personal' => ['DOB', 'MaritalStatus', 'Homeowner', 'Renter'],
                     'home_insurance' => ['HomeCurrentCarrier', 'YearBuilt', 'ConstructionType', 'GarageType', 'Stories', 'Baths', 'Bedrooms', 'SqFootage', 'RoofType', 'AgeOfRoof', 'BurglarAlarm'],
                     'auto_insurance' => ['AutoInsured', 'AutoCurrentCarrier', 'Auto1Make', 'Auto1Model', 'Auto1Year', 'Auto1Vin', 'Auto1Trim', 'Auto2Make', 'Auto2Model', 'Auto2Year', 'Auto3Make', 'Auto3Model', 'Auto3Year', 'Auto4Make', 'Auto4Model', 'Auto4Year']
+                ]
+            ],
+            'ricochet360' => [
+                'name' => 'Ricochet360',
+                'fields' => [
+                    'api_url' => 'API URL (e.g., https://yourcompany.ricochet360.com/api/leads)',
+                    'api_key' => 'API Key (from your Ricochet360 account)',
+                    'list_id' => 'List ID (optional - specific lead list to add leads to)'
+                ],
+                'auth_type' => 'api_key',
+                'documentation' => 'Ricochet360 RESTful API for Lead Management',
+                'supported_fields' => [
+                    'required' => ['first_name', 'last_name', 'email', 'phone'],
+                    'optional_contact' => ['mobile_phone', 'work_phone', 'alt_email', 'address', 'city', 'state', 'zip_code'],
+                    'optional_business' => ['company', 'website', 'lead_type', 'source'],
+                    'optional_personal' => ['date_of_birth', 'notes'],
+                    'system' => ['status', 'external_id', 'custom_fields']
+                ],
+                'features' => [
+                    'Real-time lead capture',
+                    'Automatic lead distribution',
+                    'Custom field support',
+                    'Lead status tracking',
+                    'Integration with auto dialer',
+                    'CRM & marketing automation'
                 ]
             ],
             'salesforce' => [
