@@ -747,6 +747,16 @@
         <div class="nav-container">
             <a href="/buyer/dashboard" class="nav-tab">📊 Dashboard</a>
             <a href="/buyer/leads" class="nav-tab active">👥 My Leads</a>
+            
+            <!-- Management Dropdown -->
+            <div class="nav-tab" style="position: relative; cursor: pointer;" onclick="toggleDropdown(event)">
+                ⚙️ Management ▼
+                <div id="managementDropdown" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 200px; z-index: 1000;">
+                    <a href="/admin/allstate-testing" style="display: block; padding: 10px 15px; color: #374151; text-decoration: none; hover: background: #f3f4f6;">🧪 Allstate Testing</a>
+                    <a href="/api-directory" style="display: block; padding: 10px 15px; color: #374151; text-decoration: none;">🔗 API Directory</a>
+                    <a href="/campaign-directory" style="display: block; padding: 10px 15px; color: #374151; text-decoration: none;">📊 Campaigns</a>
+                </div>
+            </div>
             <a href="/buyer/billing" class="nav-tab">💳 Billing</a>
             <a href="/buyer/documents" class="nav-tab">📄 Documents</a>
             <a href="/buyer/notifications" class="nav-tab">🔔 Notifications</a>
@@ -1035,6 +1045,21 @@
     </div>
 
     <script>
+        // Toggle dropdown menu
+        function toggleDropdown(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('managementDropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function() {
+            const dropdown = document.getElementById('managementDropdown');
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
+        });
+        
         // Return modal functions
         function openReturnModal(leadId, externalId) {
             document.getElementById('returnLeadId').value = leadId;

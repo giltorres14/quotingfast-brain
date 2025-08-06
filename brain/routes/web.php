@@ -897,14 +897,21 @@ Route::post('/webhook.php', function (Request $request) {
         // TODO: RESTORE VICI INTEGRATION AFTER TESTING (see memory ID: 5307562)
         if ($externalLeadId && $lead) {
             try {
-                Log::info('🧪 TESTING MODE: Bypassing Vici, sending directly to Allstate', [
+                Log::warning('🧪 ALLSTATE TESTING MODE ACTIVE', [
                     'lead_id' => $lead->id,
                     'external_lead_id' => $externalLeadId,
-                    'testing_mode' => true
+                    'lead_name' => $lead->name,
+                    'testing_mode' => true,
+                    'timestamp' => now()->toIso8601String()
                 ]);
                 
                 $testingService = new \App\Services\AllstateTestingService();
                 $testSession = 'live_testing_' . date('Y-m-d_H');
+                
+                Log::info('🧪 Calling processLeadForTesting', [
+                    'session' => $testSession,
+                    'lead_id' => $lead->id
+                ]);
                 
                 $testResult = $testingService->processLeadForTesting($lead, $testSession);
                 
@@ -4184,17 +4191,24 @@ function detectLeadType($data) {
 
 function generateLeadId() {
     try {
-        // Get the highest existing external_lead_id from database (9 digits starting with 10000001)
+        // Get the highest existing external_lead_id from database (9 digits starting with 100000001)
         $lastLead = Lead::whereNotNull('external_lead_id')
                        ->where('external_lead_id', 'REGEXP', '^[0-9]{9}$')
                        ->orderBy('external_lead_id', 'desc')
                        ->first();
         
+        Log::info('Generating lead ID', [
+            'last_lead_id' => $lastLead ? $lastLead->external_lead_id : 'none',
+            'starting_fresh' => !$lastLead
+        ]);
+        
         if ($lastLead && is_numeric($lastLead->external_lead_id)) {
             $nextId = intval($lastLead->external_lead_id) + 1;
         } else {
-            $nextId = 10000001; // Starting number: 9 digits starting with 10000001
+            $nextId = 100000001; // Starting number: 9 digits starting with 100000001
         }
+        
+        Log::info('Generated new lead ID', ['new_id' => $nextId]);
         
         // Ensure it's always 9 digits
         return str_pad($nextId, 9, '0', STR_PAD_LEFT);
