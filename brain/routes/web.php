@@ -3549,7 +3549,7 @@ Route::post('/admin/allstate-testing/bulk-process', function (Request $request) 
             'message' => 'Bulk processing failed: ' . $e->getMessage()
         ], 500);
     }
-})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+})->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class]);
 
 // Admin Impersonation - Login as any buyer
 Route::get('/admin/impersonate/{buyerId}', function ($buyerId) {
