@@ -4,24 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Brain - Admin Dashboard</title>
+    
+    <!-- QuotingFast Design System -->
+    <link rel="stylesheet" href="/css/brain-design-system.css">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Custom overrides for legacy compatibility -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        /* Minimal custom styles - most moved to design system */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8fafc;
-            color: #1a202c;
+            background: var(--qf-gray-50);
         }
         
-        /* Header Navigation */
+        /* Navigation - Using Design System */
         .navbar {
-            background: #4f46e5;
+            background: var(--qf-primary);
             color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: var(--qf-shadow-md);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -34,16 +37,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 2rem;
+            padding: 0 var(--qf-space-xl);
             height: 70px;
         }
         
         .nav-brand {
-            font-size: 1.2rem;
+            font-size: var(--qf-text-xl);
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: var(--qf-space-md);
             color: white;
         }
         
@@ -56,7 +59,7 @@
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 2rem;
+            gap: var(--qf-space-xl);
             align-items: center;
         }
         
@@ -67,19 +70,20 @@
         .nav-link {
             color: rgba(255,255,255,0.8);
             text-decoration: none;
-            padding: 0.75rem 1.25rem;
-            border-radius: 8px;
-            transition: all 0.2s ease;
+            padding: var(--qf-space-sm) var(--qf-space-lg);
+            border-radius: var(--qf-radius-md);
+            transition: var(--qf-transition);
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: var(--qf-space-sm);
             font-size: 0.95rem;
         }
         
         .nav-link:hover {
             background: rgba(255,255,255,0.1);
             color: white;
+            transform: translateY(-1px);
         }
         
         .nav-link.active {
@@ -88,7 +92,7 @@
             font-weight: 600;
         }
         
-        /* Dropdown Styles */
+        /* Enhanced Dropdown Styles */
         .dropdown {
             position: relative;
         }
@@ -96,14 +100,14 @@
         .dropdown-toggle {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: var(--qf-space-sm);
             cursor: pointer;
         }
         
         .dropdown-toggle::after {
             content: '▼';
             font-size: 0.7rem;
-            transition: transform 0.2s ease;
+            transition: var(--qf-transition);
         }
         
         .dropdown.open .dropdown-toggle::after {
@@ -115,17 +119,17 @@
             top: 100%;
             left: 0;
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--qf-radius-lg);
+            box-shadow: var(--qf-shadow-xl);
+            border: 1px solid var(--qf-gray-200);
             min-width: 200px;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: all 0.3s ease;
+            transition: var(--qf-transition-slow);
             z-index: 1000;
             overflow: hidden;
-            margin-top: 0.5rem;
+            margin-top: var(--qf-space-sm);
         }
         
         .dropdown.open .dropdown-menu {
@@ -135,17 +139,16 @@
         }
         
         .dropdown-item {
-            display: block;
-            padding: 0.75rem 1rem;
-            color: #4a5568;
+            display: flex;
+            align-items: center;
+            gap: var(--qf-space-sm);
+            padding: var(--qf-space-md) var(--qf-space-lg);
+            color: var(--qf-gray-700);
             text-decoration: none;
             font-weight: 500;
             font-size: 0.9rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            border-bottom: 1px solid var(--qf-gray-100);
+            transition: var(--qf-transition);
         }
         
         .dropdown-item:last-child {
@@ -523,9 +526,118 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        
+        /* Feature cards enhanced with design system */
+        .feature-card {
+            background: white;
+            border: 1px solid var(--qf-gray-200);
+            border-radius: var(--qf-radius-lg);
+            padding: var(--qf-space-xl);
+            box-shadow: var(--qf-shadow-sm);
+            transition: var(--qf-transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card:hover {
+            box-shadow: var(--qf-shadow-lg);
+            transform: translateY(-2px);
+            border-color: var(--qf-primary-light);
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--qf-primary), var(--qf-secondary));
+        }
+        
+        .feature-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--qf-space-md);
+            margin: var(--qf-space-lg) 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: var(--qf-space-md);
+            background: var(--qf-gray-50);
+            border-radius: var(--qf-radius-md);
+            border: 1px solid var(--qf-gray-200);
+        }
+        
+        .stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--qf-primary);
+            margin-bottom: var(--qf-space-xs);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--qf-gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: var(--qf-space-md);
+            margin-top: var(--qf-space-lg);
+        }
+        
+        /* Legacy button compatibility */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--qf-space-sm);
+            padding: var(--qf-space-sm) var(--qf-space-lg);
+            border: 1px solid transparent;
+            border-radius: var(--qf-radius-md);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--qf-transition);
+            box-shadow: var(--qf-shadow-sm);
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--qf-shadow-md);
+        }
+        
+        .btn-primary {
+            background: var(--qf-primary);
+            color: white;
+            border-color: var(--qf-primary);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--qf-gray-700);
+            border-color: var(--qf-gray-300);
+        }
+        
+        .btn-success {
+            background: var(--qf-success);
+            color: white;
+            border-color: var(--qf-success);
+        }
+        
+        .btn-warning {
+            background: var(--qf-warning);
+            color: white;
+            border-color: var(--qf-warning);
+        }
     </style>
 </head>
-<body>
+<body class="qf-fade-in">
     <!-- Navigation Header -->
     <nav class="navbar">
         <div class="nav-container">
@@ -847,17 +959,69 @@
         </div>
     </div>
     
+    <!-- QuotingFast JavaScript Enhancements -->
+    <script src="/js/brain-enhancements.js"></script>
+    
     <script>
-        // Load basic stats
+        // Enhanced dashboard functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add loading states to all buttons
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    if (this.href && !this.href.includes('#')) {
+                        BrainUI.setLoadingState(this, true);
+                    }
+                });
+            });
+            
+            // Animate counter numbers
+            animateCounters();
+        });
+        
+        function animateCounters() {
+            document.querySelectorAll('.stat-number').forEach(counter => {
+                const text = counter.textContent;
+                const number = parseFloat(text.replace(/[^0-9.]/g, ''));
+                
+                if (!isNaN(number) && number > 0) {
+                    counter.setAttribute('data-count', number);
+                    counter.textContent = '0';
+                    
+                    let current = 0;
+                    const increment = number / 50;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= number) {
+                            current = number;
+                            clearInterval(timer);
+                        }
+                        
+                        if (text.includes('$')) {
+                            counter.textContent = '$' + Math.floor(current).toLocaleString();
+                        } else if (text.includes('%')) {
+                            counter.textContent = Math.floor(current) + '%';
+                        } else if (text.includes('K')) {
+                            counter.textContent = (Math.floor(current * 10) / 10) + 'K';
+                        } else {
+                            counter.textContent = Math.floor(current).toLocaleString();
+                        }
+                    }, 30);
+                }
+            });
+        }
+        
+        // Load basic stats with enhanced error handling
         fetch('/api/webhooks')
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     document.getElementById('webhook-calls').textContent = data.stats?.total_calls || '0';
+                    BrainUI.showNotification('Dashboard data loaded successfully!', 'success', 3000);
                 }
             })
             .catch(error => {
                 document.getElementById('webhook-calls').textContent = 'N/A';
+                console.error('Failed to load webhook stats:', error);
             });
         
         // Simulate lead count (replace with real API call when available)

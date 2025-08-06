@@ -1,0 +1,267 @@
+/* QuotingFast Brain Design System */
+:root {
+  /* Brand Colors */
+  --qf-primary: #4f46e5;
+  --qf-primary-light: #6366f1;
+  --qf-primary-dark: #3730a3;
+  --qf-secondary: #06b6d4;
+  --qf-accent: #f59e0b;
+  
+  /* Status Colors */
+  --qf-success: #10b981;
+  --qf-warning: #f59e0b;
+  --qf-error: #ef4444;
+  --qf-info: #3b82f6;
+  
+  /* Neutral Colors */
+  --qf-gray-50: #f9fafb;
+  --qf-gray-100: #f3f4f6;
+  --qf-gray-200: #e5e7eb;
+  --qf-gray-300: #d1d5db;
+  --qf-gray-400: #9ca3af;
+  --qf-gray-500: #6b7280;
+  --qf-gray-600: #4b5563;
+  --qf-gray-700: #374151;
+  --qf-gray-800: #1f2937;
+  --qf-gray-900: #111827;
+  
+  /* Typography */
+  --qf-font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --qf-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', monospace;
+  
+  /* Spacing */
+  --qf-space-xs: 0.25rem;
+  --qf-space-sm: 0.5rem;
+  --qf-space-md: 1rem;
+  --qf-space-lg: 1.5rem;
+  --qf-space-xl: 2rem;
+  --qf-space-2xl: 3rem;
+  
+  /* Border Radius */
+  --qf-radius-sm: 0.375rem;
+  --qf-radius-md: 0.5rem;
+  --qf-radius-lg: 0.75rem;
+  --qf-radius-xl: 1rem;
+  
+  /* Shadows */
+  --qf-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --qf-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --qf-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --qf-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Animations */
+  --qf-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --qf-transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--qf-font-primary);
+  background: var(--qf-gray-50);
+  color: var(--qf-gray-900);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Component Classes */
+.qf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qf-space-sm);
+  padding: var(--qf-space-sm) var(--qf-space-lg);
+  border: 1px solid transparent;
+  border-radius: var(--qf-radius-md);
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--qf-transition);
+  box-shadow: var(--qf-shadow-sm);
+}
+
+.qf-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--qf-shadow-md);
+}
+
+.qf-btn-primary {
+  background: var(--qf-primary);
+  color: white;
+  border-color: var(--qf-primary);
+}
+
+.qf-btn-primary:hover {
+  background: var(--qf-primary-dark);
+  border-color: var(--qf-primary-dark);
+}
+
+.qf-btn-secondary {
+  background: white;
+  color: var(--qf-gray-700);
+  border-color: var(--qf-gray-300);
+}
+
+.qf-btn-secondary:hover {
+  background: var(--qf-gray-50);
+  border-color: var(--qf-gray-400);
+}
+
+/* Card Component */
+.qf-card {
+  background: white;
+  border: 1px solid var(--qf-gray-200);
+  border-radius: var(--qf-radius-lg);
+  box-shadow: var(--qf-shadow-sm);
+  overflow: hidden;
+  transition: var(--qf-transition);
+}
+
+.qf-card:hover {
+  box-shadow: var(--qf-shadow-md);
+  border-color: var(--qf-gray-300);
+}
+
+.qf-card-header {
+  padding: var(--qf-space-lg);
+  border-bottom: 1px solid var(--qf-gray-200);
+  background: var(--qf-gray-50);
+}
+
+.qf-card-body {
+  padding: var(--qf-space-lg);
+}
+
+.qf-card-footer {
+  padding: var(--qf-space-lg);
+  border-top: 1px solid var(--qf-gray-200);
+  background: var(--qf-gray-50);
+}
+
+/* Form Components */
+.qf-input {
+  width: 100%;
+  padding: var(--qf-space-sm) var(--qf-space-md);
+  border: 1px solid var(--qf-gray-300);
+  border-radius: var(--qf-radius-md);
+  font-size: 0.875rem;
+  transition: var(--qf-transition);
+  background: white;
+}
+
+.qf-input:focus {
+  outline: none;
+  border-color: var(--qf-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Status Badges */
+.qf-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--qf-space-xs) var(--qf-space-sm);
+  border-radius: var(--qf-radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.qf-badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--qf-success);
+}
+
+.qf-badge-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--qf-warning);
+}
+
+.qf-badge-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--qf-error);
+}
+
+.qf-badge-info {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--qf-info);
+}
+
+/* Utility Classes */
+.qf-text-center { text-align: center; }
+.qf-text-right { text-align: right; }
+.qf-font-bold { font-weight: 700; }
+.qf-font-medium { font-weight: 500; }
+.qf-text-sm { font-size: 0.875rem; }
+.qf-text-lg { font-size: 1.125rem; }
+.qf-text-xl { font-size: 1.25rem; }
+.qf-text-2xl { font-size: 1.5rem; }
+
+/* Spacing Utilities */
+.qf-p-sm { padding: var(--qf-space-sm); }
+.qf-p-md { padding: var(--qf-space-md); }
+.qf-p-lg { padding: var(--qf-space-lg); }
+.qf-m-sm { margin: var(--qf-space-sm); }
+.qf-m-md { margin: var(--qf-space-md); }
+.qf-m-lg { margin: var(--qf-space-lg); }
+
+/* Layout Utilities */
+.qf-flex { display: flex; }
+.qf-flex-col { flex-direction: column; }
+.qf-items-center { align-items: center; }
+.qf-justify-between { justify-content: space-between; }
+.qf-gap-sm { gap: var(--qf-space-sm); }
+.qf-gap-md { gap: var(--qf-space-md); }
+.qf-gap-lg { gap: var(--qf-space-lg); }
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --qf-gray-50: #111827;
+    --qf-gray-100: #1f2937;
+    --qf-gray-200: #374151;
+    --qf-gray-300: #4b5563;
+    --qf-gray-400: #6b7280;
+    --qf-gray-500: #9ca3af;
+    --qf-gray-600: #d1d5db;
+    --qf-gray-700: #e5e7eb;
+    --qf-gray-800: #f3f4f6;
+    --qf-gray-900: #f9fafb;
+  }
+  
+  body {
+    background: var(--qf-gray-50);
+    color: var(--qf-gray-900);
+  }
+}
+
+/* Animation Classes */
+.qf-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.qf-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
