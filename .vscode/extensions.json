@@ -1,5 +1,62 @@
 {
     "recommendations": [
-        "saoudrizwan.claude-dev"
+        // PHP Development
+        "bmewburn.vscode-intelephense-client",
+        "xdebug.php-debug",
+        "valeryanm.vscode-phpsab",
+        "kokororin.vscode-phpfmt",
+        
+        // Laravel Specific
+        "onecentlin.laravel-blade",
+        "codingyu.laravel-goto-view",
+        "ryannaddy.laravel-artisan",
+        "amiralizadeh9480.laravel-extra-intellisense",
+        
+        // Database & SQL
+        "ms-mssql.mssql",
+        "cweijan.vscode-mysql-client2",
+        "ms-vscode.vscode-json",
+        
+        // Git & Version Control
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        
+        // Code Quality & Formatting
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.auto-rename-tag",
+        
+        // Productivity & Navigation
+        "gruntfuggly.todo-tree",
+        "ms-vscode.vscode-todo-highlight",
+        "alefragnani.bookmarks",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        
+        // API & HTTP Testing
+        "humao.rest-client",
+        "rangav.vscode-thunder-client",
+        
+        // Documentation & Markdown
+        "yzhang.markdown-all-in-one",
+        "davidanson.vscode-markdownlint",
+        
+        // UI/UX Enhancement
+        "pkief.material-icon-theme",
+        "zhuangtongfa.material-theme",
+        "aaron-bond.better-comments",
+        
+        // Docker & DevOps
+        "ms-azuretools.vscode-docker",
+        "ms-vscode-remote.remote-containers",
+        
+        // Web Development
+        "ms-vscode.vscode-typescript-next",
+        "ms-vscode.vscode-css-peek",
+        "ritwickdey.liveserver",
+        
+        // Nx Workspace (for the platform)
+        "nrwl.angular-console"
     ]
 }

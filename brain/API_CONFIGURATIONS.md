@@ -1,0 +1,242 @@
+# 🔗 API CONFIGURATIONS REGISTRY
+## Centralized API Management - Updated: {{ date('Y-m-d H:i:s') }}
+
+---
+
+## 🎯 ALLSTATE LEAD MARKETPLACE API
+
+### **Testing Environment**
+```env
+ALLSTATE_TEST_URL=https://int.allstateleadmarketplace.com/v2/
+ALLSTATE_TEST_KEY=testvendor:
+ALLSTATE_TEST_AUTH=Basic dGVzdHZlbmRvcjo=
+ALLSTATE_TEST_ENDPOINT=/ping
+```
+
+### **Production Environment**
+```env
+ALLSTATE_PROD_URL=https://api.allstateleadmarketplace.com/v2/
+ALLSTATE_PROD_KEY=b91446ade9d37650f93e305cbaf8c2c9
+ALLSTATE_PROD_AUTH=Basic YjkxNDQ2YWRlOWQzNzY1MGY5M2UzMDVjYmFmOGMyYzk6
+ALLSTATE_VENDOR_NAME=quoting-fast
+```
+
+### **Required Headers**
+```php
+'Authorization' => 'Basic dGVzdHZlbmRvcjo=', // Testing
+'Content-Type' => 'application/json',
+'Accept' => 'application/json'
+```
+
+### **Field Requirements**
+```php
+// Driver Object (CRITICAL - exact field names required)
+'id' => 1,                    // NOT 'driver_number'
+'relation' => 'self',         // primary driver
+'gender' => 'female',         // lowercase, NOT 'F'
+'marital_status' => 'single', // exact enum
+'edu_level' => 'BDG',        // NOT 'COLLEGE'
+'occupation' => 'MARKETING',  // approved enum
+'dob' => '1985-03-15',       // Y-m-d format, NOT 'date_of_birth'
+'requires_sr22' => false,     // boolean, NOT 'sr22'
+'tickets_and_accidents' => false, // boolean, NOT integer count
+
+// Vehicle Object
+'id' => 1,                    // NOT 'vehicle_number'  
+'primary_use' => 'commutework', // NOT 'commute'
+'garage_type' => 'garage',    // enum value
+
+// Lead Object
+'tcpa' => true,              // boolean, NOT 'tcpa_compliant'
+'residence_status' => 'home' // NOT 'own'
+```
+
+---
+
+## 🎯 RINGBA CALL TRACKING API
+
+### **Configuration**
+```env
+RINGBA_URL=https://api.ringba.com/v2/
+RINGBA_API_KEY=[TO_BE_CONFIGURED]
+RINGBA_CAMPAIGN_ID=[TO_BE_CONFIGURED]
+```
+
+### **Endpoints**
+- **Send Lead**: `POST /leads`
+- **Track Call**: `POST /calls/{callId}/events`
+- **Get Analytics**: `GET /campaigns/{campaignId}/analytics`
+
+### **Integration Points**
+- Agent qualification "Enrich" buttons
+- Post-qualification lead enrichment
+- Call outcome tracking
+
+---
+
+## 🎯 VICI DIALER SYSTEM
+
+### **Webhook Configuration**
+```env
+VICI_WEBHOOK_URL=/webhook/vici
+VICI_LIST_ID=101
+```
+
+### **Integration Status**
+- **Current**: 🧪 TEMPORARILY BYPASSED for Allstate testing
+- **Normal Flow**: LeadsQuotingFast → Brain → Vici → Agent Qualification
+- **Restore After**: Allstate API testing complete
+
+---
+
+## 🎯 LEADSQUOTINGFAST WEBHOOK
+
+### **Webhook Endpoints**
+```env
+WEBHOOK_MAIN=/webhook.php
+WEBHOOK_ALT=/webhook/leadsquotingfast
+```
+
+### **Payload Structure**
+```json
+{
+  "contact": {
+    "first_name": "Tambara",
+    "last_name": "Farrell",
+    "email": "tambara.farrell@example.com",
+    "phone": "555-123-4567"
+  },
+  "data": {
+    "drivers": [
+      {
+        "first_name": "Tambara",
+        "last_name": "Farrell", 
+        "date_of_birth": "1985-03-15",
+        "gender": "F",
+        "education": "Bachelors"
+      }
+    ],
+    "vehicles": [
+      {
+        "year": 2018,
+        "make": "Toyota",
+        "model": "Camry",
+        "primary_use": "commuting"
+      }
+    ],
+    "current_policy": {
+      "currently_insured": "Yes",
+      "insurance_company": "State Farm"
+    }
+  }
+}
+```
+
+---
+
+## 🎯 DATABASE CONFIGURATIONS
+
+### **Local Development**
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=database/database.sqlite
+```
+
+### **Production (Render)**
+```env
+DB_CONNECTION=pgsql
+DB_HOST=dpg-d277kvk9c44c7388bpg0-a
+DB_PORT=5432
+DB_DATABASE=brain_production
+DB_USERNAME=brain_user
+DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ
+```
+
+---
+
+## 🎯 CRM INTEGRATIONS
+
+### **Allstate Lead Manager**
+```php
+'allstate_lead_manager' => [
+    'posting_url' => 'http://www.leadmanagementlab.com/api/accounts/{account}/leads/',
+    'provider_id' => '[UNIQUE_PROVIDER_ID]',
+    'lead_type' => 'Auto'
+]
+```
+
+### **Ricochet360**
+```php  
+'ricochet360' => [
+    'api_url' => 'https://api.ricochet360.com/v1/',
+    'api_key' => '[API_KEY]',
+    'list_id' => '[LIST_ID]'
+]
+```
+
+---
+
+## 🔧 SMART MAPPING CONFIGURATIONS
+
+### **Occupation Mapping**
+```php
+$occupationMap = [
+    'MANAGER' => 'ADMINMGMT',
+    'MARKETING MANAGER' => 'MARKETING', 
+    'ENGINEER' => 'ENGINEEROTHER',
+    'DOCTOR' => 'PHYSICIAN',
+    // ... (full mapping in AllstateCallTransferService.php)
+];
+$defaultOccupation = 'SUPERVISOR';
+```
+
+### **Education Mapping**
+```php
+$educationMap = [
+    'High School' => 'HS',
+    'Some College' => 'SCL', 
+    'College' => 'BDG',
+    'Bachelors' => 'BDG',
+    'Masters' => 'MDG',
+    'Doctorate' => 'DOC'
+];
+$defaultEducation = 'BDG';
+```
+
+### **Vehicle Usage Mapping**
+```php
+$usageMap = [
+    'commute' => 'commutework',
+    'commuting' => 'commutework',
+    'personal' => 'pleasure',
+    'work related' => 'business'
+];
+$defaultUsage = 'pleasure';
+```
+
+---
+
+## 🚨 CRITICAL REMINDERS
+
+### **Field Type Requirements**
+- **Booleans**: Must be `true`/`false`, NOT `"true"`/`"false"`
+- **Integers**: Must be numbers, NOT strings
+- **Dates**: Must be `Y-m-d` format: `"1985-03-15"`
+- **Enums**: Must match exact approved values (case-sensitive)
+
+### **Testing vs Production**
+- **NEVER** test on production endpoints until live
+- **ALWAYS** use test environment for development
+- **VERIFY** authentication tokens before switching environments
+
+### **Data Validation**
+- **Allstate API** is extremely strict on field names and types
+- **Missing required fields** will cause 400 errors
+- **Invalid enum values** will be rejected
+- **Boolean/string mismatches** will fail validation
+
+---
+
+*This configuration registry is maintained to prevent API integration issues and ensure consistent setup across environments.*
+
+
