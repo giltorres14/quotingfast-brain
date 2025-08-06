@@ -18,6 +18,9 @@
             margin: 0;
             padding: 0;
             overflow-x: auto; /* Allow horizontal scrolling if needed */
+            /* Force iframe content to break out of small containers */
+            min-height: 800px !important;
+            min-width: 1200px !important;
         }
         
         body {
@@ -32,8 +35,11 @@
             width: 100%;
             max-width: none; /* Remove width restriction for Vici iframe */
             padding: 16px;
-            min-height: 90vh; /* Ensures iframe content is tall enough for Vici */
-            min-width: 100vw; /* Ensures iframe content is wide enough for Vici */
+            min-height: 800px !important; /* Force minimum height for Vici */
+            min-width: 1200px !important; /* Force minimum width for Vici */
+            /* Try to expand beyond iframe constraints */
+            transform: scale(1.0);
+            transform-origin: top left;
         }
         
         .header {
