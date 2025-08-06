@@ -1,14 +1,43 @@
 # 🧠 BRAIN PROJECT MEMORY
-## Living Documentation System - Auto-Updated: {{ date('Y-m-d H:i:s') }}
+## Living Documentation System - Last Updated: 2025-08-06
+
+---
+
+## ⚠️ CRITICAL: ENVIRONMENT SETUP
+
+### **PRODUCTION ENVIRONMENT**
+- **URL**: https://brain-api.onrender.com (Render deployment)
+- **Database**: PostgreSQL on Render (brain-postgres)
+- **Status**: LIVE - Receiving real leads
+- **Lead Count**: 71+ leads received today
+- **Issue**: External lead IDs showing as 014515329, 014515130, etc. instead of 100000001 format
+
+### **LOCAL DEVELOPMENT**
+- **URL**: http://localhost:8001
+- **Database**: SQLite (database.sqlite)
+- **Status**: Testing only - 1 test lead
+- **Path**: /Users/giltorres/Downloads/platformparcelsms-main/brain
+
+### **WORKING ENVIRONMENT DECISION**: 
+⚠️ **We should work on PRODUCTION via Render deployment**
+- All real leads are there
+- Changes deploy automatically via git push
+- Real-time testing with actual data
 
 ---
 
 ## 🎯 CURRENT PROJECT STATUS
 
+### **ACTIVE ISSUES**
+1. **External Lead ID Format** - Not generating 9-digit IDs starting with 100000001
+2. **Vici Iframe Size** - Still small despite vicidial.php changes
+3. **Allstate Testing Dashboard** - Location needs fixing
+4. **Bulk Processing** - Network errors
+
 ### **ACTIVE INTEGRATION: Allstate Lead Marketplace API**
-- **Status**: 🧪 TESTING MODE - Working on field validation issues
-- **Priority**: HIGH - Get API working perfectly before RingBA integration
-- **Next Step**: Fix remaining validation errors and perfect data mapping
+- **Status**: 🧪 TESTING MODE - Vici bypassed, direct to Allstate
+- **Priority**: HIGH - Fix external lead ID issue first
+- **Next Step**: Debug why leads have wrong ID format (014XXXXXX)
 
 ---
 

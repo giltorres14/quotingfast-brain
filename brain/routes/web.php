@@ -840,7 +840,8 @@ Route::post('/webhook.php', function (Request $request) {
             'user_agent' => $data['user_agent'] ?? null,
             'ip_address' => $data['ip_address'] ?? null,
             'campaign_id' => $data['campaign_id'] ?? null,
-            'external_lead_id' => $data['external_lead_id'] ?? $data['lead_id'] ?? null,
+            // Don't use incoming external_lead_id, we'll generate our own
+            // 'external_lead_id' => $data['external_lead_id'] ?? $data['lead_id'] ?? null,
             
             // Store compliance and tracking data in meta
             'meta' => json_encode(array_merge([
