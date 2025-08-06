@@ -624,9 +624,10 @@
                 <li class="dropdown" id="managementDropdown">
                     <a href="#" class="nav-link dropdown-toggle">⚙️ Management</a>
                     <div class="dropdown-menu">
+                        <a href="/admin/allstate-testing" class="dropdown-item">🧪 Allstate Testing</a>
                         <a href="/api-directory" class="dropdown-item">🔗 API Directory</a>
                         <a href="/campaign-directory" class="dropdown-item">📊 Campaigns</a>
-                        <a href="#" class="dropdown-item" onclick="alert('Buyer Portal coming soon!')">👤 Buyer Portal</a>
+                        <a href="/admin/buyer-management" class="dropdown-item">🎭 Buyer Management</a>
                         <a href="#" class="dropdown-item" onclick="alert('Integrations management coming soon!')">🔌 Integrations</a>
                     </div>
                 </li>
@@ -746,6 +747,27 @@
                             <option value="not_sent" {{ ($vici_status ?? '') === 'not_sent' ? 'selected' : '' }}>Not Sent</option>
                         </select>
     </div>
+    
+                    <div class="form-group">
+                        <label class="form-label">Date From</label>
+                        <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Date To</label>
+                        <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Per Page</label>
+                        <select name="per_page" class="form-select">
+                            <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                            <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
+                            <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>All</option>
+                        </select>
+                    </div>
 
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <a href="/leads" class="btn btn-secondary">Clear</a>
@@ -827,6 +849,7 @@
                                             }
                 @endphp
                 {{ $formatted }}
+                <button onclick="copyToClipboard('{{ $lead->phone }}', this)" style="background: none; border: none; cursor: pointer; margin-left: 5px;" title="Copy phone number">📋</button>
                                     @else
                                         No phone
                                     @endif
@@ -873,6 +896,19 @@
     </div>
 
     <script>
+        // Copy to clipboard function
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(function() {
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅';
+                setTimeout(function() {
+                    button.innerHTML = originalText;
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+            });
+        }
+        
         // Dropdown functionality
         document.addEventListener('DOMContentLoaded', function() {
             const dropdowns = document.querySelectorAll('.dropdown');
