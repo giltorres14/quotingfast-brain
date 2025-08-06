@@ -16,15 +16,15 @@ class AllstateCallTransferService
     public function __construct()
     {
         // Allstate Lead Marketplace API configuration
-        $this->environment = env('ALLSTATE_API_ENV', 'testing');
+        $this->environment = env('ALLSTATE_API_ENV', 'testing'); // Back to testing - only use production when live
         
         if ($this->environment === 'production') {
-            // Production credentials
-            $this->apiKey = env('ALLSTATE_API_KEY', 'YjkxNDQ2YWRlOWQzNzY1MGY5M2UzMDVjYmFmOGMyYzk6'); // Production token
+            // Production credentials (CONFIRMED WORKING from Allstate)
+            $this->apiKey = env('ALLSTATE_API_KEY', 'YjkxNDQ2YWRlOWQzNzY1MGY5M2UzMDVjYmFmOGMyYzk6'); // Official production token
             $this->baseUrl = 'https://api.allstateleadmarketplace.com/v2';
         } else {
-            // Testing credentials  
-            $this->apiKey = env('ALLSTATE_API_KEY', 'dGVzdHZlbmRvcjo='); // Testing token
+            // Testing credentials (OFFICIAL from Allstate email - second email correction)
+            $this->apiKey = env('ALLSTATE_API_KEY', 'dGVzdHZlbmRvcjo='); // Official: corrected token from second email
             $this->baseUrl = 'https://int.allstateleadmarketplace.com/v2';
         }
     }
@@ -61,13 +61,22 @@ class AllstateCallTransferService
             // Add required vertical parameter to transfer data
             $transferData['vertical'] = $vertical;
             
+            // Log the exact payload being sent to Allstate API
+            Log::info('Sending to Allstate API', [
+                'lead_id' => $lead->id ?? 'unknown',
+                'endpoint' => $this->baseUrl . '/ping', // Both testing and production use /ping
+                'auth_header' => $authHeader,
+                'full_payload' => $transferData,
+                'payload_json' => json_encode($transferData, JSON_PRETTY_PRINT)
+            ]);
+            
             $response = Http::timeout(30)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                     'Authorization' => $authHeader
                 ])
-                ->post($this->baseUrl . ($this->environment === 'production' ? '/leads' : '/ping'), $transferData);
+                ->post($this->baseUrl . '/ping', $transferData); // Both testing and production use /ping endpoint
             
             if ($response->successful()) {
                 $responseData = $response->json();
@@ -171,7 +180,7 @@ class AllstateCallTransferService
             'country' => 'USA',
             
             // Enhanced Contact Information (required by Allstate)
-            'date_of_birth' => $this->getBestDateOfBirth($drivers, $qualData, $payload),
+            'dob' => $this->getBestDateOfBirth($drivers, $qualData, $payload), // API expects 'dob' not 'date_of_birth'
             'gender' => $this->getBestGender($drivers, $qualData, $payload),
             'marital_status' => $this->getBestMaritalStatus($drivers, $qualData, $payload),
             'residence_status' => $this->getHomeOwnership($qualData, $payload),
@@ -190,7 +199,8 @@ class AllstateCallTransferService
             // Financial Information
             'credit_score_range' => $this->getCreditScoreRange($qualData, $payload),
             'home_ownership' => $this->getHomeOwnership($qualData, $payload),
-            'education_level' => $this->getEducationLevel($qualData, $payload),
+            // Use same values as driver to avoid conflicts
+            'education_level' => $this->mapEducationForAllstate($drivers[0]['education'] ?? 'HS'),
             'occupation' => $this->getOccupation($qualData, $payload),
             
             // Driving Information
@@ -210,7 +220,7 @@ class AllstateCallTransferService
             'best_time_to_call' => $this->getBestTimeToCall($qualData, $payload),
             
             // TCPA & Compliance (required by Allstate)
-            'tcpa_compliant' => (bool) ($lead->tcpa_compliant ?? true),
+            'tcpa' => (bool) ($lead->tcpa_compliant ?? true), // API expects 'tcpa' not 'tcpa_compliant'
             'consent_timestamp' => $lead->created_at ?? now(),
             'opt_in_method' => 'web_form',
             
@@ -381,7 +391,7 @@ class AllstateCallTransferService
                 'make' => $vehicle['make'] ?? 'Toyota',
                 'model' => $vehicle['model'] ?? 'Camry',
                 'vin' => $vehicle['vin'] ?? '',
-                'usage' => strtolower($vehicle['usage'] ?? 'pleasure'),
+                                    'usage' => $this->mapVehicleUsageForAllstate($vehicle['usage'] ?? 'pleasure'),
                 'ownership' => strtolower($vehicle['ownership'] ?? 'owned'),
                 'annual_mileage' => (int)($vehicle['annual_mileage'] ?? 12000),
                 'garage' => $vehicle['garage'] ?? false
@@ -604,17 +614,8 @@ class AllstateCallTransferService
      */
     private function getDesiredCoverageType($qualData, $payload)
     {
-        // Check agent qualification first
-        if (!empty($qualData['desired_coverage_type'])) {
-            return strtoupper($qualData['desired_coverage_type']);
-        }
-        
-        if (!empty($qualData['coverage_level'])) {
-            return strtoupper($qualData['coverage_level']);
-        }
-        
-        // Fall back to payload mapping
-        return $this->mapCoverageType($payload);
+        // Default to STANDARD (no longer asking agents this question)
+        return 'STANDARD';
     }
     
     /**
@@ -622,19 +623,8 @@ class AllstateCallTransferService
      */
     private function getCoverageLevel($qualData, $payload)
     {
-        $sources = [
-            $qualData['coverage_level'] ?? null,
-            $qualData['desired_coverage'] ?? null,
-            $payload['coverage_level'] ?? null
-        ];
-        
-        foreach ($sources as $level) {
-            if ($level) {
-                return strtoupper(trim($level));
-            }
-        }
-        
-        return 'STANDARD'; // Default
+        // Default to STANDARD (no longer asking agents this question)
+        return 'STANDARD';
     }
     
     /**
@@ -701,12 +691,13 @@ class AllstateCallTransferService
             if ($status) {
                 $status = strtolower(trim($status));
                 if (in_array($status, ['own', 'rent', 'live_with_parents'])) {
-                    return $status;
+                    // Map to Allstate expected values
+                    return $status === 'own' ? 'home' : $status;
                 }
             }
         }
         
-        return 'own'; // Default
+        return 'home'; // Default (mapped from 'own' to Allstate expected 'home')
     }
     
     /**
@@ -881,22 +872,23 @@ class AllstateCallTransferService
             // Process each driver with comprehensive data in Allstate format
             foreach ($drivers as $index => $driver) {
                 $formattedDrivers[] = [
-                    'driver_number' => $index + 1,
+                    'id' => $index + 1, // API expects 'id' not 'driver_number'
                     'first_name' => $driver['first_name'] ?? "Driver" . ($index + 1),
                     'last_name' => $driver['last_name'] ?? 'Unknown',
-                    'date_of_birth' => $this->formatDriverDateOfBirth($driver),
+                    'dob' => $this->formatDriverDateOfBirth($driver), // API expects 'dob' not 'date_of_birth'
                     'gender' => $this->mapGenderForAllstate($driver['gender'] ?? 'M'),
                     'marital_status' => strtolower($driver['marital_status'] ?? 'single'),
                     'relation' => $index === 0 ? 'self' : 'spouse',
                     'valid_license' => true,
                     'years_licensed' => (int) ($driver['years_licensed'] ?? 10),
+                    'license_age' => (int) ($driver['license_age'] ?? 16), // Required field - age when first licensed
                     'edu_level' => $this->mapEducationForAllstate($driver['education'] ?? 'HS'),
-                    'occupation' => strtoupper($driver['occupation'] ?? 'OTHER'),
+                    'occupation' => $this->mapOccupationForAllstate($driver['occupation'] ?? 'OTHER'),
                     'years_employed' => (int) ($driver['years_employed'] ?? 5),
                     'years_at_residence' => (int) ($driver['years_at_residence'] ?? 3),
-                    'tickets_and_accidents' => (int) ($driver['accidents_3_years'] ?? $driver['accidents'] ?? 0) + (int) ($driver['violations_3_years'] ?? $driver['violations'] ?? 0),
+                    'tickets_and_accidents' => (bool) (($driver['accidents_3_years'] ?? $driver['accidents'] ?? 0) + ($driver['violations_3_years'] ?? $driver['violations'] ?? 0)), // Boolean: true if any incidents
                     'dui' => (bool) ($driver['dui_conviction'] ?? $driver['dui'] ?? false),
-                    'sr22' => (bool) ($driver['sr22_required'] ?? false),
+                    'requires_sr22' => (bool) ($driver['sr22_required'] ?? false), // API expects 'requires_sr22' not 'sr22'
                     'is_primary' => $index === 0 // First driver is primary
                 ];
             }
@@ -932,16 +924,18 @@ class AllstateCallTransferService
             // Process each vehicle with comprehensive data in Allstate format
             foreach ($vehicles as $index => $vehicle) {
                 $formattedVehicles[] = [
-                    'vehicle_number' => $index + 1,
+                    'id' => $index + 1, // API expects 'id' not 'vehicle_number'
                     'year' => (int) ($vehicle['year'] ?? date('Y') - 5),
                     'make' => strtoupper($vehicle['make'] ?? 'HONDA'),
                     'model' => strtoupper($vehicle['model'] ?? 'ACCORD'),
                     'trim' => strtoupper($vehicle['trim'] ?? 'LX'),
                     'vin' => $vehicle['vin'] ?? null,
                     'drivers' => [$index + 1], // Driver numbers who drive this vehicle
-                    'leased' => strtolower($vehicle['ownership'] ?? 'owned') === 'leased',
+                    'leased' => (strtolower($vehicle['ownership'] ?? 'owned') === 'leased'),
                     'annual_mileage' => (int) ($vehicle['annual_mileage'] ?? 12000),
-                    'usage' => strtolower($vehicle['usage'] ?? 'commuting'),
+                    'primary_use' => $this->mapVehicleUsageForAllstate($vehicle['usage'] ?? 'commuting'),
+                    'commute_days' => (int) ($vehicle['commute_days'] ?? 5), // Required field - default 5 days/week
+                    'commute_mileage' => (int) ($vehicle['commute_mileage'] ?? 20), // Required field - default 20 miles one way
                     'garage_type' => $this->mapGarageTypeForAllstate($vehicle['garage_status'] ?? 'garaged'),
                     'alarm' => false, // Default no alarm system
                     'comprehensive_deductible' => (int) ($vehicle['comprehensive_deductible'] ?? 500),
@@ -997,16 +991,16 @@ class AllstateCallTransferService
     private function mapGenderForAllstate($gender)
     {
         $genderMap = [
-            'Male' => 'M',
-            'Female' => 'F', 
-            'M' => 'M',
-            'F' => 'F',
-            'male' => 'M',
-            'female' => 'F',
-            'Man' => 'M',
-            'Woman' => 'F',
+            'Male' => 'male',
+            'Female' => 'female', 
+            'M' => 'male',
+            'F' => 'female',
+            'male' => 'male',
+            'female' => 'female',
+            'Man' => 'male',
+            'Woman' => 'female',
         ];
-        return $genderMap[$gender ?? 'M'] ?? 'M';
+        return $genderMap[$gender ?? 'male'] ?? 'male';
     }
     
     /**
@@ -1014,16 +1008,29 @@ class AllstateCallTransferService
      */
     private function mapEducationForAllstate($education)
     {
+        // Official Allstate education enums: GED, HS, SCL, ADG, BDG, MDG, DOC
         $educationMap = [
             'High School' => 'HS',
-            'Some College' => 'SOME_COLLEGE',
-            'College' => 'COLLEGE',
-            'Bachelors' => 'COLLEGE',
-            'Masters' => 'GRADUATE',
-            'Graduate' => 'GRADUATE',
+            'Some College' => 'SCL',
+            'College' => 'BDG', // Bachelor's Degree
+            'Bachelors' => 'BDG', // Bachelor's Degree  
+            'Bachelor' => 'BDG',
+            'Associates' => 'ADG', // Associate's Degree
+            'Masters' => 'MDG', // Master's Degree
+            'Master' => 'MDG',
+            'Graduate' => 'MDG',
+            'Doctorate' => 'DOC',
+            'PhD' => 'DOC',
+            'GED' => 'GED',
             'HS' => 'HS',
-            'COLLEGE' => 'COLLEGE',
-            'GRADUATE' => 'GRADUATE',
+            'SCL' => 'SCL',
+            'ADG' => 'ADG',
+            'BDG' => 'BDG',
+            'MDG' => 'MDG',
+            'DOC' => 'DOC',
+            // Legacy mappings
+            'COLLEGE' => 'BDG',
+            'GRADUATE' => 'MDG',
         ];
         return $educationMap[$education ?? 'HS'] ?? 'HS';
     }
@@ -1044,5 +1051,123 @@ class AllstateCallTransferService
             'street' => 'street',
         ];
         return $garageMap[$garageStatus ?? 'garage'] ?? 'garage';
+    }
+    
+    /**
+     * Map occupation to Allstate approved values with smart fallback to PROFESSIONAL
+     */
+    private function mapOccupationForAllstate($occupation)
+    {
+        // Official Allstate occupation values (from documentation)
+        $approvedOccupations = ['MARKETING', 'SALES', 'ADMINMGMT', 'RETIRED', 'UNEMPLOYED', 'OTHER', 'TEACHER', 'HEALTHCARE'];
+        
+        $cleanOccupation = strtoupper(trim($occupation ?? ''));
+        
+        // Direct match with approved values
+        if (in_array($cleanOccupation, $approvedOccupations)) {
+            return $cleanOccupation;
+        }
+        
+        // Map to official Allstate occupation codes
+        $occupationMap = [
+            // Management & Administration
+            'MANAGER' => 'ADMINMGMT', 
+            'MARKETING MANAGER' => 'MARKETING',
+            'CONSTRUCTION MANAGER' => 'ADMINMGMT',
+            'PROJECT MANAGER' => 'ADMINMGMT',
+            'ACCOUNT MANAGER' => 'ADMINMGMT',
+            'SALES MANAGER' => 'SALES',
+            'OFFICE MANAGER' => 'ADMINMGMT',
+            
+            // Direct mappings to Allstate codes
+            'MARKETING' => 'MARKETING',
+            'SALES' => 'SALES',
+            'ADMINMGMT' => 'ADMINMGMT',
+            'TEACHER' => 'TEACHER',
+            'HEALTHCARE' => 'HEALTHCARE',
+            'RETIRED' => 'RETIRED',
+            'UNEMPLOYED' => 'UNEMPLOYED',
+            'OTHER' => 'OTHER',
+            
+            // Common mappings
+            'STUDENT' => 'STUDENTNOTLIVINGWITHPARENTS',
+            'COLLEGE STUDENT' => 'STUDENTNOTLIVINGWITHPARENTS',
+            'ENGINEER' => 'ENGINEEROTHER',
+            'DOCTOR' => 'PHYSICIAN',
+            'LAWYER' => 'LAWYER',
+            'NURSE' => 'NURSECNA',
+            'ACCOUNTANT' => 'CPA',
+            'CONSULTANT' => 'OTHER',
+            'ANALYST' => 'OTHER',
+            'DEVELOPER' => 'PROGRAMMER',
+            'PROGRAMMER' => 'PROGRAMMER',
+            'DESIGNER' => 'OTHER',
+            'ARCHITECT' => 'ARCHITECT',
+        ];
+        
+        // Check if we have a specific mapping
+        if (isset($occupationMap[$cleanOccupation])) {
+            return $occupationMap[$cleanOccupation];
+        }
+        
+        // Default to OTHER for any unrecognized occupation
+        return 'OTHER';
+    }
+    
+    /**
+     * Map vehicle usage to Allstate approved values with smart logic
+     */
+    private function mapVehicleUsageForAllstate($usage)
+    {
+        // Official Allstate values: pleasure, business, commutework, selfemployed, school, farm, gov, other
+        $cleanUsage = strtolower(trim($usage ?? ''));
+        
+        // Direct matches first
+        $approvedUsages = ['pleasure', 'business', 'commutework', 'selfemployed', 'school', 'farm', 'gov', 'other'];
+        if (in_array($cleanUsage, $approvedUsages)) {
+            return $cleanUsage;
+        }
+        
+        // Smart mapping with logic for variations
+        $usageMap = [
+            // Commute variations → commutework
+            'commute' => 'commutework',
+            'commuting' => 'commutework',  // commuting maps to commutework
+            'commute to work' => 'commutework',
+            'work' => 'commutework',
+            'to work' => 'commutework',
+            'daily commute' => 'commutework',
+            
+            // Pleasure/Personal variations  
+            'pleasure' => 'pleasure',
+            'personal' => 'pleasure',
+            'personal use' => 'pleasure',
+            'recreational' => 'pleasure',
+            'leisure' => 'pleasure',
+            'family' => 'pleasure',
+            'errands' => 'pleasure',
+            
+            // Business variations
+            'business' => 'business',
+            'work related' => 'business',
+            'business use' => 'business',
+            'company' => 'business',
+            
+            // Commercial variations
+            'commercial' => 'commercial',
+            'delivery' => 'commercial',
+            'rideshare' => 'commercial',
+            'uber' => 'commercial',
+            'lyft' => 'commercial',
+            'taxi' => 'commercial',
+        ];
+        
+        // Check for mapping
+        if (isset($usageMap[$cleanUsage])) {
+            return $usageMap[$cleanUsage];
+        }
+        
+        // Default to pleasure for any unrecognized usage
+        return 'pleasure';
     }
 }

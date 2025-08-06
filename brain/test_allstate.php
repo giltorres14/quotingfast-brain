@@ -60,9 +60,7 @@ $qualificationData = [
     
     // Coverage Needs
     'coverage_type' => 'auto',
-    'desired_coverage_level' => 'FULL',
     'deductible_preference' => 500,
-    'coverage_level' => 'COMPREHENSIVE',
     
     // Financial
     'credit_score' => 720,

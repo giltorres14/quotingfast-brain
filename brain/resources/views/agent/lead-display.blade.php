@@ -729,17 +729,7 @@
                     </div>
                 </div>
 
-                <!-- Desired Coverage Question -->
-                <div class="question-group">
-                    <label class="question-label">Desired Coverage</label>
-                    <select class="question-select" id="desired_coverage">
-                        <option value="">Select...</option>
-                        <option value="STATEMINIMUM">State Minimum</option>
-                        <option value="BASIC">Basic</option>
-                        <option value="STANDARD">Standard</option>
-                        <option value="SUPERIOR">Superior</option>
-                    </select>
-                </div>
+
 
                 <!-- License Question -->
                 <div class="question-group">
