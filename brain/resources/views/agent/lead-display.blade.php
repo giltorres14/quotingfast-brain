@@ -13,14 +13,17 @@
         }
         
         html, body {
-            height: 100vh;
-            width: 100vw;
+            height: 100vh !important;
+            width: 100vw !important;
             margin: 0;
             padding: 0;
-            overflow-x: auto; /* Allow horizontal scrolling if needed */
-            /* Force iframe content to break out of small containers */
-            min-height: 800px !important;
-            min-width: 1200px !important;
+            overflow: auto; /* Allow scrolling if needed */
+            /* AGGRESSIVE: Force iframe content to break out of small containers */
+            min-height: 900px !important;
+            min-width: 1400px !important;
+            /* Try to force parent iframe to resize */
+            position: relative;
+            z-index: 999;
         }
         
         body {
@@ -32,14 +35,31 @@
         }
         
         .container {
-            width: 100%;
-            max-width: none; /* Remove width restriction for Vici iframe */
+            width: 100% !important;
+            max-width: none !important; /* Remove width restriction for Vici iframe */
             padding: 16px;
-            min-height: 800px !important; /* Force minimum height for Vici */
-            min-width: 1200px !important; /* Force minimum width for Vici */
-            /* Try to expand beyond iframe constraints */
+            min-height: 900px !important; /* Force minimum height for Vici */
+            min-width: 1400px !important; /* Force minimum width for Vici */
+            /* AGGRESSIVE: Try to expand beyond iframe constraints */
             transform: scale(1.0);
             transform-origin: top left;
+            /* Force parent iframe to resize */
+            overflow: visible !important;
+        }
+        
+        /* AGGRESSIVE IFRAME PARENT TARGETING */
+        body {
+            /* Try to communicate size to parent iframe */
+            --iframe-width: 1400px;
+            --iframe-height: 900px;
+        }
+        
+        /* Force any parent iframe to be larger */
+        iframe {
+            min-width: 1400px !important;
+            min-height: 900px !important;
+            width: 1400px !important;
+            height: 900px !important;
         }
         
         .header {
@@ -651,6 +671,42 @@
         
         /* REMOVED: Allstate validation progress CSS per user request */
     </style>
+    
+    <!-- JavaScript to try to resize parent iframe -->
+    <script>
+        // Try to communicate with parent iframe to resize
+        function resizeParentIframe() {
+            try {
+                // Method 1: PostMessage to parent
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'resize_iframe',
+                        width: 1400,
+                        height: 900
+                    }, '*');
+                }
+                
+                // Method 2: Try to access parent iframe directly
+                if (window.frameElement) {
+                    window.frameElement.style.width = '1400px';
+                    window.frameElement.style.height = '900px';
+                    window.frameElement.style.minWidth = '1400px';
+                    window.frameElement.style.minHeight = '900px';
+                }
+                
+                console.log('Attempted to resize parent iframe to 1400x900');
+            } catch (e) {
+                console.log('Could not resize parent iframe:', e.message);
+            }
+        }
+        
+        // Try multiple times
+        setTimeout(resizeParentIframe, 100);
+        setTimeout(resizeParentIframe, 500);
+        setTimeout(resizeParentIframe, 1000);
+        
+        window.addEventListener('load', resizeParentIframe);
+    </script>
 </head>
 <body>
     <!-- Save Lead Button -->
