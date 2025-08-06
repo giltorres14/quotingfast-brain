@@ -24,7 +24,7 @@ class AllstateCallTransferService
             $this->baseUrl = 'https://api.allstateleadmarketplace.com/v2';
         } else {
             // Testing credentials  
-            $this->apiKey = env('ALLSTATE_API_KEY', 'cXVvdGluZy1mYXN0Og=='); // Testing token
+            $this->apiKey = env('ALLSTATE_API_KEY', 'dGVzdHZlbmRvcjo='); // Testing token
             $this->baseUrl = 'https://int.allstateleadmarketplace.com/v2';
         }
     }
@@ -33,8 +33,9 @@ class AllstateCallTransferService
      * Transfer a lead to Allstate DMS system
      * @param mixed $lead The lead data
      * @param string $vertical The vertical type (auto-insurance, home-insurance)
+     * @param array $qualificationData Agent qualification data from Top 13 Questions
      */
-    public function transferCall($lead, $vertical = 'auto-insurance')
+    public function transferCall($lead, $vertical = 'auto-insurance', $qualificationData = [])
     {
         try {
             Log::info('Starting Allstate transfer', [
@@ -44,21 +45,15 @@ class AllstateCallTransferService
                 'vertical_source' => 'enrichment_button_selection'
             ]);
             
-            // Prepare and normalize lead data for Allstate API
-            $transferData = $this->prepareLeadData($lead);
+            // Prepare and normalize lead data for Allstate API with qualification data
+            $transferData = $this->prepareLeadData($lead, $qualificationData);
             
-            // Apply Allstate-specific data normalization
-            $originalData = $transferData;
-            $transferData = DataNormalizationService::normalizeForBuyer($transferData, 'allstate');
-            
-            // Log normalization changes for debugging
-            $validationReport = DataNormalizationService::getValidationReport($originalData, $transferData, 'allstate');
-            if (!empty($validationReport['changes_made'])) {
-                Log::info('Data normalized for Allstate transfer', [
-                    'lead_id' => $lead->id ?? 'unknown',
-                    'changes' => $validationReport['changes_made']
-                ]);
-            }
+            // Skip old DataNormalizationService - we now have comprehensive formatting
+            // that already includes all required Allstate fields in the correct format
+            Log::info('Using enhanced comprehensive data formatting (skipping old normalization)', [
+                'lead_id' => $lead->id ?? 'unknown',
+                'comprehensive_formatting' => true
+            ]);
             
             // Make API call to Allstate using correct Basic Auth format from Allstate rep
             $authHeader = 'Basic ' . $this->apiKey;
@@ -117,15 +112,17 @@ class AllstateCallTransferService
     }
 
     /**
-     * Prepare lead data in Allstate's expected format
+     * Prepare lead data in Allstate's expected format with agent qualification data
      */
-    private function prepareLeadData($lead)
+    private function prepareLeadData($lead, $qualificationData = [])
     {
-        // Parse JSON fields if they exist
+        // Parse all available data sources
         $drivers = [];
         $vehicles = [];
         $currentPolicy = [];
+        $payload = [];
         
+        // Parse lead JSON fields
         if (isset($lead->drivers)) {
             $drivers = is_string($lead->drivers) ? json_decode($lead->drivers, true) : $lead->drivers;
         }
@@ -138,17 +135,29 @@ class AllstateCallTransferService
             $currentPolicy = is_string($lead->current_policy) ? json_decode($lead->current_policy, true) : $lead->current_policy;
         }
         
-        // Get driver data for primary driver fields
-        $primaryDriver = $drivers[0] ?? [];
-
-        // Parse payload for additional data
-        $payload = [];
         if (isset($lead->payload) && is_string($lead->payload)) {
             $payload = json_decode($lead->payload, true) ?? [];
         }
         
-        // Prepare data in Allstate Lead Marketplace API format
+        // Parse qualification data from agent (Top 13 Questions)
+        $qualData = $lead->qualification_data ?? $qualificationData;
+        if (is_string($qualData)) {
+            $qualData = json_decode($qualData, true) ?? [];
+        }
+        
+        Log::info('Preparing Allstate data with all sources', [
+            'lead_id' => $lead->id ?? 'unknown',
+            'has_drivers' => !empty($drivers),
+            'has_vehicles' => !empty($vehicles), 
+            'has_qualification' => !empty($qualData),
+            'qualification_keys' => array_keys($qualData),
+            'raw_drivers' => $drivers,
+            'raw_vehicles' => $vehicles
+        ]);
+        
+        // Prepare comprehensive data for Allstate Lead Marketplace API
         $transferData = [
+            // Basic Lead Information
             'vertical' => 'auto-insurance',
             'external_id' => $lead->external_lead_id ?? $lead->id ?? uniqid('BRAIN_'),
             'first_name' => $lead->first_name ?? '',
@@ -158,35 +167,78 @@ class AllstateCallTransferService
             'address1' => $lead->address ?? '',
             'city' => $lead->city ?? '',
             'state' => $lead->state ?? 'CA',
-            'zipcode' => $lead->zip_code ?? '', // This should come from qualification questions
+            'zipcode' => $lead->zip_code ?? '',
             'country' => 'USA',
             
-            // Use primary driver's birth date, formatted as YYYY-MM-DD
-            'date_of_birth' => isset($primaryDriver['birth_date']) ? 
-                \Carbon\Carbon::parse($primaryDriver['birth_date'])->format('Y-m-d') : 
-                '1990-01-01',
-                
-            // TCPA compliance from lead data
-            'tcpa_compliant' => $lead->tcpa_compliant ?? true,
+            // Enhanced Contact Information (required by Allstate)
+            'date_of_birth' => $this->getBestDateOfBirth($drivers, $qualData, $payload),
+            'gender' => $this->getBestGender($drivers, $qualData, $payload),
+            'marital_status' => $this->getBestMaritalStatus($drivers, $qualData, $payload),
+            'residence_status' => $this->getHomeOwnership($qualData, $payload),
             
-            // Currently insured status
-            'currently_insured' => !empty($currentPolicy['current_insurance'] ?? $lead->insurance_company),
+            // Insurance Status (prioritize agent qualification)
+            'currently_insured' => $this->getCurrentInsuranceStatus($qualData, $currentPolicy, $payload),
+            'current_insurance_company' => $this->getCurrentInsuranceCompany($qualData, $currentPolicy, $payload),
+            'policy_expiration_date' => $this->getPolicyExpirationDate($qualData, $currentPolicy),
+            'current_premium' => $this->getCurrentPremium($qualData, $currentPolicy),
             
-            // Desired coverage type - map from payload or default
-            'desired_coverage_type' => $this->mapCoverageType($payload),
+            // Coverage Requirements
+            'desired_coverage_type' => $this->getDesiredCoverageType($qualData, $payload),
+            'coverage_level' => $this->getCoverageLevel($qualData, $payload),
+            'deductible_preference' => $this->getDeductiblePreference($qualData, $payload),
             
-            // Residence status from driver data
-            'residence_status' => $this->mapResidenceStatus($primaryDriver['residence_type'] ?? null),
+            // Financial Information
+            'credit_score_range' => $this->getCreditScoreRange($qualData, $payload),
+            'home_ownership' => $this->getHomeOwnership($qualData, $payload),
+            'education_level' => $this->getEducationLevel($qualData, $payload),
+            'occupation' => $this->getOccupation($qualData, $payload),
             
-            'drivers' => $this->formatDriversForAllstate($drivers),
-            'vehicles' => $this->formatVehiclesForAllstate($vehicles),
+            // Driving Information
+            'years_licensed' => $this->getYearsLicensed($qualData, $drivers),
+            'accidents_violations' => $this->getAccidentsViolations($qualData, $drivers),
+            'dui_conviction' => $this->getDUIConviction($qualData, $drivers),
+            'sr22_required' => $this->getSR22Required($qualData, $drivers),
+            
+            // Vehicle & Driver Arrays (comprehensive)
+            'drivers' => $this->formatComprehensiveDrivers($drivers, $qualData, $payload),
+            'vehicles' => $this->formatComprehensiveVehicles($vehicles, $qualData, $payload),
+            
+            // Lead Quality & Timing
+            'lead_source' => $lead->source ?? 'web',
+            'lead_quality_score' => $qualData['lead_quality_score'] ?? $lead->lead_score ?? 5,
+            'urgency_level' => $qualData['urgency'] ?? $lead->urgency_level ?? 'standard',
+            'best_time_to_call' => $this->getBestTimeToCall($qualData, $payload),
+            
+            // TCPA & Compliance (required by Allstate)
+            'tcpa_compliant' => (bool) ($lead->tcpa_compliant ?? true),
+            'consent_timestamp' => $lead->created_at ?? now(),
+            'opt_in_method' => 'web_form',
+            
+            // Technical Data
             'ip_address' => request()->ip() ?? '127.0.0.1',
-            'user_agent' => request()->userAgent() ?? 'Brain-API/1.0'
+            'user_agent' => request()->userAgent() ?? 'Brain-API/1.0',
+            'referrer_url' => $payload['referrer'] ?? '',
+            'landing_page' => $payload['landing_page'] ?? '',
+            
+            // Agent Qualification Metadata
+            'qualified_by_agent' => !empty($qualData),
+            'qualification_timestamp' => $lead->qualified_at ?? ($qualData ? now() : null),
+            'agent_notes' => $qualData['agent_notes'] ?? '',
+            'call_duration' => $qualData['call_duration'] ?? null,
+            'motivation_score' => $qualData['motivation_level'] ?? null,
         ];
         
         Log::info('Prepared Allstate transfer data', [
-            'transfer_data' => $transferData,
-            'lead_id' => $lead->id ?? 'unknown'
+            'lead_id' => $lead->id ?? 'unknown',
+            'drivers_count' => count($transferData['drivers'] ?? []),
+            'vehicles_count' => count($transferData['vehicles'] ?? []),
+            'first_driver' => $transferData['drivers'][0] ?? null,
+            'first_vehicle' => $transferData['vehicles'][0] ?? null,
+            'main_fields' => [
+                'date_of_birth' => $transferData['date_of_birth'] ?? null,
+                'residence_status' => $transferData['residence_status'] ?? null,
+                'tcpa_compliant' => $transferData['tcpa_compliant'] ?? null
+            ]
         ]);
         
         return $transferData;
@@ -387,5 +439,610 @@ class AllstateCallTransferService
         ];
         
         return $mapping[strtolower($enrichmentType)] ?? 'auto-insurance';
+    }
+    
+    // ========================================
+    // COMPREHENSIVE DATA EXTRACTION METHODS
+    // ========================================
+    
+    /**
+     * Get best date of birth from all available sources
+     */
+    private function getBestDateOfBirth($drivers, $qualData, $payload)
+    {
+        // Priority: Agent qualification > Driver data > Payload > Default
+        if (!empty($qualData['date_of_birth'])) {
+            return \Carbon\Carbon::parse($qualData['date_of_birth'])->format('Y-m-d');
+        }
+        
+        if (!empty($drivers[0]['birth_date'])) {
+            return \Carbon\Carbon::parse($drivers[0]['birth_date'])->format('Y-m-d');
+        }
+        
+        if (!empty($drivers[0]['dob'])) {
+            return \Carbon\Carbon::parse($drivers[0]['dob'])->format('Y-m-d');
+        }
+        
+        if (!empty($payload['date_of_birth'])) {
+            return \Carbon\Carbon::parse($payload['date_of_birth'])->format('Y-m-d');
+        }
+        
+        // Default to reasonable age (35 years old)
+        return \Carbon\Carbon::now()->subYears(35)->format('Y-m-d');
+    }
+    
+    /**
+     * Get best gender from all available sources
+     */
+    private function getBestGender($drivers, $qualData, $payload)
+    {
+        $sources = [
+            $qualData['gender'] ?? null,
+            $drivers[0]['gender'] ?? null,
+            $payload['gender'] ?? null
+        ];
+        
+        foreach ($sources as $gender) {
+            if ($gender) {
+                return strtoupper(substr(trim($gender), 0, 1));
+            }
+        }
+        
+        return 'M'; // Default
+    }
+    
+    /**
+     * Get best marital status from all available sources
+     */
+    private function getBestMaritalStatus($drivers, $qualData, $payload)
+    {
+        $sources = [
+            $qualData['marital_status'] ?? null,
+            $drivers[0]['marital_status'] ?? null,
+            $payload['marital_status'] ?? null
+        ];
+        
+        foreach ($sources as $status) {
+            if ($status) {
+                return strtolower(trim($status));
+            }
+        }
+        
+        return 'single'; // Default
+    }
+    
+    /**
+     * Get current insurance status with agent priority
+     */
+    private function getCurrentInsuranceStatus($qualData, $currentPolicy, $payload)
+    {
+        // Agent qualification is most reliable
+        if (isset($qualData['currently_insured'])) {
+            return (bool) $qualData['currently_insured'];
+        }
+        
+        // Check for current company indicators
+        $company = $this->getCurrentInsuranceCompany($qualData, $currentPolicy, $payload);
+        if ($company && strtolower($company) !== 'none') {
+            return true;
+        }
+        
+        return false; // Default to uninsured
+    }
+    
+    /**
+     * Get current insurance company name
+     */
+    private function getCurrentInsuranceCompany($qualData, $currentPolicy, $payload)
+    {
+        $sources = [
+            $qualData['current_company'] ?? null,
+            $qualData['current_insurance_company'] ?? null,
+            $currentPolicy['current_insurance'] ?? null,
+            $currentPolicy['company'] ?? null,
+            $payload['current_insurance_company'] ?? null,
+            $payload['insurance_company'] ?? null
+        ];
+        
+        foreach ($sources as $company) {
+            if ($company && strtolower($company) !== 'none') {
+                return trim($company);
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get policy expiration date
+     */
+    private function getPolicyExpirationDate($qualData, $currentPolicy)
+    {
+        $sources = [
+            $qualData['policy_expires'] ?? null,
+            $qualData['policy_expiration_date'] ?? null,
+            $currentPolicy['expiration_date'] ?? null,
+            $currentPolicy['expires'] ?? null
+        ];
+        
+        foreach ($sources as $date) {
+            if ($date) {
+                try {
+                    return \Carbon\Carbon::parse($date)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get current premium amount
+     */
+    private function getCurrentPremium($qualData, $currentPolicy)
+    {
+        $sources = [
+            $qualData['current_premium'] ?? null,
+            $qualData['current_monthly_premium'] ?? null,
+            $currentPolicy['premium'] ?? null,
+            $currentPolicy['monthly_premium'] ?? null
+        ];
+        
+        foreach ($sources as $premium) {
+            if ($premium && is_numeric($premium)) {
+                return (float) $premium;
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get desired coverage type
+     */
+    private function getDesiredCoverageType($qualData, $payload)
+    {
+        // Check agent qualification first
+        if (!empty($qualData['desired_coverage_type'])) {
+            return strtoupper($qualData['desired_coverage_type']);
+        }
+        
+        if (!empty($qualData['coverage_level'])) {
+            return strtoupper($qualData['coverage_level']);
+        }
+        
+        // Fall back to payload mapping
+        return $this->mapCoverageType($payload);
+    }
+    
+    /**
+     * Get coverage level preference
+     */
+    private function getCoverageLevel($qualData, $payload)
+    {
+        $sources = [
+            $qualData['coverage_level'] ?? null,
+            $qualData['desired_coverage'] ?? null,
+            $payload['coverage_level'] ?? null
+        ];
+        
+        foreach ($sources as $level) {
+            if ($level) {
+                return strtoupper(trim($level));
+            }
+        }
+        
+        return 'STANDARD'; // Default
+    }
+    
+    /**
+     * Get deductible preference
+     */
+    private function getDeductiblePreference($qualData, $payload)
+    {
+        $sources = [
+            $qualData['deductible_preference'] ?? null,
+            $qualData['preferred_deductible'] ?? null,
+            $payload['deductible'] ?? null
+        ];
+        
+        foreach ($sources as $deductible) {
+            if ($deductible && is_numeric($deductible)) {
+                return (int) $deductible;
+            }
+        }
+        
+        return 500; // Default $500 deductible
+    }
+    
+    /**
+     * Get credit score range
+     */
+    private function getCreditScoreRange($qualData, $payload)
+    {
+        $sources = [
+            $qualData['credit_score'] ?? null,
+            $qualData['credit_score_range'] ?? null,
+            $payload['credit_score'] ?? null
+        ];
+        
+        foreach ($sources as $score) {
+            if ($score) {
+                if (is_numeric($score)) {
+                    // Convert numeric score to range
+                    $score = (int) $score;
+                    if ($score >= 750) return 'EXCELLENT';
+                    if ($score >= 700) return 'GOOD';
+                    if ($score >= 650) return 'FAIR';
+                    return 'POOR';
+                }
+                return strtoupper(trim($score));
+            }
+        }
+        
+        return 'GOOD'; // Default
+    }
+    
+    /**
+     * Get home ownership status
+     */
+    private function getHomeOwnership($qualData, $payload)
+    {
+        $sources = [
+            $qualData['home_status'] ?? null,
+            $qualData['home_ownership'] ?? null,
+            $payload['home_ownership'] ?? null,
+            $payload['residence_type'] ?? null
+        ];
+        
+        foreach ($sources as $status) {
+            if ($status) {
+                $status = strtolower(trim($status));
+                if (in_array($status, ['own', 'rent', 'live_with_parents'])) {
+                    return $status;
+                }
+            }
+        }
+        
+        return 'own'; // Default
+    }
+    
+    /**
+     * Get education level
+     */
+    private function getEducationLevel($qualData, $payload)
+    {
+        $sources = [
+            $qualData['education'] ?? null,
+            $qualData['education_level'] ?? null,
+            $payload['education'] ?? null
+        ];
+        
+        foreach ($sources as $education) {
+            if ($education) {
+                $education = strtoupper(trim($education));
+                if (in_array($education, ['HS', 'SOME_COLLEGE', 'BACHELORS', 'MASTERS', 'PHD'])) {
+                    return $education;
+                }
+            }
+        }
+        
+        return 'HS'; // Default
+    }
+    
+    /**
+     * Get occupation
+     */
+    private function getOccupation($qualData, $payload)
+    {
+        $sources = [
+            $qualData['occupation'] ?? null,
+            $payload['occupation'] ?? null
+        ];
+        
+        foreach ($sources as $occupation) {
+            if ($occupation) {
+                return strtoupper(trim($occupation));
+            }
+        }
+        
+        return 'OTHER'; // Default
+    }
+    
+    /**
+     * Get years licensed
+     */
+    private function getYearsLicensed($qualData, $drivers)
+    {
+        $sources = [
+            $qualData['years_licensed'] ?? null,
+            $qualData['driving_experience'] ?? null,
+            $drivers[0]['years_licensed'] ?? null
+        ];
+        
+        foreach ($sources as $years) {
+            if ($years && is_numeric($years)) {
+                return (int) $years;
+            }
+        }
+        
+        return 10; // Default 10 years
+    }
+    
+    /**
+     * Get accidents and violations
+     */
+    private function getAccidentsViolations($qualData, $drivers)
+    {
+        $sources = [
+            $qualData['recent_claims'] ?? null,
+            $qualData['accidents_violations'] ?? null,
+            $drivers[0]['accidents'] ?? null,
+            $drivers[0]['violations'] ?? null
+        ];
+        
+        foreach ($sources as $incidents) {
+            if ($incidents !== null) {
+                return (bool) $incidents;
+            }
+        }
+        
+        return false; // Default no incidents
+    }
+    
+    /**
+     * Get DUI conviction status
+     */
+    private function getDUIConviction($qualData, $drivers)
+    {
+        $sources = [
+            $qualData['dui_conviction'] ?? null,
+            $drivers[0]['dui'] ?? null,
+            $drivers[0]['dui_conviction'] ?? null
+        ];
+        
+        foreach ($sources as $dui) {
+            if ($dui !== null) {
+                return (bool) $dui;
+            }
+        }
+        
+        return false; // Default no DUI
+    }
+    
+    /**
+     * Get SR22 requirement
+     */
+    private function getSR22Required($qualData, $drivers)
+    {
+        $sources = [
+            $qualData['sr22_required'] ?? null,
+            $drivers[0]['sr22_required'] ?? null
+        ];
+        
+        foreach ($sources as $sr22) {
+            if ($sr22 !== null) {
+                return (bool) $sr22;
+            }
+        }
+        
+        return false; // Default no SR22
+    }
+    
+    /**
+     * Get best time to call
+     */
+    private function getBestTimeToCall($qualData, $payload)
+    {
+        $sources = [
+            $qualData['best_time_to_call'] ?? null,
+            $qualData['preferred_contact_time'] ?? null,
+            $payload['best_time_to_call'] ?? null
+        ];
+        
+        foreach ($sources as $time) {
+            if ($time) {
+                return trim($time);
+            }
+        }
+        
+        return 'anytime'; // Default
+    }
+    
+    /**
+     * Format comprehensive driver data for Allstate API
+     */
+    private function formatComprehensiveDrivers($drivers, $qualData, $payload)
+    {
+        $formattedDrivers = [];
+        
+        if (empty($drivers) || !is_array($drivers)) {
+            // Create default driver from lead data if no drivers array
+            $formattedDrivers[] = [
+                'first_name' => $qualData['first_name'] ?? $payload['first_name'] ?? 'Unknown',
+                'last_name' => $qualData['last_name'] ?? $payload['last_name'] ?? 'Unknown',
+                'date_of_birth' => $this->getBestDateOfBirth($drivers, $qualData, $payload),
+                'gender' => $this->getBestGender($drivers, $qualData, $payload),
+                'marital_status' => $this->getBestMaritalStatus($drivers, $qualData, $payload),
+                'license_status' => 'valid',
+                'years_licensed' => $this->getYearsLicensed($qualData, $drivers),
+                'education' => $this->getEducationLevel($qualData, $payload),
+                'occupation' => $this->getOccupation($qualData, $payload),
+                'credit_score' => $this->getCreditScoreRange($qualData, $payload),
+                'accidents' => $this->getAccidentsViolations($qualData, $drivers),
+                'violations' => $this->getAccidentsViolations($qualData, $drivers),
+                'dui_conviction' => $this->getDUIConviction($qualData, $drivers),
+                'sr22_required' => $this->getSR22Required($qualData, $drivers),
+                'residence_type' => $this->getHomeOwnership($qualData, $payload)
+            ];
+        } else {
+            // Process each driver with comprehensive data in Allstate format
+            foreach ($drivers as $index => $driver) {
+                $formattedDrivers[] = [
+                    'driver_number' => $index + 1,
+                    'first_name' => $driver['first_name'] ?? "Driver" . ($index + 1),
+                    'last_name' => $driver['last_name'] ?? 'Unknown',
+                    'date_of_birth' => $this->formatDriverDateOfBirth($driver),
+                    'gender' => $this->mapGenderForAllstate($driver['gender'] ?? 'M'),
+                    'marital_status' => strtolower($driver['marital_status'] ?? 'single'),
+                    'relation' => $index === 0 ? 'self' : 'spouse',
+                    'valid_license' => true,
+                    'years_licensed' => (int) ($driver['years_licensed'] ?? 10),
+                    'edu_level' => $this->mapEducationForAllstate($driver['education'] ?? 'HS'),
+                    'occupation' => strtoupper($driver['occupation'] ?? 'OTHER'),
+                    'years_employed' => (int) ($driver['years_employed'] ?? 5),
+                    'years_at_residence' => (int) ($driver['years_at_residence'] ?? 3),
+                    'tickets_and_accidents' => (int) ($driver['accidents_3_years'] ?? $driver['accidents'] ?? 0) + (int) ($driver['violations_3_years'] ?? $driver['violations'] ?? 0),
+                    'dui' => (bool) ($driver['dui_conviction'] ?? $driver['dui'] ?? false),
+                    'sr22' => (bool) ($driver['sr22_required'] ?? false),
+                    'is_primary' => $index === 0 // First driver is primary
+                ];
+            }
+        }
+        
+        return $formattedDrivers;
+    }
+    
+    /**
+     * Format comprehensive vehicle data for Allstate API
+     */
+    private function formatComprehensiveVehicles($vehicles, $qualData, $payload)
+    {
+        $formattedVehicles = [];
+        
+        if (empty($vehicles) || !is_array($vehicles)) {
+            // Create default vehicle if none provided
+            $formattedVehicles[] = [
+                'year' => (int) ($qualData['vehicle_year'] ?? $payload['vehicle_year'] ?? date('Y') - 5),
+                'make' => strtoupper($qualData['vehicle_make'] ?? $payload['vehicle_make'] ?? 'HONDA'),
+                'model' => strtoupper($qualData['vehicle_model'] ?? $payload['vehicle_model'] ?? 'ACCORD'),
+                'trim' => strtoupper($qualData['vehicle_trim'] ?? $payload['vehicle_trim'] ?? 'LX'),
+                'vin' => $qualData['vehicle_vin'] ?? $payload['vehicle_vin'] ?? null,
+                'ownership' => strtolower($qualData['vehicle_ownership'] ?? $payload['vehicle_ownership'] ?? 'owned'),
+                'primary_driver' => 'Primary Driver',
+                'annual_mileage' => (int) ($qualData['annual_mileage'] ?? $payload['annual_mileage'] ?? 12000),
+                'usage' => strtolower($qualData['vehicle_usage'] ?? $payload['vehicle_usage'] ?? 'commuting'),
+                'garage_status' => strtolower($qualData['garage_status'] ?? $payload['garage_status'] ?? 'garaged'),
+                'comprehensive_deductible' => (int) ($qualData['comp_deductible'] ?? $payload['comp_deductible'] ?? 500),
+                'collision_deductible' => (int) ($qualData['collision_deductible'] ?? $payload['collision_deductible'] ?? 500)
+            ];
+        } else {
+            // Process each vehicle with comprehensive data in Allstate format
+            foreach ($vehicles as $index => $vehicle) {
+                $formattedVehicles[] = [
+                    'vehicle_number' => $index + 1,
+                    'year' => (int) ($vehicle['year'] ?? date('Y') - 5),
+                    'make' => strtoupper($vehicle['make'] ?? 'HONDA'),
+                    'model' => strtoupper($vehicle['model'] ?? 'ACCORD'),
+                    'trim' => strtoupper($vehicle['trim'] ?? 'LX'),
+                    'vin' => $vehicle['vin'] ?? null,
+                    'drivers' => [$index + 1], // Driver numbers who drive this vehicle
+                    'leased' => strtolower($vehicle['ownership'] ?? 'owned') === 'leased',
+                    'annual_mileage' => (int) ($vehicle['annual_mileage'] ?? 12000),
+                    'usage' => strtolower($vehicle['usage'] ?? 'commuting'),
+                    'garage_type' => $this->mapGarageTypeForAllstate($vehicle['garage_status'] ?? 'garaged'),
+                    'alarm' => false, // Default no alarm system
+                    'comprehensive_deductible' => (int) ($vehicle['comprehensive_deductible'] ?? 500),
+                    'collision_deductible' => (int) ($vehicle['collision_deductible'] ?? 500),
+                    'is_primary' => $index === 0 // First vehicle is primary
+                ];
+            }
+        }
+        
+        return $formattedVehicles;
+    }
+    
+    /**
+     * Format driver date of birth
+     */
+    private function formatDriverDateOfBirth($driver)
+    {
+        $dateFields = ['birth_date', 'dob', 'date_of_birth'];
+        
+        foreach ($dateFields as $field) {
+            if (!empty($driver[$field])) {
+                try {
+                    return \Carbon\Carbon::parse($driver[$field])->format('Y-m-d');
+                } catch (\Exception $e) {
+                    continue;
+                }
+            }
+        }
+        
+        // Default to reasonable age (35 years old)
+        return \Carbon\Carbon::now()->subYears(35)->format('Y-m-d');
+    }
+    
+    /**
+     * Format credit score to range
+     */
+    private function formatCreditScore($score)
+    {
+        if (!$score || !is_numeric($score)) {
+            return 'GOOD';
+        }
+        
+        $score = (int) $score;
+        if ($score >= 750) return 'EXCELLENT';
+        if ($score >= 700) return 'GOOD';
+        if ($score >= 650) return 'FAIR';
+        return 'POOR';
+    }
+    
+    /**
+     * Map gender to Allstate format (M/F)
+     */
+    private function mapGenderForAllstate($gender)
+    {
+        $genderMap = [
+            'Male' => 'M',
+            'Female' => 'F', 
+            'M' => 'M',
+            'F' => 'F',
+            'male' => 'M',
+            'female' => 'F',
+            'Man' => 'M',
+            'Woman' => 'F',
+        ];
+        return $genderMap[$gender ?? 'M'] ?? 'M';
+    }
+    
+    /**
+     * Map education to Allstate format
+     */
+    private function mapEducationForAllstate($education)
+    {
+        $educationMap = [
+            'High School' => 'HS',
+            'Some College' => 'SOME_COLLEGE',
+            'College' => 'COLLEGE',
+            'Bachelors' => 'COLLEGE',
+            'Masters' => 'GRADUATE',
+            'Graduate' => 'GRADUATE',
+            'HS' => 'HS',
+            'COLLEGE' => 'COLLEGE',
+            'GRADUATE' => 'GRADUATE',
+        ];
+        return $educationMap[$education ?? 'HS'] ?? 'HS';
+    }
+    
+    /**
+     * Map garage type to Allstate format
+     */
+    private function mapGarageTypeForAllstate($garageStatus)
+    {
+        $garageMap = [
+            'Garaged' => 'garage',
+            'Garage' => 'garage', 
+            'Driveway' => 'driveway',
+            'Street' => 'street',
+            'garaged' => 'garage',
+            'garage' => 'garage',
+            'driveway' => 'driveway',
+            'street' => 'street',
+        ];
+        return $garageMap[$garageStatus ?? 'garage'] ?? 'garage';
     }
 }

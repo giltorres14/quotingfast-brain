@@ -5057,7 +5057,7 @@ Route::post('/webhook/ringba-conversion', function (Request $request) {
     }
 });
 
-// DIRECT RINGBA API TESTING
+// PARALLEL RINGBA TESTING (Keep Allstate integration intact)
 Route::get('/test/ringba-send/{leadId?}', function ($leadId = null) {
     try {
         // Find a test lead or use a specific one
