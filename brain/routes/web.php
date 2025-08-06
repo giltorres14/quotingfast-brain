@@ -5057,6 +5057,110 @@ Route::post('/webhook/ringba-conversion', function (Request $request) {
     }
 });
 
+// DIRECT RINGBA API TESTING
+Route::get('/test/ringba-send/{leadId?}', function ($leadId = null) {
+    try {
+        // Find a test lead or use a specific one
+        $lead = $leadId ? 
+            \App\Models\Lead::where('id', $leadId)
+                ->orWhere('external_lead_id', $leadId)
+                ->first() :
+            \App\Models\Lead::latest()->first();
+            
+        if (!$lead) {
+            return response()->json([
+                'error' => 'No lead found',
+                'suggestion' => 'Try: /test/ringba-send/BRAIN_TEST_RINGBA'
+            ], 404);
+        }
+        
+        // Initialize RingBA service
+        $ringbaService = new \App\Services\RingBAService();
+        
+        // Send lead to RingBA (no qualification data for now)
+        $result = $ringbaService->sendLead($lead);
+        
+        return response()->json([
+            'test_type' => 'Direct RingBA API Send',
+            'lead_id' => $lead->id,
+            'lead_name' => $lead->first_name . ' ' . $lead->last_name,
+            'lead_type' => $lead->type,
+            'result' => $result,
+            'next_steps' => [
+                'Check logs for detailed request/response',
+                'Verify data mapping is correct',
+                'Test with different lead types'
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Test failed',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
+// Test with simulated qualification data (like from Vici agent)
+Route::get('/test/ringba-send-qualified/{leadId?}', function ($leadId = null) {
+    try {
+        $lead = $leadId ? 
+            \App\Models\Lead::where('id', $leadId)
+                ->orWhere('external_lead_id', $leadId)
+                ->first() :
+            \App\Models\Lead::latest()->first();
+            
+        if (!$lead) {
+            return response()->json(['error' => 'No lead found'], 404);
+        }
+        
+        // Simulate agent qualification data (Top 13 Questions answered)
+        $qualificationData = [
+            // Insurance Status
+            'currently_insured' => true,
+            'current_company' => 'Geico',
+            'policy_expires' => '2024-06-15',
+            'shopping_for_rates' => true,
+            
+            // Coverage Needs
+            'coverage_type' => $lead->type === 'home' ? 'home' : 'auto',
+            'vehicle_count' => 2,
+            'home_status' => 'own',
+            'recent_claims' => false,
+            
+            // Financial
+            'current_premium' => 180.00,
+            'desired_budget' => 150.00,
+            'urgency' => '30_days',
+            
+            // Decision Making
+            'decision_maker' => true,
+            'motivation_level' => 8,
+            'lead_quality_score' => 9,
+            
+            'agent_notes' => 'Very motivated, current policy expires soon, looking for savings'
+        ];
+        
+        $ringbaService = new \App\Services\RingBAService();
+        $result = $ringbaService->sendLead($lead, $qualificationData);
+        
+        return response()->json([
+            'test_type' => 'RingBA Send with Agent Qualification',
+            'lead_id' => $lead->id,
+            'qualification_data' => $qualificationData,
+            'result' => $result,
+            'note' => 'This simulates what happens when agent clicks Enrich button'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Qualified test failed',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Test Ringba Decision Webhook
 Route::get('/test/ringba-decision/{leadId?}/{decision?}', function ($leadId = 'BRAIN_TEST_RINGBA', $decision = 'allstate') {
     try {
