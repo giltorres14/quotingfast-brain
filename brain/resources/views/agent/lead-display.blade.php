@@ -14,8 +14,10 @@
         
         html, body {
             height: 100vh;
+            width: 100vw;
             margin: 0;
             padding: 0;
+            overflow-x: auto; /* Allow horizontal scrolling if needed */
         }
         
         body {
@@ -27,9 +29,11 @@
         }
         
         .container {
-            max-width: 100%;
+            width: 100%;
+            max-width: none; /* Remove width restriction for Vici iframe */
             padding: 16px;
             min-height: 90vh; /* Ensures iframe content is tall enough for Vici */
+            min-width: 100vw; /* Ensures iframe content is wide enough for Vici */
         }
         
         .header {
