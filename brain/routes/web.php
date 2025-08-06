@@ -1634,7 +1634,11 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             $isTestLead = false;
             
     try {
-        $lead = App\Models\Lead::find($leadId);
+        // First try to find by external_lead_id (for Vici), then by internal ID (for admin)
+        $lead = App\Models\Lead::where('external_lead_id', $leadId)->first();
+        if (!$lead && is_numeric($leadId)) {
+            $lead = App\Models\Lead::find($leadId);
+        }
                 if ($lead) {
                     // Ensure JSON fields are properly decoded as arrays for view compatibility
                     if (is_string($lead->drivers)) {

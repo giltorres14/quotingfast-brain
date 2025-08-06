@@ -798,8 +798,8 @@
                     <div class="filter-group">
                         <label class="filter-label">Per Page</label>
                         <select name="per_page" class="filter-select">
-                            <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }}>20</option>
-                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                            <option value="20" {{ request('per_page', 50) == 20 ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
                             <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
                             <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
                             <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>All</option>
@@ -820,8 +820,10 @@
                         <select name="date_range" class="filter-select">
                             <option value="">All Time</option>
                             <option value="today" {{ request('date_range') === 'today' ? 'selected' : '' }}>Today</option>
+                            <option value="yesterday" {{ request('date_range') === 'yesterday' ? 'selected' : '' }}>Yesterday</option>
                             <option value="week" {{ request('date_range') === 'week' ? 'selected' : '' }}>This Week</option>
-                            <option value="month" {{ request('date_range') === 'month' ? 'selected' : '' }}>This Month</option>
+                            <option value="month" {{ request('date_range') === 'month' ? 'selected' : '' }}>Last Month</option>
+                            <option value="custom" {{ request('date_range') === 'custom' ? 'selected' : '' }}>Custom Range</option>
                         </select>
                     </div>
                     
