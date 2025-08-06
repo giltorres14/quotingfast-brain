@@ -200,8 +200,8 @@ class AllstateCallTransferService
             'credit_score_range' => $this->getCreditScoreRange($qualData, $payload),
             'home_ownership' => $this->getHomeOwnership($qualData, $payload),
             // Use same values as driver to avoid conflicts
-            'education_level' => $this->mapEducationForAllstate($drivers[0]['education'] ?? 'HS'),
-            'occupation' => $this->getOccupation($qualData, $payload),
+            'education_level' => $this->getHighestEducationLevel($drivers),
+            'occupation' => $this->getOccupation($qualData, $payload, $drivers),
             
             // Driving Information
             'years_licensed' => $this->getYearsLicensed($qualData, $drivers),
@@ -724,22 +724,269 @@ class AllstateCallTransferService
     }
     
     /**
-     * Get occupation
+     * Get occupation using smart matching logic
      */
-    private function getOccupation($qualData, $payload)
+    private function getOccupation($qualData, $payload, $drivers = [])
     {
-        $sources = [
+        // Collect all possible occupation sources
+        $occupationSources = [
             $qualData['occupation'] ?? null,
             $payload['occupation'] ?? null
         ];
         
-        foreach ($sources as $occupation) {
-            if ($occupation) {
-                return strtoupper(trim($occupation));
+        // Add driver occupations (take the best one)
+        foreach ($drivers as $driver) {
+            if (!empty($driver['occupation'])) {
+                $occupationSources[] = $driver['occupation'];
             }
         }
         
-        return 'OTHER'; // Default
+        // Find the best occupation match
+        foreach ($occupationSources as $occupation) {
+            if ($occupation) {
+                $matched = $this->mapOccupationToAllstate($occupation);
+                if ($matched !== 'SUPERVISOR') { // If we found a specific match, use it
+                    return $matched;
+                }
+            }
+        }
+        
+        return 'SUPERVISOR'; // Default as requested
+    }
+    
+    /**
+     * Map occupation to Allstate approved occupation codes using smart matching
+     */
+    private function mapOccupationToAllstate($occupation)
+    {
+        if (!$occupation) return 'SUPERVISOR';
+        
+        $occupation = strtolower(trim($occupation));
+        
+        // Direct mappings and smart matching patterns
+        $occupationMap = [
+            // Direct matches
+            'accountant' => 'ACCOUNTSREC',
+            'accounts payable' => 'ACCOUNTSREC',
+            'accounts receivable' => 'ACCOUNTSREC',
+            'actor' => 'ACTOR',
+            'administration' => 'ADMINMGMT',
+            'management' => 'ADMINMGMT',
+            'manager' => 'ADMINMGMT',
+            'admin' => 'ADMINMGMT',
+            'administrative' => 'ADMINMGMT',
+            'appraiser' => 'APPRAISER',
+            'architect' => 'ARCHITECT',
+            'artist' => 'ARTIST',
+            'assembler' => 'ASSEMBLER',
+            'auditor' => 'AUDITOR',
+            'baker' => 'BAKER',
+            'banker' => 'BANKER',
+            'banking' => 'BANKER',
+            'bartender' => 'BARTENDER',
+            'broker' => 'BROKER',
+            'cashier' => 'CASHIER',
+            'casino' => 'CASINOWORKER',
+            'ceo' => 'CEO',
+            'chief executive' => 'CEO',
+            'chemist' => 'CHEMIST',
+            'chemistry' => 'CHEMIST',
+            'childcare' => 'CHILDCARE',
+            'child care' => 'CHILDCARE',
+            'daycare' => 'CHILDCARE',
+            'city worker' => 'CITYWORKER',
+            'municipal' => 'CITYWORKER',
+            'claims adjuster' => 'CLAIMSADJUSTER',
+            'claims' => 'CLAIMSADJUSTER',
+            'clergy' => 'CLERGY',
+            'minister' => 'CLERGY',
+            'pastor' => 'CLERGY',
+            'priest' => 'CLERGY',
+            'clerical' => 'CLERICALTECH',
+            'technical' => 'CLERICALTECH',
+            'college professor' => 'COLLEGEPROFESSOR',
+            'professor' => 'COLLEGEPROFESSOR',
+            'computer' => 'COMPUTERTECH',
+            'it' => 'COMPUTERTECH',
+            'tech support' => 'COMPUTERTECH',
+            'construction' => 'CONSTRUCTION',
+            'contractor' => 'CONTRACTOR',
+            'counselor' => 'COUNSELOR',
+            'therapist' => 'COUNSELOR',
+            'cpa' => 'CPA',
+            'certified public accountant' => 'CPA',
+            'custodian' => 'CUSTODIAN',
+            'janitor' => 'CUSTODIAN',
+            'customer service' => 'CUSTOMERSERVICE',
+            'customer support' => 'CUSTOMERSERVICE',
+            'call center' => 'CUSTOMERSERVICE',
+            'dancer' => 'DANCER',
+            'decorator' => 'DECORATOR',
+            'interior design' => 'DECORATOR',
+            'delivery' => 'DELIVERYDRIVER',
+            'delivery driver' => 'DELIVERYDRIVER',
+            'dentist' => 'DENTIST',
+            'dental' => 'DENTIST',
+            'director' => 'DIRECTOR',
+            'disabled' => 'DISABLED',
+            'driver' => 'DRIVERS',
+            'electrician' => 'ELECTRICIAN',
+            'electrical' => 'ELECTRICIAN',
+            'engineer' => 'ENGINEEROTHER',
+            'engineering' => 'ENGINEEROTHER',
+            'aeronautical engineer' => 'ENGINEERAE',
+            'aerospace engineer' => 'ENGINEERAS',
+            'chemical engineer' => 'ENGINEERCHEM',
+            'civil engineer' => 'ENGINEERCIVIL',
+            'electrical engineer' => 'ENGINEERELECTRICAL',
+            'mechanical engineer' => 'ENGINEERMECH',
+            'nuclear engineer' => 'ENGINEERNUCLEAR',
+            'petroleum engineer' => 'ENGINEERPETROLEUM',
+            'structural engineer' => 'ENGINEERSTRUCTURAL',
+            'entertainer' => 'ENTERTAINER',
+            'entertainment' => 'ENTERTAINER',
+            'farmer' => 'FARMER',
+            'farming' => 'FARMER',
+            'agriculture' => 'FARMER',
+            'firefighter' => 'FIREFIGHTER',
+            'fire fighter' => 'FIREFIGHTER',
+            'flight attendant' => 'FLIGHTSTTEND',
+            'food service' => 'FOODSERV',
+            'restaurant' => 'FOODSERV',
+            'government' => 'GOVERNMENT',
+            'federal' => 'GOVERNMENT',
+            'state employee' => 'GOVERNMENT',
+            'healthcare' => 'HEALTHCARE',
+            'health care' => 'HEALTHCARE',
+            'medical' => 'HEALTHCARE',
+            'homemaker' => 'HOMEMAKER',
+            'housewife' => 'HOMEMAKER',
+            'househusband' => 'HOMEMAKER',
+            'installer' => 'INSTALLER',
+            'instructor' => 'INSTRUCTOR',
+            'journalist' => 'JOURNALIST',
+            'reporter' => 'JOURNALIST',
+            'news' => 'JOURNALIST',
+            'journeyman' => 'JOURNEYMAN',
+            'laborer' => 'LABORER',
+            'unskilled' => 'LABORER',
+            'lab tech' => 'LABTECH',
+            'laboratory' => 'LABTECH',
+            'lawyer' => 'LAWYER',
+            'attorney' => 'LAWYER',
+            'legal' => 'LAWYER',
+            'machine operator' => 'MACHINEOPERATOR',
+            'machinist' => 'MACHINIST',
+            'maintenance' => 'MAINTENANCE',
+            'manufacturer' => 'MANUFACTURER',
+            'manufacturing' => 'MANUFACTURER',
+            'marketing' => 'MARKETING',
+            'marketing manager' => 'MARKETING',
+            'mechanic' => 'MECHANIC',
+            'automotive' => 'MECHANIC',
+            'military' => 'MILITARYOTHER',
+            'army' => 'MILITARYOTHER',
+            'navy' => 'MILITARYOTHER',
+            'air force' => 'MILITARYOTHER',
+            'marines' => 'MILITARYOTHER',
+            'model' => 'MODEL',
+            'modeling' => 'MODEL',
+            'nanny' => 'NANNY',
+            'babysitter' => 'NANNY',
+            'nurse' => 'NURSECNA',
+            'nursing' => 'NURSECNA',
+            'cna' => 'NURSECNA',
+            'painter' => 'PAINTER',
+            'painting' => 'PAINTER',
+            'paralegal' => 'PARALEGAL',
+            'paramedic' => 'PARAMEDIC',
+            'emt' => 'PARAMEDIC',
+            'personal trainer' => 'PERSONALTRAINER',
+            'fitness' => 'PERSONALTRAINER',
+            'photographer' => 'PHOTOGRAPHER',
+            'photography' => 'PHOTOGRAPHER',
+            'physician' => 'PHYSICIAN',
+            'doctor' => 'PHYSICIAN',
+            'pilot' => 'PILOT',
+            'aviation' => 'PILOT',
+            'plumber' => 'PLUMBER',
+            'plumbing' => 'PLUMBER',
+            'police' => 'POLICEOFFICER',
+            'police officer' => 'POLICEOFFICER',
+            'law enforcement' => 'POLICEOFFICER',
+            'postal' => 'POSTALWORKER',
+            'mail carrier' => 'POSTALWORKER',
+            'usps' => 'POSTALWORKER',
+            'preacher' => 'PREACHER',
+            'athlete' => 'PROATHLETE',
+            'sports' => 'PROATHLETE',
+            'production' => 'PRODUCTION',
+            'programmer' => 'PROGRAMMER',
+            'programming' => 'PROGRAMMER',
+            'software developer' => 'PROGRAMMER',
+            'developer' => 'PROGRAMMER',
+            'real estate' => 'REALESTATE',
+            'realtor' => 'REALESTATE',
+            'receptionist' => 'RECEPTIONIST',
+            'reservation agent' => 'RESERVATIONAGENT',
+            'restaurant manager' => 'RESTAURANTMANAGER',
+            'retail' => 'RETAIL',
+            'sales associate' => 'RETAIL',
+            'retired' => 'RETIRED',
+            'roofer' => 'ROOFER',
+            'roofing' => 'ROOFER',
+            'sales' => 'SALES',
+            'salesperson' => 'SALES',
+            'scientist' => 'SCIENTIST',
+            'research' => 'SCIENTIST',
+            'secretary' => 'SECRETARY',
+            'security' => 'SECURITY',
+            'security guard' => 'SECURITY',
+            'self employed' => 'SELFEMPLOYED',
+            'self-employed' => 'SELFEMPLOYED',
+            'entrepreneur' => 'SELFEMPLOYED',
+            'business owner' => 'SELFEMPLOYED',
+            'craftsman' => 'SKILLEDWORKER',
+            'skilled worker' => 'SKILLEDWORKER',
+            'social worker' => 'SOCIALWORKER',
+            'stocker' => 'STOCKER',
+            'warehouse' => 'STOCKER',
+            'store owner' => 'STOREOWNER',
+            'student' => 'STUDENTNOTLIVINGWITHPARENTS',
+            'stylist' => 'STYLIST',
+            'hair stylist' => 'STYLIST',
+            'supervisor' => 'SUPERVISOR',
+            'teacher' => 'TEACHER',
+            'teaching' => 'TEACHER',
+            'education' => 'TEACHER',
+            'teller' => 'TELLER',
+            'bank teller' => 'TELLER',
+            'travel agent' => 'TRAVELAGENT',
+            'truck driver' => 'TRUCKDRIVER',
+            'trucking' => 'TRUCKDRIVER',
+            'unemployed' => 'UNEMPLOYED',
+            'vet' => 'VET',
+            'veterinarian' => 'VET',
+            'waitress' => 'WAITRESS',
+            'waiter' => 'WAITRESS',
+            'server' => 'WAITRESS',
+            'welder' => 'WELDER',
+            'welding' => 'WELDER',
+        ];
+        
+        // Check for exact matches first
+        if (isset($occupationMap[$occupation])) {
+            return $occupationMap[$occupation];
+        }
+        
+        // Check for partial matches (contains)
+        foreach ($occupationMap as $key => $value) {
+            if (strpos($occupation, $key) !== false || strpos($key, $occupation) !== false) {
+                return $value;
+            }
+        }
+        
+        return 'SUPERVISOR'; // Default fallback
     }
     
     /**
@@ -860,7 +1107,7 @@ class AllstateCallTransferService
                 'license_status' => 'valid',
                 'years_licensed' => $this->getYearsLicensed($qualData, $drivers),
                 'education' => $this->getEducationLevel($qualData, $payload),
-                'occupation' => $this->getOccupation($qualData, $payload),
+                'occupation' => $this->getOccupation($qualData, $payload, $drivers),
                 'credit_score' => $this->getCreditScoreRange($qualData, $payload),
                 'accidents' => $this->getAccidentsViolations($qualData, $drivers),
                 'violations' => $this->getAccidentsViolations($qualData, $drivers),
@@ -882,8 +1129,8 @@ class AllstateCallTransferService
                     'valid_license' => true,
                     'years_licensed' => (int) ($driver['years_licensed'] ?? 10),
                     'license_age' => (int) ($driver['license_age'] ?? 16), // Required field - age when first licensed
-                    'edu_level' => $this->mapEducationForAllstate($driver['education'] ?? 'HS'),
-                    'occupation' => $this->mapOccupationForAllstate($driver['occupation'] ?? 'OTHER'),
+                    'edu_level' => $this->mapEducationForAllstate($driver['education'] ?? 'BDG'),
+                    'occupation' => $this->mapOccupationForAllstate($driver['occupation'] ?? 'SUPERVISOR'),
                     'years_employed' => (int) ($driver['years_employed'] ?? 5),
                     'years_at_residence' => (int) ($driver['years_at_residence'] ?? 3),
                     'tickets_and_accidents' => (bool) (($driver['accidents_3_years'] ?? $driver['accidents'] ?? 0) + ($driver['violations_3_years'] ?? $driver['violations'] ?? 0)), // Boolean: true if any incidents
@@ -1032,7 +1279,45 @@ class AllstateCallTransferService
             'COLLEGE' => 'BDG',
             'GRADUATE' => 'MDG',
         ];
-        return $educationMap[$education ?? 'HS'] ?? 'HS';
+        return $educationMap[$education ?? 'BDG'] ?? 'BDG'; // Default to BDG as requested
+    }
+    
+    /**
+     * Get highest education level among all drivers
+     */
+    private function getHighestEducationLevel($drivers)
+    {
+        if (empty($drivers)) {
+            return 'BDG'; // Default to Bachelor's Degree as requested
+        }
+        
+        // Education hierarchy (lowest to highest)
+        $educationHierarchy = [
+            'GED' => 1,
+            'HS' => 2,
+            'SCL' => 3,
+            'ADG' => 4,
+            'BDG' => 5,
+            'MDG' => 6,
+            'DOC' => 7
+        ];
+        
+        $highestLevel = 'BDG'; // Default
+        $highestScore = $educationHierarchy['BDG'];
+        
+        foreach ($drivers as $driver) {
+            if (!empty($driver['education'])) {
+                $mappedEducation = $this->mapEducationForAllstate($driver['education']);
+                $score = $educationHierarchy[$mappedEducation] ?? $educationHierarchy['BDG'];
+                
+                if ($score > $highestScore) {
+                    $highestLevel = $mappedEducation;
+                    $highestScore = $score;
+                }
+            }
+        }
+        
+        return $highestLevel;
     }
     
     /**
@@ -1054,64 +1339,11 @@ class AllstateCallTransferService
     }
     
     /**
-     * Map occupation to Allstate approved values with smart fallback to PROFESSIONAL
+     * Map occupation to Allstate approved values (wrapper for comprehensive mapping)
      */
     private function mapOccupationForAllstate($occupation)
     {
-        // Official Allstate occupation values (from documentation)
-        $approvedOccupations = ['MARKETING', 'SALES', 'ADMINMGMT', 'RETIRED', 'UNEMPLOYED', 'OTHER', 'TEACHER', 'HEALTHCARE'];
-        
-        $cleanOccupation = strtoupper(trim($occupation ?? ''));
-        
-        // Direct match with approved values
-        if (in_array($cleanOccupation, $approvedOccupations)) {
-            return $cleanOccupation;
-        }
-        
-        // Map to official Allstate occupation codes
-        $occupationMap = [
-            // Management & Administration
-            'MANAGER' => 'ADMINMGMT', 
-            'MARKETING MANAGER' => 'MARKETING',
-            'CONSTRUCTION MANAGER' => 'ADMINMGMT',
-            'PROJECT MANAGER' => 'ADMINMGMT',
-            'ACCOUNT MANAGER' => 'ADMINMGMT',
-            'SALES MANAGER' => 'SALES',
-            'OFFICE MANAGER' => 'ADMINMGMT',
-            
-            // Direct mappings to Allstate codes
-            'MARKETING' => 'MARKETING',
-            'SALES' => 'SALES',
-            'ADMINMGMT' => 'ADMINMGMT',
-            'TEACHER' => 'TEACHER',
-            'HEALTHCARE' => 'HEALTHCARE',
-            'RETIRED' => 'RETIRED',
-            'UNEMPLOYED' => 'UNEMPLOYED',
-            'OTHER' => 'OTHER',
-            
-            // Common mappings
-            'STUDENT' => 'STUDENTNOTLIVINGWITHPARENTS',
-            'COLLEGE STUDENT' => 'STUDENTNOTLIVINGWITHPARENTS',
-            'ENGINEER' => 'ENGINEEROTHER',
-            'DOCTOR' => 'PHYSICIAN',
-            'LAWYER' => 'LAWYER',
-            'NURSE' => 'NURSECNA',
-            'ACCOUNTANT' => 'CPA',
-            'CONSULTANT' => 'OTHER',
-            'ANALYST' => 'OTHER',
-            'DEVELOPER' => 'PROGRAMMER',
-            'PROGRAMMER' => 'PROGRAMMER',
-            'DESIGNER' => 'OTHER',
-            'ARCHITECT' => 'ARCHITECT',
-        ];
-        
-        // Check if we have a specific mapping
-        if (isset($occupationMap[$cleanOccupation])) {
-            return $occupationMap[$cleanOccupation];
-        }
-        
-        // Default to OTHER for any unrecognized occupation
-        return 'OTHER';
+        return $this->mapOccupationToAllstate($occupation);
     }
     
     /**
