@@ -840,7 +840,7 @@ Route::post('/webhook.php', function (Request $request) {
             'user_agent' => $data['user_agent'] ?? null,
             'ip_address' => $data['ip_address'] ?? null,
             'campaign_id' => $data['campaign_id'] ?? null,
-            // Don't use incoming external_lead_id, we'll generate our own
+            // Don't use incoming external_lead_id or lead_id, we'll generate our own
             // 'external_lead_id' => $data['external_lead_id'] ?? $data['lead_id'] ?? null,
             
             // Store compliance and tracking data in meta
@@ -865,7 +865,10 @@ Route::post('/webhook.php', function (Request $request) {
         
             // Generate external lead ID after successful database insert
             $externalLeadId = generateLeadId();
-            $lead->update(['external_lead_id' => $externalLeadId]);
+            
+            // Force update with our generated ID, overriding any existing value
+            \DB::table('leads')->where('id', $lead->id)->update(['external_lead_id' => $externalLeadId]);
+            $lead->external_lead_id = $externalLeadId; // Update model instance too
             
             // 🚨 CAMPAIGN AUTO-DETECTION: Check if this is a new campaign ID
             if (!empty($leadData['campaign_id'])) {
@@ -895,7 +898,8 @@ Route::post('/webhook.php', function (Request $request) {
         
         // 🧪 TEMPORARY TESTING MODE: Bypass Vici and send directly to Allstate for API testing
         // TODO: RESTORE VICI INTEGRATION AFTER TESTING (see memory ID: 5307562)
-        if ($externalLeadId && $lead) {
+        // ALWAYS test with Allstate for now
+        if ($lead) {
             try {
                 Log::warning('🧪 ALLSTATE TESTING MODE ACTIVE', [
                     'lead_id' => $lead->id,
@@ -1451,9 +1455,22 @@ Route::get('/leads', function (Request $request) {
             }
         }
         
+        // Handle per_page parameter
+        $perPage = $request->get('per_page', 50); // Default to 50
+        
         // Get leads with pagination (simplified query to avoid relationship errors)
-        $leads = $query->orderBy('created_at', 'desc')
-                      ->paginate(20);
+        if ($perPage === 'all') {
+            $allLeads = $query->orderBy('created_at', 'desc')->get();
+            $leads = new \Illuminate\Pagination\LengthAwarePaginator(
+                $allLeads,
+                $allLeads->count(),
+                $allLeads->count() ?: 1,
+                1,
+                ['path' => $request->url()]
+            );
+        } else {
+            $leads = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        }
         
         // Get unique statuses, sources, and states for filters
         $statuses = Lead::distinct('status')->pluck('status')->filter()->sort();
@@ -4202,10 +4219,11 @@ function generateLeadId() {
             'starting_fresh' => !$lastLead
         ]);
         
-        if ($lastLead && is_numeric($lastLead->external_lead_id)) {
+        if ($lastLead && is_numeric($lastLead->external_lead_id) && intval($lastLead->external_lead_id) >= 100000001) {
             $nextId = intval($lastLead->external_lead_id) + 1;
         } else {
-            $nextId = 100000001; // Starting number: 9 digits starting with 100000001
+            // Start from 100000001 or find the max ID if there are old format IDs
+            $nextId = 100000001;
         }
         
         Log::info('Generated new lead ID', ['new_id' => $nextId]);

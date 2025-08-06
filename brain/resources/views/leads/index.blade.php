@@ -749,20 +749,27 @@
     </div>
     
                     <div class="form-group">
-                        <label class="form-label">Date From</label>
-                        <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+                        <label class="form-label">Date Range</label>
+                        <select name="date_range" class="form-select" onchange="handleDateRange(this)">
+                            <option value="today" {{ request('date_range') == 'today' ? 'selected' : '' }}>Today</option>
+                            <option value="yesterday" {{ request('date_range') == 'yesterday' ? 'selected' : '' }}>Yesterday</option>
+                            <option value="last_7_days" {{ request('date_range') == 'last_7_days' ? 'selected' : '' }}>Last 7 days</option>
+                            <option value="last_30_days" {{ request('date_range') == 'last_30_days' ? 'selected' : '' }}>Last 30 days</option>
+                            <option value="this_month" {{ request('date_range') == 'this_month' ? 'selected' : '' }}>This month</option>
+                            <option value="last_month" {{ request('date_range') == 'last_month' ? 'selected' : '' }}>Last month</option>
+                            <option value="custom" {{ request('date_range') == 'custom' ? 'selected' : '' }}>Custom Range</option>
+                        </select>
+                        <div id="customDateRange" style="display: {{ request('date_range') == 'custom' ? 'block' : 'none' }}; margin-top: 10px;">
+                            <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}" placeholder="From">
+                            <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}" placeholder="To" style="margin-top: 5px;">
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Date To</label>
-                        <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Per Page</label>
-                        <select name="per_page" class="form-select">
-                            <option value="20" {{ request('per_page', 20) == 20 ? 'selected' : '' }}>20</option>
-                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <label class="form-label" style="font-size: 0.9rem;">Per Page</label>
+                        <select name="per_page" class="form-select" style="font-size: 0.9rem;">
+                            <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
                             <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
                             <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
                             <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>All</option>
@@ -849,7 +856,7 @@
                                             }
                 @endphp
                 {{ $formatted }}
-                <button onclick="copyToClipboard('{{ $lead->phone }}', this)" style="background: none; border: none; cursor: pointer; margin-left: 5px;" title="Copy phone number">📋</button>
+                <button onclick="copyToClipboard('{{ $lead->phone }}', this)" style="background: none; border: none; cursor: pointer; margin-left: 5px;" title="Copy phone number">📎</button>
                                     @else
                                         No phone
                                     @endif
@@ -896,6 +903,16 @@
     </div>
 
     <script>
+        // Handle date range selection
+        function handleDateRange(select) {
+            const customDiv = document.getElementById('customDateRange');
+            if (select.value === 'custom') {
+                customDiv.style.display = 'block';
+            } else {
+                customDiv.style.display = 'none';
+            }
+        }
+        
         // Copy to clipboard function
         function copyToClipboard(text, button) {
             navigator.clipboard.writeText(text).then(function() {
