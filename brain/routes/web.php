@@ -3509,6 +3509,33 @@ Route::get('/admin/buyer-management', function () {
 });
 
 // 🧪 Allstate API Testing Dashboard
+// Admin Lead Queue Monitor
+Route::get('/admin/lead-queue', function () {
+    $stats = [
+        'pending' => \App\Models\LeadQueue::where('status', 'pending')->count(),
+        'processing' => \App\Models\LeadQueue::where('status', 'processing')->count(),
+        'completed' => \App\Models\LeadQueue::where('status', 'completed')
+                        ->where('created_at', '>=', now()->subDay())
+                        ->count(),
+        'failed' => \App\Models\LeadQueue::where('status', 'failed')->count(),
+    ];
+    
+    $queueItems = \App\Models\LeadQueue::whereIn('status', ['pending', 'processing', 'failed'])
+                    ->orWhere('created_at', '>=', now()->subHours(2))
+                    ->orderBy('created_at', 'desc')
+                    ->limit(50)
+                    ->get();
+    
+    return view('admin.lead-queue', compact('stats', 'queueItems'));
+});
+
+// Process queue manually
+Route::get('/admin/lead-queue/process', function () {
+    \Artisan::call('leads:process-queue');
+    
+    return redirect('/admin/lead-queue')->with('success', 'Queue processing started!');
+});
+
 Route::get('/admin/allstate-testing', function () {
     $testingService = new \App\Services\AllstateTestingService();
     
