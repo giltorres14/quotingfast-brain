@@ -12,6 +12,65 @@ Route::get('/test-simple', function () {
     return response()->json(['status' => 'ok', 'time' => now()]);
 })->withoutMiddleware('*');
 
+// Ultra simple meta check - no DB queries except for lead
+Route::get('/meta-simple', function () {
+    try {
+        $lead = \DB::table('leads')->orderBy('id', 'desc')->first();
+        if (!$lead) {
+            return response()->json(['error' => 'No leads'], 404);
+        }
+        
+        $meta = json_decode($lead->meta ?? '{}', true);
+        
+        // Extract only Allstate checkpoint info
+        $checkpoints = $meta['ALLSTATE_CHECKPOINTS'] ?? [];
+        $debugFull = $meta['ALLSTATE_DEBUG_FULL'] ?? [];
+        $errorDebug = $meta['ALLSTATE_ERROR_DEBUG'] ?? [];
+        
+        return response()->json([
+            'lead_name' => $lead->name,
+            'lead_id' => $lead->external_lead_id,
+            'checkpoints' => $checkpoints,
+            'debug_full' => $debugFull,
+            'error_debug' => $errorDebug,
+            'has_allstate_info' => !empty($checkpoints) || !empty($debugFull) || !empty($errorDebug)
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+})->withoutMiddleware('*');
+
+// Simple meta check without any DB queries for test logs
+Route::get('/meta-simple', function () {
+    try {
+        $lead = \App\Models\Lead::orderBy('id', 'desc')->first();
+        if (!$lead) {
+            return response()->json(['error' => 'No leads found']);
+        }
+        
+        $meta = json_decode($lead->meta ?? '{}', true);
+        
+        // Extract only Allstate checkpoint info
+        $checkpoints = $meta['ALLSTATE_CHECKPOINTS'] ?? 'NONE';
+        $success = $meta['ALLSTATE_SUCCESS'] ?? false;
+        $error = $meta['ALLSTATE_ERROR'] ?? false;
+        $errorDebug = $meta['ALLSTATE_ERROR_DEBUG'] ?? null;
+        $fullDebug = $meta['ALLSTATE_DEBUG_FULL'] ?? null;
+        
+        return response()->json([
+            'lead_name' => $lead->name,
+            'lead_id' => $lead->id,
+            'checkpoints' => $checkpoints,
+            'success' => $success,
+            'error' => $error,
+            'error_debug' => $errorDebug,
+            'full_debug' => $fullDebug
+        ], 200, [], JSON_PRETTY_PRINT);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
+    }
+})->withoutMiddleware('*');
+
 // Ultra simple meta check - no DB operations except getting lead
 Route::get('/meta-simple', function () {
     try {
@@ -225,22 +284,22 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                         
                         // Check method exists
                         $allstateDebug['CHECKPOINT_4'] = 'CHECKING_METHOD';
-                        $methodExists = method_exists($allstateService, 'testLead');
+                        $methodExists = method_exists($allstateService, 'processLeadForTesting');
                         $allstateDebug['method_exists'] = $methodExists;
                         
                         if (!$methodExists) {
                             $allstateDebug['available_methods'] = get_class_methods($allstateService);
-                            throw new \Exception('testLead method not found. Available methods: ' . json_encode($allstateDebug['available_methods']));
+                            throw new \Exception('processLeadForTesting method not found. Available methods: ' . json_encode($allstateDebug['available_methods']));
                         }
                         
                         // Save checkpoint 4
                         $currentMeta['ALLSTATE_CHECKPOINTS']['CP4_METHOD_EXISTS'] = now()->toIso8601String();
                         \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
                         
-                        // Call testLead
-                        $allstateDebug['CHECKPOINT_5'] = 'CALLING_TESTLEAD';
-                        $testResult = $allstateService->testLead($lead);
-                        $allstateDebug['CHECKPOINT_6'] = 'TESTLEAD_RETURNED';
+                        // Call processLeadForTesting (THE CORRECT METHOD NAME!)
+                        $allstateDebug['CHECKPOINT_5'] = 'CALLING_PROCESSLEADFORTESTING';
+                        $testResult = $allstateService->processLeadForTesting($lead);
+                        $allstateDebug['CHECKPOINT_6'] = 'PROCESSLEADFORTESTING_RETURNED';
                         $allstateDebug['result_type'] = gettype($testResult);
                         $allstateDebug['result_not_null'] = !is_null($testResult);
                         
