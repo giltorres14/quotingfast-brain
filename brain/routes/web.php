@@ -1257,6 +1257,9 @@ Route::post('/webhook.php', function (Request $request) {
         // TODO: RESTORE VICI INTEGRATION AFTER TESTING (see memory ID: 5307562)
         // ALWAYS test with Allstate for now
         if ($lead) {
+            // Add immediate feedback
+            Log::error('🚨🚨🚨 ALLSTATE BLOCK REACHED - Lead ID: ' . $lead->id);
+            
             try {
                 Log::warning('🧪🧪🧪 ALLSTATE TESTING MODE ACTIVE - STARTING', [
                     'lead_id' => $lead->id,
