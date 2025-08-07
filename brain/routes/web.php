@@ -1214,6 +1214,21 @@ Route::post('/webhook/debug', function (Request $request) {
 
 // LeadsQuotingFast webhook endpoint (bypasses CSRF for external API calls)
 Route::post('/webhook.php', function (Request $request) {
+    // SUPER HEAVY DEBUG - Mark that we entered this route
+    try {
+        \DB::table('leads')
+            ->orderBy('id', 'desc')
+            ->limit(1)
+            ->update([
+                'meta' => json_encode([
+                    'DEBUG_WEBHOOK_PHP_ENTERED' => 'YES_AT_' . now()->toIso8601String(),
+                    'route' => '/webhook.php'
+                ])
+            ]);
+    } catch (\Exception $e) {
+        // Ignore
+    }
+    
     try {
         // Log the incoming request
         Log::info('LeadsQuotingFast webhook received', [
