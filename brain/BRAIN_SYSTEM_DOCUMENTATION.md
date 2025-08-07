@@ -341,11 +341,24 @@ php artisan tinker
 - Using production API /ping endpoint for testing
 - Both webhook endpoints send to Allstate
 
+### 🗑️ Lead Management Tools
+**Lead Clearing (Pre-Production Only)**
+- Web: `/admin/clear-test-leads`
+- CLI: `php artisan leads:clear-test --backup`
+- Features: Auto-backup, transaction-safe, NO ID reset
+
+**Lead Restoration**
+- Latest: `php artisan leads:restore`
+- Specific: `php artisan leads:restore backup_name.json`
+- Backups stored in: `storage/app/backups/`
+
 ### 📋 TODO
 - Restore Vici integration after testing complete
 - Setup production cron job for queue processing
 - Run migrations on production for lead_queue table
 - Monitor first production leads through new system
+- Fix bulk process Network Error
+- Make logo 3x bigger on all pages
 
 ---
 
