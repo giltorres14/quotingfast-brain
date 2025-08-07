@@ -206,6 +206,8 @@ class AllstateCallTransferService
             
             // Insurance Status (prioritize agent qualification)
             'currently_insured' => $this->getCurrentInsuranceStatus($qualData, $currentPolicy, $payload),
+            // Respect LQF payload for DUI/SR22 when present
+            'dui_sr22' => (bool) ($payload['dui_sr22'] ?? false),
             'current_insurance_company' => $this->getCurrentInsuranceCompany($qualData, $currentPolicy, $payload),
             'policy_expiration_date' => $this->getPolicyExpirationDate($qualData, $currentPolicy),
             'current_premium' => $this->getCurrentPremium($qualData, $currentPolicy),
@@ -217,6 +219,7 @@ class AllstateCallTransferService
             
             // Financial Information
             'credit_score_range' => $this->getCreditScoreRange($qualData, $payload),
+            'credit_score' => $payload['credit_score'] ?? ($qualData['credit_score'] ?? null),
             'home_ownership' => $this->getHomeOwnership($qualData, $payload),
             // Use same values as driver to avoid conflicts
             'education_level' => $this->getHighestEducationLevel($drivers),

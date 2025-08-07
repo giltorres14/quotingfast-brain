@@ -151,6 +151,7 @@ class AllstateTestingService
                 foreach ($drivers as $driver) {
                     if (!empty($driver['dui_conviction']) || !empty($driver['sr22_required'])) return 'driver_data';
                 }
+                if (isset($payload['dui_sr22'])) return 'payload';
                 return 'default';
 
             case 'occupation':
@@ -193,6 +194,7 @@ class AllstateTestingService
                 foreach ($drivers as $driver) {
                     if (!empty($driver['credit_score'])) return 'driver_data';
                 }
+                if (!empty($payload['credit_score']) || !empty($payload['credit_score_range'])) return 'payload';
                 return 'default';
 
             case 'current_premium':

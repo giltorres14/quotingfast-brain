@@ -630,6 +630,9 @@
                                 <div style="margin: 0.5rem 0;">
                                     <strong>${field}:</strong> 
                                     <span class="data-source-tag source-${source.replace('_', '-')}">${source}</span>
+                                    ${data.allstate_payload && data.allstate_payload[field] !== undefined ? `
+                                        <code style="background:#edf2f7; padding:2px 6px; border-radius:4px; margin-left:.5rem;">${String(data.allstate_payload[field])}</code>
+                                    ` : ''}
                                 </div>
                             `).join('')}
                         </div>
