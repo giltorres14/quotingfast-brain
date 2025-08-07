@@ -12,20 +12,37 @@ Route::get('/test-simple', function () {
     return response()->json(['status' => 'ok', 'time' => now()]);
 })->withoutMiddleware('*');
 
-// Check raw meta field of most recent lead
+// Check raw meta field of most recent lead with comprehensive Allstate debug
 Route::get('/check-meta', function () {
     $lead = \App\Models\Lead::orderBy('id', 'desc')->first();
     if ($lead) {
         $meta = json_decode($lead->meta, true);
+        
+        // Extract Allstate specific debug info
+        $allstateInfo = [
+            'checkpoints' => $meta['ALLSTATE_CHECKPOINTS'] ?? 'NO_CHECKPOINTS',
+            'success' => $meta['ALLSTATE_SUCCESS'] ?? false,
+            'error' => $meta['ALLSTATE_ERROR'] ?? false,
+            'error_debug' => $meta['ALLSTATE_ERROR_DEBUG'] ?? null,
+            'full_debug' => $meta['ALLSTATE_DEBUG_FULL'] ?? null,
+            'attempt' => $meta['ALLSTATE_ATTEMPT'] ?? null,
+            'result' => $meta['ALLSTATE_RESULT'] ?? null,
+            'error_msg' => $meta['ALLSTATE_ERROR'] ?? null,
+        ];
+        
+        // Check if test log exists
+        $testLogExists = \DB::table('allstate_test_logs')->where('lead_id', $lead->id)->exists();
+        
         return response()->json([
             'lead_id' => $lead->id,
             'external_lead_id' => $lead->external_lead_id,
             'name' => $lead->name,
             'created_at' => $lead->created_at->toIso8601String(),
-            'raw_meta' => $meta,
-            'webhook_entered' => $meta['DEBUG_WEBHOOK_PHP_ENTERED'] ?? 'NOT_FOUND',
-            'allstate_block' => $meta['DEBUG_ALLSTATE_BLOCK'] ?? 'NOT_FOUND'
-        ], 200, [], JSON_PRETTY_PRINT);
+            'allstate_test_log_exists' => $testLogExists,
+            'allstate_info' => $allstateInfo,
+            'raw_meta_keys' => array_keys($meta ?? []),
+            'full_meta' => $meta
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
     return response()->json(['error' => 'No leads found'], 404);
 })->withoutMiddleware('*');
@@ -122,21 +139,109 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                         'external_lead_id' => $lead->external_lead_id
                     ]);
                     
-                    // 🧪 ALLSTATE API TESTING - NOW ENABLED!
+                    // 🧪 ALLSTATE API TESTING - ULTRA COMPREHENSIVE DEBUG
+                    $allstateDebug = [
+                        'CHECKPOINT_1' => 'ENTERED_ALLSTATE_BLOCK',
+                        'timestamp' => now()->toIso8601String(),
+                        'lead_id' => $lead->id ?? 'NO_LEAD',
+                        'external_lead_id' => $lead->external_lead_id ?? 'NO_EXT_ID',
+                    ];
+                    
                     try {
-                        $allstateService = new AllstateTestingService();
-                        $testResult = $allstateService->testLead($lead);
+                        // Save checkpoint 1
+                        $currentMeta = json_decode($lead->meta ?? '{}', true);
+                        $currentMeta['ALLSTATE_CHECKPOINTS'] = ['CP1_ENTERED' => now()->toIso8601String()];
+                        \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
                         
-                        \Log::info('✅ Allstate API test completed', [
-                            'lead_id' => $lead->id,
-                            'external_lead_id' => $lead->external_lead_id,
-                            'test_result' => $testResult
-                        ]);
+                        // Check if AllstateTestingService exists
+                        $allstateDebug['CHECKPOINT_2'] = 'CHECKING_CLASS';
+                        $classExists = class_exists('App\Services\AllstateTestingService');
+                        $allstateDebug['class_exists'] = $classExists;
+                        
+                        if (!$classExists) {
+                            // Check what classes ARE available
+                            $allstateDebug['available_classes'] = [];
+                            $declaredClasses = get_declared_classes();
+                            foreach ($declaredClasses as $class) {
+                                if (strpos($class, 'Allstate') !== false) {
+                                    $allstateDebug['available_classes'][] = $class;
+                                }
+                            }
+                            throw new \Exception('AllstateTestingService class not found. Available Allstate classes: ' . json_encode($allstateDebug['available_classes']));
+                        }
+                        
+                        // Save checkpoint 2
+                        $currentMeta['ALLSTATE_CHECKPOINTS']['CP2_CLASS_EXISTS'] = now()->toIso8601String();
+                        \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
+                        
+                        // Create service instance
+                        $allstateDebug['CHECKPOINT_3'] = 'CREATING_SERVICE';
+                        $allstateService = new AllstateTestingService();
+                        $allstateDebug['service_created'] = true;
+                        
+                        // Save checkpoint 3
+                        $currentMeta['ALLSTATE_CHECKPOINTS']['CP3_SERVICE_CREATED'] = now()->toIso8601String();
+                        \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
+                        
+                        // Check method exists
+                        $allstateDebug['CHECKPOINT_4'] = 'CHECKING_METHOD';
+                        $methodExists = method_exists($allstateService, 'testLead');
+                        $allstateDebug['method_exists'] = $methodExists;
+                        
+                        if (!$methodExists) {
+                            $allstateDebug['available_methods'] = get_class_methods($allstateService);
+                            throw new \Exception('testLead method not found. Available methods: ' . json_encode($allstateDebug['available_methods']));
+                        }
+                        
+                        // Save checkpoint 4
+                        $currentMeta['ALLSTATE_CHECKPOINTS']['CP4_METHOD_EXISTS'] = now()->toIso8601String();
+                        \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
+                        
+                        // Call testLead
+                        $allstateDebug['CHECKPOINT_5'] = 'CALLING_TESTLEAD';
+                        $testResult = $allstateService->testLead($lead);
+                        $allstateDebug['CHECKPOINT_6'] = 'TESTLEAD_RETURNED';
+                        $allstateDebug['result_type'] = gettype($testResult);
+                        $allstateDebug['result_not_null'] = !is_null($testResult);
+                        
+                        // Save checkpoint 5
+                        $currentMeta['ALLSTATE_CHECKPOINTS']['CP5_TESTLEAD_CALLED'] = now()->toIso8601String();
+                        $currentMeta['ALLSTATE_CHECKPOINTS']['CP6_RESULT'] = $testResult ? 'SUCCESS' : 'NULL';
+                        \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
+                        
+                        // Check if test log was created
+                        $allstateDebug['CHECKPOINT_7'] = 'CHECKING_TEST_LOG';
+                        $testLogCount = \DB::table('allstate_test_logs')->where('lead_id', $lead->id)->count();
+                        $allstateDebug['test_log_created'] = $testLogCount > 0;
+                        $allstateDebug['test_log_count'] = $testLogCount;
+                        
+                        // Save final success
+                        $currentMeta['ALLSTATE_CHECKPOINTS']['CP7_COMPLETE'] = now()->toIso8601String();
+                        $currentMeta['ALLSTATE_SUCCESS'] = true;
+                        $currentMeta['ALLSTATE_DEBUG_FULL'] = $allstateDebug;
+                        \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
+                        
+                        \Log::info('✅ Allstate API test completed with full debug', $allstateDebug);
+                        
                     } catch (\Exception $allstateError) {
-                        \Log::warning('⚠️ Allstate API test failed (non-critical)', [
-                            'lead_id' => $lead->id,
-                            'error' => $allstateError->getMessage()
-                        ]);
+                        $allstateDebug['ERROR_CHECKPOINT'] = 'EXCEPTION_CAUGHT';
+                        $allstateDebug['error_message'] = $allstateError->getMessage();
+                        $allstateDebug['error_file'] = basename($allstateError->getFile());
+                        $allstateDebug['error_line'] = $allstateError->getLine();
+                        $allstateDebug['error_class'] = get_class($allstateError);
+                        
+                        // Get stack trace (first 5 lines)
+                        $trace = explode("\n", $allstateError->getTraceAsString());
+                        $allstateDebug['stack_trace'] = array_slice($trace, 0, 5);
+                        
+                        // Save error details to meta
+                        $currentMeta = json_decode($lead->meta ?? '{}', true);
+                        $currentMeta['ALLSTATE_ERROR'] = true;
+                        $currentMeta['ALLSTATE_ERROR_DEBUG'] = $allstateDebug;
+                        $currentMeta['ALLSTATE_ERROR_TIME'] = now()->toIso8601String();
+                        \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
+                        
+                        \Log::warning('⚠️ Allstate API test failed with full debug', $allstateDebug);
                         // Don't fail the webhook - Allstate testing is secondary
                     }
                     
