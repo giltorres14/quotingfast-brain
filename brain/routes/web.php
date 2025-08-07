@@ -12,6 +12,22 @@ Route::get('/test-simple', function () {
     return response()->json(['status' => 'ok', 'time' => now()]);
 })->withoutMiddleware('*');
 
+// Ultra simple check - just get last lead name and ID
+Route::get('/last-lead', function () {
+    try {
+        $lead = \DB::select('SELECT id, external_lead_id, name FROM leads ORDER BY id DESC LIMIT 1');
+        if ($lead) {
+            return response()->json([
+                'name' => $lead[0]->name ?? 'unknown',
+                'id' => $lead[0]->external_lead_id ?? 'unknown'
+            ]);
+        }
+        return 'no leads';
+    } catch (\Exception $e) {
+        return 'error: ' . $e->getMessage();
+    }
+})->withoutMiddleware('*');
+
 // Quick check latest lead meta
 Route::get('/latest-meta', function () {
     $lead = \App\Models\Lead::orderBy('id', 'desc')->first();
