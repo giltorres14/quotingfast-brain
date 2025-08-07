@@ -255,6 +255,7 @@
         
         <div class="success-message" id="successMessage">
             ✅ All test data has been cleared successfully!<br>
+            <span id="backupInfo"></span><br>
             The database is now clean and ready for production.
         </div>
         
@@ -302,15 +303,22 @@
                 
                 if (data.success) {
                     document.getElementById('successMessage').classList.add('active');
+                    
+                    // Show backup info
+                    if (data.backup) {
+                        document.getElementById('backupInfo').textContent = 
+                            '📦 Backup saved: ' + data.backup;
+                    }
+                    
                     // Update counts to 0
                     document.getElementById('leadCount').textContent = '0';
                     document.getElementById('testLogCount').textContent = '0';
                     document.getElementById('queueCount').textContent = '0';
                     
-                    // Redirect after 3 seconds
+                    // Redirect after 5 seconds (give time to see backup info)
                     setTimeout(() => {
                         window.location.href = '/leads';
-                    }, 3000);
+                    }, 5000);
                 } else {
                     document.getElementById('errorMessage').classList.add('active');
                     document.getElementById('errorMessage').innerHTML = 

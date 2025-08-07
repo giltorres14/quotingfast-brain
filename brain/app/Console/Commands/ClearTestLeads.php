@@ -15,14 +15,14 @@ class ClearTestLeads extends Command
      *
      * @var string
      */
-    protected $signature = 'leads:clear-test {--force : Skip confirmation}';
+    protected $signature = 'leads:clear-test {--force : Skip confirmation} {--backup : Create backup before clearing}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Safely clear all test leads from the system (use with caution!)';
+    protected $description = '[PRODUCTION ONLY] Safely clear all test leads from the system (use with caution!)';
 
     /**
      * Execute the console command.
@@ -64,6 +64,32 @@ class ClearTestLeads extends Command
             }
         }
         
+        // Create backup if requested
+        if ($this->option('backup')) {
+            $this->info('Creating backup...');
+            $backupFile = storage_path('app/backups/leads_backup_' . date('Y-m-d_His') . '.json');
+            
+            // Ensure backup directory exists
+            if (!file_exists(storage_path('app/backups'))) {
+                mkdir(storage_path('app/backups'), 0755, true);
+            }
+            
+            $backupData = [
+                'timestamp' => now()->toIso8601String(),
+                'leads' => Lead::all()->toArray(),
+                'test_logs' => AllstateTestLog::all()->toArray(),
+            ];
+            
+            try {
+                $backupData['queue'] = LeadQueue::all()->toArray();
+            } catch (\Exception $e) {
+                $backupData['queue'] = [];
+            }
+            
+            file_put_contents($backupFile, json_encode($backupData, JSON_PRETTY_PRINT));
+            $this->info("✅ Backup created: {$backupFile}");
+        }
+        
         $this->info('Starting safe deletion process...');
         
         try {
@@ -85,18 +111,9 @@ class ClearTestLeads extends Command
             $this->info('3. Clearing all leads...');
             Lead::query()->delete();
             
-            // Reset auto-increment counters if using MySQL
-            if (config('database.default') === 'mysql') {
-                $this->info('4. Resetting auto-increment counters...');
-                DB::statement('ALTER TABLE leads AUTO_INCREMENT = 1');
-                DB::statement('ALTER TABLE allstate_test_logs AUTO_INCREMENT = 1');
-                
-                try {
-                    DB::statement('ALTER TABLE lead_queue AUTO_INCREMENT = 1');
-                } catch (\Exception $e) {
-                    // Table might not exist
-                }
-            }
+            // DO NOT reset auto-increment counters - we use timestamp-based IDs
+            // Keeping the internal auto-increment as is to avoid any conflicts
+            $this->info('4. Keeping ID counters as-is (using timestamp-based external IDs)');
             
             DB::commit();
             

@@ -3566,6 +3566,35 @@ Route::get('/admin/clear-test-leads', function () {
 
 Route::post('/admin/clear-test-leads', function () {
     try {
+        // Create backup first
+        $backupFile = storage_path('app/backups/leads_backup_' . date('Y-m-d_His') . '.json');
+        
+        // Ensure backup directory exists
+        if (!file_exists(storage_path('app/backups'))) {
+            mkdir(storage_path('app/backups'), 0755, true);
+        }
+        
+        // Backup all data
+        $backupData = [
+            'timestamp' => now()->toIso8601String(),
+            'lead_count' => \App\Models\Lead::count(),
+            'leads' => \App\Models\Lead::all()->toArray(),
+            'test_logs' => \App\Models\AllstateTestLog::all()->toArray(),
+        ];
+        
+        try {
+            $backupData['queue'] = \App\Models\LeadQueue::all()->toArray();
+        } catch (\Exception $e) {
+            $backupData['queue'] = [];
+        }
+        
+        file_put_contents($backupFile, json_encode($backupData, JSON_PRETTY_PRINT));
+        
+        \Log::info('📦 Backup created before clearing', [
+            'file' => $backupFile,
+            'lead_count' => $backupData['lead_count']
+        ]);
+        
         \DB::beginTransaction();
         
         // Clear in correct order to avoid foreign key issues
@@ -3580,35 +3609,21 @@ Route::post('/admin/clear-test-leads', function () {
         // Clear all leads
         \App\Models\Lead::query()->delete();
         
-        // Reset auto-increment if using MySQL/PostgreSQL
-        if (config('database.default') !== 'sqlite') {
-            try {
-                \DB::statement('ALTER TABLE leads AUTO_INCREMENT = 1');
-                \DB::statement('ALTER TABLE allstate_test_logs AUTO_INCREMENT = 1');
-                \DB::statement('ALTER TABLE lead_queue AUTO_INCREMENT = 1');
-            } catch (\Exception $e) {
-                // Some tables might not exist or DB might be PostgreSQL
-                try {
-                    // PostgreSQL syntax
-                    \DB::statement('ALTER SEQUENCE leads_id_seq RESTART WITH 1');
-                    \DB::statement('ALTER SEQUENCE allstate_test_logs_id_seq RESTART WITH 1');
-                    \DB::statement('ALTER SEQUENCE lead_queue_id_seq RESTART WITH 1');
-                } catch (\Exception $e2) {
-                    // Ignore - not critical
-                }
-            }
-        }
+        // DO NOT reset auto-increment counters - we use timestamp-based external_lead_id
+        // The internal auto-increment IDs don't matter for our system
         
         \DB::commit();
         
         \Log::warning('🗑️ ALL TEST LEADS CLEARED', [
             'timestamp' => now(),
-            'user_ip' => request()->ip()
+            'user_ip' => request()->ip(),
+            'backup_file' => $backupFile
         ]);
         
         return response()->json([
             'success' => true,
-            'message' => 'All test leads cleared successfully'
+            'message' => 'All test leads cleared successfully',
+            'backup' => basename($backupFile)
         ]);
         
     } catch (\Exception $e) {
