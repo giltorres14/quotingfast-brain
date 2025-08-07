@@ -1152,7 +1152,13 @@ class AllstateCallTransferService
                     'occupation' => $this->mapOccupationForAllstate($driver['occupation'] ?? 'SUPERVISOR'),
                     'years_employed' => (int) ($driver['years_employed'] ?? 5),
                     'years_at_residence' => (int) ($driver['years_at_residence'] ?? 3),
-                    'tickets_and_accidents' => (bool) (($driver['accidents_3_years'] ?? $driver['accidents'] ?? 0) + ($driver['violations_3_years'] ?? $driver['violations'] ?? 0)), // Boolean: true if any incidents
+                    // Some sources deliver arrays for accidents/violations instead of counts. Normalize to ints first.
+                    'tickets_and_accidents' => (bool) ((
+                        (is_array($driver['accidents_3_years'] ?? null) ? count($driver['accidents_3_years']) : ($driver['accidents_3_years'] ?? 0))
+                        + (is_array($driver['accidents'] ?? null) ? count($driver['accidents']) : ($driver['accidents'] ?? 0))
+                        + (is_array($driver['violations_3_years'] ?? null) ? count($driver['violations_3_years']) : ($driver['violations_3_years'] ?? 0))
+                        + (is_array($driver['violations'] ?? null) ? count($driver['violations']) : ($driver['violations'] ?? 0))
+                    ) > 0), // Boolean: true if any incidents
                     'dui' => (bool) ($driver['dui_conviction'] ?? $driver['dui'] ?? false),
                     'requires_sr22' => (bool) ($driver['sr22_required'] ?? false), // API expects 'requires_sr22' not 'sr22'
                     'is_primary' => $index === 0 // First driver is primary
