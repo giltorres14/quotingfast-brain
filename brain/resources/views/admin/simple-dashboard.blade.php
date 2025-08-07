@@ -670,6 +670,7 @@
                         <a href="/campaign-directory" class="dropdown-item">📊 Campaigns</a>
                         <a href="/admin/buyer-management" class="dropdown-item">🎭 Buyer Management</a>
                         <a href="/admin/allstate-testing" class="dropdown-item">🧪 Allstate Testing</a>
+                        <a href="/admin/lead-queue" class="dropdown-item">🛡️ Lead Queue Monitor</a>
                         <a href="#" class="dropdown-item" onclick="alert('Integrations management coming soon!')">🔌 Integrations</a>
                     </div>
                 </li>

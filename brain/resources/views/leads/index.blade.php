@@ -625,6 +625,7 @@
                     <a href="#" class="nav-link dropdown-toggle">⚙️ Management</a>
                     <div class="dropdown-menu">
                         <a href="/admin/allstate-testing" class="dropdown-item">🧪 Allstate Testing</a>
+                        <a href="/admin/lead-queue" class="dropdown-item">🛡️ Lead Queue Monitor</a>
                         <a href="/api-directory" class="dropdown-item">🔗 API Directory</a>
                         <a href="/campaign-directory" class="dropdown-item">📊 Campaigns</a>
                         <a href="/admin/buyer-management" class="dropdown-item">🎭 Buyer Management</a>

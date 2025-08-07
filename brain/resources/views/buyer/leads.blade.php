@@ -753,6 +753,7 @@
                 ⚙️ Management ▼
                 <div id="managementDropdown" style="display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 200px; z-index: 1000;">
                     <a href="/admin/allstate-testing" style="display: block; padding: 10px 15px; color: #374151; text-decoration: none; hover: background: #f3f4f6;">🧪 Allstate Testing</a>
+                    <a href="/admin/lead-queue" style="display: block; padding: 10px 15px; color: #374151; text-decoration: none;">🛡️ Lead Queue Monitor</a>
                     <a href="/api-directory" style="display: block; padding: 10px 15px; color: #374151; text-decoration: none;">🔗 API Directory</a>
                     <a href="/campaign-directory" style="display: block; padding: 10px 15px; color: #374151; text-decoration: none;">📊 Campaigns</a>
                 </div>
