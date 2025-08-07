@@ -962,17 +962,25 @@ Route::post('/webhook.php', function (Request $request) {
         // ALWAYS test with Allstate for now
         if ($lead) {
             try {
-                Log::warning('🧪 ALLSTATE TESTING MODE ACTIVE', [
+                Log::warning('🧪🧪🧪 ALLSTATE TESTING MODE ACTIVE - STARTING', [
                     'lead_id' => $lead->id,
                     'external_lead_id' => $externalLeadId,
                     'lead_name' => $lead->name,
                     'testing_mode' => true,
-                    'timestamp' => now()->toIso8601String()
+                    'timestamp' => now()->toIso8601String(),
+                    'environment' => app()->environment()
                 ]);
                 
                 // Create testing service with error handling
                 try {
+                    // Ensure class exists
+                    if (!class_exists(AllstateTestingService::class)) {
+                        Log::error('🚨 AllstateTestingService class not found!');
+                        throw new \Exception('AllstateTestingService class not found');
+                    }
+                    
                     $testingService = new AllstateTestingService();
+                    Log::info('🧪 AllstateTestingService created successfully');
                 } catch (\Exception $e) {
                     Log::error('🚨 Failed to create AllstateTestingService', [
                         'error' => $e->getMessage(),
@@ -986,12 +994,12 @@ Route::post('/webhook.php', function (Request $request) {
                 Log::info('🧪 Calling processLeadForTesting', [
                     'session' => $testSession,
                     'lead_id' => $lead->id,
-                    'lead_data' => $lead->toArray()
+                    'lead_name' => $lead->name
                 ]);
                 
                 $testResult = $testingService->processLeadForTesting($lead, $testSession);
                 
-                Log::info('🧪 Allstate testing completed', [
+                Log::info('🧪🧪🧪 ALLSTATE TESTING COMPLETED', [
                     'lead_id' => $lead->id,
                     'external_lead_id' => $externalLeadId,
                     'success' => $testResult['success'],
@@ -1000,12 +1008,17 @@ Route::post('/webhook.php', function (Request $request) {
                 ]);
                 
             } catch (Exception $testingError) {
-                Log::error('🧪 Allstate testing failed', [
+                Log::error('🧪🚨 ALLSTATE TESTING FAILED', [
                     'lead_id' => $lead->id,
                     'external_lead_id' => $externalLeadId,
-                    'error' => $testingError->getMessage()
+                    'error' => $testingError->getMessage(),
+                    'trace' => $testingError->getTraceAsString()
                 ]);
             }
+        } else {
+            Log::error('🧪🚨 NO LEAD OBJECT - Cannot test with Allstate', [
+                'external_lead_id' => $externalLeadId ?? 'none'
+            ]);
         }
         
         // ORIGINAL VICI INTEGRATION (TEMPORARILY DISABLED FOR TESTING):
