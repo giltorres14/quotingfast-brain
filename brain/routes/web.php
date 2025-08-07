@@ -15,11 +15,16 @@ Route::get('/test-simple', function () {
 // Ultra simple check - just get last lead name and ID
 Route::get('/last-lead', function () {
     try {
-        $lead = \DB::select('SELECT id, external_lead_id, name FROM leads ORDER BY id DESC LIMIT 1');
+        $lead = \DB::select('SELECT id, external_lead_id, name, meta FROM leads ORDER BY id DESC LIMIT 1');
         if ($lead) {
+            $meta = json_decode($lead[0]->meta ?? '{}', true) ?: [];
             return response()->json([
                 'name' => $lead[0]->name ?? 'unknown',
-                'id' => $lead[0]->external_lead_id ?? 'unknown'
+                'id' => $lead[0]->external_lead_id ?? 'unknown',
+                'entered_allstate_block' => $meta['entered_allstate_block'] ?? null,
+                'allstate_service_called' => $meta['allstate_service_called'] ?? null,
+                'allstate_service_returned' => $meta['allstate_service_returned'] ?? null,
+                'allstate_service_error' => $meta['allstate_service_error'] ?? null,
             ]);
         }
         return 'no leads';
@@ -270,6 +275,15 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                         'external_lead_id' => $lead->external_lead_id
                     ]);
                     
+                    // Minimal marker so we can verify in one glance that the Allstate block was reached
+                    try {
+                        $metaQuick = json_decode($lead->meta ?? '{}', true) ?: [];
+                        $metaQuick['entered_allstate_block'] = now()->toIso8601String();
+                        \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($metaQuick)]);
+                    } catch (\Throwable $t) {
+                        // ignore marker failures
+                    }
+
                     // 🧪 ALLSTATE API TESTING - ULTRA COMPREHENSIVE DEBUG
                     $allstateDebug = [
                         'CHECKPOINT_1' => 'ENTERED_ALLSTATE_BLOCK',
@@ -330,10 +344,26 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                         
                         // Call processLeadForTesting (THE CORRECT METHOD NAME!)
                         $allstateDebug['CHECKPOINT_5'] = 'CALLING_PROCESSLEADFORTESTING';
+                        // Quick marker before calling the service
+                        try {
+                            $metaQuick = json_decode($lead->meta ?? '{}', true) ?: [];
+                            $metaQuick['allstate_service_called'] = now()->toIso8601String();
+                            \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($metaQuick)]);
+                        } catch (\Throwable $t) {
+                            // ignore marker failures
+                        }
                         $testResult = $allstateService->processLeadForTesting($lead);
                         $allstateDebug['CHECKPOINT_6'] = 'PROCESSLEADFORTESTING_RETURNED';
                         $allstateDebug['result_type'] = gettype($testResult);
                         $allstateDebug['result_not_null'] = !is_null($testResult);
+                        // Marker after return
+                        try {
+                            $metaQuick = json_decode($lead->meta ?? '{}', true) ?: [];
+                            $metaQuick['allstate_service_returned'] = now()->toIso8601String();
+                            \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($metaQuick)]);
+                        } catch (\Throwable $t) {
+                            // ignore marker failures
+                        }
                         
                         // Save checkpoint 5
                         $currentMeta['ALLSTATE_CHECKPOINTS']['CP5_TESTLEAD_CALLED'] = now()->toIso8601String();
@@ -371,6 +401,14 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                         $currentMeta['ALLSTATE_ERROR_DEBUG'] = $allstateDebug;
                         $currentMeta['ALLSTATE_ERROR_TIME'] = now()->toIso8601String();
                         \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
+                        // Also stamp a concise error marker for quick checks
+                        try {
+                            $metaQuick = json_decode($lead->meta ?? '{}', true) ?: [];
+                            $metaQuick['allstate_service_error'] = substr($allstateError->getMessage(), 0, 200);
+                            \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($metaQuick)]);
+                        } catch (\Throwable $t) {
+                            // ignore marker failures
+                        }
                         
                         \Log::warning('⚠️ Allstate API test failed with full debug', $allstateDebug);
                         // Don't fail the webhook - Allstate testing is secondary
