@@ -37,8 +37,20 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                 
                 foreach ($fillableFields as $field) {
                     if (isset($data[$field])) {
-                        $leadData[$field] = $data[$field];
+                        // Convert arrays/objects to JSON strings for database storage
+                        if (in_array($field, ['drivers', 'vehicles', 'current_policy']) && is_array($data[$field])) {
+                            $leadData[$field] = json_encode($data[$field]);
+                        } else {
+                            $leadData[$field] = $data[$field];
+                        }
                     }
+                }
+                
+                // Handle name field - if only 'name' is provided, split it
+                if (!isset($leadData['first_name']) && !isset($leadData['last_name']) && isset($leadData['name'])) {
+                    $nameParts = explode(' ', $leadData['name'], 2);
+                    $leadData['first_name'] = $nameParts[0] ?? '';
+                    $leadData['last_name'] = $nameParts[1] ?? '';
                 }
                 
                 // Add required fields
