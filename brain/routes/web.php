@@ -4,6 +4,54 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
+
+// ABSOLUTE FIRST ROUTE - NO MIDDLEWARE AT ALL
+Route::match(['GET', 'POST'], '/api-webhook', function () {
+    try {
+        $data = request()->all();
+        
+        if (request()->isMethod('GET')) {
+            return response()->json([
+                'status' => 'ready',
+                'message' => 'Webhook ready to receive leads',
+                'method' => 'POST this URL with lead data',
+                'timestamp' => now()->toIso8601String()
+            ], 200);
+        }
+        
+        // Log the incoming data
+        \Log::info('🎯 API-WEBHOOK RECEIVED', [
+            'data' => $data,
+            'method' => request()->method(),
+            'ip' => request()->ip()
+        ]);
+        
+        // Create lead if we have data
+        if (!empty($data)) {
+            $data['external_lead_id'] = \App\Models\Lead::generateExternalLeadId();
+            $data['source'] = $data['source'] ?? 'api-webhook';
+            
+            $lead = \App\Models\Lead::create($data);
+            
+            \Log::info('✅ LEAD CREATED', [
+                'id' => $lead->id,
+                'external_lead_id' => $lead->external_lead_id
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Lead saved',
+                'lead_id' => $lead->external_lead_id
+            ], 200);
+        }
+        
+        return response()->json(['status' => 'ready'], 200);
+        
+    } catch (\Exception $e) {
+        \Log::error('API webhook error', ['error' => $e->getMessage()]);
+        return response()->json(['error' => $e->getMessage()], 200);
+    }
+})->withoutMiddleware('*');
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
