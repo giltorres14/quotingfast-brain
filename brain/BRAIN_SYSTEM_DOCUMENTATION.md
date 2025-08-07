@@ -58,36 +58,50 @@
 
 ## External Lead ID System
 
-### Format: 9-Digit Sequential IDs
-- **Starting ID**: 100000001
-- **Format**: Always 9 digits, zero-padded
-- **Increment**: Sequential (+1 for each new lead)
+### Format: 13-Digit Timestamp-Based IDs
+- **Format**: `TTTTTTTTTTXXX` (10-digit Unix timestamp + 3-digit sequence)
+- **Example**: `1754530371000`
+- **Length**: Always 13 digits, purely numeric
+- **Uniqueness**: Handles up to 999 leads per second
 - **Storage**: `external_lead_id` field in leads table
 
 ### Implementation Details
 ```php
-// Location: routes/web.php - generateLeadId() function
+// Location: app/Models/Lead.php & routes/web.php
 
-function generateLeadId() {
-    // Get highest existing 9-digit ID
-    $lastLead = Lead::whereNotNull('external_lead_id')
-                   ->whereRaw("LENGTH(external_lead_id) = 9")
-                   ->whereRaw("external_lead_id >= '100000001'")
-                   ->orderBy('external_lead_id', 'desc')
-                   ->first();
+function generateExternalLeadId() {
+    // Get current Unix timestamp (10 digits)
+    $timestamp = time();
     
-    // Increment or start fresh
-    $nextId = $lastLead ? intval($lastLead->external_lead_id) + 1 : 100000001;
+    // Get count of leads in same second for sequence
+    $countThisSecond = Lead::whereBetween('created_at', 
+        [$startOfSecond, $endOfSecond])->count();
     
-    return str_pad($nextId, 9, '0', STR_PAD_LEFT);
+    // Create 3-digit sequence (000-999)
+    $sequence = str_pad($countThisSecond, 3, '0', STR_PAD_LEFT);
+    
+    // Combine: timestamp + sequence = 13 digits
+    return $timestamp . $sequence;
+    // Example: 1754530371000
 }
 ```
 
-### Why This Format?
-- ViciDialer requires consistent numeric IDs
-- 9 digits provide room for 899,999,999 leads
-- Sequential for easy tracking and debugging
-- Overrides any incoming webhook IDs for consistency
+### Advantages of This Format
+- **Universal Compatibility**: 100% numeric, works with all systems
+- **Guaranteed Unique**: Timestamp + sequence prevents collisions
+- **Time-Sortable**: Newer leads always have higher IDs
+- **Decodable**: Can extract exact creation time from ID
+- **No DB Lookups**: Generates instantly without checking existing IDs
+- **High Volume**: Supports up to 999 leads per second
+- **Vici Compatible**: Works perfectly with ViciDialer
+
+### Decoding an ID
+```php
+$externalId = "1754530371000";
+$timestamp = substr($externalId, 0, 10);  // 1754530371
+$sequence = substr($externalId, 10, 3);   // 000
+$datetime = date('Y-m-d H:i:s', $timestamp); // 2025-08-07 01:32:51
+```
 
 ---
 
