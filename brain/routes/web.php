@@ -3566,19 +3566,122 @@ Route::get('/admin/clear-test-leads', function () {
 
 Route::post('/admin/clear-test-leads', function () {
     try {
-        // Use the ULTRA-SAFE deletion service
-        $deletionService = new \App\Services\SafeLeadDeletionService();
+        // Generate verification code
+        $verificationCode = strtoupper(substr(md5(time()), 0, 6));
         
-        // Add production confirmation if needed
-        if (app()->environment('production')) {
-            request()->merge(['confirm_production' => true]);
+        // Create backup first
+        $timestamp = date('Y-m-d_His');
+        $backupDir = storage_path('app/backups');
+        
+        // Ensure backup directory exists
+        if (!file_exists($backupDir)) {
+            mkdir($backupDir, 0755, true);
         }
         
-        $result = $deletionService->safelyClearAllLeads();
+        // Count what we're deleting
+        $counts = [
+            'leads' => \App\Models\Lead::count(),
+            'test_logs' => \App\Models\AllstateTestLog::count(),
+            'queue' => 0
+        ];
         
-        return response()->json($result);
+        try {
+            $counts['queue'] = \App\Models\LeadQueue::count();
+        } catch (\Exception $e) {
+            // Table might not exist
+        }
+        
+        // Create comprehensive backup
+        $backupFile = "{$backupDir}/leads_backup_{$timestamp}.json";
+        
+        $backupData = [
+            'metadata' => [
+                'timestamp' => now()->toIso8601String(),
+                'verification_code' => $verificationCode,
+                'counts' => $counts,
+                'user_ip' => request()->ip()
+            ],
+            'data' => [
+                'leads' => \App\Models\Lead::all()->toArray(),
+                'test_logs' => \App\Models\AllstateTestLog::all()->toArray(),
+                'queue' => []
+            ]
+        ];
+        
+        try {
+            $backupData['data']['queue'] = \App\Models\LeadQueue::all()->toArray();
+        } catch (\Exception $e) {
+            // Table might not exist
+        }
+        
+        // Write backup
+        file_put_contents($backupFile, json_encode($backupData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        
+        // Create compressed backup
+        $compressedPath = "{$backupDir}/leads_backup_{$timestamp}.json.gz";
+        $gz = gzopen($compressedPath, 'w9');
+        gzwrite($gz, file_get_contents($backupFile));
+        gzclose($gz);
+        
+        \Log::info('📦 Backup created before clearing', [
+            'file' => $backupFile,
+            'lead_count' => $counts['leads'],
+            'verification_code' => $verificationCode
+        ]);
+        
+        // Start transaction for safe deletion
+        \DB::beginTransaction();
+        
+        try {
+            // Delete in correct order to avoid foreign key issues
+            $deletedCounts = [
+                'test_logs' => \App\Models\AllstateTestLog::query()->delete(),
+                'queue' => 0,
+                'leads' => 0
+            ];
+            
+            try {
+                $deletedCounts['queue'] = \App\Models\LeadQueue::query()->delete();
+            } catch (\Exception $e) {
+                // Table might not exist
+            }
+            
+            $deletedCounts['leads'] = \App\Models\Lead::query()->delete();
+            
+            // Verify deletion
+            $finalCount = \App\Models\Lead::count();
+            if ($finalCount > 0) {
+                throw new \Exception("Deletion verification failed - {$finalCount} leads remain");
+            }
+            
+            \DB::commit();
+            
+            \Log::warning('✅ ALL TEST LEADS CLEARED', [
+                'verification_code' => $verificationCode,
+                'deleted_counts' => $deletedCounts,
+                'backup_file' => $backupFile,
+                'timestamp' => now(),
+                'user_ip' => request()->ip()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'All test leads cleared successfully',
+                'deleted_counts' => $deletedCounts,
+                'backup_file' => basename($backupFile),
+                'verification_code' => $verificationCode
+            ]);
+            
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            throw $e;
+        }
         
     } catch (\Exception $e) {
+        if (isset($backupFile)) {
+            \DB::rollBack();
+        }
+        
         \Log::error('Failed to clear test leads', [
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
@@ -3586,7 +3689,7 @@ Route::post('/admin/clear-test-leads', function () {
         
         return response()->json([
             'success' => false,
-            'message' => $e->getMessage()
+            'message' => 'Error: ' . $e->getMessage()
         ], 500);
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
