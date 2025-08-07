@@ -548,7 +548,7 @@
                             @endif
                         </td>
                         <td>{{ $log->response_time_ms }}ms</td>
-                        <td>{{ $log->sent_at->format('M j, g:i A') }}</td>
+                        <td>{{ $log->sent_at->setTimezone('America/New_York')->format('M j, g:i A') }} ET</td>
                         <td>
                             <button class="btn btn-secondary btn-small" onclick="showDetails({{ $log->id }})">
                                 📋 View Details
@@ -650,7 +650,8 @@
                             <strong>Environment:</strong> ${data.test_environment}<br>
                             <strong>Response Time:</strong> ${data.response_time_ms}ms<br>
                             <strong>Status Code:</strong> ${data.response_status}<br>
-                            <strong>Endpoint:</strong> ${data.allstate_endpoint}
+                            <strong>Endpoint:</strong> ${data.allstate_endpoint}<br>
+                            ${data.qualification_data?.agent_notes ? `<strong>Agent Notes:</strong> ${data.qualification_data.agent_notes}` : ''}
                         </div>
                     `;
                     document.getElementById('detailsModal').style.display = 'block';

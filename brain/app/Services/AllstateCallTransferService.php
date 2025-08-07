@@ -1121,36 +1121,40 @@ class AllstateCallTransferService
         
         if (empty($drivers) || !is_array($drivers)) {
             // Create default driver from lead data if no drivers array
+            $duiMap = $this->mapTop12DuiSr22($qualData['dui_sr22'] ?? null);
+            $dobDefault = $this->getBestDateOfBirth($drivers, $qualData, $payload);
             $formattedDrivers[] = [
                 'first_name' => $qualData['first_name'] ?? $payload['first_name'] ?? 'Unknown',
                 'last_name' => $qualData['last_name'] ?? $payload['last_name'] ?? 'Unknown',
-                'date_of_birth' => $this->getBestDateOfBirth($drivers, $qualData, $payload),
+                'date_of_birth' => $dobDefault,
                 'gender' => $this->getBestGender($drivers, $qualData, $payload),
                 'marital_status' => $this->getBestMaritalStatus($drivers, $qualData, $payload),
                 'license_status' => 'valid',
-                'years_licensed' => $this->getYearsLicensed($qualData, $drivers),
+                'years_licensed' => $this->getYearsLicensedWithFallback($qualData, $drivers, $dobDefault),
                 'education' => $this->getEducationLevel($qualData, $payload),
                 'occupation' => $this->getOccupation($qualData, $payload, $drivers),
                 'credit_score' => $this->getCreditScoreRange($qualData, $payload),
                 'accidents' => $this->getAccidentsViolations($qualData, $drivers),
                 'violations' => $this->getAccidentsViolations($qualData, $drivers),
-                'dui_conviction' => $this->getDUIConviction($qualData, $drivers),
-                'sr22_required' => $this->getSR22Required($qualData, $drivers),
+                'dui_conviction' => $duiMap['dui_conviction'] ?? $this->getDUIConviction($qualData, $drivers),
+                'sr22_required' => $duiMap['sr22_required'] ?? $this->getSR22Required($qualData, $drivers),
                 'residence_type' => $this->getHomeOwnership($qualData, $payload)
             ];
         } else {
             // Process each driver with comprehensive data in Allstate format
             foreach ($drivers as $index => $driver) {
+                $duiMap = $this->mapTop12DuiSr22($qualData['dui_sr22'] ?? null);
+                $dob = $this->formatDriverDateOfBirth($driver);
                 $formattedDrivers[] = [
                     'id' => $index + 1, // API expects 'id' not 'driver_number'
                     'first_name' => $driver['first_name'] ?? "Driver" . ($index + 1),
                     'last_name' => $driver['last_name'] ?? 'Unknown',
-                    'dob' => $this->formatDriverDateOfBirth($driver), // API expects 'dob' not 'date_of_birth'
+                    'dob' => $dob, // API expects 'dob' not 'date_of_birth'
                     'gender' => $this->mapGenderForAllstate($driver['gender'] ?? 'M'),
                     'marital_status' => strtolower($driver['marital_status'] ?? 'single'),
                     'relation' => $index === 0 ? 'self' : 'spouse',
                     'valid_license' => true,
-                    'years_licensed' => (int) ($driver['years_licensed'] ?? 10),
+                    'years_licensed' => (int) ($driver['years_licensed'] ?? $this->getYearsLicensedWithFallback($qualData, [$driver], $dob)),
                     'license_age' => (int) ($driver['license_age'] ?? 16), // Required field - age when first licensed
                     'edu_level' => $this->mapEducationForAllstate($driver['education'] ?? 'BDG'),
                     'occupation' => $this->mapOccupationForAllstate($driver['occupation'] ?? 'SUPERVISOR'),
@@ -1163,14 +1167,40 @@ class AllstateCallTransferService
                         + (is_array($driver['violations_3_years'] ?? null) ? count($driver['violations_3_years']) : ($driver['violations_3_years'] ?? 0))
                         + (is_array($driver['violations'] ?? null) ? count($driver['violations']) : ($driver['violations'] ?? 0))
                     ) > 0), // Boolean: true if any incidents
-                    'dui' => (bool) ($driver['dui_conviction'] ?? $driver['dui'] ?? false),
-                    'requires_sr22' => (bool) ($driver['sr22_required'] ?? false), // API expects 'requires_sr22' not 'sr22'
+                    'dui' => (bool) ($duiMap['dui_conviction'] ?? $driver['dui_conviction'] ?? $driver['dui'] ?? false),
+                    'requires_sr22' => (bool) ($duiMap['sr22_required'] ?? $driver['sr22_required'] ?? false), // API expects 'requires_sr22' not 'sr22'
                     'is_primary' => $index === 0 // First driver is primary
                 ];
             }
         }
         
         return $formattedDrivers;
+    }
+
+    private function mapTop12DuiSr22($answer)
+    {
+        if (!$answer) return [];
+        $clean = strtolower(trim($answer));
+        switch ($clean) {
+            case 'dui only': return ['dui_conviction' => true, 'sr22_required' => false];
+            case 'sr22 only': return ['dui_conviction' => false, 'sr22_required' => true];
+            case 'both': return ['dui_conviction' => true, 'sr22_required' => true];
+            case 'no': return ['dui_conviction' => false, 'sr22_required' => false];
+            default: return [];
+        }
+    }
+
+    private function getYearsLicensedWithFallback($qualData, $drivers, $dob)
+    {
+        $years = $this->getYearsLicensed($qualData, $drivers);
+        if ($years) return $years;
+        try {
+            if ($dob) {
+                $age = \Carbon\Carbon::parse($dob)->age;
+                return max($age - 17, 0);
+            }
+        } catch (\Exception $e) {}
+        return 10;
     }
     
     /**
