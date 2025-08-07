@@ -29,71 +29,53 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
         // Create lead if we have data
         if (!empty($data)) {
             try {
-                // Handle LQF's nested structure (contact and data objects)
-                $leadData = [];
+                // COPY EXACT LOGIC FROM /webhook.php - Parse contact data (could be in 'contact' field or root level)
+                $contact = isset($data['contact']) ? $data['contact'] : $data;
                 
-                // Extract contact information (LQF sends this in 'contact' object)
-                if (isset($data['contact'])) {
-                    $contact = $data['contact'];
-                    $leadData['first_name'] = $contact['first_name'] ?? null;
-                    $leadData['last_name'] = $contact['last_name'] ?? null;
-                    $leadData['phone'] = $contact['phone'] ?? null;
-                    $leadData['email'] = $contact['email'] ?? null;
-                    $leadData['address'] = $contact['address'] ?? null;
-                    $leadData['city'] = $contact['city'] ?? null;
-                    $leadData['state'] = $contact['state'] ?? null;
-                    $leadData['zip_code'] = $contact['zip_code'] ?? null;
-                } else {
-                    // Fallback to root level fields for simple webhook tests
-                    $fillableFields = ['name', 'first_name', 'last_name', 'phone', 'email', 
-                                      'address', 'city', 'state', 'zip_code', 'source', 'type'];
-                    foreach ($fillableFields as $field) {
-                        if (isset($data[$field])) {
-                            $leadData[$field] = $data[$field];
-                        }
-                    }
-                }
+                // COPY EXACT LOGIC FROM /webhook.php - Prepare lead data
+                $leadData = [
+                    'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
+                    'first_name' => $contact['first_name'] ?? null,
+                    'last_name' => $contact['last_name'] ?? null,
+                    'phone' => $contact['phone'] ?? 'Unknown',
+                    'email' => $contact['email'] ?? null,
+                    'address' => $contact['address'] ?? null,
+                    'city' => $contact['city'] ?? null,
+                    'state' => $contact['state'] ?? 'Unknown',
+                    'zip_code' => $contact['zip_code'] ?? null,
+                    'source' => 'leadsquotingfast',
+                    'type' => 'auto', // Default to auto, can enhance detection later
+                    'received_at' => now(),
+                    'joined_at' => now(),
+                    
+                    // Additional fields for reporting and compliance
+                    'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null,
+                    'tcpa_compliant' => $data['tcpa_compliant'] ?? $data['meta']['tcpa_compliant'] ?? false,
+                    'landing_page_url' => $data['landing_page_url'] ?? null,
+                    'user_agent' => $data['user_agent'] ?? null,
+                    'ip_address' => $data['ip_address'] ?? $contact['ip_address'] ?? null,
+                    'campaign_id' => $data['campaign_id'] ?? null,
+                    
+                    // Store compliance and tracking data in meta
+                    'meta' => json_encode(array_merge([
+                        'trusted_form_cert_url' => $data['trusted_form_cert_url'] ?? null,
+                        'originally_created' => $data['originally_created'] ?? null,
+                        'source_details' => $data['source'] ?? null,
+                    ], $data['meta'] ?? [])),
+                    
+                    // Store drivers, vehicles, policies as JSON strings
+                    'drivers' => json_encode($data['data']['drivers'] ?? []),
+                    'vehicles' => json_encode($data['data']['vehicles'] ?? []),
+                    'current_policy' => json_encode($data['data']['current_policy'] ?? null),
+                    'requested_policy' => json_encode($data['data']['requested_policy'] ?? $data['requested_policy'] ?? null),
+                    'payload' => json_encode($data),
+                ];
                 
-                // Extract drivers, vehicles, policies from 'data' object
-                if (isset($data['data'])) {
-                    $innerData = $data['data'];
-                    // Convert arrays to JSON strings for database storage
-                    if (isset($innerData['drivers']) && is_array($innerData['drivers'])) {
-                        $leadData['drivers'] = json_encode($innerData['drivers']);
-                    }
-                    if (isset($innerData['vehicles']) && is_array($innerData['vehicles'])) {
-                        $leadData['vehicles'] = json_encode($innerData['vehicles']);
-                    }
-                    if (isset($innerData['current_policy'])) {
-                        $leadData['current_policy'] = is_array($innerData['current_policy']) 
-                            ? json_encode($innerData['current_policy']) 
-                            : $innerData['current_policy'];
-                    }
-                    if (isset($innerData['requested_policy'])) {
-                        $leadData['requested_policy'] = json_encode($innerData['requested_policy']);
-                    }
-                } else {
-                    // Fallback for simple test data at root level
-                    foreach (['drivers', 'vehicles', 'current_policy'] as $field) {
-                        if (isset($data[$field]) && is_array($data[$field])) {
-                            $leadData[$field] = json_encode($data[$field]);
-                        }
-                    }
-                }
+                // CRITICAL: Generate our ID BEFORE creating the lead
+                $externalLeadId = \App\Models\Lead::generateExternalLeadId();
                 
-                // Handle name field - if only 'name' is provided, split it
-                if (!isset($leadData['first_name']) && !isset($leadData['last_name']) && isset($leadData['name'])) {
-                    $nameParts = explode(' ', $leadData['name'], 2);
-                    $leadData['first_name'] = $nameParts[0] ?? '';
-                    $leadData['last_name'] = $nameParts[1] ?? '';
-                }
-                
-                // Add required fields
-                $leadData['external_lead_id'] = \App\Models\Lead::generateExternalLeadId();
-                $leadData['source'] = $data['campaign_id'] ?? $leadData['source'] ?? 'api-webhook';
-                
-                // Store full payload as JSON
-                $leadData['payload'] = json_encode($data);
+                // Force our generated ID into the lead data, overriding ANY incoming ID
+                $leadData['external_lead_id'] = $externalLeadId;
                 
                 $lead = \App\Models\Lead::create($leadData);
                 
