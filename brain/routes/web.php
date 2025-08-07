@@ -3566,71 +3566,22 @@ Route::get('/admin/clear-test-leads', function () {
 
 Route::post('/admin/clear-test-leads', function () {
     try {
-        // Create backup first
-        $backupFile = storage_path('app/backups/leads_backup_' . date('Y-m-d_His') . '.json');
+        // Use the ULTRA-SAFE deletion service
+        $deletionService = new \App\Services\SafeLeadDeletionService();
         
-        // Ensure backup directory exists
-        if (!file_exists(storage_path('app/backups'))) {
-            mkdir(storage_path('app/backups'), 0755, true);
+        // Add production confirmation if needed
+        if (app()->environment('production')) {
+            request()->merge(['confirm_production' => true]);
         }
         
-        // Backup all data
-        $backupData = [
-            'timestamp' => now()->toIso8601String(),
-            'lead_count' => \App\Models\Lead::count(),
-            'leads' => \App\Models\Lead::all()->toArray(),
-            'test_logs' => \App\Models\AllstateTestLog::all()->toArray(),
-        ];
+        $result = $deletionService->safelyClearAllLeads();
         
-        try {
-            $backupData['queue'] = \App\Models\LeadQueue::all()->toArray();
-        } catch (\Exception $e) {
-            $backupData['queue'] = [];
-        }
-        
-        file_put_contents($backupFile, json_encode($backupData, JSON_PRETTY_PRINT));
-        
-        \Log::info('📦 Backup created before clearing', [
-            'file' => $backupFile,
-            'lead_count' => $backupData['lead_count']
-        ]);
-        
-        \DB::beginTransaction();
-        
-        // Clear in correct order to avoid foreign key issues
-        \App\Models\AllstateTestLog::query()->delete();
-        
-        try {
-            \App\Models\LeadQueue::query()->delete();
-        } catch (\Exception $e) {
-            // Table might not exist
-        }
-        
-        // Clear all leads
-        \App\Models\Lead::query()->delete();
-        
-        // DO NOT reset auto-increment counters - we use timestamp-based external_lead_id
-        // The internal auto-increment IDs don't matter for our system
-        
-        \DB::commit();
-        
-        \Log::warning('🗑️ ALL TEST LEADS CLEARED', [
-            'timestamp' => now(),
-            'user_ip' => request()->ip(),
-            'backup_file' => $backupFile
-        ]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'All test leads cleared successfully',
-            'backup' => basename($backupFile)
-        ]);
+        return response()->json($result);
         
     } catch (\Exception $e) {
-        \DB::rollBack();
-        
         \Log::error('Failed to clear test leads', [
-            'error' => $e->getMessage()
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ]);
         
         return response()->json([

@@ -256,6 +256,7 @@
         <div class="success-message" id="successMessage">
             ✅ All test data has been cleared successfully!<br>
             <span id="backupInfo"></span><br>
+            <span id="verificationInfo"></span><br>
             The database is now clean and ready for production.
         </div>
         
@@ -305,20 +306,28 @@
                     document.getElementById('successMessage').classList.add('active');
                     
                     // Show backup info
-                    if (data.backup) {
+                    if (data.backup_file) {
                         document.getElementById('backupInfo').textContent = 
-                            '📦 Backup saved: ' + data.backup;
+                            '📦 Backup saved: ' + data.backup_file;
+                    }
+                    
+                    // Show verification code
+                    if (data.verification_code) {
+                        document.getElementById('verificationInfo').textContent = 
+                            '🔐 Verification Code: ' + data.verification_code + ' (saved in logs)';
                     }
                     
                     // Update counts to 0
-                    document.getElementById('leadCount').textContent = '0';
-                    document.getElementById('testLogCount').textContent = '0';
-                    document.getElementById('queueCount').textContent = '0';
+                    if (data.deleted_counts) {
+                        document.getElementById('leadCount').textContent = '0';
+                        document.getElementById('testLogCount').textContent = '0';
+                        document.getElementById('queueCount').textContent = '0';
+                    }
                     
-                    // Redirect after 5 seconds (give time to see backup info)
+                    // Redirect after 7 seconds (give time to see info)
                     setTimeout(() => {
                         window.location.href = '/leads';
-                    }, 5000);
+                    }, 7000);
                 } else {
                     document.getElementById('errorMessage').classList.add('active');
                     document.getElementById('errorMessage').innerHTML = 
