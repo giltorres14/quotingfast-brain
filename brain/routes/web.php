@@ -252,9 +252,27 @@ Route::get('/debug-allstate', function () {
     // Check if AllstateTestingService class exists
     $debugInfo['class_exists'] = class_exists(\App\Services\AllstateTestingService::class);
     
-    // Check last 5 leads
-    $lastLeads = \App\Models\Lead::orderBy('created_at', 'desc')->limit(5)->get(['id', 'external_lead_id', 'name', 'created_at']);
-    $debugInfo['last_5_leads'] = $lastLeads->toArray();
+    // Check last 5 leads WITH their meta field to see debug info
+    $lastLeads = \App\Models\Lead::orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get(['id', 'external_lead_id', 'name', 'meta', 'created_at']);
+    
+    $debugInfo['last_5_leads'] = [];
+    foreach ($lastLeads as $lead) {
+        $meta = json_decode($lead->meta, true);
+        $debugInfo['last_5_leads'][] = [
+            'id' => $lead->id,
+            'external_lead_id' => $lead->external_lead_id,
+            'name' => $lead->name,
+            'created_at' => $lead->created_at->toIso8601String(),
+            'DEBUG_INFO' => [
+                'ALLSTATE_BLOCK' => $meta['DEBUG_ALLSTATE_BLOCK'] ?? 'NOT_REACHED',
+                'IF_BLOCK' => $meta['DEBUG_ALLSTATE_IF_BLOCK'] ?? 'NOT_ENTERED',
+                'COMPLETED' => $meta['DEBUG_ALLSTATE_COMPLETED'] ?? 'NOT_COMPLETED',
+                'FAILED' => $meta['DEBUG_ALLSTATE_FAILED'] ?? 'NO_ERROR'
+            ]
+        ];
+    }
     
     // Check if there are any logs with "ALLSTATE" in them (if we could access logs)
     $debugInfo['allstate_test_logs_count'] = \DB::table('allstate_test_logs')->count();
@@ -283,7 +301,7 @@ Route::get('/debug-allstate', function () {
     $debugInfo['webhook_route'] = $webhookRoute ?? 'NOT FOUND';
     
     // Add a test flag that we can check
-    $debugInfo['debug_flag'] = 'HEAVY_DEBUG_V1_DEPLOYED';
+    $debugInfo['debug_flag'] = 'HEAVY_DEBUG_V2_WITH_META';
     
     return response()->json($debugInfo, 200, [], JSON_PRETTY_PRINT);
 })->withoutMiddleware('*');
