@@ -616,6 +616,9 @@
                     document.getElementById('modalContent').innerHTML = `
                         <h2>🔬 Test Details - ${data.lead_name}</h2>
                         
+                        <h3>📦 Original Provider Payload (incoming)</h3>
+                        <div class="json-viewer">${JSON.stringify(data.allstate_payload?.original_payload || {}, null, 2)}</div>
+                        
                         <h3>📋 Auto-Generated Qualification Data</h3>
                         <div class="json-viewer">${JSON.stringify(data.qualification_data, null, 2)}</div>
                         

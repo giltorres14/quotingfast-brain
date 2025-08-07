@@ -129,8 +129,11 @@ class RingBAService
             'email' => $lead->email,
             'address' => $lead->address,
             'city' => $lead->city,
+            // Send both naming styles for compatibility with current RingBA params
             'state' => $lead->state,
             'zip_code' => $lead->zip_code,
+            'state_name' => $lead->state,
+            'zipcode' => $lead->zip_code,
             
             // Campaign Attribution
             'source' => $lead->source,
