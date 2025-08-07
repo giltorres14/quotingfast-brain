@@ -199,6 +199,19 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\DashboardController;
 
+// Debug Allstate integration
+Route::get('/debug-allstate', function () {
+    $checks = [
+        'AllstateTestingService class exists' => class_exists(\App\Services\AllstateTestingService::class),
+        'AllstateTestingService file exists' => file_exists(app_path('Services/AllstateTestingService.php')),
+        'allstate_test_logs table exists' => \Schema::hasTable('allstate_test_logs'),
+        'Test logs count' => \Schema::hasTable('allstate_test_logs') ? \DB::table('allstate_test_logs')->count() : 'N/A',
+        'Recent leads count' => \App\Models\Lead::where('created_at', '>=', now()->subHour())->count(),
+    ];
+    
+    return response()->json($checks);
+})->withoutMiddleware('*');
+
 // Check if Allstate tables exist and run migration if needed
 Route::get('/check-allstate-db', function () {
     try {
@@ -230,6 +243,49 @@ Route::get('/check-allstate-db', function () {
             'trace' => $e->getTraceAsString()
         ], 500);
     }
+})->withoutMiddleware('*');
+
+// HEAVY DEBUG ENDPOINT - See what's happening with Allstate
+Route::get('/debug-allstate', function () {
+    $debugInfo = [];
+    
+    // Check if AllstateTestingService class exists
+    $debugInfo['class_exists'] = class_exists(\App\Services\AllstateTestingService::class);
+    
+    // Check last 5 leads
+    $lastLeads = \App\Models\Lead::orderBy('created_at', 'desc')->limit(5)->get(['id', 'external_lead_id', 'name', 'created_at']);
+    $debugInfo['last_5_leads'] = $lastLeads->toArray();
+    
+    // Check if there are any logs with "ALLSTATE" in them (if we could access logs)
+    $debugInfo['allstate_test_logs_count'] = \DB::table('allstate_test_logs')->count();
+    
+    // Check environment variables
+    $debugInfo['environment'] = [
+        'APP_ENV' => env('APP_ENV'),
+        'ALLSTATE_API_ENV' => env('ALLSTATE_API_ENV'),
+        'ALLSTATE_TEST_MODE' => env('ALLSTATE_TEST_MODE'),
+        'ALLSTATE_API_KEY' => env('ALLSTATE_API_KEY') ? 'SET' : 'NOT SET'
+    ];
+    
+    // Check if the webhook.php route exists and what line it's at
+    $routes = Route::getRoutes();
+    $webhookRoute = null;
+    foreach ($routes as $route) {
+        if ($route->uri() === 'webhook.php' && in_array('POST', $route->methods())) {
+            $webhookRoute = [
+                'uri' => $route->uri(),
+                'methods' => $route->methods(),
+                'action' => 'Found'
+            ];
+            break;
+        }
+    }
+    $debugInfo['webhook_route'] = $webhookRoute ?? 'NOT FOUND';
+    
+    // Add a test flag that we can check
+    $debugInfo['debug_flag'] = 'HEAVY_DEBUG_V1_DEPLOYED';
+    
+    return response()->json($debugInfo, 200, [], JSON_PRETTY_PRINT);
 })->withoutMiddleware('*');
 
 // Main landing page - redirect to leads dashboard
@@ -1256,9 +1312,36 @@ Route::post('/webhook.php', function (Request $request) {
         // 🧪 TEMPORARY TESTING MODE: Bypass Vici and send directly to Allstate for API testing
         // TODO: RESTORE VICI INTEGRATION AFTER TESTING (see memory ID: 5307562)
         // ALWAYS test with Allstate for now
+        
+        // HEAVY DEBUG - Save debug info to database
+        try {
+            \DB::table('leads')->where('id', $lead->id)->update([
+                'meta' => json_encode([
+                    'DEBUG_ALLSTATE_BLOCK' => 'REACHED_AT_' . now()->toIso8601String(),
+                    'lead_exists' => $lead ? true : false,
+                    'lead_id' => $lead ? $lead->id : 'NO_LEAD',
+                    'external_lead_id' => $lead ? $lead->external_lead_id : 'NO_LEAD'
+                ])
+            ]);
+        } catch (\Exception $e) {
+            // Ignore debug errors
+        }
+        
         if ($lead) {
             // Add immediate feedback
             Log::error('🚨🚨🚨 ALLSTATE BLOCK REACHED - Lead ID: ' . $lead->id);
+            
+            // HEAVY DEBUG - Save to database that we entered the block
+            try {
+                \DB::table('leads')->where('id', $lead->id)->update([
+                    'meta' => json_encode([
+                        'DEBUG_ALLSTATE_IF_BLOCK' => 'ENTERED_AT_' . now()->toIso8601String(),
+                        'about_to_test' => true
+                    ])
+                ]);
+            } catch (\Exception $e) {
+                // Ignore debug errors
+            }
             
             try {
                 Log::warning('🧪🧪🧪 ALLSTATE TESTING MODE ACTIVE - STARTING', [
@@ -1306,6 +1389,18 @@ Route::post('/webhook.php', function (Request $request) {
                     'response_time_ms' => $testResult['response_time_ms'] ?? null
                 ]);
                 
+                // HEAVY DEBUG - Save success to database
+                try {
+                    \DB::table('leads')->where('id', $lead->id)->update([
+                        'meta' => json_encode([
+                            'DEBUG_ALLSTATE_COMPLETED' => 'SUCCESS_AT_' . now()->toIso8601String(),
+                            'test_result' => $testResult
+                        ])
+                    ]);
+                } catch (\Exception $e) {
+                    // Ignore debug errors
+                }
+                
             } catch (Exception $testingError) {
                 Log::error('🧪🚨 ALLSTATE TESTING FAILED', [
                     'lead_id' => $lead->id,
@@ -1313,6 +1408,19 @@ Route::post('/webhook.php', function (Request $request) {
                     'error' => $testingError->getMessage(),
                     'trace' => $testingError->getTraceAsString()
                 ]);
+                
+                // HEAVY DEBUG - Save failure to database
+                try {
+                    \DB::table('leads')->where('id', $lead->id)->update([
+                        'meta' => json_encode([
+                            'DEBUG_ALLSTATE_FAILED' => 'ERROR_AT_' . now()->toIso8601String(),
+                            'error_message' => $testingError->getMessage(),
+                            'error_line' => $testingError->getLine()
+                        ])
+                    ]);
+                } catch (\Exception $e) {
+                    // Ignore debug errors
+                }
             }
         } else {
             Log::error('🧪🚨 NO LEAD OBJECT - Cannot test with Allstate', [
