@@ -38,3 +38,5 @@ class CreateLeadQueueTable extends Migration
         Schema::dropIfExists('lead_queue');
     }
 }
+
+

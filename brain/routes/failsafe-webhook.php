@@ -40,3 +40,5 @@ Route::post('/webhook-failsafe.php', function (Request $request) {
         ], 200); // Still return 200!
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+

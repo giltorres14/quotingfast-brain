@@ -38,3 +38,5 @@ class VerifyCsrfToken extends Middleware
         'webhook/leadsquotingfast',
     ];
 }
+
+

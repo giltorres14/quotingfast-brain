@@ -20,3 +20,5 @@ echo "  tail -f storage/logs/lead-queue.log"
 echo ""
 echo "To manually process queue:"
 echo "  php artisan leads:process-queue"
+
+

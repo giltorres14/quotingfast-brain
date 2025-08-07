@@ -229,7 +229,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\DashboardController;
-use App\Services\AllstateTestingService;
 
 // Main landing page - redirect to leads dashboard
 Route::get('/', function () {
