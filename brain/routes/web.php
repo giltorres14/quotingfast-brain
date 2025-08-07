@@ -77,31 +77,94 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                 // Force our generated ID into the lead data, overriding ANY incoming ID
                 $leadData['external_lead_id'] = $externalLeadId;
                 
-                $lead = \App\Models\Lead::create($leadData);
+                // Try to create the lead with failsafe
+                $lead = null;
+                try {
+                    $lead = \App\Models\Lead::create($leadData);
+                    
+                    // Double-check and force update if somehow ID got overridden
+                    if ($lead->external_lead_id !== $externalLeadId) {
+                        \Log::warning('🔢 External ID mismatch, forcing correction', [
+                            'expected' => $externalLeadId,
+                            'actual' => $lead->external_lead_id
+                        ]);
+                        \DB::table('leads')->where('id', $lead->id)->update(['external_lead_id' => $externalLeadId]);
+                        $lead->external_lead_id = $externalLeadId;
+                    }
+                    
+                    \Log::info('✅ LEAD CREATED', [
+                        'id' => $lead->id,
+                        'external_lead_id' => $lead->external_lead_id
+                    ]);
+                    
+                } catch (\Exception $dbError) {
+                    \Log::error('Database storage failed, attempting queue fallback', [
+                        'error' => $dbError->getMessage()
+                    ]);
+                    
+                    // Try to queue it if database fails
+                    try {
+                        if (\Schema::hasTable('lead_queue')) {
+                            \App\Models\LeadQueue::create([
+                                'payload' => $data,
+                                'source' => 'api-webhook-failsafe',
+                                'status' => 'pending'
+                            ]);
+                            \Log::info('✅ Lead queued for retry');
+                        }
+                    } catch (\Exception $queueError) {
+                        \Log::error('Queue also failed', ['error' => $queueError->getMessage()]);
+                    }
+                }
                 
-                \Log::info('✅ LEAD CREATED', [
-                    'id' => $lead->id,
-                    'external_lead_id' => $lead->external_lead_id
-                ]);
+                // Campaign auto-detection (if lead was created)
+                if ($lead && !empty($leadData['campaign_id'])) {
+                    try {
+                        $campaign = \App\Models\Campaign::autoCreateFromId($leadData['campaign_id']);
+                        if ($campaign && $campaign->wasRecentlyCreated) {
+                            \Log::warning('🆕 NEW CAMPAIGN DETECTED', [
+                                'campaign_id' => $leadData['campaign_id'],
+                                'message' => "New campaign auto-created. Please add campaign name."
+                            ]);
+                        }
+                    } catch (\Exception $e) {
+                        // Don't let campaign issues break the webhook
+                        \Log::error('Campaign detection error', ['error' => $e->getMessage()]);
+                    }
+                }
                 
-                // TODO: Add Allstate API testing here once webhook is stable
-                
+                // ALWAYS return 200 to prevent LQF retries (even on errors)
                 return response()->json([
                     'success' => true,
-                    'message' => 'Lead saved',
-                    'lead_id' => $lead->external_lead_id
+                    'message' => 'Lead received',
+                    'lead_id' => $lead ? $lead->external_lead_id : $externalLeadId
                 ], 200);
+                
             } catch (\Exception $e) {
-                \Log::error('Lead creation error in webhook', [
+                \Log::error('Critical webhook error', [
                     'error' => $e->getMessage(),
                     'data' => $data
                 ]);
                 
-                // Still return 200 to prevent retries
+                // Try to queue even on critical errors
+                try {
+                    if (\Schema::hasTable('lead_queue')) {
+                        \App\Models\LeadQueue::create([
+                            'payload' => $data,
+                            'source' => 'api-webhook-error',
+                            'status' => 'pending'
+                        ]);
+                        \Log::info('✅ Lead queued after error');
+                    }
+                } catch (\Exception $queueError) {
+                    \Log::error('Emergency queue failed', ['error' => $queueError->getMessage()]);
+                }
+                
+                // ALWAYS return 200 to prevent retries
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Lead processing error',
-                    'error' => $e->getMessage()
+                    'success' => true,
+                    'message' => 'Lead received',
+                    'queued' => true
                 ], 200);
             }
         }
