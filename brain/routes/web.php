@@ -3549,6 +3549,82 @@ Route::get('/admin/lead-queue/process', function () {
     return redirect('/admin/lead-queue')->with('success', 'Queue processing started!');
 });
 
+// Clear test leads (CAREFUL - for pre-production only!)
+Route::get('/admin/clear-test-leads', function () {
+    $leadCount = \App\Models\Lead::count();
+    $testLogCount = \App\Models\AllstateTestLog::count();
+    $queueCount = 0;
+    
+    try {
+        $queueCount = \App\Models\LeadQueue::count();
+    } catch (\Exception $e) {
+        // Table might not exist yet
+    }
+    
+    return view('admin.clear-leads', compact('leadCount', 'testLogCount', 'queueCount'));
+});
+
+Route::post('/admin/clear-test-leads', function () {
+    try {
+        \DB::beginTransaction();
+        
+        // Clear in correct order to avoid foreign key issues
+        \App\Models\AllstateTestLog::query()->delete();
+        
+        try {
+            \App\Models\LeadQueue::query()->delete();
+        } catch (\Exception $e) {
+            // Table might not exist
+        }
+        
+        // Clear all leads
+        \App\Models\Lead::query()->delete();
+        
+        // Reset auto-increment if using MySQL/PostgreSQL
+        if (config('database.default') !== 'sqlite') {
+            try {
+                \DB::statement('ALTER TABLE leads AUTO_INCREMENT = 1');
+                \DB::statement('ALTER TABLE allstate_test_logs AUTO_INCREMENT = 1');
+                \DB::statement('ALTER TABLE lead_queue AUTO_INCREMENT = 1');
+            } catch (\Exception $e) {
+                // Some tables might not exist or DB might be PostgreSQL
+                try {
+                    // PostgreSQL syntax
+                    \DB::statement('ALTER SEQUENCE leads_id_seq RESTART WITH 1');
+                    \DB::statement('ALTER SEQUENCE allstate_test_logs_id_seq RESTART WITH 1');
+                    \DB::statement('ALTER SEQUENCE lead_queue_id_seq RESTART WITH 1');
+                } catch (\Exception $e2) {
+                    // Ignore - not critical
+                }
+            }
+        }
+        
+        \DB::commit();
+        
+        \Log::warning('🗑️ ALL TEST LEADS CLEARED', [
+            'timestamp' => now(),
+            'user_ip' => request()->ip()
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'All test leads cleared successfully'
+        ]);
+        
+    } catch (\Exception $e) {
+        \DB::rollBack();
+        
+        \Log::error('Failed to clear test leads', [
+            'error' => $e->getMessage()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
 Route::get('/admin/allstate-testing', function () {
     $testingService = new \App\Services\AllstateTestingService();
     
