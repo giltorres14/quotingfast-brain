@@ -112,6 +112,27 @@ $datetime = date('Y-m-d H:i:s', $timestamp); // 2025-08-07 01:32:51
 
 ---
 
+## Critical Testing Protocols
+
+### 🚨 WEBHOOK TESTING REQUIREMENT
+**ALWAYS test webhook endpoints after ANY change!** 
+
+**Lesson Learned (Jan 8, 2025)**: Webhooks were broken for 24+ hours because they weren't tested after changes. This caused complete lead loss.
+
+**Test Command**:
+```bash
+curl -X POST https://quotingfast-brain-ohio.onrender.com/webhook-failsafe.php \
+  -H "Content-Type: application/json" \
+  -d '{"test":"data"}' \
+  -w "\nHTTP Status: %{http_code}\n"
+```
+
+**Expected**: HTTP 200 OK (not 419 CSRF or 500 errors)
+
+See `WEBHOOK_TESTING_PROTOCOL.md` for complete testing procedures.
+
+---
+
 ## API Integrations
 
 ### 1. Allstate Lead Marketplace API
