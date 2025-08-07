@@ -427,7 +427,8 @@
         <div class="nav-links">
             <a href="/admin" class="nav-link">← Admin Dashboard</a>
             <a href="/leads" class="nav-link">Leads</a>
-            <a href="#" class="nav-link" onclick="location.reload()">🔄 Refresh</a>
+            <a href="#" class="nav-link" onclick="location.reload()" title="Refresh now">🔄 Refresh</a>
+            <a href="#" id="autoRefreshBtn" class="nav-link" onclick="toggleAutoRefresh()" title="Toggle auto refresh">⏱️ Auto Refresh: On</a>
         </div>
     </div>
 
@@ -586,21 +587,32 @@
         </div>
     </div>
 
-    <!-- Auto-refresh button -->
+    <!-- Auto-refresh button (floating) -->
     <button class="refresh-btn" onclick="location.reload()" title="Refresh Dashboard">
         🔄
     </button>
 
     <script>
-        // Auto-refresh every 30 seconds
+        // Auto-refresh every 30 seconds unless disabled or a modal is open
+        let autoRefresh = true;
+        const autoBtn = document.getElementById('autoRefreshBtn');
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            if (autoBtn) autoBtn.textContent = `⏱️ Auto Refresh: ${autoRefresh ? 'On' : 'Off'}`;
+        }
         setInterval(() => {
-            location.reload();
+            const modalOpen = document.getElementById('detailsModal')?.style.display === 'block';
+            if (autoRefresh && !modalOpen) {
+                location.reload();
+            }
         }, 30000);
 
         function showDetails(logId) {
             fetch(`/admin/allstate-testing/details/${logId}`)
                 .then(response => response.json())
                 .then(data => {
+                    // Pause auto-refresh while viewing details
+                    autoRefresh = false; if (autoBtn) autoBtn.textContent = '⏱️ Auto Refresh: Off';
                     document.getElementById('modalContent').innerHTML = `
                         <h2>🔬 Test Details - ${data.lead_name}</h2>
                         
@@ -608,6 +620,11 @@
                         <div class="json-viewer">${JSON.stringify(data.qualification_data, null, 2)}</div>
                         
                         <h3>📍 Data Sources</h3>
+                        <div style="margin: .5rem 0 1rem 0; font-size: .875rem; color:#4a5568;">
+                            <strong>Legend:</strong>
+                            <span class="data-source-tag source-default">default</span> value used when none was supplied;<br>
+                            <span class="data-source-tag source-smart">smart_logic</span> value calculated by rules using other fields (best guess).
+                        </div>
                         <div style="margin: 1rem 0;">
                             ${Object.entries(data.data_sources).map(([field, source]) => `
                                 <div style="margin: 0.5rem 0;">
@@ -675,6 +692,8 @@
 
         function closeModal() {
             document.getElementById('detailsModal').style.display = 'none';
+            // Re-enable auto refresh when closing
+            autoRefresh = true; if (autoBtn) autoBtn.textContent = '⏱️ Auto Refresh: On';
         }
 
         // Close modal when clicking outside
