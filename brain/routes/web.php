@@ -776,13 +776,57 @@ Route::get('/api/lead/{leadId}/payload', function ($leadId) {
 
 // Debug endpoint to analyze incoming webhook data
 // FAILSAFE WEBHOOK - Always returns 200 OK and queues for later processing
-// EMERGENCY WEBHOOK TEST - GUARANTEED TO WORK
-Route::any('/webhook-test-emergency', function () {
-    return response()->json([
-        'status' => 'OK',
-        'message' => 'Emergency webhook is working',
-        'timestamp' => now()->toIso8601String()
-    ], 200);
+// EMERGENCY WEBHOOK - WORKING WITHOUT CSRF
+Route::any('/webhook-emergency', function () {
+    try {
+        $data = request()->all();
+        
+        // Log the incoming data
+        \Log::warning('🚨 EMERGENCY WEBHOOK RECEIVED', [
+            'data' => $data,
+            'method' => request()->method(),
+            'ip' => request()->ip()
+        ]);
+        
+        // Create lead if we have data
+        if (!empty($data)) {
+            $leadData = $data;
+            $leadData['external_lead_id'] = \App\Models\Lead::generateExternalLeadId();
+            $leadData['source'] = 'emergency-webhook';
+            
+            $lead = \App\Models\Lead::create($leadData);
+            
+            \Log::warning('✅ LEAD CREATED VIA EMERGENCY WEBHOOK', [
+                'lead_id' => $lead->id,
+                'external_lead_id' => $lead->external_lead_id
+            ]);
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Lead received and saved',
+                'lead_id' => $lead->external_lead_id,
+                'timestamp' => now()->toIso8601String()
+            ], 200);
+        }
+        
+        return response()->json([
+            'status' => 'OK',
+            'message' => 'Emergency webhook ready',
+            'timestamp' => now()->toIso8601String()
+        ], 200);
+        
+    } catch (\Exception $e) {
+        \Log::error('Emergency webhook error', [
+            'error' => $e->getMessage()
+        ]);
+        
+        // Still return 200 to prevent retries
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Error but acknowledged',
+            'error' => $e->getMessage()
+        ], 200);
+    }
 });
 
 // WORKING WEBHOOK - NO CSRF ISSUES
