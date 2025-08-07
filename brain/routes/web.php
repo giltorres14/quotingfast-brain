@@ -6,27 +6,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
 
 // ABSOLUTE FIRST ROUTE - NO MIDDLEWARE AT ALL
-// Debug route to test Allstate service
-Route::get('/test-allstate-service', function () {
-    try {
-        if (!class_exists(\App\Services\AllstateTestingService::class)) {
-            return response()->json(['error' => 'AllstateTestingService class not found']);
-        }
-        
-        $service = new \App\Services\AllstateTestingService();
-        return response()->json([
-            'success' => true,
-            'message' => 'AllstateTestingService is available',
-            'class' => get_class($service)
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-    }
-})->withoutMiddleware('*');
-
 Route::match(['GET', 'POST'], '/api-webhook', function () {
     try {
         $data = request()->all();
@@ -76,24 +55,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     'external_lead_id' => $lead->external_lead_id
                 ]);
                 
-                // Send to Allstate API Testing
-                try {
-                    if (class_exists(\App\Services\AllstateTestingService::class)) {
-                        $testingService = new \App\Services\AllstateTestingService();
-                        $testSession = 'api_webhook_' . date('Y-m-d_H');
-                        $testingService->processLeadForTesting($lead, $testSession);
-                        \Log::info('🧪 Lead sent to Allstate testing', [
-                            'lead_id' => $lead->id,
-                            'session' => $testSession
-                        ]);
-                    }
-                } catch (\Exception $e) {
-                    \Log::error('Allstate testing failed (non-blocking)', [
-                        'error' => $e->getMessage(),
-                        'lead_id' => $lead->id
-                    ]);
-                    // Don't block lead creation if testing fails
-                }
+                // TODO: Add Allstate API testing here once webhook is stable
                 
                 return response()->json([
                     'success' => true,
