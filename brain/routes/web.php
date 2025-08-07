@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
+use App\Services\AllstateTestingService;
 
 // ABSOLUTE FIRST ROUTE - NO MIDDLEWARE AT ALL
 Route::match(['GET', 'POST'], '/api-webhook', function () {
@@ -96,6 +97,53 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                         'id' => $lead->id,
                         'external_lead_id' => $lead->external_lead_id
                     ]);
+                    
+                    // 🧪 Send to Allstate API Testing (COPY FROM WORKING /webhook.php)
+                    try {
+                        \Log::warning('🧪🧪🧪 ALLSTATE TESTING MODE ACTIVE - STARTING', [
+                            'lead_id' => $lead->id,
+                            'external_lead_id' => $lead->external_lead_id,
+                            'lead_name' => $lead->name,
+                            'testing_mode' => true,
+                            'timestamp' => now()->toIso8601String()
+                        ]);
+                        
+                        // Ensure class exists
+                        if (!class_exists(AllstateTestingService::class)) {
+                            \Log::error('🚨 AllstateTestingService class not found!');
+                            throw new \Exception('AllstateTestingService class not found');
+                        }
+                        
+                        $testingService = new AllstateTestingService();
+                        \Log::info('🧪 AllstateTestingService created successfully');
+                        
+                        $testSession = 'api_webhook_' . date('Y-m-d_H');
+                        
+                        \Log::info('🧪 Calling processLeadForTesting', [
+                            'session' => $testSession,
+                            'lead_id' => $lead->id,
+                            'lead_name' => $lead->name
+                        ]);
+                        
+                        $testResult = $testingService->processLeadForTesting($lead, $testSession);
+                        
+                        \Log::info('🧪🧪🧪 ALLSTATE TESTING COMPLETED', [
+                            'lead_id' => $lead->id,
+                            'external_lead_id' => $lead->external_lead_id,
+                            'success' => $testResult['success'] ?? false,
+                            'test_log_id' => $testResult['test_log_id'] ?? null,
+                            'response_time_ms' => $testResult['response_time_ms'] ?? null
+                        ]);
+                        
+                    } catch (\Exception $testError) {
+                        \Log::error('🧪🚨 ALLSTATE TESTING FAILED (non-blocking)', [
+                            'lead_id' => $lead->id,
+                            'external_lead_id' => $lead->external_lead_id,
+                            'error' => $testError->getMessage(),
+                            'trace' => $testError->getTraceAsString()
+                        ]);
+                        // Don't let Allstate testing failure break the webhook
+                    }
                     
                 } catch (\Exception $dbError) {
                     \Log::error('Database storage failed, attempting queue fallback', [
