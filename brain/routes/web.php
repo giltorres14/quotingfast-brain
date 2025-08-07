@@ -12,6 +12,24 @@ Route::get('/test-simple', function () {
     return response()->json(['status' => 'ok', 'time' => now()]);
 })->withoutMiddleware('*');
 
+// Check raw meta field of most recent lead
+Route::get('/check-meta', function () {
+    $lead = \App\Models\Lead::orderBy('id', 'desc')->first();
+    if ($lead) {
+        $meta = json_decode($lead->meta, true);
+        return response()->json([
+            'lead_id' => $lead->id,
+            'external_lead_id' => $lead->external_lead_id,
+            'name' => $lead->name,
+            'created_at' => $lead->created_at->toIso8601String(),
+            'raw_meta' => $meta,
+            'webhook_entered' => $meta['DEBUG_WEBHOOK_PHP_ENTERED'] ?? 'NOT_FOUND',
+            'allstate_block' => $meta['DEBUG_ALLSTATE_BLOCK'] ?? 'NOT_FOUND'
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+    return response()->json(['error' => 'No leads found'], 404);
+})->withoutMiddleware('*');
+
 // ABSOLUTE FIRST ROUTE - NO MIDDLEWARE AT ALL
 Route::match(['GET', 'POST'], '/api-webhook', function () {
     try {
