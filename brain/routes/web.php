@@ -1333,16 +1333,31 @@ Route::post('/webhook.php', function (Request $request) {
         
         // HEAVY DEBUG - Save debug info to database
         try {
-            \DB::table('leads')->where('id', $lead->id)->update([
-                'meta' => json_encode([
-                    'DEBUG_ALLSTATE_BLOCK' => 'REACHED_AT_' . now()->toIso8601String(),
-                    'lead_exists' => $lead ? true : false,
-                    'lead_id' => $lead ? $lead->id : 'NO_LEAD',
-                    'external_lead_id' => $lead ? $lead->external_lead_id : 'NO_LEAD'
-                ])
-            ]);
+            if ($lead && $lead->id) {
+                \DB::table('leads')->where('id', $lead->id)->update([
+                    'meta' => json_encode([
+                        'DEBUG_ALLSTATE_BLOCK' => 'REACHED_AT_' . now()->toIso8601String(),
+                        'lead_exists' => true,
+                        'lead_id' => $lead->id,
+                        'external_lead_id' => $lead->external_lead_id
+                    ])
+                ]);
+            } else {
+                // Lead is null - save to the most recent lead
+                \DB::table('leads')
+                    ->orderBy('id', 'desc')
+                    ->limit(1)
+                    ->update([
+                        'meta' => json_encode([
+                            'DEBUG_ALLSTATE_BLOCK' => 'REACHED_BUT_LEAD_NULL_AT_' . now()->toIso8601String(),
+                            'lead_exists' => false,
+                            'lead_variable' => $lead ?? 'completely_null'
+                        ])
+                    ]);
+            }
         } catch (\Exception $e) {
-            // Ignore debug errors
+            // Try to log the error somewhere visible
+            \Log::error('DEBUG FAILED: ' . $e->getMessage());
         }
         
         if ($lead) {
