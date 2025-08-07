@@ -230,21 +230,35 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\DashboardController;
 
-// Check if Allstate tables exist
+// Check if Allstate tables exist and run migration if needed
 Route::get('/check-allstate-db', function () {
     try {
         $hasTable = \Schema::hasTable('allstate_test_logs');
-        $count = $hasTable ? \DB::table('allstate_test_logs')->count() : 'table does not exist';
+        
+        if (!$hasTable) {
+            // Table doesn't exist, run the migration
+            \Artisan::call('migrate', [
+                '--path' => 'database/migrations/2025_08_06_031929_create_allstate_test_logs_table.php',
+                '--force' => true
+            ]);
+            
+            $hasTable = \Schema::hasTable('allstate_test_logs');
+            $migrationOutput = \Artisan::output();
+        }
+        
+        $count = $hasTable ? \DB::table('allstate_test_logs')->count() : 'table still does not exist';
         
         return response()->json([
             'allstate_test_logs_table_exists' => $hasTable,
             'record_count' => $count,
             'database_connection' => config('database.default'),
+            'migration_output' => $migrationOutput ?? 'Table already existed',
             'timestamp' => now()->toIso8601String()
         ]);
     } catch (\Exception $e) {
         return response()->json([
-            'error' => $e->getMessage()
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ], 500);
     }
 })->withoutMiddleware('*');
