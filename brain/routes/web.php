@@ -55,6 +55,25 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     'external_lead_id' => $lead->external_lead_id
                 ]);
                 
+                // Send to Allstate API Testing
+                try {
+                    if (class_exists(AllstateTestingService::class)) {
+                        $testingService = new AllstateTestingService();
+                        $testSession = 'api_webhook_' . date('Y-m-d_H');
+                        $testingService->processLeadForTesting($lead, $testSession);
+                        \Log::info('🧪 Lead sent to Allstate testing', [
+                            'lead_id' => $lead->id,
+                            'session' => $testSession
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Allstate testing failed (non-blocking)', [
+                        'error' => $e->getMessage(),
+                        'lead_id' => $lead->id
+                    ]);
+                    // Don't block lead creation if testing fails
+                }
+                
                 return response()->json([
                     'success' => true,
                     'message' => 'Lead saved',
