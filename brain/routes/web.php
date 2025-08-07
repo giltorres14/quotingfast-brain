@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
-use App\Services\AllstateTestingService;
+use App\Models\LeadQueue;
 
 // ABSOLUTE FIRST ROUTE - NO MIDDLEWARE AT ALL
 Route::match(['GET', 'POST'], '/api-webhook', function () {
@@ -73,7 +73,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                 ];
                 
                 // CRITICAL: Generate our ID BEFORE creating the lead
-                $externalLeadId = \App\Models\Lead::generateExternalLeadId();
+                $externalLeadId = Lead::generateExternalLeadId();
                 
                 // Force our generated ID into the lead data, overriding ANY incoming ID
                 $leadData['external_lead_id'] = $externalLeadId;
@@ -81,7 +81,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                 // Try to create the lead with failsafe
                 $lead = null;
                 try {
-                    $lead = \App\Models\Lead::create($leadData);
+                    $lead = Lead::create($leadData);
                     
                     // Double-check and force update if somehow ID got overridden
                     if ($lead->external_lead_id !== $externalLeadId) {
@@ -113,7 +113,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     // Try to queue it if database fails
                     try {
                         if (\Schema::hasTable('lead_queue')) {
-                            \App\Models\LeadQueue::create([
+                            LeadQueue::create([
                                 'payload' => $data,
                                 'source' => 'api-webhook-failsafe',
                                 'status' => 'pending'
@@ -157,7 +157,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                 // Try to queue even on critical errors
                 try {
                     if (\Schema::hasTable('lead_queue')) {
-                        \App\Models\LeadQueue::create([
+                        LeadQueue::create([
                             'payload' => $data,
                             'source' => 'api-webhook-error',
                             'status' => 'pending'
