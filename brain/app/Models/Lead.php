@@ -42,7 +42,7 @@ class Lead extends Model
      * 
      * This guarantees uniqueness, is purely numeric, and is time-sortable
      */
-    private static function generateExternalLeadId()
+    public static function generateExternalLeadId()
     {
         try {
             // Get current Unix timestamp (10 digits)
