@@ -194,8 +194,9 @@ class AllstateCallTransferService
             'phone' => $this->formatPhoneNumber($lead->phone ?? ''),
             'address1' => $lead->address ?? '',
             'city' => $lead->city ?? '',
-            'state' => $lead->state ?? 'CA',
-            'zipcode' => $lead->zip_code ?? '',
+            // Agent Top 12 overrides (if provided on lead record)
+            'state' => $lead->top12_state ?? ($lead->state ?? 'CA'),
+            'zipcode' => $lead->top12_zip_code ?? ($lead->zip_code ?? ''),
             'country' => 'USA',
             
             // Enhanced Contact Information (required by Allstate)
@@ -207,7 +208,7 @@ class AllstateCallTransferService
             // Insurance Status (prioritize agent qualification)
             'currently_insured' => $this->getCurrentInsuranceStatus($qualData, $currentPolicy, $payload),
             // Respect LQF payload for DUI/SR22 when present
-            'dui_sr22' => (bool) ($payload['dui_sr22'] ?? false),
+            'dui_sr22' => (bool) ($lead->top12_dui_sr22 ?? ($payload['dui_sr22'] ?? false)),
             'current_insurance_company' => $this->getCurrentInsuranceCompany($qualData, $currentPolicy, $payload),
             'policy_expiration_date' => $this->getPolicyExpirationDate($qualData, $currentPolicy),
             'current_premium' => $this->getCurrentPremium($qualData, $currentPolicy),

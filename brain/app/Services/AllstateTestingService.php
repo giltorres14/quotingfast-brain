@@ -100,7 +100,7 @@ class AllstateTestingService
 
         // Track each qualification field
         foreach ($qualificationData as $field => $value) {
-            $dataSources[$field] = $this->determineDataSource($field, $value, $lead, $drivers, $vehicles, $currentPolicy, $payload);
+            $dataSources[$field] = $this->determineDataSource($field, $value, $lead, $drivers, $vehicles, $currentPolicy, $payload, $qualificationData);
         }
 
         return $dataSources;
@@ -109,10 +109,19 @@ class AllstateTestingService
     /**
      * Determine where a specific data field came from
      */
-    private function determineDataSource($field, $value, $lead, $drivers, $vehicles, $currentPolicy, $payload)
+    private function determineDataSource($field, $value, $lead, $drivers, $vehicles, $currentPolicy, $payload, $qualificationData = [])
     {
         switch ($field) {
+            // If agent answered in Top 12, prefer that and label it
+            case 'state':
+                if (!empty($qualificationData['state'])) return 'top12';
+                return !empty($lead->state) ? 'lead_data' : 'default';
+
+            case 'zip_code':
+                if (!empty($qualificationData['zip_code'])) return 'top12';
+                return !empty($lead->zip_code) ? 'lead_data' : 'default';
             case 'currently_insured':
+                if (isset($qualificationData['currently_insured'])) return 'top12';
                 if (!empty($currentPolicy['current_insurance'])) return 'current_policy';
                 if (!empty($payload['current_insurance'])) return 'payload';
                 foreach ($drivers as $driver) {
@@ -148,6 +157,7 @@ class AllstateTestingService
                 return 'default';
 
             case 'dui_sr22':
+                if (isset($qualificationData['dui_sr22'])) return 'top12';
                 foreach ($drivers as $driver) {
                     if (!empty($driver['dui_conviction']) || !empty($driver['sr22_required'])) return 'driver_data';
                 }
@@ -191,6 +201,7 @@ class AllstateTestingService
                 return 'default';
 
             case 'credit_score':
+                if (!empty($qualificationData['credit_score']) || !empty($qualificationData['credit_score_range'])) return 'top12';
                 foreach ($drivers as $driver) {
                     if (!empty($driver['credit_score'])) return 'driver_data';
                 }

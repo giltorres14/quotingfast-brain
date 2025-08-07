@@ -633,6 +633,9 @@
                                     ${data.allstate_payload && data.allstate_payload[field] !== undefined ? `
                                         <code style="background:#edf2f7; padding:2px 6px; border-radius:4px; margin-left:.5rem;">${String(data.allstate_payload[field])}</code>
                                     ` : ''}
+                                    ${source === 'top12' && data.qualification_data && data.qualification_data[field] !== undefined ? `
+                                        <span style="color:#718096; margin-left:.25rem; font-size:.8rem;">(from Top 12)</span>
+                                    ` : ''}
                                 </div>
                             `).join('')}
                         </div>
