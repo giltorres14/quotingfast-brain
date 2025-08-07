@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
 use App\Models\LeadQueue;
 
+// Simple test endpoint to debug
+Route::get('/test-simple', function () {
+    return response()->json(['status' => 'ok', 'time' => now()]);
+})->withoutMiddleware('*');
+
 // ABSOLUTE FIRST ROUTE - NO MIDDLEWARE AT ALL
 Route::match(['GET', 'POST'], '/api-webhook', function () {
     try {
@@ -151,6 +156,9 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
             } catch (\Exception $e) {
                 \Log::error('Critical webhook error', [
                     'error' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                    'file' => $e->getFile(),
+                    'trace' => $e->getTraceAsString(),
                     'data' => $data
                 ]);
                 
