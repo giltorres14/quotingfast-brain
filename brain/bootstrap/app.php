@@ -16,7 +16,15 @@ return Application::configure(basePath: dirname(__DIR__))
             '/webhook.php',
             '/webhook/*',
             '/api/webhooks',
-            '/test-lead-data'
+            '/test-lead-data',
+            '/api-webhook',
+            '/webhook-failsafe.php',
+            '/webhook-emergency',
+            '/test-webhook',
+            'api-webhook',
+            'webhook*',
+            'api/*',
+            '/admin/clear-test-leads'
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
