@@ -220,10 +220,10 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                         'source_details' => $data['source'] ?? null,
                     ], $data['meta'] ?? [])),
                     
-                    // Store drivers, vehicles, policies as JSON strings
-                    'drivers' => json_encode($data['data']['drivers'] ?? []),
-                    'vehicles' => json_encode($data['data']['vehicles'] ?? []),
-                    'current_policy' => json_encode($data['data']['current_policy'] ?? null),
+                    // Store drivers, vehicles, policies as JSON strings - handle both nested and flat structures
+                    'drivers' => json_encode($data['data']['drivers'] ?? $data['drivers'] ?? []),
+                    'vehicles' => json_encode($data['data']['vehicles'] ?? $data['vehicles'] ?? []),
+                    'current_policy' => json_encode($data['data']['current_policy'] ?? $data['current_policy'] ?? null),
                     'requested_policy' => json_encode($data['data']['requested_policy'] ?? $data['requested_policy'] ?? null),
                     'payload' => json_encode($data),
                 ];
