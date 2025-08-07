@@ -203,6 +203,9 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
             // Try to create a lead if data provided
             $contact = $data['contact'] ?? $data;
             
+            // Generate our own external_lead_id
+            $externalLeadId = generateLeadId();
+            
             $leadData = [
                 'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
                 'first_name' => $contact['first_name'] ?? null,
@@ -217,7 +220,7 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
                 'type' => $data['data']['requested_policy']['coverage_type'] ?? 'auto',
                 'received_at' => now(),
                 'joined_at' => now(),
-                'external_lead_id' => $data['id'] ?? null,
+                'external_lead_id' => $externalLeadId, // ALWAYS use our generated ID
                 'campaign_id' => $data['campaign_id'] ?? null,
                 'sell_price' => $data['sell_price'] ?? null,
                 'ip_address' => $contact['ip_address'] ?? null,
@@ -231,6 +234,11 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
                 'meta' => $data['meta'] ?? [],
                 'payload' => $data,
             ];
+            
+            Log::info('🔢 /test-webhook creating lead with generated ID', [
+                'generated_id' => $externalLeadId,
+                'incoming_id' => $data['id'] ?? 'none'
+            ]);
             
             $lead = App\Models\Lead::create($leadData);
             
@@ -862,14 +870,31 @@ Route::post('/webhook.php', function (Request $request) {
         $lead = null;
         $externalLeadId = null;
         try {
-        $lead = Lead::create($leadData);
-        
-            // Generate external lead ID after successful database insert
+            // CRITICAL: Generate our ID BEFORE creating the lead
             $externalLeadId = generateLeadId();
             
-            // Force update with our generated ID, overriding any existing value
-            \DB::table('leads')->where('id', $lead->id)->update(['external_lead_id' => $externalLeadId]);
-            $lead->external_lead_id = $externalLeadId; // Update model instance too
+            // Force our generated ID into the lead data, overriding ANY incoming ID
+            $leadData['external_lead_id'] = $externalLeadId;
+            
+            Log::info('🔢 Creating lead with generated external_lead_id', [
+                'generated_id' => $externalLeadId,
+                'incoming_id' => $data['id'] ?? 'none',
+                'incoming_external_id' => $data['external_lead_id'] ?? 'none',
+                'will_use' => $externalLeadId
+            ]);
+            
+            $lead = Lead::create($leadData);
+            
+            // Double-check and force update if somehow it got overridden
+            if ($lead->external_lead_id !== $externalLeadId) {
+                Log::warning('🔢 External ID mismatch, forcing correction', [
+                    'expected' => $externalLeadId,
+                    'actual' => $lead->external_lead_id,
+                    'lead_id' => $lead->id
+                ]);
+                \DB::table('leads')->where('id', $lead->id)->update(['external_lead_id' => $externalLeadId]);
+                $lead->external_lead_id = $externalLeadId;
+            }
             
             // 🚨 CAMPAIGN AUTO-DETECTION: Check if this is a new campaign ID
             if (!empty($leadData['campaign_id'])) {
@@ -4220,48 +4245,44 @@ function detectLeadType($data) {
 
 function generateLeadId() {
     try {
-        // Get the highest existing external_lead_id from database (9 digits starting with 100000001)
-        // Use raw query to handle both MySQL and SQLite
-        $lastLead = Lead::whereNotNull('external_lead_id')
-                       ->whereRaw("LENGTH(external_lead_id) = 9")
-                       ->whereRaw("external_lead_id >= '100000001'")
-                       ->whereRaw("external_lead_id <= '999999999'")
-                       ->orderBy('external_lead_id', 'desc')
-                       ->first();
+        // Generate a 13-digit ID using Unix timestamp + sequence
+        // Format: TTTTTTTTTTXXX (10-digit timestamp + 3-digit sequence)
+        $timestamp = time();
         
-        Log::info('🔢 Generating lead ID', [
-            'last_lead_id' => $lastLead ? $lastLead->external_lead_id : 'none',
-            'starting_fresh' => !$lastLead
+        // Get count of leads created in the same second (for sequence)
+        $startOfSecond = \Carbon\Carbon::createFromTimestamp($timestamp);
+        $endOfSecond = $startOfSecond->copy()->addSecond();
+        
+        $countThisSecond = Lead::whereBetween('created_at', [$startOfSecond, $endOfSecond])
+                              ->count();
+        
+        // Create sequence number (000-999)
+        $sequence = str_pad($countThisSecond, 3, '0', STR_PAD_LEFT);
+        
+        // Combine timestamp + sequence for 13-digit ID
+        $externalId = $timestamp . $sequence;
+        
+        Log::info('🔢 Generated timestamp-based external_lead_id', [
+            'timestamp' => $timestamp,
+            'sequence' => $sequence,
+            'final_id' => $externalId,
+            'datetime' => date('Y-m-d H:i:s', $timestamp)
         ]);
         
-        if ($lastLead && is_numeric($lastLead->external_lead_id)) {
-            $nextId = intval($lastLead->external_lead_id) + 1;
-            Log::info('🔢 Using next sequential ID', ['last' => $lastLead->external_lead_id, 'next' => $nextId]);
-        } else {
-            // Start from 100000001 if no valid 9-digit IDs exist
-            $nextId = 100000001;
-            Log::info('🔢 Starting fresh from 100000001');
-        }
-        
-        // Ensure it's always 9 digits and doesn't exceed max
-        if ($nextId > 999999999) {
-            Log::warning('🔢 ID exceeded max, wrapping around', ['attempted' => $nextId]);
-            $nextId = 100000001;
-        }
-        
-        $finalId = str_pad($nextId, 9, '0', STR_PAD_LEFT);
-        Log::info('🔢 Generated new lead ID', ['new_id' => $finalId]);
-        
-        return $finalId;
+        return $externalId;
         
     } catch (Exception $e) {
-        Log::error('🔢 Failed to generate lead ID', ['error' => $e->getMessage()]);
-        // Fallback: use timestamp-based ID if database fails
+        // Fallback: timestamp + random if database fails
         $timestamp = time();
-        $fallbackId = 100000001 + ($timestamp % 8999999);
-        $finalId = str_pad($fallbackId, 9, '0', STR_PAD_LEFT);
-        Log::warning('🔢 Using fallback ID', ['fallback_id' => $finalId]);
-        return $finalId;
+        $random = str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+        $fallbackId = $timestamp . $random;
+        
+        Log::warning('🔢 Using fallback ID generation', [
+            'error' => $e->getMessage(),
+            'fallback_id' => $fallbackId
+        ]);
+        
+        return $fallbackId;
     }
 }
 

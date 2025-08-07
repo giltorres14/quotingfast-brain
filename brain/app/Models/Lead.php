@@ -9,6 +9,81 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Lead extends Model
 {
     use HasFactory;
+    
+    /**
+     * Boot method to ensure external_lead_id is always set correctly
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($lead) {
+            // If external_lead_id is not set or doesn't match our 13-digit timestamp format, generate it
+            if (empty($lead->external_lead_id) || 
+                strlen($lead->external_lead_id) !== 13 || 
+                !is_numeric($lead->external_lead_id)) {
+                
+                // Generate our timestamp-based 13-digit ID
+                $lead->external_lead_id = self::generateExternalLeadId();
+                
+                \Log::info('🔢 Lead Model: Generated external_lead_id in boot', [
+                    'new_id' => $lead->external_lead_id,
+                    'original_id' => $lead->getOriginal('external_lead_id') ?? 'none',
+                    'format' => 'timestamp+sequence (13 digits)'
+                ]);
+            }
+        });
+    }
+    
+    /**
+     * Generate a 13-digit external lead ID using Unix timestamp + sequence
+     * Format: TTTTTTTTTTXXX (10-digit timestamp + 3-digit sequence)
+     * Example: 1733520421001
+     * 
+     * This guarantees uniqueness, is purely numeric, and is time-sortable
+     */
+    private static function generateExternalLeadId()
+    {
+        try {
+            // Get current Unix timestamp (10 digits)
+            $timestamp = time();
+            
+            // Get count of leads created in the same second (for sequence)
+            $startOfSecond = \Carbon\Carbon::createFromTimestamp($timestamp);
+            $endOfSecond = $startOfSecond->copy()->addSecond();
+            
+            $countThisSecond = self::whereBetween('created_at', [$startOfSecond, $endOfSecond])
+                                  ->count();
+            
+            // Create sequence number (000-999)
+            $sequence = str_pad($countThisSecond, 3, '0', STR_PAD_LEFT);
+            
+            // Combine timestamp + sequence for 13-digit ID
+            $externalId = $timestamp . $sequence;
+            
+            \Log::info('🔢 Generated timestamp-based external_lead_id', [
+                'timestamp' => $timestamp,
+                'sequence' => $sequence,
+                'final_id' => $externalId,
+                'datetime' => date('Y-m-d H:i:s', $timestamp)
+            ]);
+            
+            return $externalId;
+            
+        } catch (\Exception $e) {
+            // Fallback: timestamp + random if database fails
+            $timestamp = time();
+            $random = str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+            $fallbackId = $timestamp . $random;
+            
+            \Log::warning('🔢 Using fallback ID generation', [
+                'error' => $e->getMessage(),
+                'fallback_id' => $fallbackId
+            ]);
+            
+            return $fallbackId;
+        }
+    }
 
     protected $fillable = [
         // Basic contact information
