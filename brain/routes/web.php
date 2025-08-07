@@ -776,39 +776,61 @@ Route::get('/api/lead/{leadId}/payload', function ($leadId) {
 
 // Debug endpoint to analyze incoming webhook data
 // FAILSAFE WEBHOOK - Always returns 200 OK and queues for later processing
-Route::post('/webhook-failsafe.php', function (Request $request) {
+// WORKING WEBHOOK - NO CSRF ISSUES
+Route::any('/webhook-failsafe.php', function (Request $request) {
     try {
-        // Store in queue immediately
-        \App\Models\LeadQueue::create([
-            'payload' => $request->all(),
-            'source' => 'leadsquotingfast',
-            'status' => 'pending'
+        // Log the incoming request first
+        \Log::info('🔔 WEBHOOK RECEIVED', [
+            'method' => $request->method(),
+            'ip' => $request->ip(),
+            'data' => $request->all()
         ]);
         
-        Log::info('Lead queued via failsafe webhook', [
-            'timestamp' => now(),
-            'ip' => $request->ip()
-        ]);
+        // Check if LeadQueue table exists
+        try {
+            \Schema::hasTable('lead_queue');
+            
+            // Store in queue immediately
+            \App\Models\LeadQueue::create([
+                'payload' => $request->all(),
+                'source' => 'leadsquotingfast',
+                'status' => 'pending'
+            ]);
+            
+            \Log::info('✅ Lead queued successfully');
+        } catch (\Exception $qe) {
+            // If queue table doesn't exist, create lead directly
+            \Log::warning('Queue table issue, creating lead directly', ['error' => $qe->getMessage()]);
+            
+            $leadData = $request->all();
+            $leadData['external_lead_id'] = \App\Models\Lead::generateExternalLeadId();
+            $leadData['source'] = 'webhook-failsafe';
+            
+            \App\Models\Lead::create($leadData);
+            \Log::info('✅ Lead created directly');
+        }
         
         // Return success immediately (prevents timeout/loss)
         return response()->json([
             'success' => true,
-            'message' => 'Lead queued for processing',
+            'message' => 'Lead received and processed',
             'timestamp' => now()->toIso8601String()
         ], 200);
         
     } catch (\Exception $e) {
-        // Even if queueing fails, return 200 to prevent retry storms
-        Log::error('Failed to queue lead but returning 200', [
-            'error' => $e->getMessage()
+        // Log the error but still return 200
+        \Log::error('❌ Webhook error but returning 200', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ]);
         
         return response()->json([
             'success' => false,
-            'message' => 'Failed to queue but acknowledged'
+            'message' => 'Error but acknowledged',
+            'error' => $e->getMessage()
         ], 200); // Still return 200!
     }
-})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+});
 
 Route::post('/webhook/debug', function (Request $request) {
     $data = $request->all();
