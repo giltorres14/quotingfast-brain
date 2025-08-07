@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
 use App\Models\LeadQueue;
+use App\Services\AllstateTestingService;
 
 // Simple test endpoint to debug
 Route::get('/test-simple', function () {
