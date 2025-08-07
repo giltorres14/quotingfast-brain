@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\LeadQueue;
 use App\Models\Lead;
+use App\Services\AllstateTestingService;
 use Illuminate\Support\Facades\Log;
 
 class ProcessLeadQueue extends Command
@@ -78,6 +79,36 @@ class ProcessLeadQueue extends Command
                 ];
                 
                 $lead = Lead::create($leadData);
+                
+                // 🧪 ALLSTATE TESTING - Process queued leads through Allstate API
+                try {
+                    $this->info("  → Sending to Allstate API testing...");
+                    
+                    $testingService = new AllstateTestingService();
+                    $testSession = 'queue_processing_' . date('Y-m-d_H');
+                    $testResult = $testingService->processLeadForTesting($lead, $testSession);
+                    
+                    if ($testResult['success']) {
+                        $this->info("  ✓ Allstate testing successful");
+                    } else {
+                        $this->warn("  ⚠ Allstate testing failed");
+                    }
+                    
+                    Log::info('🧪 Allstate testing from queue', [
+                        'queue_id' => $queuedLead->id,
+                        'lead_id' => $lead->id,
+                        'success' => $testResult['success'],
+                        'test_log_id' => $testResult['test_log_id'] ?? null
+                    ]);
+                    
+                } catch (\Exception $testError) {
+                    $this->error("  ✗ Allstate testing error: " . $testError->getMessage());
+                    Log::error('🧪 Failed to test queued lead with Allstate', [
+                        'queue_id' => $queuedLead->id,
+                        'lead_id' => $lead->id,
+                        'error' => $testError->getMessage()
+                    ]);
+                }
                 
                 $queuedLead->markAsCompleted();
                 
