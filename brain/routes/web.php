@@ -28,21 +28,51 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
         
         // Create lead if we have data
         if (!empty($data)) {
-            $data['external_lead_id'] = \App\Models\Lead::generateExternalLeadId();
-            $data['source'] = $data['source'] ?? 'api-webhook';
-            
-            $lead = \App\Models\Lead::create($data);
-            
-            \Log::info('✅ LEAD CREATED', [
-                'id' => $lead->id,
-                'external_lead_id' => $lead->external_lead_id
-            ]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Lead saved',
-                'lead_id' => $lead->external_lead_id
-            ], 200);
+            try {
+                // Prepare lead data with only fillable fields
+                $leadData = [];
+                $fillableFields = ['name', 'first_name', 'last_name', 'phone', 'email', 
+                                  'address', 'city', 'state', 'zip_code', 'source', 'type',
+                                  'drivers', 'vehicles', 'current_policy', 'payload'];
+                
+                foreach ($fillableFields as $field) {
+                    if (isset($data[$field])) {
+                        $leadData[$field] = $data[$field];
+                    }
+                }
+                
+                // Add required fields
+                $leadData['external_lead_id'] = \App\Models\Lead::generateExternalLeadId();
+                $leadData['source'] = $leadData['source'] ?? 'api-webhook';
+                
+                // Store full payload as JSON
+                $leadData['payload'] = json_encode($data);
+                
+                $lead = \App\Models\Lead::create($leadData);
+                
+                \Log::info('✅ LEAD CREATED', [
+                    'id' => $lead->id,
+                    'external_lead_id' => $lead->external_lead_id
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Lead saved',
+                    'lead_id' => $lead->external_lead_id
+                ], 200);
+            } catch (\Exception $e) {
+                \Log::error('Lead creation error in webhook', [
+                    'error' => $e->getMessage(),
+                    'data' => $data
+                ]);
+                
+                // Still return 200 to prevent retries
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lead processing error',
+                    'error' => $e->getMessage()
+                ], 200);
+            }
         }
         
         return response()->json(['status' => 'ready'], 200);
