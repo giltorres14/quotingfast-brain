@@ -12,6 +12,22 @@ Route::get('/test-simple', function () {
     return response()->json(['status' => 'ok', 'time' => now()]);
 })->withoutMiddleware('*');
 
+// Quick check latest lead meta
+Route::get('/latest-meta', function () {
+    $lead = \App\Models\Lead::orderBy('id', 'desc')->first();
+    if ($lead) {
+        $meta = json_decode($lead->meta, true);
+        return response()->json([
+            'lead' => $lead->name,
+            'id' => $lead->external_lead_id,
+            'checkpoints' => $meta['ALLSTATE_CHECKPOINTS'] ?? 'NONE',
+            'error' => $meta['ALLSTATE_ERROR_DEBUG'] ?? 'NO_ERROR',
+            'success' => $meta['ALLSTATE_SUCCESS'] ?? false
+        ], 200, [], JSON_PRETTY_PRINT);
+    }
+    return 'No leads';
+})->withoutMiddleware('*');
+
 // Ultra simple meta check - no DB queries except for lead
 Route::get('/meta-simple', function () {
     try {
