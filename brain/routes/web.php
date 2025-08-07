@@ -775,6 +775,41 @@ Route::get('/api/lead/{leadId}/payload', function ($leadId) {
 });
 
 // Debug endpoint to analyze incoming webhook data
+// FAILSAFE WEBHOOK - Always returns 200 OK and queues for later processing
+Route::post('/webhook-failsafe.php', function (Request $request) {
+    try {
+        // Store in queue immediately
+        \App\Models\LeadQueue::create([
+            'payload' => $request->all(),
+            'source' => 'leadsquotingfast',
+            'status' => 'pending'
+        ]);
+        
+        Log::info('Lead queued via failsafe webhook', [
+            'timestamp' => now(),
+            'ip' => $request->ip()
+        ]);
+        
+        // Return success immediately (prevents timeout/loss)
+        return response()->json([
+            'success' => true,
+            'message' => 'Lead queued for processing',
+            'timestamp' => now()->toIso8601String()
+        ], 200);
+        
+    } catch (\Exception $e) {
+        // Even if queueing fails, return 200 to prevent retry storms
+        Log::error('Failed to queue lead but returning 200', [
+            'error' => $e->getMessage()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to queue but acknowledged'
+        ], 200); // Still return 200!
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
 Route::post('/webhook/debug', function (Request $request) {
     $data = $request->all();
     $headers = $request->headers->all();
