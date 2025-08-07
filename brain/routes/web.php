@@ -776,6 +776,15 @@ Route::get('/api/lead/{leadId}/payload', function ($leadId) {
 
 // Debug endpoint to analyze incoming webhook data
 // FAILSAFE WEBHOOK - Always returns 200 OK and queues for later processing
+// EMERGENCY WEBHOOK TEST - GUARANTEED TO WORK
+Route::any('/webhook-test-emergency', function () {
+    return response()->json([
+        'status' => 'OK',
+        'message' => 'Emergency webhook is working',
+        'timestamp' => now()->toIso8601String()
+    ], 200);
+});
+
 // WORKING WEBHOOK - NO CSRF ISSUES
 Route::any('/webhook-failsafe.php', function (Request $request) {
     try {
