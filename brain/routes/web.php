@@ -230,6 +230,25 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\DashboardController;
 
+// Check if Allstate tables exist
+Route::get('/check-allstate-db', function () {
+    try {
+        $hasTable = \Schema::hasTable('allstate_test_logs');
+        $count = $hasTable ? \DB::table('allstate_test_logs')->count() : 'table does not exist';
+        
+        return response()->json([
+            'allstate_test_logs_table_exists' => $hasTable,
+            'record_count' => $count,
+            'database_connection' => config('database.default'),
+            'timestamp' => now()->toIso8601String()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+    }
+})->withoutMiddleware('*');
+
 // Main landing page - redirect to leads dashboard
 Route::get('/', function () {
     return redirect('/leads');
