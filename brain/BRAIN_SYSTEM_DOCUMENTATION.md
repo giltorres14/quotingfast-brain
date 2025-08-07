@@ -33,18 +33,25 @@
 ## Lead Flow Architecture
 
 ### Current Production Flow (As of Aug 2025)
+
+#### Option 1: Direct Processing (`/webhook.php`)
 ```
-1. Lead Reception (Webhook)
+1. Lead Reception → 2. External Lead ID (13-digit timestamp)
    ↓
-2. External Lead ID Generation (9-digit: 100000001+)
+3. Database Storage → 4. Allstate API Testing (Immediate)
    ↓
-3. Database Storage
+5. Test Log Recording → 6. Dashboard Display
+```
+
+#### Option 2: Failsafe Queue (`/webhook-failsafe.php`) - RECOMMENDED
+```
+1. Lead Reception → 2. Queue Storage (Instant 200 OK)
    ↓
-4. Allstate API Testing (Automatic)
+3. Process Queue (Every Minute) → 4. Generate ID (13-digit)
    ↓
-5. Test Log Recording
+5. Database Storage → 6. Allstate API Testing
    ↓
-6. Dashboard Display
+7. Test Log Recording → 8. Dashboard Display
 ```
 
 ### Standard Flow (When Testing Complete)
@@ -225,10 +232,24 @@ php artisan tinker
 
 ### Routes & Handlers
 - **`routes/web.php`** - All webhook endpoints and route definitions
-  - `/webhook.php` - Main lead intake (LeadsQuotingFast)
-  - `/webhook/vici` - ViciDialer integration
-  - `/admin/allstate-testing` - Testing dashboard
-  - `/agent/lead/{id}` - Agent lead display
+
+#### Webhook Endpoints
+- **`/webhook.php`** - Direct processing (original)
+  - Processes immediately
+  - Sends to Allstate testing
+  - Can timeout during high load
+  
+- **`/webhook-failsafe.php`** - Queue-based (RECOMMENDED)
+  - Returns 200 OK instantly
+  - Queues for processing
+  - Never loses leads
+  - Processed every minute
+
+#### Admin Routes  
+- `/admin/allstate-testing` - Allstate testing dashboard
+- `/admin/lead-queue` - Queue monitor dashboard
+- `/admin/lead-queue/process` - Manual queue processing
+- `/agent/lead/{id}` - Agent lead display
 
 ### Services (app/Services/)
 - **AllstateCallTransferService.php** - Allstate API communication
@@ -298,23 +319,33 @@ php artisan tinker
 ## Current Status (Aug 2025)
 
 ### ✅ Working
-- External Lead ID generation (9-digit format)
+- External Lead ID generation (13-digit timestamp format: 1754530371000)
 - Allstate API testing with /ping endpoint
-- Lead reception via webhooks
+- Lead reception via webhooks (both direct and failsafe)
+- Lead Queue System for zero loss during deployments
 - Database storage and retrieval
-- Testing dashboard
-- RingBA parameter configuration
+- Testing dashboard with bulk processing
+- Lead Queue Monitor dashboard
+- RingBA parameter configuration (95 parameters)
+- Pagination and date filters on leads page
+
+### 🛡️ Lead Protection System
+- **Failsafe Webhook**: `/webhook-failsafe.php` - Never loses leads
+- **Queue Processing**: Automatic every minute via cron
+- **Queue Monitor**: `/admin/lead-queue` - Real-time status
+- **Manual Processing**: Available via dashboard button
 
 ### 🔧 In Testing Mode
 - Vici integration temporarily bypassed
 - All leads auto-sent to Allstate for testing
-- Using production API for test submissions
+- Using production API /ping endpoint for testing
+- Both webhook endpoints send to Allstate
 
 ### 📋 TODO
-- Restore Vici integration after testing
-- Implement bulk processing fixes
-- Add more date filter options
-- Optimize page load times
+- Restore Vici integration after testing complete
+- Setup production cron job for queue processing
+- Run migrations on production for lead_queue table
+- Monitor first production leads through new system
 
 ---
 
