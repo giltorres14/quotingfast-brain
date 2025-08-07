@@ -12,6 +12,38 @@ Route::get('/test-simple', function () {
     return response()->json(['status' => 'ok', 'time' => now()]);
 })->withoutMiddleware('*');
 
+// Ultra simple meta check - no DB operations except getting lead
+Route::get('/meta-simple', function () {
+    try {
+        $lead = \App\Models\Lead::orderBy('id', 'desc')->first();
+        if (!$lead) {
+            return response()->json(['error' => 'No leads found']);
+        }
+        
+        $meta = json_decode($lead->meta, true);
+        
+        // Extract just Allstate info
+        $allstate = [
+            'checkpoints' => $meta['ALLSTATE_CHECKPOINTS'] ?? 'NONE',
+            'success' => $meta['ALLSTATE_SUCCESS'] ?? 'NOT_SET',
+            'error' => $meta['ALLSTATE_ERROR'] ?? 'NOT_SET',
+            'error_debug' => $meta['ALLSTATE_ERROR_DEBUG'] ?? 'NOT_SET',
+            'debug_full' => $meta['ALLSTATE_DEBUG_FULL'] ?? 'NOT_SET',
+        ];
+        
+        return response()->json([
+            'lead' => $lead->name,
+            'id' => $lead->external_lead_id,
+            'allstate' => $allstate
+        ], 200, [], JSON_PRETTY_PRINT);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'line' => $e->getLine()
+        ]);
+    }
+})->withoutMiddleware('*');
+
 // Check raw meta field of most recent lead with comprehensive Allstate debug
 Route::get('/check-meta', function () {
     $lead = \App\Models\Lead::orderBy('id', 'desc')->first();
@@ -30,8 +62,16 @@ Route::get('/check-meta', function () {
             'error_msg' => $meta['ALLSTATE_ERROR'] ?? null,
         ];
         
-        // Check if test log exists
-        $testLogExists = \DB::table('allstate_test_logs')->where('lead_id', $lead->id)->exists();
+        // Check if test log exists (with error handling)
+        $testLogExists = false;
+        try {
+            if (\Schema::hasTable('allstate_test_logs')) {
+                $testLogExists = \DB::table('allstate_test_logs')->where('lead_id', $lead->id)->exists();
+            }
+        } catch (\Exception $e) {
+            // Table doesn't exist or other DB error
+            $testLogExists = 'error_checking';
+        }
         
         return response()->json([
             'lead_id' => $lead->id,
