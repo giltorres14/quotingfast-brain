@@ -352,7 +352,16 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                         } catch (\Throwable $t) {
                             // ignore marker failures
                         }
-                        $testResult = $allstateService->processLeadForTesting($lead);
+                        // Always wrap call so we capture and stamp errors
+                        try {
+                            $testResult = $allstateService->processLeadForTesting($lead);
+                        } catch (\Throwable $t) {
+                            $allstateDebug['service_throwable'] = substr($t->getMessage(), 0, 200);
+                            $metaQuick = json_decode($lead->meta ?? '{}', true) ?: [];
+                            $metaQuick['allstate_service_error'] = $allstateDebug['service_throwable'];
+                            \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($metaQuick)]);
+                            throw $t; // rethrow for outer catch to record as well
+                        }
                         $allstateDebug['CHECKPOINT_6'] = 'PROCESSLEADFORTESTING_RETURNED';
                         $allstateDebug['result_type'] = gettype($testResult);
                         $allstateDebug['result_not_null'] = !is_null($testResult);

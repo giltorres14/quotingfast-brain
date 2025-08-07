@@ -81,7 +81,9 @@ class AllstateCallTransferService
                 'note' => 'Using /ping endpoint for testing (validates connectivity and data structure)'
             ]);
             
-            $response = Http::timeout(30)
+            // Keep calls snappy so webhook flow never blocks. If Allstate is slow/unreachable,
+            // we fail fast and surface the error back to the caller for logging.
+            $response = Http::timeout(6)->connectTimeout(4)
                 ->withHeaders([
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
