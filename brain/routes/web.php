@@ -1674,7 +1674,7 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
         // First try to find by external_lead_id (for Vici), then by internal ID (for admin)
         $lead = App\Models\Lead::where('external_lead_id', $leadId)->first();
         if (!$lead && is_numeric($leadId)) {
-            $lead = App\Models\Lead::find($leadId);
+        $lead = App\Models\Lead::find($leadId);
         }
                 if ($lead) {
                     // Ensure JSON fields are properly decoded as arrays for view compatibility
@@ -2281,7 +2281,7 @@ Route::post('/campaign-directory/{campaign}/update', function (\App\Models\Campa
 // Fix Tony Clark lead type
 Route::get('/fix-tony-clark', function () {
     $lead = Lead::find(17); // Tony Clark
-    if (!$lead) {
+        if (!$lead) {
         return response()->json(['error' => 'Tony Clark lead not found'], 404);
     }
     
@@ -2338,8 +2338,8 @@ Route::post('/buyer/signup', function (Request $request) {
         ]);
 
     } catch (Exception $e) {
-        return response()->json([
-            'success' => false,
+            return response()->json([
+                'success' => false,
             'message' => 'Registration failed: ' . $e->getMessage()
         ], 400);
     }
@@ -4221,33 +4221,47 @@ function detectLeadType($data) {
 function generateLeadId() {
     try {
         // Get the highest existing external_lead_id from database (9 digits starting with 100000001)
+        // Use raw query to handle both MySQL and SQLite
         $lastLead = Lead::whereNotNull('external_lead_id')
-                       ->where('external_lead_id', 'REGEXP', '^[0-9]{9}$')
+                       ->whereRaw("LENGTH(external_lead_id) = 9")
+                       ->whereRaw("external_lead_id >= '100000001'")
+                       ->whereRaw("external_lead_id <= '999999999'")
                        ->orderBy('external_lead_id', 'desc')
                        ->first();
         
-        Log::info('Generating lead ID', [
+        Log::info('🔢 Generating lead ID', [
             'last_lead_id' => $lastLead ? $lastLead->external_lead_id : 'none',
             'starting_fresh' => !$lastLead
         ]);
         
-        if ($lastLead && is_numeric($lastLead->external_lead_id) && intval($lastLead->external_lead_id) >= 100000001) {
+        if ($lastLead && is_numeric($lastLead->external_lead_id)) {
             $nextId = intval($lastLead->external_lead_id) + 1;
+            Log::info('🔢 Using next sequential ID', ['last' => $lastLead->external_lead_id, 'next' => $nextId]);
         } else {
-            // Start from 100000001 or find the max ID if there are old format IDs
+            // Start from 100000001 if no valid 9-digit IDs exist
+            $nextId = 100000001;
+            Log::info('🔢 Starting fresh from 100000001');
+        }
+        
+        // Ensure it's always 9 digits and doesn't exceed max
+        if ($nextId > 999999999) {
+            Log::warning('🔢 ID exceeded max, wrapping around', ['attempted' => $nextId]);
             $nextId = 100000001;
         }
         
-        Log::info('Generated new lead ID', ['new_id' => $nextId]);
+        $finalId = str_pad($nextId, 9, '0', STR_PAD_LEFT);
+        Log::info('🔢 Generated new lead ID', ['new_id' => $finalId]);
         
-        // Ensure it's always 9 digits
-        return str_pad($nextId, 9, '0', STR_PAD_LEFT);
+        return $finalId;
         
     } catch (Exception $e) {
+        Log::error('🔢 Failed to generate lead ID', ['error' => $e->getMessage()]);
         // Fallback: use timestamp-based ID if database fails
         $timestamp = time();
-        $fallbackId = 10000000 + ($timestamp % 9999999);
-        return str_pad($fallbackId, 9, '0', STR_PAD_LEFT);
+        $fallbackId = 100000001 + ($timestamp % 8999999);
+        $finalId = str_pad($fallbackId, 9, '0', STR_PAD_LEFT);
+        Log::warning('🔢 Using fallback ID', ['fallback_id' => $finalId]);
+        return $finalId;
     }
 }
 

@@ -308,3 +308,4 @@ curl -X POST https://api.ringba.com/v2/{{accountId}}/queryPathMaps \
 *Last Updated: August 6, 2025*
 *Integration Count: 1 (Allstate)*
 *Total RingBA Parameters: ~95*
+

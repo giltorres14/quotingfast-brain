@@ -281,3 +281,4 @@ These are already configured in your RingBA setup:
 ## **TOTAL: 63 New Parameters to Create**
 
 This comprehensive list ensures you can capture ALL the data points that the Allstate API integration uses, making your RingBA system fully compatible with current and future buyer integrations.
+

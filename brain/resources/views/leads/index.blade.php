@@ -762,9 +762,9 @@
                         <div id="customDateRange" style="display: {{ request('date_range') == 'custom' ? 'block' : 'none' }}; margin-top: 10px;">
                             <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}" placeholder="From">
                             <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}" placeholder="To" style="margin-top: 5px;">
-                        </div>
-                    </div>
-                    
+    </div>
+    </div>
+
                     <div class="form-group">
                         <label class="form-label" style="font-size: 0.9rem;">Per Page</label>
                         <select name="per_page" class="form-select" style="font-size: 0.9rem;">
@@ -774,7 +774,7 @@
                             <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
                             <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>All</option>
                         </select>
-                    </div>
+    </div>
 
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <a href="/leads" class="btn btn-secondary">Clear</a>

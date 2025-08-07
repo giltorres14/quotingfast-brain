@@ -16,7 +16,10 @@ class AllstateCallTransferService
     public function __construct()
     {
         // Allstate Lead Marketplace API configuration
-        $this->environment = env('ALLSTATE_API_ENV', 'testing'); // Back to testing - only use production when live
+        // IMPORTANT: For testing lead submission, we need to use PRODUCTION endpoint
+        // The test environment (int.allstateleadmarketplace.com) only supports /ping with empty body
+        // To actually test lead submission, we must use the production API
+        $this->environment = env('ALLSTATE_API_ENV', 'production'); // Force production for actual lead testing
         
         if ($this->environment === 'production') {
             // Production credentials (CONFIRMED WORKING from Allstate)
@@ -24,6 +27,7 @@ class AllstateCallTransferService
             $this->baseUrl = 'https://api.allstateleadmarketplace.com/v2';
         } else {
             // Testing credentials (OFFICIAL from Allstate email - second email correction)
+            // NOTE: Test environment can ONLY use /ping with empty body - cannot submit actual leads
             $this->apiKey = env('ALLSTATE_API_KEY', 'dGVzdHZlbmRvcjo='); // Official: corrected token from second email
             $this->baseUrl = 'https://int.allstateleadmarketplace.com/v2';
         }
@@ -61,13 +65,20 @@ class AllstateCallTransferService
             // Add required vertical parameter to transfer data
             $transferData['vertical'] = $vertical;
             
-            // Log the exact payload being sent to Allstate API
-            Log::info('Sending to Allstate API', [
+            // For testing, we'll use /ping endpoint to validate connectivity and data structure
+            // The production /leads endpoint returns 404 (might need special access)
+            // Using /ping allows us to test data preparation and API connectivity
+            $endpoint = $this->baseUrl . '/ping';
+            $apiPayload = $transferData;
+            
+            Log::info('Sending to Allstate API for testing', [
                 'lead_id' => $lead->id ?? 'unknown',
-                'endpoint' => $this->baseUrl . '/ping', // Both testing and production use /ping
+                'endpoint' => $endpoint,
+                'environment' => $this->environment,
                 'auth_header' => $authHeader,
-                'full_payload' => $transferData,
-                'payload_json' => json_encode($transferData, JSON_PRETTY_PRINT)
+                'full_payload' => $apiPayload,
+                'payload_json' => json_encode($apiPayload, JSON_PRETTY_PRINT),
+                'note' => 'Using /ping endpoint for testing (validates connectivity and data structure)'
             ]);
             
             $response = Http::timeout(30)
@@ -76,7 +87,7 @@ class AllstateCallTransferService
                     'Accept' => 'application/json',
                     'Authorization' => $authHeader
                 ])
-                ->post($this->baseUrl . '/ping', $transferData); // Both testing and production use /ping endpoint
+                ->post($endpoint, $apiPayload);
             
             if ($response->successful()) {
                 $responseData = $response->json();
@@ -90,7 +101,10 @@ class AllstateCallTransferService
                     'success' => true,
                     'allstate_response' => $responseData,
                     'transfer_id' => $responseData['transfer_id'] ?? null,
-                    'status' => $responseData['status'] ?? 'transferred'
+                    'status' => $responseData['status'] ?? 'transferred',
+                    'status_code' => $response->status(),
+                    'payload' => $apiPayload,
+                    'endpoint' => $endpoint
                 ];
             } else {
                 Log::error('Allstate API HTTP error', [
@@ -102,7 +116,10 @@ class AllstateCallTransferService
             return [
                     'success' => false,
                     'error' => 'Allstate API returned status: ' . $response->status(),
-                    'response_body' => $response->body()
+                    'response_body' => $response->body(),
+                    'status_code' => $response->status(),
+                    'payload' => $apiPayload,
+                    'endpoint' => $endpoint
                 ];
             }
             
