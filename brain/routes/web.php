@@ -122,12 +122,23 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                         'external_lead_id' => $lead->external_lead_id
                     ]);
                     
-                    // 🧪 TEMPORARILY DISABLED - Just log for now
-                    \Log::info('🧪 Allstate testing temporarily disabled to fix webhook', [
-                        'lead_id' => $lead->id,
-                        'external_lead_id' => $lead->external_lead_id,
-                        'reason' => 'Debugging 500 error'
-                    ]);
+                    // 🧪 ALLSTATE API TESTING - NOW ENABLED!
+                    try {
+                        $allstateService = new AllstateTestingService();
+                        $testResult = $allstateService->testLead($lead);
+                        
+                        \Log::info('✅ Allstate API test completed', [
+                            'lead_id' => $lead->id,
+                            'external_lead_id' => $lead->external_lead_id,
+                            'test_result' => $testResult
+                        ]);
+                    } catch (\Exception $allstateError) {
+                        \Log::warning('⚠️ Allstate API test failed (non-critical)', [
+                            'lead_id' => $lead->id,
+                            'error' => $allstateError->getMessage()
+                        ]);
+                        // Don't fail the webhook - Allstate testing is secondary
+                    }
                     
                 } catch (\Exception $dbError) {
                     \Log::error('Database storage failed, attempting queue fallback', [
