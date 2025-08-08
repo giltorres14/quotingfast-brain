@@ -5405,8 +5405,17 @@ function sendToViciList101($leadData, $leadId) {
         }
         
         if ($response->successful()) {
-            $responseData = $response->json();
-            Log::info('Vici lead submission successful', ['vici_response' => $responseData, 'vici_data' => $viciData]);
+            // Vici often returns plain text, not JSON. Do not json-decode blindly.
+            $body = $response->body();
+            $responseData = [
+                'success' => stripos($body, 'ERROR') === false,
+                'status' => $response->status(),
+                'body' => $body,
+            ];
+            Log::info('Vici lead submission completed', [
+                'status' => $response->status(),
+                'vici_response_snippet' => substr($body, 0, 200)
+            ]);
             return $responseData;
         } else {
             Log::error('Vici API HTTP error', ['status' => $response->status(), 'body' => $response->body()]);

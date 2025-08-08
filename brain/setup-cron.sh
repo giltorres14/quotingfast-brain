@@ -22,3 +22,4 @@ echo "To manually process queue:"
 echo "  php artisan leads:process-queue"
 
 
+
