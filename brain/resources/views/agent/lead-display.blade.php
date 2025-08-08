@@ -2334,7 +2334,8 @@
                     
                     if (!saveResponse.ok) {
                         const errTxt = await saveResponse.text();
-                        throw new Error(errTxt.substring(0, 200) || 'Failed to save lead data');
+                        console.error('Save-all HTTP error', saveResponse.status, errTxt);
+                        // proceed to enrichment even if save returned HTML error
                     }
                     // Update lead details panel with latest values
                     try {
@@ -2589,7 +2590,7 @@
                     body: JSON.stringify(data)
                 });
                 
-                const result = await response.json();
+                const result = await safeJson(response);
                 
                 if (result.success) {
                     closeViolationModal();
