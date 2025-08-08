@@ -2864,6 +2864,57 @@ Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
     }
 });
 
+// Lightweight login probe to Vici (server-side) using version function
+Route::get('/test/vici-login', function (Request $request) {
+    try {
+        $server = $request->query('server', env('VICI_SERVER', 'philli.callix.ai'));
+        $endpoint = $request->query('endpoint', env('VICI_API_ENDPOINT', '/vicidial/non_agent_api.php'));
+        $user = $request->query('user', env('VICI_API_USER', 'apiuser'));
+        $pass = $request->query('pass', env('VICI_API_PASS', ''));
+
+        $params = [
+            'source' => 'BRAIN_TEST',
+            'user' => $user,
+            'pass' => $pass,
+            'function' => 'version'
+        ];
+
+        $attempts = [];
+        $response = null;
+        foreach (['https', 'http'] as $proto) {
+            $url = $proto . "://{$server}{$endpoint}";
+            try {
+                $resp = Http::timeout(15)->get($url, $params);
+                $attempts[] = ['url' => $url, 'status' => $resp->status(), 'body_snippet' => substr($resp->body(), 0, 200)];
+                $response = $resp;
+                break;
+            } catch (Exception $ex) {
+                $attempts[] = ['url' => $url, 'error' => $ex->getMessage()];
+            }
+        }
+
+        if ($response) {
+            return response()->json([
+                'success' => true,
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'attempts' => $attempts
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'error' => 'Unable to reach Vici server',
+            'attempts' => $attempts
+        ], 502);
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Test Allstate API connection with multiple auth methods
 Route::get('/test/allstate/connection', function () {
     try {
