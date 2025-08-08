@@ -102,6 +102,8 @@ VICI_API_PASS=RENDER_SECRET   # actual value saved in Render: ZL8aY2MuQM (Admin,
 - Push test lead: `GET /test/vici/{leadId?}`
 - Update existing Vici lead: `GET /test/vici-update/{leadId?}`
 - DB connectivity probe: `GET /test/vici-db`
+- Login/version probe: `GET /test/vici-login`
+- Server egress IP: `GET /server-egress-ip` (for Vici whitelist)
 
 ### **Integration Status**
 - **Current**: 🧪 TEMPORARILY BYPASSED for Allstate testing

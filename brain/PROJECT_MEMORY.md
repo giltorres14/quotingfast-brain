@@ -89,6 +89,8 @@
  - Server/Endpoint: `philli.callix.ai` + `/vicidial/non_agent_api.php`
  - Behavior: Plain-text responses; login errors appear as `ERROR: Login incorrect, please try again: |||BAD|`
  - Fallbacks: HTTPS→HTTP protocol fallback with caching; proactive firewall auth via `:26793/92RG8UJYTW.php`
+ - Egress IP to whitelist: `3.129.111.220`
+ - Verified success: Brain lead `1057` pushed → Vici `SUCCESS ... |101|11533805|...|UploadAPI`
 
 **🔧 VICI LIST ID ISSUE - FIXED:**
 - **Problem**: Leads were going to List 87878787 instead of List 101

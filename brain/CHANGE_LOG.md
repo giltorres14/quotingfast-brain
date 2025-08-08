@@ -5,26 +5,31 @@
 
 ## 🎯 CURRENT SESSION CHANGES
 
-### **Date: 2024-01-XX** *(Current Session)*
-**Focus**: Memory System Implementation & Allstate Testing Dashboard Fix
+### **Date: 2025-08-08** *(Current Session)*
+**Focus**: Vici Non-Agent API login fix, protocol fallback, form encoding, and successful push to List 101
 
 #### **CHANGES MADE:**
-1. **📚 Created Comprehensive Documentation System**
-   - `PROJECT_MEMORY.md` - Living documentation with current status
-   - `API_CONFIGURATIONS.md` - Centralized API registry  
-   - `CHANGE_LOG.md` - This change tracking system
-   - **Reason**: Prevent knowledge loss and ensure continuity
+1. **Vici Push Working with UploadAPI**
+   - Endpoint: `https://philli.callix.ai/vicidial/non_agent_api.php`
+   - Credentials: `UploadAPI` / Render-stored password
+   - Form encoding enforced via `Http::asForm()`
+   - Protocol fallback HTTPS→HTTP with caching
+   - Firewall auth helper used when needed
 
-2. **🔍 Investigating Allstate Testing Dashboard Issue**
-   - User reported: "Allstate api testing is not there"
-   - **Status**: Routes exist, view exists, investigating access issue
-   - **Files Checked**: `routes/web.php`, `resources/views/admin/allstate-testing.blade.php`
+2. **Test Lead Sent to List 101**
+   - Brain lead: `1057` (Jessica Rowe)
+   - Vici response: `SUCCESS: add_lead LEAD HAS BEEN ADDED - 3158829837 | 101 | 11533805 | -4 | UploadAPI`
+   - Vici lead_id: `11533805`, Vendor Lead Code: `1057`, Phone: `3158829837`
+
+3. **Operational Helpers Added**
+   - `/test/vici/{leadId?}` supports query overrides for `server`, `endpoint`, `user`, `pass`, `source`, `list_id`
+   - `/test/vici-login` simple version/login probe
+   - `/server-egress-ip` reveals Render egress IP: `3.129.111.220` (for whitelisting)
 
 #### **FINDINGS:**
-- ✅ Route exists: `/admin/allstate-testing` (line 3380 in web.php)
-- ✅ View file exists: `resources/views/admin/allstate-testing.blade.php`
-- ✅ Navigation link exists in admin dashboard
-- 🔍 **Issue**: May be deployment/cache related or user access problem
+- ✅ Vici credentials valid; JSON payloads were rejected, form-encoding required
+- ✅ Login error was due to server-side connection/format; fixed with form encoding and protocol fallback
+- ✅ Confirmed server egress IP for Vici whitelist: `3.129.111.220`
 
 ---
 
