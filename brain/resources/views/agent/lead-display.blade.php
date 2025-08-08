@@ -2186,7 +2186,14 @@
                 // Special check for insurance status (Allstate only accepts insured)
                 const currentlyInsured = document.getElementById('currently_insured')?.value || '';
                 if (!currentlyInsured || currentlyInsured.toLowerCase() === 'no') {
-                    alert('❌ ALLSTATE REQUIREMENT ERROR\n\nAllstate only accepts leads that are currently insured.\n\nThis lead shows as uninsured and cannot be enriched to Allstate.\n\nPlease update the insurance status or use a different enrichment option.');
+                    alert('❌ Requirement error\n\nYou clicked INSURED, but "Currently insured" is set to No.\n\nUpdate it to Yes or use the UNINSURED enrichment.');
+                    return;
+                }
+            }
+            if (type === 'uninsured') {
+                const currentlyInsured = document.getElementById('currently_insured')?.value || '';
+                if (currentlyInsured.toLowerCase() === 'yes' || currentlyInsured.toLowerCase() === 'y') {
+                    alert('❌ Requirement error\n\nYou clicked UNINSURED, but "Currently insured" is set to Yes.\n\nChange it to No or use the INSURED enrichment.');
                     return;
                 }
             }
@@ -3520,13 +3527,39 @@
 
         // Auto-save on blur/change for contact fields
         function setupAutoSave() {
-            const inputs = document.querySelectorAll('#contact-edit input, #contact-edit select');
+            const inputs = document.querySelectorAll('#contact-edit input, #contact-edit select, #qualificationForm select, #qualificationForm input');
             let timer = null;
             const triggerSave = () => {
                 clearTimeout(timer);
                 timer = setTimeout(() => {
-                    // Reuse saveContact minimal payload route
-                    saveContact();
+                    // Compose minimal payload that preserves Top 12 values (do not wipe)
+                    const qForm = document.getElementById('qualificationForm');
+                    const data = {};
+                    qForm && qForm.querySelectorAll('select, input').forEach(el => { data[el.id] = el.value; });
+
+                    const contact = {
+                        first_name: document.getElementById('edit-first-name')?.value || undefined,
+                        last_name: document.getElementById('edit-last-name')?.value || undefined,
+                        phone: document.getElementById('edit-phone')?.value || undefined,
+                        email: document.getElementById('edit-email')?.value || undefined,
+                        address: document.getElementById('edit-address')?.value || undefined,
+                        city: document.getElementById('edit-city')?.value || undefined,
+                        state: document.getElementById('edit-state')?.value || undefined,
+                        zip_code: document.getElementById('edit-zip')?.value || undefined,
+                    };
+
+                    fetch(`/agent/lead/{{ $lead->id }}/save-all`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({ qualification: data, contact })
+                    }).then(() => {
+                        // reflect essential fields inline
+                        document.querySelector('[data-field="homeowner"]')?.textContent = (data.home_status === 'own') ? 'Own' : 'Rent/Other';
+                    }).catch(() => {});
                 }, 800);
             };
             inputs.forEach(el => {
