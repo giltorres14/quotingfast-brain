@@ -40,20 +40,18 @@
         }
         
         .nav-brand {
-            font-size: 1.8rem;  /* Bigger text to match logo */
-            font-weight: 700;
+            font-size: 1.2rem;  /* Smaller brand text */
+            font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: .5rem;
             color: white;
             text-decoration: none;
+            letter-spacing: .5px;
+            opacity: .95;
         }
         
-        .brand-logo {
-            height: 120px;  /* 3x bigger from 40px */
-            width: auto;
-            filter: brightness(1.1);
-        }
+        .brand-logo { height: 120px; width: auto; filter: brightness(1.1); }
         
         .nav-menu {
             display: flex;

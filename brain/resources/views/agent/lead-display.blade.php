@@ -1043,15 +1043,11 @@
                     <div class="info-label">Campaign</div>
                     <div class="info-value">
                         @if($campaignName && !$campaign->is_auto_created)
-                            <strong>{{ $campaignName }}</strong><br>
-                            <small style="color: #6b7280;">ID: {{ $campaignId }}</small>
+                            <strong>{{ $campaignName }}</strong>
                         @else
                             <span style="font-family: monospace; color: #667eea;">{{ $campaignId }}</span>
-                            @if($campaign && $campaign->is_auto_created)
-                            <br><small style="color: #dc2626;">⚠️ Campaign needs name in directory</small>
-                            @endif
                         @endif
-                </div>
+                    </div>
                 </div>
                 @endif
                 
