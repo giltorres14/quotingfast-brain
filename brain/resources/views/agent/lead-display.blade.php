@@ -2115,6 +2115,11 @@
                 return 'N';
             };
 
+            const ynToBool = (v) => {
+                const s = (v || '').toString().trim().toLowerCase();
+                return (s === 'y' || s === 'yes' || s === 'true' || s === '1');
+            };
+
             const enrichmentData = {
                 // Lead identifiers for webhook callback and tracking
                 lead_id: '{{ $lead->id }}',
@@ -2130,17 +2135,13 @@
                 state: '{{ $lead->state ?? "" }}', // Lead state, not form state
                 zip_code: data.zip_code || '{{ $lead->zip_code ?? "" }}',
                 
-                // Qualification parameters (exact mapping per your spec)
-                insured: toYN(data.currently_insured), // Q1 as Y/N
-                license: toYN(data.active_license), // Q4 as Y/N
-                
-                // Q5 & Q6: DUI/SR22 logic mapping
-                dui: (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'Y' : 'N',
-                sr22: (data.dui_sr22 === 'sr22_only' || data.dui_sr22 === 'both') ? 'Y' : 'N',
-                dui_when: data.dui_timeframe || '', // Maps to 1, 2, or 3
-                
-                // Q10: Home ownership mapping
-                homeowner: data.home_status === 'own' ? 'Y' : 'N', // Own = Y, Rent/Other = N
+                // Allstate-aligned Top-12 keys (so RingBA → Allstate is direct)
+                currently_insured: ynToBool(data.currently_insured),
+                active_license: ynToBool(data.active_license),
+                dui_conviction: (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both'),
+                sr22_required: (data.dui_sr22 === 'sr22_only' || data.dui_sr22 === 'both'),
+                dui_timeframe: data.dui_timeframe || '', // 1,2,3
+                residence_status: (data.home_status === 'own') ? 'home' : (data.home_status || 'other'),
                 
                 // Visual-only fields (not sent in enrichment per your spec)
                 // Q2: current_provider - visual only
@@ -2210,12 +2211,12 @@
             if (type === 'insured') {
                 // Top 12 (subset we pass) first, then contact/location fields
                 const orderedPairs = [
-                    ['insured', enrichmentData.insured],
-                    ['license', enrichmentData.license],
-                    ['dui', data.dui],
-                    ['sr22', data.sr22],
-                    ['dui_when', data.dui_when],
-                    ['homeowner', data.homeowner],
+                    ['currently_insured', enrichmentData.currently_insured],
+                    ['active_license', enrichmentData.active_license],
+                    ['dui_conviction', enrichmentData.dui_conviction],
+                    ['sr22_required', enrichmentData.sr22_required],
+                    ['dui_timeframe', enrichmentData.dui_timeframe],
+                    ['residence_status', enrichmentData.residence_status],
                     // Then identifiers/contact
                     ['lead_id', data.lead_id],
                     ['external_id', data.external_id],
@@ -2231,14 +2232,14 @@
                 const qs = orderedPairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v || '')}`).join('&');
                 enrichmentURL = `${baseURL}?${qs}`;
             } else {
-                // For uninsured & homeowner: ONLY Top-12 questions + identifiers
+                // For uninsured & homeowner: ONLY Top-12 questions (Allstate-aligned) + identifiers
                 const orderedPairs = [
-                    ['insured', enrichmentData.insured],
-                    ['license', enrichmentData.license],
-                    ['dui', data.dui],
-                    ['sr22', data.sr22],
-                    ['dui_when', data.dui_when],
-                    ['homeowner', data.homeowner],
+                    ['currently_insured', enrichmentData.currently_insured],
+                    ['active_license', enrichmentData.active_license],
+                    ['dui_conviction', enrichmentData.dui_conviction],
+                    ['sr22_required', enrichmentData.sr22_required],
+                    ['dui_timeframe', enrichmentData.dui_timeframe],
+                    ['residence_status', enrichmentData.residence_status],
                     // Additional top-12 fields if present
                     ['years_licensed', data.years_licensed || ''],
                     ['current_provider', data.current_provider || ''],
