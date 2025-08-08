@@ -2275,27 +2275,26 @@
                     .join('&');
                 enrichmentURL = `${baseURL}?${qs}`;
             } else {
-                // For uninsured & homeowner: ONLY Top-12 questions (Allstate-aligned) + identifiers
+                // For uninsured & homeowner: match working legacy format (include contact fields)
                 const orderedPairs = [
                     ['source', 'LQF_API'],
-                    // Legacy RingBA expectations
                     ['insured', (data.currently_insured === true || /^(y|yes|true|1)$/i.test(data.currently_insured)) ? 'Y' : 'N'],
                     ['license', (data.active_license === true || /^(y|yes|true|1)$/i.test(data.active_license)) ? 'Y' : 'N'],
                     ['dui', (data.dui_conviction ? 'Y' : 'N')],
                     ['sr22', (data.sr22_required ? 'Y' : 'N')],
                     ['dui_when', data.dui_timeframe || ''],
                     ['homeowner', (data.residence_status === 'home' ? 'Y' : 'N')],
-                    // Additional top-12 fields if present
-                    ['years_licensed', data.years_licensed || ''],
-                    ['current_provider', data.current_provider || ''],
-                    ['insurance_duration', data.insurance_duration || ''],
-                    ['state_input', data.state_input || ''],
-                    ['num_vehicles', data.num_vehicles || ''],
-                    ['allstate_quote', data.allstate_quote || ''],
-                    ['ready_to_speak', data.ready_to_speak || ''],
-                    // Identifiers last
+                    // Identifiers/contact last
                     ['lead_id', data.lead_id],
-                    ['external_id', data.external_id]
+                    ['external_id', data.external_id],
+                    ['phone', data.phone],
+                    ['first_name', data.first_name],
+                    ['last_name', data.last_name],
+                    ['email', data.email],
+                    ['address', data.address],
+                    ['city', data.city],
+                    ['state', data.state],
+                    ['zip_code', data.zip_code]
                 ];
                 const qs = orderedPairs
                     .filter(([_, v]) => v !== undefined && v !== null && `${v}`.length > 0)
