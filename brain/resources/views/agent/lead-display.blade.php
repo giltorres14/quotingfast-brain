@@ -2240,18 +2240,10 @@
             // Build query with desired parameter order
             let enrichmentURL = '';
             if (type === 'insured') {
-                // Top 12 (subset we pass) first, then contact/location fields
+                // RingBA display endpoint: prefer Y/N values; omit empty params
                 const orderedPairs = [
-                    // Allstate-aligned
-                    ['currently_insured', data.currently_insured === true || data.currently_insured === 'true' ? true : false],
-                    ['active_license', data.active_license === true || data.active_license === 'true' ? true : false],
-                    ['dui_conviction', !!data.dui_conviction],
-                    ['sr22_required', !!data.sr22_required],
-                    ['dui_timeframe', data.dui_timeframe || ''],
-                    ['residence_status', data.residence_status || ''],
-                    // Legacy RingBA parameter names kept for compatibility
-                    ['insured', (data.currently_insured === true || data.currently_insured === 'true' || data.currently_insured === 'Y') ? 'Y' : 'N'],
-                    ['license', (data.active_license === true || data.active_license === 'true' || data.active_license === 'Y') ? 'Y' : 'N'],
+                    ['insured', (data.currently_insured === true || /^(y|yes|true|1)$/i.test(data.currently_insured)) ? 'Y' : 'N'],
+                    ['license', (data.active_license === true || /^(y|yes|true|1)$/i.test(data.active_license)) ? 'Y' : 'N'],
                     ['dui', (data.dui_conviction ? 'Y' : 'N')],
                     ['sr22', (data.sr22_required ? 'Y' : 'N')],
                     ['dui_when', data.dui_timeframe || ''],
@@ -2268,21 +2260,17 @@
                     ['state', data.state],
                     ['zip_code', data.zip_code]
                 ];
-                const qs = orderedPairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v || '')}`).join('&');
+                const qs = orderedPairs
+                    .filter(([_, v]) => v !== undefined && v !== null && `${v}`.length > 0)
+                    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+                    .join('&');
                 enrichmentURL = `${baseURL}?${qs}`;
             } else {
                 // For uninsured & homeowner: ONLY Top-12 questions (Allstate-aligned) + identifiers
                 const orderedPairs = [
-                    // Allstate-aligned
-                    ['currently_insured', data.currently_insured === true || data.currently_insured === 'true' ? true : false],
-                    ['active_license', data.active_license === true || data.active_license === 'true' ? true : false],
-                    ['dui_conviction', !!data.dui_conviction],
-                    ['sr22_required', !!data.sr22_required],
-                    ['dui_timeframe', data.dui_timeframe || ''],
-                    ['residence_status', data.residence_status || ''],
-                    // Legacy RingBA names
-                    ['insured', (data.currently_insured === true || data.currently_insured === 'true' || data.currently_insured === 'Y') ? 'Y' : 'N'],
-                    ['license', (data.active_license === true || data.active_license === 'true' || data.active_license === 'Y') ? 'Y' : 'N'],
+                    // Legacy RingBA expectations
+                    ['insured', (data.currently_insured === true || /^(y|yes|true|1)$/i.test(data.currently_insured)) ? 'Y' : 'N'],
+                    ['license', (data.active_license === true || /^(y|yes|true|1)$/i.test(data.active_license)) ? 'Y' : 'N'],
                     ['dui', (data.dui_conviction ? 'Y' : 'N')],
                     ['sr22', (data.sr22_required ? 'Y' : 'N')],
                     ['dui_when', data.dui_timeframe || ''],
@@ -2300,8 +2288,8 @@
                     ['external_id', data.external_id]
                 ];
                 const qs = orderedPairs
-                    .filter(([_, v]) => v !== undefined)
-                    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v || '')}`)
+                    .filter(([_, v]) => v !== undefined && v !== null && `${v}`.length > 0)
+                    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
                     .join('&');
                 enrichmentURL = `${baseURL}?${qs}`;
             }
