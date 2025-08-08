@@ -2109,6 +2109,12 @@
             });
             
             // Map values for Ringba enrichment (per your specification)
+            const toYN = (v) => {
+                const s = (v || '').toString().trim().toLowerCase();
+                if (s === 'y' || s === 'yes' || s === 'true' || s === '1') return 'Y';
+                return 'N';
+            };
+
             const enrichmentData = {
                 // Lead identifiers for webhook callback and tracking
                 lead_id: '{{ $lead->id }}',
@@ -2125,8 +2131,8 @@
                 zip_code: data.zip_code || '{{ $lead->zip_code ?? "" }}',
                 
                 // Qualification parameters (exact mapping per your spec)
-                insured: data.currently_insured || '', // Q1: sent as-is (Yes/No)
-                license: data.active_license || '', // Q4: sent as-is  
+                insured: toYN(data.currently_insured), // Q1 as Y/N
+                license: toYN(data.active_license), // Q4 as Y/N
                 
                 // Q5 & Q6: DUI/SR22 logic mapping
                 dui: (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'Y' : 'N',
@@ -2204,8 +2210,8 @@
             if (type === 'insured') {
                 // Top 12 (subset we pass) first, then contact/location fields
                 const orderedPairs = [
-                    ['insured', data.insured],
-                    ['license', data.license],
+                    ['insured', enrichmentData.insured],
+                    ['license', enrichmentData.license],
                     ['dui', data.dui],
                     ['sr22', data.sr22],
                     ['dui_when', data.dui_when],
@@ -2227,8 +2233,8 @@
             } else {
                 // For uninsured & homeowner: ONLY Top-12 questions + identifiers
                 const orderedPairs = [
-                    ['insured', data.insured],
-                    ['license', data.license],
+                    ['insured', enrichmentData.insured],
+                    ['license', enrichmentData.license],
                     ['dui', data.dui],
                     ['sr22', data.sr22],
                     ['dui_when', data.dui_when],
@@ -2328,6 +2334,15 @@
                         const errTxt = await saveResponse.text();
                         throw new Error(errTxt.substring(0, 200) || 'Failed to save lead data');
                     }
+                    // Update lead details panel with latest values
+                    try {
+                        document.getElementById('contact_city') && (document.getElementById('contact_city').value = data.city);
+                        document.getElementById('contact_state') && (document.getElementById('contact_state').value = data.state);
+                        document.getElementById('contact_zip_code') && (document.getElementById('contact_zip_code').value = data.zip_code);
+                        // Homeowner indicator
+                        const homeownerRow = document.querySelector('[data-field="homeowner"]');
+                        if (homeownerRow) homeownerRow.textContent = data.homeowner === 'Y' ? 'Own' : 'Rent/Other';
+                    } catch (_) {}
                     
                     // Open enrichment URL in new tab
                     window.open(enrichmentURL, '_blank');
@@ -3565,6 +3580,24 @@
                 leadName: '{{ $lead->name }}'
             }, '*');
         }
+
+        // Clear iframe data when parent signals hangup
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'call_hangup') {
+                try {
+                    // Clear inputs in qualification and contact edit sections
+                    document.querySelectorAll('#qualificationForm select, #qualificationForm input').forEach(el => {
+                        if (el.type === 'checkbox' || el.type === 'radio') {
+                            el.checked = false;
+                        } else {
+                            el.value = '';
+                        }
+                    });
+                    document.querySelectorAll('#contact-edit input').forEach(el => { el.value = ''; });
+                    console.log('Cleared form fields on call hangup signal');
+                } catch (_) {}
+            }
+        });
     </script>
 </body>
 </html>
