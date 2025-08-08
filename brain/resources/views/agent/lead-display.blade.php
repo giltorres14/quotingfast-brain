@@ -2284,7 +2284,7 @@
             
             if (confirmation) {
                 // Get the button that was clicked
-                const button = event.target;
+                const button = event?.target || document.querySelector(`.btn-${type}`);
                 const originalText = button.innerHTML;
                 
                 try {
