@@ -720,7 +720,7 @@
     <div class="header">
         <div class="header-container">
             <div class="logo-section">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo" onerror="this.style.display='none';">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo" style="height:120px; width:auto;" onerror="this.style.display='none';">
                 <div class="brand-text">The Brain</div>
             </div>
             

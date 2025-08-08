@@ -724,7 +724,7 @@
             @if(isset($mode) && in_array($mode, ['view', 'edit']))
                 <a href="/leads" class="back-button">← Back to Leads</a>
             @endif
-            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="header-logo">
+            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="header-logo" style="height:120px; width:auto;">
             <h1>{{ $lead->name }} 
                 @if(isset($mode) && $mode === 'view')
                     <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>

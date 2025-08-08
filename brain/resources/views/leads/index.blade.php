@@ -51,7 +51,7 @@
             opacity: .95;
         }
         
-        .brand-logo { height: 120px; width: auto; filter: brightness(1.1); }
+        .brand-logo { height: 180px; width: auto; filter: brightness(1.1); }
         
         .nav-menu {
             display: flex;

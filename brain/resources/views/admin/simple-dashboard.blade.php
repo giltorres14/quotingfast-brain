@@ -51,7 +51,7 @@
         }
         
         .brand-logo {
-            height: 40px;
+            height: 120px;
             width: auto;
             filter: brightness(1.1);
         }
