@@ -81,10 +81,14 @@
 - Integration Point: Agent qualification "Enrich" buttons
 
 ### **3. VICI DIALER SYSTEM**
-- Webhook: `/webhook/vici`
-- Purpose: Agent outbound calling and qualification
-- Status: 🧪 TEMPORARILY BYPASSED for Allstate testing
-- **RESTORE AFTER TESTING**: See memory ID 5307562
+ - Webhook: `/webhook/vici`
+ - Purpose: Agent outbound calling and qualification
+ - Status: 🧪 TEMPORARILY BYPASSED for Allstate testing
+ - **RESTORE AFTER TESTING**: See memory ID 5307562
+ - Credentials (Non-Agent API): `UploadAPI` / `ZL8aY2MuQM` (stored in Render)
+ - Server/Endpoint: `philli.callix.ai` + `/vicidial/non_agent_api.php`
+ - Behavior: Plain-text responses; login errors appear as `ERROR: Login incorrect, please try again: |||BAD|`
+ - Fallbacks: HTTPS→HTTP protocol fallback with caching; proactive firewall auth via `:26793/92RG8UJYTW.php`
 
 **🔧 VICI LIST ID ISSUE - FIXED:**
 - **Problem**: Leads were going to List 87878787 instead of List 101

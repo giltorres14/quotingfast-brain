@@ -82,6 +82,27 @@ VICI_WEBHOOK_URL=/webhook/vici
 VICI_LIST_ID=101
 ```
 
+### **Non-Agent API Credentials & Connection**
+```env
+# Server and endpoint
+VICI_SERVER=philli.callix.ai
+VICI_API_ENDPOINT=/vicidial/non_agent_api.php
+
+# Credentials (stored in Render env)
+VICI_API_USER=UploadAPI
+VICI_API_PASS=RENDER_SECRET   # actual value saved in Render: ZL8aY2MuQM (Admin, Level 9)
+```
+
+### **Operational Notes**
+- Non-Agent API returns plain text. Success/failure is parsed from body; common failure: `ERROR: Login incorrect, please try again: |||BAD|` (bad credentials).
+- Firewall auth script available at `https://{VICI_SERVER}:26793/92RG8UJYTW.php` (used automatically for whitelisting).
+- Protocol fallback implemented: tries HTTPS first, then HTTP, and caches the working protocol for 24h.
+
+### **Testing Endpoints**
+- Push test lead: `GET /test/vici/{leadId?}`
+- Update existing Vici lead: `GET /test/vici-update/{leadId?}`
+- DB connectivity probe: `GET /test/vici-db`
+
 ### **Integration Status**
 - **Current**: 🧪 TEMPORARILY BYPASSED for Allstate testing
 - **Normal Flow**: LeadsQuotingFast → Brain → Vici → Agent Qualification
