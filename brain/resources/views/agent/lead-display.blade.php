@@ -2242,6 +2242,7 @@
             if (type === 'insured') {
                 // RingBA display endpoint: prefer Y/N values; omit empty params
                 const orderedPairs = [
+                    ['source', 'LQF_API'],
                     ['insured', (data.currently_insured === true || /^(y|yes|true|1)$/i.test(data.currently_insured)) ? 'Y' : 'N'],
                     ['license', (data.active_license === true || /^(y|yes|true|1)$/i.test(data.active_license)) ? 'Y' : 'N'],
                     ['dui', (data.dui_conviction ? 'Y' : 'N')],
@@ -2268,6 +2269,7 @@
             } else {
                 // For uninsured & homeowner: ONLY Top-12 questions (Allstate-aligned) + identifiers
                 const orderedPairs = [
+                    ['source', 'LQF_API'],
                     // Legacy RingBA expectations
                     ['insured', (data.currently_insured === true || /^(y|yes|true|1)$/i.test(data.currently_insured)) ? 'Y' : 'N'],
                     ['license', (data.active_license === true || /^(y|yes|true|1)$/i.test(data.active_license)) ? 'Y' : 'N'],
