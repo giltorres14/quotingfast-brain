@@ -719,6 +719,14 @@
     <!-- REMOVED: Validation Summary Modal per user request -->
     
     <div class="container">
+        <!-- Debug panel (hidden by default; enable with ?debug=1) -->
+        <div id="debug-panel" style="display:none; position:fixed; bottom:10px; left:10px; z-index:9999; background:rgba(0,0,0,0.85); color:#e2e8f0; padding:10px; border-radius:8px; width:420px; max-height:40vh; overflow:auto; font-family:monospace; font-size:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <strong>Debug Log</strong>
+                <button onclick="document.getElementById('debug-panel').style.display='none'" style="background:#444;color:#fff;border:none;border-radius:4px;padding:2px 6px;cursor:pointer;">×</button>
+            </div>
+            <div id="debug-log"></div>
+        </div>
         <!-- Header - Agent View (No Admin Data) -->
         <div class="header">
             @if(isset($mode) && in_array($mode, ['view', 'edit']))
@@ -1998,6 +2006,20 @@
     </div>
 
     <script>
+        // Debug helpers
+        const debugEnabled = new URLSearchParams(location.search).get('debug') === '1';
+        function logDebug(message, detail) {
+            if (!debugEnabled) return;
+            const panel = document.getElementById('debug-panel');
+            const log = document.getElementById('debug-log');
+            panel.style.display = 'block';
+            const time = new Date().toISOString().split('T')[1].replace('Z','');
+            const line = document.createElement('div');
+            line.style.marginBottom = '6px';
+            line.innerHTML = `<span style="color:#93c5fd">[${time}]</span> ${message}` + (detail ? `<pre style="white-space:pre-wrap; color:#a7f3d0; background:#111; padding:6px; border-radius:4px;">${(typeof detail==='string'?detail:JSON.stringify(detail,null,2)).substring(0,1200)}</pre>` : '');
+            log.prepend(line);
+            console.log('[DEBUG]', message, detail || '');
+        }
         // Global data for JavaScript functions
         const leadDriversData = @json($lead->drivers ?? []);
         const leadVehiclesData = @json($lead->vehicles ?? []);
@@ -2271,6 +2293,7 @@
             // Pre-open popup to avoid popup blockers after async
             let popup = null;
             try { popup = window.open('about:blank'); } catch(_) {}
+            logDebug('Enrich clicked', { type, currently_insured: document.getElementById('currently_insured')?.value, url: enrichmentURL });
             
             // Show confirmation
             const confirmation = true; // streamline UX: no modal blockers
@@ -2281,7 +2304,14 @@
                 const originalText = button.innerHTML;
                 
                 try {
-                    // First, save ALL lead data to the database (comprehensive save)
+                    // Navigate popup immediately to avoid blockers; save continues asynchronously
+                    if (popup && !popup.closed) {
+                        popup.location = enrichmentURL;
+                    } else {
+                        try { window.open(enrichmentURL, '_blank'); } catch(_) { location.href = enrichmentURL; }
+                    }
+
+                    // Then save ALL lead data to the database (comprehensive save)
                     button.innerHTML = '⏳ Saving...';
                     
                     // Get all form data including qualification answers
@@ -2321,6 +2351,7 @@
                     };
                     
                     // Save all data to database
+                    logDebug('Saving lead via save-all', allData);
                     const saveResponse = await fetch(`/agent/lead/{{ $lead->id }}/save-all`, {
                     method: 'POST',
                     headers: {
@@ -2334,9 +2365,10 @@
                     
                     if (!saveResponse.ok) {
                         const errTxt = await saveResponse.text();
-                        console.error('Save-all HTTP error', saveResponse.status, errTxt);
+                        logDebug(`Save-all HTTP error ${saveResponse.status}`, errTxt);
                         // proceed to enrichment even if save returned HTML error
                     }
+                    logDebug('Save-all complete', { status: saveResponse.status });
                     // Update lead details panel with latest values
                     try {
                         document.getElementById('contact_city') && (document.getElementById('contact_city').value = data.city);
@@ -2347,12 +2379,7 @@
                         if (homeownerRow) homeownerRow.textContent = data.homeowner === 'Y' ? 'Own' : 'Rent/Other';
                     } catch (_) {}
                     
-                    // Navigate pre-opened popup (fallback to new tab)
-                    if (popup && !popup.closed) {
-                        popup.location = enrichmentURL;
-                    } else {
-                        try { window.open(enrichmentURL, '_blank'); } catch(_) { location.href = enrichmentURL; }
-                    }
+                    // Popup already navigated earlier
                     
                     // Show success confirmation
                     // REMOVED: Validation summary display per user request
@@ -2370,15 +2397,11 @@
                     }, 5000);
                     
                 } catch (error) {
-                    console.error('Error saving qualification data:', error);
+                    logDebug('Save-all exception', error?.message || error);
                     alert('Error saving qualification data. Proceeding to enrichment.');
                     
                     // Still open enrichment URL even if save failed
-                    if (popup && !popup.closed) {
-                        popup.location = enrichmentURL;
-                    } else {
-                        try { window.open(enrichmentURL, '_blank'); } catch(_) { location.href = enrichmentURL; }
-                    }
+                    // Popup already navigated; ensure at least one navigation happened
                     
                     // Update button to show enrichment happened but save failed
                     button.innerHTML = '⚠️ Enriched (Save Failed)';
