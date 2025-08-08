@@ -2012,7 +2012,7 @@
         // Initialize enrichment buttons on page load (no validation)
         document.addEventListener('DOMContentLoaded', function() {
             updateEnrichmentButtons();
-            // REMOVED: Validation event listeners per user request
+            setupAutoSave();
         });
         
         // REMOVED: debounceValidation function per user request
@@ -2161,6 +2161,15 @@
             return url;
         }
         
+        async function safeJson(response) {
+            const contentType = response.headers.get('content-type') || '';
+            if (contentType.includes('application/json')) {
+                return await response.json();
+            }
+            const text = await response.text();
+            throw new Error(text && text.length ? text.substring(0, 200) : 'Non-JSON response');
+        }
+
         async function enrichLead(type) {
             // CRITICAL: Validate for Allstate before allowing enrichment
             if (type === 'insured') {
@@ -2309,13 +2318,15 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
                         body: JSON.stringify(allData)
                     });
                     
                     if (!saveResponse.ok) {
-                        throw new Error('Failed to save lead data');
+                        const errTxt = await saveResponse.text();
+                        throw new Error(errTxt.substring(0, 200) || 'Failed to save lead data');
                     }
                     
                     // Open enrichment URL in new tab
@@ -2411,12 +2422,13 @@
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify(data)
                 });
                 
-                const result = await response.json();
+                const result = await safeJson(response);
                 
                 if (result.success) {
                     let message = 'Contact information updated successfully!';
@@ -3484,10 +3496,27 @@
                 }
             } catch (error) {
                 console.error('Error saving lead data:', error);
-                alert('Error saving lead data: ' + error.message);
+                alert('Error saving lead data: ' + (error.message || 'Unknown error'));
                 saveBtn.innerHTML = originalText;
                 saveBtn.disabled = false;
             }
+        }
+
+        // Auto-save on blur/change for contact fields
+        function setupAutoSave() {
+            const inputs = document.querySelectorAll('#contact-edit input, #contact-edit select');
+            let timer = null;
+            const triggerSave = () => {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    // Reuse saveContact minimal payload route
+                    saveContact();
+                }, 800);
+            };
+            inputs.forEach(el => {
+                el.addEventListener('blur', triggerSave);
+                el.addEventListener('change', triggerSave);
+            });
         }
         
         // Copy to clipboard function for URLs
