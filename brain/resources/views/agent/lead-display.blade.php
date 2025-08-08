@@ -2110,8 +2110,9 @@
             
             // Map values for Ringba enrichment (per your specification)
             const enrichmentData = {
-                // Lead ID for webhook callback
+                // Lead identifiers for webhook callback and tracking
                 lead_id: '{{ $lead->id }}',
+                external_id: '{{ $lead->external_lead_id ?? '' }}',
                 
                 // Basic info from lead
                 phone: '{{ preg_replace("/[^0-9]/", "", $lead->phone) }}',
@@ -2202,6 +2203,7 @@
                     ['homeowner', data.homeowner],
                     // Then identifiers/contact
                     ['lead_id', data.lead_id],
+                    ['external_id', data.external_id],
                     ['phone', data.phone],
                     ['first_name', data.first_name],
                     ['last_name', data.last_name],
@@ -2214,30 +2216,31 @@
                 const qs = orderedPairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v || '')}`).join('&');
                 enrichmentURL = `${baseURL}?${qs}`;
             } else {
-                // Fallback to previous replacement logic for other types
-                const placeholders = {
-                    lead_id: data.lead_id,
-                    phone: data.phone,
-                    first_name: data.first_name,
-                    last_name: data.last_name,
-                    email: data.email,
-                    address: data.address,
-                    city: data.city,
-                    state: data.state,
-                    zip_code: data.zip_code,
-                    insured: data.insured,
-                    license: data.license,
-                    dui: data.dui,
-                    sr22: data.sr22,
-                    dui_when: data.dui_when,
-                    homeowner: data.homeowner
-                };
-                const template = `${baseURL}?lead_id=<<lead_id>>&phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>`;
-                let url = template;
-                Object.keys(placeholders).forEach(key => {
-                    url = url.replace(new RegExp(`<<${key}>>`, 'g'), encodeURIComponent(placeholders[key] || ''));
-                });
-                enrichmentURL = url;
+                // For uninsured & homeowner: ONLY Top-12 questions + identifiers
+                const orderedPairs = [
+                    ['insured', data.insured],
+                    ['license', data.license],
+                    ['dui', data.dui],
+                    ['sr22', data.sr22],
+                    ['dui_when', data.dui_when],
+                    ['homeowner', data.homeowner],
+                    // Additional top-12 fields if present
+                    ['years_licensed', data.years_licensed || ''],
+                    ['current_provider', data.current_provider || ''],
+                    ['insurance_duration', data.insurance_duration || ''],
+                    ['state_input', data.state_input || ''],
+                    ['num_vehicles', data.num_vehicles || ''],
+                    ['allstate_quote', data.allstate_quote || ''],
+                    ['ready_to_speak', data.ready_to_speak || ''],
+                    // Identifiers last
+                    ['lead_id', data.lead_id],
+                    ['external_id', data.external_id]
+                ];
+                const qs = orderedPairs
+                    .filter(([_, v]) => v !== undefined)
+                    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v || '')}`)
+                    .join('&');
+                enrichmentURL = `${baseURL}?${qs}`;
             }
             
             // Log the enrichment for debugging
