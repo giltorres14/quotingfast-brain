@@ -5340,8 +5340,28 @@ function sendToViciList101($leadData, $leadId) {
             }
         }
         
-        // Try API call first
-        $response = Http::timeout(30)->post("https://{$viciConfig['server']}{$viciConfig['api_endpoint']}", $viciData);
+        // Try API call first (prefer cached protocol) with HTTPS→HTTP fallback on connect errors
+        $preferredProtocol = Cache::get('vici_protocol', 'https');
+        $attemptOrder = $preferredProtocol === 'http' ? ['http', 'https'] : ['https', 'http'];
+        $response = null;
+        $lastConnError = null;
+        foreach ($attemptOrder as $proto) {
+            try {
+                $url = $proto . "://{$viciConfig['server']}{$viciConfig['api_endpoint']}";
+                Log::info('Vici API attempt', ['url' => $url]);
+                $response = Http::timeout(30)->post($url, $viciData);
+                // Cache the working protocol for future calls
+                Cache::put('vici_protocol', $proto, 86400);
+                break;
+            } catch (Exception $connEx) {
+                $lastConnError = $connEx->getMessage();
+                Log::warning('Vici API connection attempt failed', ['url' => $proto, 'error' => $lastConnError]);
+                // try next protocol in loop
+            }
+        }
+        if (!$response) {
+            throw new Exception('Vici API connection error: ' . ($lastConnError ?? 'unknown'));
+        }
         
         // Enhanced error detection and retry logic
         $needsRetry = false;
