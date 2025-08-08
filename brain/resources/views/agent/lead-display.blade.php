@@ -2176,22 +2176,69 @@
             
             const data = getFormData();
             
-            // Ringba enrichment URLs with lead_id parameter for webhook callback
-            const enrichmentURLs = {
-                insured: 'https://display.ringba.com/enrich/2674154334576444838?lead_id=<<lead_id>>&phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>',
-                
-                uninsured: 'https://display.ringba.com/enrich/2676487329580844084?lead_id=<<lead_id>>&phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>',
-                
-                homeowner: 'https://display.ringba.com/enrich/2717035800150673197?lead_id=<<lead_id>>&phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>'
+            // Ringba enrichment base URLs (we will build ordered query strings)
+            const enrichmentBase = {
+                insured: 'https://display.ringba.com/enrich/2674154334576444838',
+                uninsured: 'https://display.ringba.com/enrich/2676487329580844084',
+                homeowner: 'https://display.ringba.com/enrich/2717035800150673197'
             };
             
-            const baseURL = enrichmentURLs[type];
+            const baseURL = enrichmentBase[type];
             if (!baseURL) {
                 alert('Invalid enrichment type');
                 return;
             }
-            
-            const enrichmentURL = buildEnrichmentURL(baseURL, data);
+
+            // Build query with desired parameter order
+            let enrichmentURL = '';
+            if (type === 'insured') {
+                // Top 12 (subset we pass) first, then contact/location fields
+                const orderedPairs = [
+                    ['insured', data.insured],
+                    ['license', data.license],
+                    ['dui', data.dui],
+                    ['sr22', data.sr22],
+                    ['dui_when', data.dui_when],
+                    ['homeowner', data.homeowner],
+                    // Then identifiers/contact
+                    ['lead_id', data.lead_id],
+                    ['phone', data.phone],
+                    ['first_name', data.first_name],
+                    ['last_name', data.last_name],
+                    ['email', data.email],
+                    ['address', data.address],
+                    ['city', data.city],
+                    ['state', data.state],
+                    ['zip_code', data.zip_code]
+                ];
+                const qs = orderedPairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v || '')}`).join('&');
+                enrichmentURL = `${baseURL}?${qs}`;
+            } else {
+                // Fallback to previous replacement logic for other types
+                const placeholders = {
+                    lead_id: data.lead_id,
+                    phone: data.phone,
+                    first_name: data.first_name,
+                    last_name: data.last_name,
+                    email: data.email,
+                    address: data.address,
+                    city: data.city,
+                    state: data.state,
+                    zip_code: data.zip_code,
+                    insured: data.insured,
+                    license: data.license,
+                    dui: data.dui,
+                    sr22: data.sr22,
+                    dui_when: data.dui_when,
+                    homeowner: data.homeowner
+                };
+                const template = `${baseURL}?lead_id=<<lead_id>>&phone=<<phone>>&first_name=<<first_name>>&last_name=<<last_name>>&email=<<email>>&address=<<address>>&city=<<city>>&state=<<state>>&zip_code=<<zip_code>>&insured=<<insured>>&license=<<license>>&dui=<<dui>>&sr22=<<sr22>>&dui_when=<<dui_when>>&homeowner=<<homeowner>>`;
+                let url = template;
+                Object.keys(placeholders).forEach(key => {
+                    url = url.replace(new RegExp(`<<${key}>>`, 'g'), encodeURIComponent(placeholders[key] || ''));
+                });
+                enrichmentURL = url;
+            }
             
             // Log the enrichment for debugging
             console.log('Ringba Enrichment:', {
