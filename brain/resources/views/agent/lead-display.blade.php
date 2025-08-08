@@ -2274,8 +2274,27 @@
                     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
                     .join('&');
                 enrichmentURL = `${baseURL}?${qs}`;
+            } else if (type === 'homeowner') {
+                // Homeowner: minimal set RingBA expects
+                const digits = (p) => (p || '').replace(/[^0-9]/g, '');
+                const orderedPairs = [
+                    ['callerid', digits(data.phone)],
+                    ['homeowner', 'Y'],
+                    ['address', data.address || ''],
+                    ['city', data.city || ''],
+                    ['state_name', (data.state_input || data.state || '')],
+                    ['zip_code', data.zip_code || ''],
+                    ['first_name', data.first_name || ''],
+                    ['last_name', data.last_name || ''],
+                    ['email', data.email || '']
+                ];
+                const qs = orderedPairs
+                    .filter(([_, v]) => v !== undefined && v !== null && `${v}`.length > 0)
+                    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+                    .join('&');
+                enrichmentURL = `${baseURL}?${qs}`;
             } else {
-                // For uninsured & homeowner: match working legacy format (include contact fields)
+                // Uninsured: legacy format
                 const orderedPairs = [
                     ['source', 'LQF_API'],
                     ['insured', (data.currently_insured === true || /^(y|yes|true|1)$/i.test(data.currently_insured)) ? 'Y' : 'N'],
