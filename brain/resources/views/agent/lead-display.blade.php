@@ -2273,13 +2273,7 @@
             try { popup = window.open('about:blank'); } catch(_) {}
             
             // Show confirmation
-            const confirmation = confirm(
-                `Enrich lead with Ringba (${type.toUpperCase()})?\n\n` +
-                `Lead: ${data.first_name} ${data.last_name}\n` +
-                `Phone: ${data.phone}\n` +
-                `Type: ${type}\n\n` +
-                `This will send the lead data to Ringba for campaign enrichment.`
-            );
+            const confirmation = true; // streamline UX: no modal blockers
             
             if (confirmation) {
                 // Get the button that was clicked
@@ -2305,10 +2299,10 @@
                     
                     // Get insurance information
                     const insuranceData = {
-                        insurance_company: document.getElementById('insurance_company')?.value || '{{ $lead->current_policy['insurance_company'] ?? '' }}',
-                        coverage_type: document.getElementById('coverage_type')?.value || '{{ $lead->current_policy['coverage_type'] ?? '' }}',
-                        expiration_date: document.getElementById('expiration_date')?.value || '{{ $lead->current_policy['expiration_date'] ?? '' }}',
-                        insured_since: document.getElementById('insured_since')?.value || '{{ $lead->current_policy['insured_since'] ?? '' }}'
+                        insurance_company: document.getElementById('insurance_company')?.value || @json($lead->current_policy['insurance_company'] ?? ''),
+                        coverage_type: document.getElementById('coverage_type')?.value || @json($lead->current_policy['coverage_type'] ?? ''),
+                        expiration_date: document.getElementById('expiration_date')?.value || @json($lead->current_policy['expiration_date'] ?? ''),
+                        insured_since: document.getElementById('insured_since')?.value || @json($lead->current_policy['insured_since'] ?? '')
                     };
                     
                     // Combine all data with enrichment info
@@ -2355,7 +2349,7 @@
                     if (popup && !popup.closed) {
                         popup.location = enrichmentURL;
                     } else {
-                        window.open(enrichmentURL, '_blank');
+                        try { window.open(enrichmentURL, '_blank'); } catch(_) { location.href = enrichmentURL; }
                     }
                     
                     // Show success confirmation
@@ -2381,7 +2375,7 @@
                     if (popup && !popup.closed) {
                         popup.location = enrichmentURL;
                     } else {
-                        window.open(enrichmentURL, '_blank');
+                        try { window.open(enrichmentURL, '_blank'); } catch(_) { location.href = enrichmentURL; }
                     }
                     
                     // Update button to show enrichment happened but save failed
