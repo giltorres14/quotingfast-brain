@@ -2242,12 +2242,20 @@
             if (type === 'insured') {
                 // Top 12 (subset we pass) first, then contact/location fields
                 const orderedPairs = [
-                    ['currently_insured', data.currently_insured],
-                    ['active_license', data.active_license],
-                    ['dui_conviction', data.dui_conviction],
-                    ['sr22_required', data.sr22_required],
-                    ['dui_timeframe', data.dui_timeframe],
-                    ['residence_status', data.residence_status],
+                    // Allstate-aligned
+                    ['currently_insured', data.currently_insured === true || data.currently_insured === 'true' ? true : false],
+                    ['active_license', data.active_license === true || data.active_license === 'true' ? true : false],
+                    ['dui_conviction', !!data.dui_conviction],
+                    ['sr22_required', !!data.sr22_required],
+                    ['dui_timeframe', data.dui_timeframe || ''],
+                    ['residence_status', data.residence_status || ''],
+                    // Legacy RingBA parameter names kept for compatibility
+                    ['insured', (data.currently_insured === true || data.currently_insured === 'true' || data.currently_insured === 'Y') ? 'Y' : 'N'],
+                    ['license', (data.active_license === true || data.active_license === 'true' || data.active_license === 'Y') ? 'Y' : 'N'],
+                    ['dui', (data.dui_conviction ? 'Y' : 'N')],
+                    ['sr22', (data.sr22_required ? 'Y' : 'N')],
+                    ['dui_when', data.dui_timeframe || ''],
+                    ['homeowner', (data.residence_status === 'home' ? 'Y' : 'N')],
                     // Then identifiers/contact
                     ['lead_id', data.lead_id],
                     ['external_id', data.external_id],
@@ -2265,12 +2273,20 @@
             } else {
                 // For uninsured & homeowner: ONLY Top-12 questions (Allstate-aligned) + identifiers
                 const orderedPairs = [
-                    ['currently_insured', data.currently_insured],
-                    ['active_license', data.active_license],
-                    ['dui_conviction', data.dui_conviction],
-                    ['sr22_required', data.sr22_required],
-                    ['dui_timeframe', data.dui_timeframe],
-                    ['residence_status', data.residence_status],
+                    // Allstate-aligned
+                    ['currently_insured', data.currently_insured === true || data.currently_insured === 'true' ? true : false],
+                    ['active_license', data.active_license === true || data.active_license === 'true' ? true : false],
+                    ['dui_conviction', !!data.dui_conviction],
+                    ['sr22_required', !!data.sr22_required],
+                    ['dui_timeframe', data.dui_timeframe || ''],
+                    ['residence_status', data.residence_status || ''],
+                    // Legacy RingBA names
+                    ['insured', (data.currently_insured === true || data.currently_insured === 'true' || data.currently_insured === 'Y') ? 'Y' : 'N'],
+                    ['license', (data.active_license === true || data.active_license === 'true' || data.active_license === 'Y') ? 'Y' : 'N'],
+                    ['dui', (data.dui_conviction ? 'Y' : 'N')],
+                    ['sr22', (data.sr22_required ? 'Y' : 'N')],
+                    ['dui_when', data.dui_timeframe || ''],
+                    ['homeowner', (data.residence_status === 'home' ? 'Y' : 'N')],
                     // Additional top-12 fields if present
                     ['years_licensed', data.years_licensed || ''],
                     ['current_provider', data.current_provider || ''],
