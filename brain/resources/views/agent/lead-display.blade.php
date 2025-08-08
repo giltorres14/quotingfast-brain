@@ -2242,12 +2242,12 @@
             if (type === 'insured') {
                 // Top 12 (subset we pass) first, then contact/location fields
                 const orderedPairs = [
-                    ['currently_insured', enrichmentData.currently_insured],
-                    ['active_license', enrichmentData.active_license],
-                    ['dui_conviction', enrichmentData.dui_conviction],
-                    ['sr22_required', enrichmentData.sr22_required],
-                    ['dui_timeframe', enrichmentData.dui_timeframe],
-                    ['residence_status', enrichmentData.residence_status],
+                    ['currently_insured', data.currently_insured],
+                    ['active_license', data.active_license],
+                    ['dui_conviction', data.dui_conviction],
+                    ['sr22_required', data.sr22_required],
+                    ['dui_timeframe', data.dui_timeframe],
+                    ['residence_status', data.residence_status],
                     // Then identifiers/contact
                     ['lead_id', data.lead_id],
                     ['external_id', data.external_id],
@@ -2265,12 +2265,12 @@
             } else {
                 // For uninsured & homeowner: ONLY Top-12 questions (Allstate-aligned) + identifiers
                 const orderedPairs = [
-                    ['currently_insured', enrichmentData.currently_insured],
-                    ['active_license', enrichmentData.active_license],
-                    ['dui_conviction', enrichmentData.dui_conviction],
-                    ['sr22_required', enrichmentData.sr22_required],
-                    ['dui_timeframe', enrichmentData.dui_timeframe],
-                    ['residence_status', enrichmentData.residence_status],
+                    ['currently_insured', data.currently_insured],
+                    ['active_license', data.active_license],
+                    ['dui_conviction', data.dui_conviction],
+                    ['sr22_required', data.sr22_required],
+                    ['dui_timeframe', data.dui_timeframe],
+                    ['residence_status', data.residence_status],
                     // Additional top-12 fields if present
                     ['years_licensed', data.years_licensed || ''],
                     ['current_provider', data.current_provider || ''],
@@ -2376,7 +2376,7 @@
                         document.getElementById('contact_zip_code') && (document.getElementById('contact_zip_code').value = data.zip_code);
                         // Homeowner indicator
                         const homeownerRow = document.querySelector('[data-field="homeowner"]');
-                        if (homeownerRow) homeownerRow.textContent = data.homeowner === 'Y' ? 'Own' : 'Rent/Other';
+                        if (homeownerRow) homeownerRow.textContent = (data.residence_status === 'home') ? 'Own' : 'Rent/Other';
                     } catch (_) {}
                     
                     // Popup already navigated earlier
