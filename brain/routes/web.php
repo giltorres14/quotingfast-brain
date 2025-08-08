@@ -2823,6 +2823,7 @@ Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
         if ($request->has('user')) { $overrides['user'] = $request->query('user'); }
         if ($request->has('pass')) { $overrides['pass'] = $request->query('pass'); }
         if ($request->has('list_id')) { $overrides['list_id'] = (int)$request->query('list_id'); }
+        if ($request->has('source')) { $overrides['source'] = $request->query('source'); }
 
         // Use the same function that works in the webhook
         $viciResult = sendToViciList101($leadData, $lead->id, $overrides);
@@ -5361,7 +5362,7 @@ function sendToViciList101($leadData, $leadId, array $overrides = []) {
         'user' => $viciConfig['user'],
         'pass' => $viciConfig['pass'],
         'function' => 'add_lead',
-        'source' => 'LQF_API',
+        'source' => $viciConfig['source'] ?? 'LQF_API',
         'lead_id' => $viciLeadId,
         'list_id' => $viciConfig['list_id'],
         'phone_number' => preg_replace('/[^0-9]/', '', $leadData['phone']),
