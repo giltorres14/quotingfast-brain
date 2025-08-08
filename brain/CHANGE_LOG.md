@@ -148,6 +148,7 @@
 - Allstate Production API (don't test until live)
 - PostgreSQL database (production data)
 - Live webhook endpoints
+ - Vici UploadAPI credentials in Render env (once set)
 
 ### **TESTING CONFIGURATIONS:**
 - Allstate Test API (safe for testing)

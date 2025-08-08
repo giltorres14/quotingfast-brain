@@ -29,10 +29,10 @@
 ## 🎯 CURRENT PROJECT STATUS
 
 ### **ACTIVE ISSUES**
-1. **External Lead ID Format** - Not generating 9-digit IDs starting with 100000001
-2. **Vici Iframe Size** - Still small despite vicidial.php changes
-3. **Allstate Testing Dashboard** - Location needs fixing
-4. **Bulk Processing** - Network errors
+1. **Allstate Testing Logs** - Ensure entries appear in `allstate_test_logs` and dashboard
+2. **Search Module UI/UX** - Layout improvements and filter persistence
+3. **Bulk Processing** - Network error on dashboard
+4. **Logo Sizing** - Make logo 3x bigger globally
 
 ### **ACTIVE INTEGRATION: Allstate Lead Marketplace API**
 - **Status**: 🧪 TESTING MODE - Vici bypassed, direct to Allstate
