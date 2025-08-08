@@ -2013,6 +2013,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             updateEnrichmentButtons();
             setupAutoSave();
+            // ensure conditional blocks reflect current select values on load
+            try { toggleInsuranceQuestions(); toggleDUIQuestions(); } catch(_) {}
         });
         
         // REMOVED: debounceValidation function per user request
@@ -2044,7 +2046,7 @@
             const insured = document.getElementById('currently_insured').value;
             const insuranceQuestions = document.getElementById('insurance_questions');
             
-            if (insured === 'yes') {
+            if (insured === 'yes' || insured === 'Y' || insured === 'y' || insured === 'true' || insured === '1') {
                 insuranceQuestions.classList.add('show');
             } else {
                 insuranceQuestions.classList.remove('show');
