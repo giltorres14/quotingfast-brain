@@ -2836,6 +2836,7 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
                 'lead_id' => $lead->id,
                 'lead_name' => $lead->name,
                 'error' => 'Vici function returned null/false',
+                'vici_result' => $viciResult,
                 'timestamp' => now()->toISOString()
             ], 400);
         }
