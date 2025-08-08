@@ -3529,16 +3529,12 @@
 
         // Auto-save on blur/change for contact fields
         function setupAutoSave() {
-            const inputs = document.querySelectorAll('#contact-edit input, #contact-edit select, #qualificationForm select, #qualificationForm input');
+            // Only auto-save CONTACT fields to avoid interfering with Top 12 logic
+            const inputs = document.querySelectorAll('#contact-edit input, #contact-edit select');
             let timer = null;
             const triggerSave = () => {
                 clearTimeout(timer);
                 timer = setTimeout(() => {
-                    // Compose minimal payload that preserves Top 12 values (do not wipe)
-                    const qForm = document.getElementById('qualificationForm');
-                    const data = {};
-                    qForm && qForm.querySelectorAll('select, input').forEach(el => { data[el.id] = el.value; });
-
                     const contact = {
                         first_name: document.getElementById('edit-first-name')?.value || undefined,
                         last_name: document.getElementById('edit-last-name')?.value || undefined,
@@ -3557,10 +3553,10 @@
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
-                        body: JSON.stringify({ qualification: data, contact })
+                        body: JSON.stringify({ contact })
                     }).then(() => {
                         // reflect essential fields inline
-                        document.querySelector('[data-field="homeowner"]')?.textContent = (data.home_status === 'own') ? 'Own' : 'Rent/Other';
+                        // no-op for Top 12 to prevent side-effects
                     }).catch(() => {});
                 }, 800);
             };
