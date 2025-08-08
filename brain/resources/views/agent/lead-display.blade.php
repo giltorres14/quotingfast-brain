@@ -2268,12 +2268,9 @@
                 enrichmentURL = `${baseURL}?${qs}`;
             }
             
-            // Log the enrichment for debugging
-            console.log('Ringba Enrichment:', {
-                type: type,
-                data: data,
-                url: enrichmentURL
-            });
+            // Pre-open popup to avoid popup blockers after async
+            let popup = null;
+            try { popup = window.open('about:blank'); } catch(_) {}
             
             // Show confirmation
             const confirmation = confirm(
@@ -2354,8 +2351,12 @@
                         if (homeownerRow) homeownerRow.textContent = data.homeowner === 'Y' ? 'Own' : 'Rent/Other';
                     } catch (_) {}
                     
-                    // Open enrichment URL in new tab
-                    window.open(enrichmentURL, '_blank');
+                    // Navigate pre-opened popup (fallback to new tab)
+                    if (popup && !popup.closed) {
+                        popup.location = enrichmentURL;
+                    } else {
+                        window.open(enrichmentURL, '_blank');
+                    }
                     
                     // Show success confirmation
                     // REMOVED: Validation summary display per user request
@@ -2374,10 +2375,14 @@
                     
                 } catch (error) {
                     console.error('Error saving qualification data:', error);
-                    alert('Error saving qualification data. Please try again.');
+                    alert('Error saving qualification data. Proceeding to enrichment.');
                     
                     // Still open enrichment URL even if save failed
-                    window.open(enrichmentURL, '_blank');
+                    if (popup && !popup.closed) {
+                        popup.location = enrichmentURL;
+                    } else {
+                        window.open(enrichmentURL, '_blank');
+                    }
                     
                     // Update button to show enrichment happened but save failed
                     button.innerHTML = '⚠️ Enriched (Save Failed)';
