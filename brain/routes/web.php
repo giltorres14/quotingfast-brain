@@ -5396,7 +5396,7 @@ function sendToViciList101($leadData, $leadId, array $overrides = []) {
         if ($shouldProactiveWhitelist) {
             Log::info('Proactive firewall authentication (30min interval)');
             try {
-                $firewallAuth = Http::timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
+                $firewallAuth = Http::asForm()->timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
                     'user' => $viciConfig['user'],
                     'pass' => $viciConfig['pass']
                 ]);
@@ -5416,7 +5416,7 @@ function sendToViciList101($leadData, $leadId, array $overrides = []) {
             try {
                 $url = $proto . "://{$viciConfig['server']}{$viciConfig['api_endpoint']}";
                 Log::info('Vici API attempt', ['url' => $url]);
-                $response = Http::timeout(30)->post($url, $viciData);
+                $response = Http::asForm()->timeout(30)->post($url, $viciData);
                 // Cache the working protocol for future calls
                 Cache::put('vici_protocol', $proto, 86400);
                 break;
@@ -5454,7 +5454,7 @@ function sendToViciList101($leadData, $leadId, array $overrides = []) {
             
             try {
                 // Authenticate through firewall to whitelist IP
-                $firewallAuth = Http::timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
+                $firewallAuth = Http::asForm()->timeout(10)->post("https://{$viciConfig['server']}:26793/92RG8UJYTW.php", [
                     'user' => $viciConfig['user'],
                     'pass' => $viciConfig['pass']
                 ]);
@@ -5463,7 +5463,7 @@ function sendToViciList101($leadData, $leadId, array $overrides = []) {
                 Log::info('Emergency firewall authentication completed', ['status' => $firewallAuth->status()]);
                 
                 // Retry API call after firewall authentication
-                $response = Http::timeout(30)->post("https://{$viciConfig['server']}{$viciConfig['api_endpoint']}", $viciData);
+                $response = Http::asForm()->timeout(30)->post("https://{$viciConfig['server']}{$viciConfig['api_endpoint']}", $viciData);
                 Log::info('Retry API call completed', ['status' => $response->status(), 'body' => substr($response->body(), 0, 200)]);
                 
             } catch (Exception $authError) {
