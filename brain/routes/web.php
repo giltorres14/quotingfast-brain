@@ -2916,6 +2916,16 @@ Route::get('/test/vici-login', function (Request $request) {
     }
 });
 
+// Reveal server egress IP (for Vici whitelisting)
+Route::get('/server-egress-ip', function () {
+    try {
+        $ip = Http::timeout(8)->get('https://api.ipify.org')->body();
+        return response()->json(['ip' => trim($ip)]);
+    } catch (Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
 // Test Allstate API connection with multiple auth methods
 Route::get('/test/allstate/connection', function () {
     try {
