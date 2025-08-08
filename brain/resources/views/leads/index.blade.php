@@ -695,7 +695,7 @@
                     <div class="form-group">
                         <label class="form-label">Search</label>
                         <input type="text" name="search" class="form-input" 
-                               placeholder="Name, phone, or email" 
+                               placeholder="Name, phone, email, city, state, zip, ID, external ID" 
                                value="{{ $search ?? '' }}">
                     </div>
                     

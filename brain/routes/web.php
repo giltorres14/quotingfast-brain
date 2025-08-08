@@ -2272,14 +2272,36 @@ Route::get('/leads', function (Request $request) {
         // Build query
         $query = Lead::query();
         
-        // Apply search filter
+        // Apply search filter (case-insensitive across DBs, supports multi-word full name)
         if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('name', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+            $search = trim($search);
+            $tokens = preg_split('/\s+/', $search);
+            $isPg = config('database.default') === 'pgsql';
+            $like = $isPg ? 'ilike' : 'like';
+
+            $query->where(function ($outer) use ($tokens, $like, $isPg) {
+                foreach ($tokens as $token) {
+                    $outer->where(function ($q) use ($token, $like, $isPg) {
+                        $q->where('first_name', $like, "%{$token}%")
+                          ->orWhere('last_name', $like, "%{$token}%")
+                          ->orWhere('name', $like, "%{$token}%")
+                          ->orWhere('phone', $like, "%{$token}%")
+                          ->orWhere('email', $like, "%{$token}%")
+                          ->orWhere('city', $like, "%{$token}%")
+                          ->orWhere('state', $like, "%{$token}%")
+                          ->orWhere('zip_code', $like, "%{$token}%")
+                          ->orWhere('external_lead_id', $like, "%{$token}%");
+
+                        // Full name concatenation
+                        if ($isPg) {
+                            $q->orWhereRaw("(first_name || ' ' || last_name) ilike ?", ["%{$token}%"]);
+                            $q->orWhereRaw("CAST(id AS TEXT) ilike ?", ["%{$token}%"]);
+                        } else {
+                            $q->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", ["%{$token}%"]);
+                            $q->orWhereRaw("CAST(id AS CHAR) like ?", ["%{$token}%"]);
+                        }
+                    });
+                }
             });
         }
         
