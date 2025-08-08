@@ -2328,6 +2328,7 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
+                        credentials: 'same-origin',
                         body: JSON.stringify(allData)
                     });
                     
@@ -2449,6 +2450,7 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
+                    credentials: 'same-origin',
                     body: JSON.stringify(data)
                 });
                 
@@ -3552,6 +3554,7 @@
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                         },
+                        credentials: 'same-origin',
                         body: JSON.stringify({ contact })
                     }).then(() => {
                         // reflect essential fields inline
