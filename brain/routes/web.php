@@ -2787,7 +2787,7 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
 });
 
 // Test Vici lead push endpoint (using same function as webhook)
-Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
+Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
     try {
         $lead = App\Models\Lead::find($leadId);
 
@@ -2816,8 +2816,16 @@ Route::get('/test/vici/{leadId?}', function ($leadId = 1) {
             'zip_code' => $lead->zip_code
         ];
 
+        // Optional overrides via query params for testing credentials without changing env
+        $overrides = [];
+        if ($request->has('server')) { $overrides['server'] = $request->query('server'); }
+        if ($request->has('endpoint')) { $overrides['api_endpoint'] = $request->query('endpoint'); }
+        if ($request->has('user')) { $overrides['user'] = $request->query('user'); }
+        if ($request->has('pass')) { $overrides['pass'] = $request->query('pass'); }
+        if ($request->has('list_id')) { $overrides['list_id'] = (int)$request->query('list_id'); }
+
         // Use the same function that works in the webhook
-        $viciResult = sendToViciList101($leadData, $lead->id);
+        $viciResult = sendToViciList101($leadData, $lead->id, $overrides);
 
         if ($viciResult) {
             return response()->json([
@@ -5275,7 +5283,7 @@ function generateLeadId() {
 }
 
 // Vici integration function (shared between webhooks)
-function sendToViciList101($leadData, $leadId) {
+function sendToViciList101($leadData, $leadId, array $overrides = []) {
     // Your Vici API configuration (with firewall-aware endpoint)
     // FIXED: Ensure list_id is always 101, not from env variable that might be wrong
     $viciConfig = [
@@ -5287,6 +5295,12 @@ function sendToViciList101($leadData, $leadId) {
         'phone_code' => '1',
         'source' => 'LQF_API'
     ];
+    // Apply testing overrides if provided
+    foreach ($overrides as $key => $value) {
+        if (array_key_exists($key, $viciConfig) && $value !== null && $value !== '') {
+            $viciConfig[$key] = $value;
+        }
+    }
     
     // Generate ViciDial-compatible lead_id (9 digits starting with 100000000)
     $viciLeadId = 100000000 + (int)(microtime(true) * 100) % 99999999;
