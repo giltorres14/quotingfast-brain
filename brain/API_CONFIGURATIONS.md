@@ -1,5 +1,5 @@
 # 🔗 API CONFIGURATIONS REGISTRY
-## Centralized API Management - Updated: {{ date('Y-m-d H:i:s') }}
+## Centralized API Management - Updated: 2025-08-09 13:15 EST
 
 ---
 
@@ -71,6 +71,32 @@ RINGBA_CAMPAIGN_ID=[TO_BE_CONFIGURED]
 - Agent qualification "Enrich" buttons
 - Post-qualification lead enrichment
 - Call outcome tracking
+
+### **Confirmation Request → Allstate (Production)**
+```
+URL: https://api.allstateleadmarketplace.com/v2/calls/post/[bid-id]
+Method: POST
+Content-Type: application/json
+Headers:
+  - Authorization: Basic YjkxNDQ2YWRlOWQzNzY1MGY5M2UzMDVjYmFmOGMyYzk6
+  - Accept: application/json
+Body:
+  { "home_phone": "[tag:InboundNumber:AreaCode][tag:InboundNumber:Prefix][tag:InboundNumber:Suffix]" }
+
+Parsers:
+  - Call Acceptance (JavaScript): returns true when `matched` is true
+  - Dynamic Number/SIP (JavaScript): prefers SIP, otherwise normalizes inbound number to E.164
+  - Bid ID (JavaScript): extracts `bid_id|call_id|id|result.*|response.*|_meta.request_id`
+
+Recommended Timeouts/Toggles:
+  - Confirmation Request: ON
+  - Confirmation Request Required: OFF (so priority buyers can receive first)
+  - Timeout: 4–5s
+```
+
+### **Call Flow Pattern**
+- Put priority buyers first (Buyer A, Buyer B, Ring Tree) → Allstate as fallback.
+- Optionally move Allstate into a separate flow with Required=ON if you want gating at that step only.
 
 ---
 

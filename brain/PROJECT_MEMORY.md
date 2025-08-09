@@ -1,5 +1,5 @@
 # 🧠 BRAIN PROJECT MEMORY
-## Living Documentation System - Last Updated: 2025-08-06
+## Living Documentation System - Last Updated: 2025-08-09 13:15 EST
 
 ---
 
@@ -30,10 +30,11 @@
 Last Updated: 2025-08-08 12:25 EST
 
 ### **ACTIVE ISSUES**
-1. **Allstate Testing Logs** - Ensure entries appear in `allstate_test_logs` and dashboard
-2. **Search Module UI/UX** - Layout improvements and filter persistence
-3. **Bulk Processing** - Network error on dashboard
-4. **Logo Sizing** - Make logo 3x bigger globally
+1. **RingBA → Allstate Confirmation** - Validate live call acceptance and routing
+2. **Allstate Testing Logs** - Ensure entries appear in `allstate_test_logs` and dashboard
+3. **Search Module UI/UX** - Layout improvements and filter persistence
+4. **Bulk Processing** - Network error on dashboard
+5. **Logo Sizing** - Make logo 3x bigger globally
 
 ### **ACTIVE INTEGRATION: Allstate Lead Marketplace API**
 - **Status**: 🧪 TESTING MODE - Vici bypassed, direct to Allstate
@@ -78,8 +79,19 @@ Last Updated: 2025-08-08 12:25 EST
 ### **2. RINGBA CALL TRACKING**
 - URL: `https://api.ringba.com/v2/`
 - Purpose: Lead enrichment and call routing
-- Status: 📋 PLANNED - After Allstate API is perfect
-- Integration Point: Agent qualification "Enrich" buttons
+- Status: ✅ CONFIGURED — Call Flow with Allstate Confirmation Request
+- Integration Points: Agent "Enrich" buttons and Vici transfers to tracking number
+
+**Confirmation Request → Allstate (Production):**
+```
+URL: https://api.allstateleadmarketplace.com/v2/calls/post/[bid-id]
+Method: POST, Content-Type: application/json
+Headers: Authorization (Basic Yjkx…Yzk6), Accept: application/json
+Body: { "home_phone": "[tag:InboundNumber:AreaCode][tag:InboundNumber:Prefix][tag:InboundNumber:Suffix]" }
+Parsers: Acceptance JS, Dynamic Number/SIP JS, Bid ID JS
+Toggles: Required = OFF on main path (priority buyers first), Timeout 4–5s
+Call Flow: Buyer A → Buyer B → Ring Tree → Allstate (fallback)
+```
 
 ### **3. VICI DIALER SYSTEM**
  - Webhook: `/webhook/vici`
