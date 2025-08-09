@@ -2294,26 +2294,25 @@
                     .join('&');
                 enrichmentURL = `${baseURL}?${qs}`;
             } else {
-                // Uninsured: legacy format
+                // Uninsured: use Allstate-style mapping (as required by this RingBA endpoint)
+                const yn = (v) => (/^(y|yes|true|1)$/i.test(`${v}`) ? 'Y' : 'N');
+                const mapDuiWhen = (v) => (v === '1' ? 'under1' : v === '2' ? '1to3' : v === '3' ? 'over3' : '');
+                const mapDuiOption = (v) => (v === 'dui_only' ? 'DUI' : v === 'sr22_only' ? 'SR22' : v === 'both' ? 'DUI_SR22' : 'no');
+                const digits = (p) => (p || '').replace(/[^0-9]/g, '');
+
                 const orderedPairs = [
-                    ['source', 'LQF_API'],
-                    ['insured', (data.currently_insured === true || /^(y|yes|true|1)$/i.test(data.currently_insured)) ? 'Y' : 'N'],
-                    ['license', (data.active_license === true || /^(y|yes|true|1)$/i.test(data.active_license)) ? 'Y' : 'N'],
-                    ['dui', (data.dui_conviction ? 'Y' : 'N')],
-                    ['sr22', (data.sr22_required ? 'Y' : 'N')],
-                    ['dui_when', data.dui_timeframe || ''],
-                    ['homeowner', (data.residence_status === 'home' ? 'Y' : 'N')],
-                    // Identifiers/contact last
-                    ['lead_id', data.lead_id],
-                    ['external_id', data.external_id],
-                    ['phone', data.phone],
-                    ['first_name', data.first_name],
-                    ['last_name', data.last_name],
-                    ['email', data.email],
-                    ['address', data.address],
-                    ['city', data.city],
-                    ['state', data.state],
-                    ['zip_code', data.zip_code]
+                    ['callerid', digits(data.phone)],
+                    ['currently_insured', 'N'],
+                    ['current_carrier', 'Not Insured'],
+                    ['continuous_coverage', 0],
+                    ['active_dl', yn(data.active_license)],
+                    ['vehicle_count', data.num_vehicles || ''],
+                    ['dui_option', mapDuiOption(data.dui_sr22)],
+                    ['dui_when', mapDuiWhen(data.dui_timeframe)],
+                    ['state_name', (data.state_input || data.state || '')],
+                    ['zip_code', data.zip_code || ''],
+                    ['received_quote', yn(data.allstate_quote)],
+                    ['ready_to_talk', yn(data.ready_to_speak)]
                 ];
                 const qs = orderedPairs
                     .filter(([_, v]) => v !== undefined && v !== null && `${v}`.length > 0)
