@@ -53,14 +53,14 @@
         }
         
         .brand-logo {
-            height: 120px;
+            height: 50px;
             width: auto;
             filter: brightness(1.1);
         }
         
         .brand-text {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
+            font-size: 1.2rem;
             font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 1px;

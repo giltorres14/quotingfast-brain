@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Buyer Management - Admin | The Brain</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -43,7 +45,7 @@
         }
         
         .logo {
-            height: 40px;
+            height: 50px;
             filter: brightness(1.2);
         }
         
