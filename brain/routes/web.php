@@ -1806,6 +1806,7 @@ Route::post('/webhook.php', function (Request $request) {
             
             'drivers' => json_encode($data['data']['drivers'] ?? []),
             'vehicles' => json_encode($data['data']['vehicles'] ?? []),
+            'properties' => json_encode($data['data']['properties'] ?? $data['data']['property'] ?? $data['data']['homes'] ?? []),
             'current_policy' => json_encode($data['data']['current_policy'] ?? null),
             'requested_policy' => json_encode($data['data']['requested_policy'] ?? $data['requested_policy'] ?? null),
             'payload' => json_encode($data),
@@ -5592,6 +5593,219 @@ Route::post('/api/leads', function (Request $request) {
 Route::get('/login', function() {
     return response()->json(['message' => 'Please implement authentication UI']);
 })->name('login');
+
+// Home Insurance Webhook Endpoint
+Route::post('/webhook/home', function (Request $request) {
+    $data = $request->all();
+    
+    Log::info('🏠 Home Insurance Lead Received', [
+        'source' => 'leadsquotingfast',
+        'type' => 'home',
+        'timestamp' => now()->toIso8601String(),
+        'phone' => $data['contact']['phone'] ?? 'unknown'
+    ]);
+    
+    // Validate required fields for home insurance
+    if (!isset($data['contact']) || !isset($data['contact']['phone'])) {
+        Log::error('Home lead missing required contact info', ['data' => $data]);
+        return response()->json(['error' => 'Missing required contact information'], 422);
+    }
+    
+    $contact = $data['contact'];
+    $phone = preg_replace('/[^0-9]/', '', $contact['phone']);
+    
+    if (strlen($phone) !== 10) {
+        Log::error('Invalid phone number for home lead', ['phone' => $phone]);
+        return response()->json(['error' => 'Invalid phone number'], 422);
+    }
+    
+    // Prepare lead data with HOME type explicitly set
+    $leadData = [
+        'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')),
+        'first_name' => $contact['first_name'] ?? null,
+        'last_name' => $contact['last_name'] ?? null,
+        'phone' => $phone,
+        'email' => $contact['email'] ?? null,
+        'address' => $contact['address'] ?? null,
+        'city' => $contact['city'] ?? null,
+        'state' => $contact['state'] ?? 'Unknown',
+        'zip_code' => $contact['zip_code'] ?? null,
+        'source' => 'leadsquotingfast',
+        'type' => 'home', // Explicitly set as home insurance
+        'received_at' => now(),
+        'joined_at' => now(),
+        
+        // Capture additional fields
+        'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null,
+        'tcpa_compliant' => $data['tcpa_compliant'] ?? $data['meta']['tcpa_compliant'] ?? false,
+        'landing_page_url' => $data['landing_page_url'] ?? null,
+        'user_agent' => $data['user_agent'] ?? null,
+        'ip_address' => $data['ip_address'] ?? null,
+        'campaign_id' => $data['campaign_id'] ?? null,
+        
+        // Store compliance and tracking data
+        'meta' => json_encode(array_merge([
+            'trusted_form_cert_url' => $data['trusted_form_cert_url'] ?? null,
+            'originally_created' => $data['originally_created'] ?? null,
+            'source_details' => $data['source'] ?? null,
+            'lead_type' => 'home_insurance',
+            'properties_count' => isset($data['data']['properties']) ? count($data['data']['properties']) : 0
+        ], $data['meta'] ?? [])),
+        
+        // Store home insurance specific data
+        'drivers' => json_encode($data['data']['drivers'] ?? []), // Some home leads include drivers
+        'vehicles' => json_encode([]), // Empty for home leads
+        'current_policy' => json_encode($data['data']['current_policy'] ?? $data['data']['current_home_policy'] ?? null),
+        'requested_policy' => json_encode($data['data']['requested_policy'] ?? $data['data']['requested_home_policy'] ?? null),
+        'payload' => json_encode($data), // This contains properties in data['properties']
+    ];
+    
+    try {
+        // Check for duplicates
+        $existingLead = Lead::where('phone', $phone)->first();
+        
+        if ($existingLead) {
+            $daysSinceCreated = $existingLead->created_at->diffInDays(now());
+            
+            Log::info('🔍 Duplicate home lead detected', [
+                'phone' => $phone,
+                'existing_lead_id' => $existingLead->id,
+                'days_since_created' => $daysSinceCreated
+            ]);
+            
+            if ($daysSinceCreated <= 10) {
+                // Update existing lead
+                $leadData['status'] = 'DUPLICATE_UPDATED';
+                $leadData['meta'] = json_encode(array_merge(
+                    json_decode($leadData['meta'] ?? '{}', true),
+                    [
+                        'duplicate_action' => 'updated',
+                        'original_created_at' => $existingLead->created_at->toIso8601String(),
+                        'days_since_original' => $daysSinceCreated
+                    ]
+                ));
+                
+                $existingLead->update($leadData);
+                $lead = $existingLead;
+                
+                Log::info('✅ Updated existing home lead (≤ 10 days old)', [
+                    'lead_id' => $lead->id,
+                    'phone' => $phone
+                ]);
+            } elseif ($daysSinceCreated <= 90) {
+                // Create re-engagement lead
+                $leadData['status'] = 'RE_ENGAGEMENT';
+                $leadData['meta'] = json_encode(array_merge(
+                    json_decode($leadData['meta'] ?? '{}', true),
+                    [
+                        're_engagement' => true,
+                        'original_lead_id' => $existingLead->id,
+                        'original_created_at' => $existingLead->created_at->toIso8601String(),
+                        'days_since_original' => $daysSinceCreated
+                    ]
+                ));
+                
+                $externalLeadId = generateLeadId();
+                $leadData['external_lead_id'] = $externalLeadId;
+                
+                $lead = Lead::create($leadData);
+                
+                Log::info('🔄 Created re-engagement home lead (11-90 days old)', [
+                    'new_lead_id' => $lead->id,
+                    'original_lead_id' => $existingLead->id,
+                    'phone' => $phone
+                ]);
+            } else {
+                // Create new lead
+                $externalLeadId = generateLeadId();
+                $leadData['external_lead_id'] = $externalLeadId;
+                
+                $lead = Lead::create($leadData);
+                
+                Log::info('🆕 Created new home lead (> 90 days since last contact)', [
+                    'lead_id' => $lead->id,
+                    'phone' => $phone
+                ]);
+            }
+        } else {
+            // No existing lead - create new
+            $externalLeadId = generateLeadId();
+            $leadData['external_lead_id'] = $externalLeadId;
+            
+            $lead = Lead::create($leadData);
+            
+            Log::info('🏠 New home insurance lead created', [
+                'lead_id' => $lead->id,
+                'external_lead_id' => $externalLeadId,
+                'properties_count' => json_decode($leadData['meta'], true)['properties_count'] ?? 0
+            ]);
+        }
+        
+        // Push home leads to Vici same as auto leads
+        if ($lead && $lead->id) {
+            try {
+                $viciService = new \App\Services\ViciDialerService();
+                $viciCampaign = 'AUTODIAL'; // Same campaign as auto leads
+                
+                Log::info('📞 Pushing home lead to ViciDial', [
+                    'lead_id' => $lead->id,
+                    'campaign' => $viciCampaign
+                ]);
+                
+                $viciResult = $viciService->pushLead($lead, $viciCampaign);
+                
+                if ($viciResult['success']) {
+                    $lead->update([
+                        'vici_lead_id' => $viciResult['vici_lead_id'] ?? null,
+                        'vici_pushed_at' => now(),
+                        'vici_list_id' => $viciResult['list_id'] ?? '101',
+                        'meta' => json_encode(array_merge(
+                            json_decode($lead->meta ?? '{}', true),
+                            ['vici_push_result' => $viciResult]
+                        ))
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Failed to push home lead to Vici', [
+                    'lead_id' => $lead->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Home insurance lead received successfully',
+            'lead_id' => $lead->id ?? null,
+            'external_lead_id' => $lead->external_lead_id ?? null,
+            'type' => 'home',
+            'properties_count' => isset($data['data']['properties']) ? count($data['data']['properties']) : 0
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Failed to process home insurance lead', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to process lead',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// Auto Insurance Webhook Endpoint (new dedicated endpoint)
+Route::post('/webhook/auto', function (Request $request) {
+    // This will use the same logic as the main webhook but with type explicitly set to 'auto'
+    $data = $request->all();
+    $data['type'] = 'auto'; // Force type to auto
+    
+    // Call the main webhook logic
+    $request->replace($data);
+    return app()->call('App\Http\Controllers\WebhookController@handleLQFWebhook', ['request' => $request]);
+});
 
 // Generate unique 9-digit lead ID starting with 100000001
 // Helper function to detect lead type from payload
