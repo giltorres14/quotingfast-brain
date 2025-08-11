@@ -41,7 +41,7 @@
         }
         
         .logo {
-            height: 50px;
+            height: 150px;
             margin-bottom: 1rem;
             filter: brightness(1.2);
         }

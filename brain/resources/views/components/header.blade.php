@@ -43,7 +43,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 70px;
+            height: 100px;
         }
         
         /* Logo Section */
@@ -63,7 +63,7 @@
         }
         
         .logo-image {
-            height: 50px; /* 3x bigger from 45px */
+            height: 150px; /* 3x bigger from 45px */
             width: auto;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
@@ -335,8 +335,11 @@
         <div class="header-container">
             <!-- Logo Section -->
             <a href="/admin" class="logo-section">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 50px; width:auto;" onerror="this.src='https://quotingfast.com/whitelogo'; this.onerror=null;">
-                <div class="logo-text"><div class="brand-text">The Brain</div></div>
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 150px; width:auto;" onerror="this.src='https://quotingfast.com/whitelogo'; this.onerror=null;">
+                <div class="logo-text" style="display: flex; flex-direction: column; align-items: center; line-height: 1;">
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">The</div>
+                    <div class="brand-text" style="font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Brain</div>
+                </div>
             </a>
             
             <!-- Navigation Menu -->

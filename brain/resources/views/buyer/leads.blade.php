@@ -46,7 +46,7 @@
         }
         
         .logo {
-            height: 50px;
+            height: 150px;
             filter: brightness(1.2);
         }
         
@@ -723,8 +723,11 @@
     <div class="header">
         <div class="header-container">
             <div class="logo-section">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo" style="height: 50px; width:auto;" onerror="this.style.display='none';">
-                <div class="brand-text">The Brain</div>
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo" style="height: 150px; width:auto;" onerror="this.style.display='none';">
+                <div class="logo-text" style="display: flex; flex-direction: column; align-items: center; line-height: 1;">
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">The</div>
+                    <div class="brand-text" style="font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Brain</div>
+                </div>
             </div>
             
             <div class="user-section">

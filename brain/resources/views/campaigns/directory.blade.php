@@ -38,7 +38,7 @@
         }
         
         .header-logo img {
-            height: 50px;
+            height: 150px;
             width: auto;
             filter: brightness(1.2);
         }

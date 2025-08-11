@@ -38,7 +38,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 2rem;
-            height: 70px;
+            height: 100px;
         }
         
         .nav-brand {
@@ -305,7 +305,7 @@
         
         .lead-avatar {
             width: 50px;
-            height: 50px;
+            height: 150px;
             border-radius: 50%;
             background: #4f46e5;
             display: flex;
@@ -607,7 +607,10 @@
         <div class="nav-container">
             <a href="/admin" class="nav-brand">
                 <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                <div class="logo-text"><div class="brand-text">The Brain</div></div>
+                <div class="logo-text" style="display: flex; flex-direction: column; align-items: center; line-height: 1;">
+                    <div style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">The</div>
+                    <div class="brand-text" style="font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Brain</div>
+                </div>
             </a>
             <ul class="nav-menu">
                 <!-- Dashboard -->
