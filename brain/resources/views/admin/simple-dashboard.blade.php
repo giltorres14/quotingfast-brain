@@ -41,7 +41,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 var(--qf-space-xl);
-            height: 100px;
+            height: 170px;
         }
         
         .nav-brand {
