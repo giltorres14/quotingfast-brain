@@ -207,11 +207,11 @@ RUN echo "=== CREATING ENVIRONMENT FILE ===" && \
     echo "LOG_CHANNEL=stack" >> .env && \
     echo "LOG_LEVEL=debug" >> .env && \
     echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DB_HOST=dpg-d277kvk9c44c7388bpg0-a" >> .env && \
+    echo "DB_HOST=dpg-d277kvk9c44c7388opg0-a" >> .env && \
     echo "DB_PORT=5432" >> .env && \
     echo "DB_DATABASE=brain_production" >> .env && \
     echo "DB_USERNAME=brain_user" >> .env && \
-    echo "DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ" >> .env && \
+    echo "DB_PASSWORD=KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
     echo "SESSION_DRIVER=file" >> .env && \
     echo "QUEUE_CONNECTION=sync" >> .env && \
