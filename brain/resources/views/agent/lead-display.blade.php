@@ -2257,10 +2257,34 @@
 
                 // Send fields in Allstate-compatible format
                 const mapResidence = (v) => (/^(y|yes|true|1)$/i.test(`${v}`) ? 'own' : 'rent');
+                
+                // Ensure gender is lowercase and valid for Allstate
+                const mapGender = (v) => {
+                    const g = (v || '').toLowerCase().trim();
+                    if (g === 'm' || g === 'male') return 'male';
+                    if (g === 'f' || g === 'female') return 'female';
+                    if (g === 'x') return 'X';
+                    return 'unknown';
+                };
+                
+                // Ensure marital status is lowercase and valid for Allstate
+                const mapMaritalStatus = (v) => {
+                    const m = (v || '').toLowerCase().trim();
+                    const valid = ['single', 'married', 'separated', 'divorced', 'widowed'];
+                    return valid.includes(m) ? m : 'single';
+                };
+                
+                // Check if currently insured with Allstate
+                const isAllstateCustomer = () => {
+                    const provider = (data.current_provider || '').toLowerCase().trim();
+                    return provider.includes('allstate') ? 'true' : 'false';
+                };
+                
                 const orderedPairs = [
                     ['primary_phone', digits(data.phone)],
                     ['currently_insured', yn(data.currently_insured)],
                     ['current_insurance_company', data.current_provider || ''],
+                    ['allstate', isAllstateCustomer()], // New parameter for RingBA
                     ['continuous_coverage', mapContinuous(data.insurance_duration)],
                     ['valid_license', yn(data.active_license)],
                     ['num_vehicles', data.num_vehicles || ''],
@@ -2272,8 +2296,8 @@
                     ['last_name', data.last_name || ''],
                     ['email', data.email || ''],
                     ['date_of_birth', data.date_of_birth || ''],
-                    ['gender', data.gender || ''],
-                    ['marital_status', data.marital_status || ''],
+                    ['gender', mapGender(data.gender)],
+                    ['marital_status', mapMaritalStatus(data.marital_status)],
                     ['residence_status', mapResidence(data.homeowner)],
                     ['tcpa_compliant', 'true'],
                     ['external_id', leadId || ''],
@@ -2288,9 +2312,17 @@
             } else if (type === 'homeowner') {
                 // Homeowner: minimal set RingBA expects
                 const digits = (p) => (p || '').replace(/[^0-9]/g, '');
+                
+                // Check if currently insured with Allstate for homeowner
+                const isAllstateCustomer = () => {
+                    const provider = (data.current_provider || '').toLowerCase().trim();
+                    return provider.includes('allstate') ? 'true' : 'false';
+                };
+                
                 const orderedPairs = [
                     ['callerid', digits(data.phone)],
                     ['homeowner', 'Y'],
+                    ['allstate', isAllstateCustomer()], // Check if current customer is with Allstate
                     ['address', data.address || ''],
                     ['city', data.city || ''],
                     ['state_name', (data.state_input || data.state || '')],
@@ -2313,10 +2345,31 @@
 
                 // Send fields in Allstate-compatible format for uninsured
                 const mapResidence = (v) => (/^(y|yes|true|1)$/i.test(`${v}`) ? 'own' : 'rent');
+                
+                // Ensure gender is lowercase and valid for Allstate
+                const mapGender = (v) => {
+                    const g = (v || '').toLowerCase().trim();
+                    if (g === 'm' || g === 'male') return 'male';
+                    if (g === 'f' || g === 'female') return 'female';
+                    if (g === 'x') return 'X';
+                    return 'unknown';
+                };
+                
+                // Ensure marital status is lowercase and valid for Allstate
+                const mapMaritalStatus = (v) => {
+                    const m = (v || '').toLowerCase().trim();
+                    const valid = ['single', 'married', 'separated', 'divorced', 'widowed'];
+                    return valid.includes(m) ? m : 'single';
+                };
+                
+                // Check if currently insured with Allstate (for uninsured, always false)
+                const isAllstateCustomer = () => 'false';
+                
                 const orderedPairs = [
                     ['primary_phone', digits(data.phone)],
                     ['currently_insured', 'false'],
                     ['current_insurance_company', ''],
+                    ['allstate', isAllstateCustomer()], // New parameter for RingBA
                     ['continuous_coverage', '0'],
                     ['valid_license', yn(data.active_license)],
                     ['num_vehicles', data.num_vehicles || ''],
@@ -2328,8 +2381,8 @@
                     ['last_name', data.last_name || ''],
                     ['email', data.email || ''],
                     ['date_of_birth', data.date_of_birth || ''],
-                    ['gender', data.gender || ''],
-                    ['marital_status', data.marital_status || ''],
+                    ['gender', mapGender(data.gender)],
+                    ['marital_status', mapMaritalStatus(data.marital_status)],
                     ['residence_status', mapResidence(data.homeowner)],
                     ['tcpa_compliant', 'true'],
                     ['external_id', leadId || ''],
