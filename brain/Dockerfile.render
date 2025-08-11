@@ -36,7 +36,7 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 
 # Copy composer files first for better caching
-COPY composer.json composer.lock ./
+COPY brain/composer.json brain/composer.lock ./
 
 # Install dependencies first (better layer caching)
 RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-cache --no-scripts || \
@@ -44,7 +44,7 @@ RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-cache --n
      composer install --no-dev --prefer-dist --optimize-autoloader --no-cache --no-scripts)
 
 # Now copy the rest of the application
-COPY . .
+COPY brain/ .
 
 # Clear any caches that might have been copied
 RUN rm -rf bootstrap/cache/*.php storage/framework/cache/* storage/framework/views/* storage/framework/sessions/* storage/logs/*.log
