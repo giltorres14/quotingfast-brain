@@ -5594,6 +5594,11 @@ Route::get('/login', function() {
     return response()->json(['message' => 'Please implement authentication UI']);
 })->name('login');
 
+// Diagnostics Dashboard
+Route::get('/diagnostics', function() {
+    return view('diagnostics.index');
+})->name('diagnostics');
+
 // Simple test route to check database
 Route::get('/test-leads', function() {
     try {

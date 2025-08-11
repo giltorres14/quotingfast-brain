@@ -829,7 +829,7 @@
                                                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
                                     <div class="lead-name">
                                         {{ $lead->first_name ?? '' }} {{ $lead->last_name ?? '' }}
-                                        @if(!$lead->first_name && !$lead->last_name)
+                                        @if((!isset($lead->first_name) || !$lead->first_name) && (!isset($lead->last_name) || !$lead->last_name))
                                             {{ $lead->name ?? 'Unknown Lead' }}
                                         @endif
                                         @if(isset($lead->external_lead_id) && $lead->external_lead_id)
@@ -843,13 +843,13 @@
                                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                                         <!-- Badges grouped together on left -->
                                         <div style="display: flex; gap: 0.25rem;">
-                                            @if($lead->type)
+                                            @if(isset($lead->type) && $lead->type)
                                                 <span class="badge badge-type-{{ strtolower($lead->type) }}">
                                                     {{ ucfirst($lead->type) }}
                                                 </span>
                                             @endif
                                             
-                                            @if($lead->campaign_id)
+                                            @if(isset($lead->campaign_id) && $lead->campaign_id)
                                                 @php
                                                     $campaign = \App\Models\Campaign::where('campaign_id', $lead->campaign_id)->first();
                                                     $campaignName = $campaign ? $campaign->display_name : "Campaign #{$lead->campaign_id}";
@@ -873,7 +873,7 @@
                                     </div>
                                 </div>
                                 <div class="lead-contact">
-                                    📞 @if($lead->phone)
+                                    📞 @if(isset($lead->phone) && $lead->phone)
                                         @php
                                             $phone = preg_replace('/[^0-9]/', '', $lead->phone);
                                             if(strlen($phone) == 10) {
@@ -887,12 +887,12 @@
                                     @else
                                         No phone
                                     @endif
-                                    @if($lead->email)
+                                    @if(isset($lead->email) && $lead->email)
                                         • ✉️ {{ $lead->email }}
                                     @endif
                                 </div>
                                 <div class="lead-location">
-                                    📍 {{ $lead->city ?? '' }}@if($lead->city && $lead->state), @endif{{ $lead->state ?? '' }}
+                                    📍 {{ $lead->city ?? '' }}@if(isset($lead->city) && $lead->city && isset($lead->state) && $lead->state), @endif{{ $lead->state ?? '' }}
                                 </div>
                             </div>
         </div>
