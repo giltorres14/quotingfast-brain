@@ -385,7 +385,7 @@
             padding: 12px;
             margin-bottom: 20px;
             position: sticky;
-            top: 0;
+            top: 10px;
             z-index: 100;
         }
         
@@ -468,6 +468,13 @@
             justify-content: center;
             margin-top: 20px;
             flex-wrap: wrap;
+            position: sticky;
+            top: 150px; /* Positioned below the lead info bubble */
+            z-index: 99;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .btn-enrichment {
@@ -641,7 +648,8 @@
                 .save-lead-btn {
             position: fixed;
             top: 20px;
-            right: 20px;
+            right: 50%;
+            transform: translateX(50%);
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             border: none;
@@ -657,12 +665,12 @@
         }
         
         .save-lead-btn:hover {
-            transform: translateY(-2px);
+            transform: translateX(50%) translateY(-2px);
             box-shadow: 0 6px 16px rgba(40, 167, 69, 0.6);
         }
         
         .save-lead-btn:active {
-            transform: translateY(0);
+            transform: translateX(50%) translateY(0);
         }
         
         @media (max-width: 600px) {
@@ -936,7 +944,7 @@
             <form id="qualificationForm">
                 <!-- 1. Insurance Questions -->
                 <div class="question-group">
-                    <label class="question-label">Are you currently insured?</label>
+                    <label class="question-label">1. Are you currently insured?</label>
                     
                     @php
                         $isInsured = null;
@@ -1159,9 +1167,15 @@
                     <input type="text" class="question-select" id="zip_code" value="{{ $lead->zip_code ?? '' }}" placeholder="Enter ZIP code">
                 </div>
 
+                <!-- Script/Transition Area -->
+                <div style="background: white; padding: 15px; margin: 20px 0; border-radius: 8px; border: 1px solid #e0e0e0; font-style: italic; color: #555;">
+                    <strong>📝 Agent Script:</strong><br>
+                    "Let me go ahead and see who has the better rates in your area based on what we have. Oh ok, it looks like Allstate has the better rates in that area."
+                </div>
+
                 <!-- 7. Competitive Quote -->
                 <div class="question-group">
-                    <label class="question-label">7. Let me go ahead and see who has the better rates in your area based on what we have. Oh ok, it looks like Allstate has the better rates in that area. Have you received a quote from Allstate in the last 2 months?</label>
+                    <label class="question-label">7. Have you received a quote from Allstate in the last 2 months?</label>
                     <select class="question-select" id="allstate_quote">
                         <option value="">Select...</option>
                         <option value="yes">Yes</option>
