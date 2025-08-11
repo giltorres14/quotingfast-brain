@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Allstate API Testing Dashboard - Brain</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -36,7 +38,7 @@
         }
         
         .logo {
-            height: 40px;
+            height: 120px;
             width: auto;
         }
         
@@ -44,6 +46,15 @@
             font-size: 1.5rem;
             font-weight: 600;
             color: #2d3748;
+        }
+        
+        .brand-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #2563eb;
         }
         
         .nav-links {
@@ -419,10 +430,13 @@
 <body>
     <div class="header">
         <div class="logo-section">
-            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo" 
-                 onerror="this.onerror=null; this.src='https://quotingfast.com/qfqflogo.png'; this.onerror=function(){this.style.display='none'; this.nextElementSibling.style.display='inline';}">
-            <span style="display: none; color: #4299e1; font-weight: bold;">QuotingFast</span>
-            <div class="title">🧪 Allstate API Testing Dashboard</div>
+            <img src="https://quotingfast.com/logoqf0704.png" alt="QuotingFast" class="logo" 
+                 onerror="this.src='https://quotingfast.com/qfqflogo.png'; this.onerror=null;">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #718096;">QuotingFast</span>
+                <span class="brand-text">The Brain</span>
+            </div>
+            <div class="title">🧪 Allstate API Testing</div>
         </div>
         <div class="nav-links">
             <a href="/admin" class="nav-link">← Admin Dashboard</a>

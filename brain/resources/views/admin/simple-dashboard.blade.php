@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Brain - Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     
     <!-- QuotingFast Design System -->
     <link rel="stylesheet" href="/css/brain-design-system.css">
@@ -54,6 +56,14 @@
             height: 120px;
             width: auto;
             filter: brightness(1.1);
+        }
+        
+        .brand-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .nav-menu {
@@ -642,9 +652,11 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                <span style="display: none; font-weight: 800; color: #ffffff; font-size: 1.1rem;">QuotingFast</span>
-                <span>The Brain</span>
+                <img src="https://quotingfast.com/logoqf0704.png" alt="QuotingFast" class="brand-logo" onerror="this.src='https://quotingfast.com/qfqflogo.png'; this.onerror=null;">
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">QuotingFast</span>
+                    <span class="brand-text">The Brain</span>
+                </div>
             </div>
             <ul class="nav-menu">
                 <!-- Dashboard -->
