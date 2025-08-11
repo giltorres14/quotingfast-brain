@@ -1828,8 +1828,8 @@ Route::post('/webhook.php', function (Request $request) {
                     'days_since_created' => $daysSinceCreated
                 ]);
                 
-                if ($daysSinceCreated < 30) {
-                    // Less than 30 days: Update existing lead
+                if ($daysSinceCreated <= 10) {
+                    // 10 days or less: Update existing lead
                     // Track lead flow stage for duplicate
                     $leadData['status'] = 'DUPLICATE_UPDATED';
                     $leadData['meta'] = json_encode(array_merge(
@@ -1845,13 +1845,13 @@ Route::post('/webhook.php', function (Request $request) {
                     $existingLead->update($leadData);
                     $lead = $existingLead;
                     
-                    Log::info('✅ Updated existing lead (< 30 days old)', [
+                    Log::info('✅ Updated existing lead (≤ 10 days old)', [
                         'lead_id' => $lead->id,
                         'phone' => $phone,
                         'flow_stage' => $existingLead->status
                     ]);
                 } elseif ($daysSinceCreated <= 90) {
-                    // 30-90 days: Create as re-engagement lead
+                    // 11-90 days: Create as re-engagement lead
                     $leadData['status'] = 'RE_ENGAGEMENT';
                     $leadData['meta'] = json_encode(array_merge(
                         json_decode($leadData['meta'] ?? '{}', true),
@@ -1871,13 +1871,14 @@ Route::post('/webhook.php', function (Request $request) {
                     
                     $lead = Lead::create($leadData);
                     
-                    Log::info('🔄 Created re-engagement lead (30-90 days old)', [
+                    Log::info('🔄 Created re-engagement lead (11-90 days old)', [
                         'new_lead_id' => $lead->id,
                         'original_lead_id' => $existingLead->id,
-                        'phone' => $phone
+                        'phone' => $phone,
+                        'days_since_original' => $daysSinceCreated
                     ]);
                 } else {
-                    // Over 90 days: Treat as new lead
+                    // Over 90 days: Treat as completely new lead
                     $externalLeadId = generateLeadId();
                     $leadData['external_lead_id'] = $externalLeadId;
                     

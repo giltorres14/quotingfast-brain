@@ -33,7 +33,7 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 
 # Copy Laravel application
-COPY brain/ /var/www/html/
+COPY . /var/www/html/
 
 # CUMULATIVE LEARNING: Clear ALL caches before composer install
 RUN rm -rf vendor/ bootstrap/cache/*.php storage/framework/cache/* storage/framework/views/* storage/framework/sessions/*
