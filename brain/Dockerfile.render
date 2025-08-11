@@ -199,24 +199,22 @@ RUN echo "=== ENSURING STORAGE STRUCTURE ===" && \
 # Create .env file with detailed output
 RUN echo "=== CREATING ENVIRONMENT FILE ===" && \
     echo "Creating .env file..." && \
-    cat > .env << 'EOF'
-APP_NAME=QuotingFast-Brain
-APP_ENV=production
-APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw=
-APP_DEBUG=true
-APP_URL=https://quotingfast-brain-ohio.onrender.com
-LOG_CHANNEL=stack
-LOG_LEVEL=debug
-DB_CONNECTION=pgsql
-DB_HOST=dpg-d277kvk9c44c7388bpg0-a
-DB_PORT=5432
-DB_DATABASE=brain_production
-DB_USERNAME=brain_user
-DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ
-CACHE_DRIVER=file
-SESSION_DRIVER=file
-QUEUE_CONNECTION=sync
-EOF
+    echo "APP_NAME=QuotingFast-Brain" > .env && \
+    echo "APP_ENV=production" >> .env && \
+    echo "APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw=" >> .env && \
+    echo "APP_DEBUG=true" >> .env && \
+    echo "APP_URL=https://quotingfast-brain-ohio.onrender.com" >> .env && \
+    echo "LOG_CHANNEL=stack" >> .env && \
+    echo "LOG_LEVEL=debug" >> .env && \
+    echo "DB_CONNECTION=pgsql" >> .env && \
+    echo "DB_HOST=dpg-d277kvk9c44c7388bpg0-a" >> .env && \
+    echo "DB_PORT=5432" >> .env && \
+    echo "DB_DATABASE=brain_production" >> .env && \
+    echo "DB_USERNAME=brain_user" >> .env && \
+    echo "DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ" >> .env && \
+    echo "CACHE_DRIVER=file" >> .env && \
+    echo "SESSION_DRIVER=file" >> .env && \
+    echo "QUEUE_CONNECTION=sync" >> .env && \
     echo ".env file created with $(wc -l < .env) lines" && \
     echo "Verifying .env contents:" && \
     head -5 .env
@@ -240,40 +238,36 @@ RUN echo "=== SETTING PERMISSIONS ===" && \
 
 # Configure Apache with verification
 RUN echo "=== CONFIGURING APACHE VIRTUAL HOST ===" && \
-    cat > /etc/apache2/sites-available/000-default.conf << 'EOF'
-<VirtualHost *:80>
-    DocumentRoot /var/www/html/public
-    <Directory /var/www/html/public>
-        Options Indexes FollowSymLinks
-        AllowOverride All
-        Require all granted
-    </Directory>
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>
-EOF
+    echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf && \
+    echo "    DocumentRoot /var/www/html/public" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "    <Directory /var/www/html/public>" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "        Options Indexes FollowSymLinks" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "        AllowOverride All" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "        Require all granted" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "    </Directory>" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "    ErrorLog \${APACHE_LOG_DIR}/error.log" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "    CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf && \
     echo "Apache config created:" && \
     cat /etc/apache2/sites-available/000-default.conf
 
 # Create startup script with debugging
 RUN echo "=== CREATING STARTUP SCRIPT ===" && \
-    cat > /usr/local/bin/startup.sh << 'EOF'
-#!/bin/bash
-echo "=== CONTAINER STARTING AT $(date) ==="
-echo "PHP Version: $(php -v | head -1)"
-echo "Current directory: $(pwd)"
-echo "Environment variables:"
-env | grep -E "APP_|DB_" | sort
-echo "Checking database connection..."
-php artisan db:show || echo "Database connection check failed"
-echo "Clearing caches..."
-php artisan config:clear
-php artisan cache:clear
-echo "Running migrations..."
-php artisan migrate --force || echo "Migration failed (may be normal if tables exist)"
-echo "Starting Apache..."
-apache2-foreground
-EOF
+    echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
+    echo 'echo "=== CONTAINER STARTING AT $(date) ==="' >> /usr/local/bin/startup.sh && \
+    echo 'echo "PHP Version: $(php -v | head -1)"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Current directory: $(pwd)"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Environment variables:"' >> /usr/local/bin/startup.sh && \
+    echo 'env | grep -E "APP_|DB_" | sort' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Checking database connection..."' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan db:show || echo "Database connection check failed"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Clearing caches..."' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan config:clear' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan cache:clear' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Running migrations..."' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan migrate --force || echo "Migration failed (may be normal if tables exist)"' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Starting Apache..."' >> /usr/local/bin/startup.sh && \
+    echo 'apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh && \
     echo "Startup script created and made executable"
 
