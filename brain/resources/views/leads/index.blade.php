@@ -305,7 +305,7 @@
         
         .lead-avatar {
             width: 50px;
-            height: 100px;
+            height: 50px;
             border-radius: 50%;
             background: #4f46e5;
             display: flex;
