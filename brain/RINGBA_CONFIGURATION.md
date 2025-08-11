@@ -65,7 +65,7 @@ PRODUCTION (with dynamic tags):
   "vertical": "auto-insurance",
   "product_variant": "transfers",
   "zipcode": "[tag:user:zipcode]",
-  "currently_insured": "[tag:user:currently_insured]",
+  "currently_insured": true,
   "current_insurance_company": "[tag:user:current_carrier]",
   "external_id": "[tag:user:external_id]",
   "callerid": "[tag:call:ani]",
@@ -222,6 +222,7 @@ This confirms:
 
 4. **Tag Mapping**: RingBA tags should be mapped from your enrichment data:
    - [tag:user:*] - User/lead data from enrichment
+
    - [tag:call:*] - Call-specific data
    - [tag:InboundNumber:*] - Incoming phone number components
 
