@@ -733,11 +733,90 @@ Route::get('/test', function () {
 });
 
 // Test Vici connection and update capability
-Route::get('/test-vici-connection', function() {
+Route::match(['get', 'post'], '/test-vici-connection', function(\Illuminate\Http\Request $request) {
     $result = [
         'timestamp' => now()->toISOString(),
         'tests' => []
     ];
+    
+    // Handle POST request for checking vendor codes
+    if ($request->isMethod('post') && $request->input('action') === 'check_vendor_codes') {
+        $phones = $request->input('phones', []);
+        $vendorResults = [];
+        
+        try {
+            // Trigger whitelist first
+            $whitelistUrl = 'https://philli.callix.ai:26793/92RG8UJYTW.php';
+            $ch = curl_init($whitelistUrl);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+            curl_exec($ch);
+            curl_close($ch);
+            
+            // Connect to Vici
+            $viciDb = new PDO(
+                'mysql:host=' . env('VICI_DB_HOST', '148.72.213.125') . ';dbname=' . env('VICI_DB_NAME', 'asterisk'),
+                env('VICI_DB_USER', 'cron'),
+                env('VICI_DB_PASS', '1234'),
+                [PDO::ATTR_TIMEOUT => 10]
+            );
+            
+            // Check each phone
+            foreach ($phones as $phone) {
+                $stmt = $viciDb->prepare("
+                    SELECT lead_id, phone_number, vendor_lead_code, list_id, status, campaign_id
+                    FROM vicidial_list 
+                    WHERE phone_number = ?
+                    AND campaign_id IN ('Auto2', 'Autodial', 'AUTO2', 'AUTODIAL')
+                    LIMIT 1
+                ");
+                $stmt->execute([$phone]);
+                $lead = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($lead) {
+                    $vendorResults[$phone] = [
+                        'found' => true,
+                        'lead_id' => $lead['lead_id'],
+                        'campaign' => $lead['campaign_id'],
+                        'vendor_code' => $lead['vendor_lead_code'] ?: 'EMPTY',
+                        'status' => $lead['status']
+                    ];
+                } else {
+                    $vendorResults[$phone] = ['found' => false];
+                }
+            }
+            
+            // Get statistics
+            $stmt = $viciDb->query("
+                SELECT 
+                    campaign_id,
+                    COUNT(*) as total_leads,
+                    SUM(CASE WHEN vendor_lead_code IS NOT NULL AND vendor_lead_code != '' THEN 1 ELSE 0 END) as with_vendor_code,
+                    SUM(CASE WHEN vendor_lead_code IS NULL OR vendor_lead_code = '' THEN 1 ELSE 0 END) as without_vendor_code
+                FROM vicidial_list
+                WHERE campaign_id IN ('Auto2', 'Autodial', 'AUTO2', 'AUTODIAL')
+                GROUP BY campaign_id
+            ");
+            $stats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return response()->json([
+                'status' => 'success',
+                'action' => 'check_vendor_codes',
+                'leads_checked' => $vendorResults,
+                'statistics' => $stats,
+                'timestamp' => now()->toISOString()
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'timestamp' => now()->toISOString()
+            ], 500);
+        }
+    }
     
     try {
         // First ensure we're whitelisted
