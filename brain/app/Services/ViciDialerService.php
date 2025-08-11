@@ -30,10 +30,13 @@ class ViciDialerService
     public function __construct()
     {
         $this->isTestMode = config('services.vici.test_mode', config('app.env') !== 'production');
-        $this->baseUrl = config('services.vici.api_url', 'https://vici-server.com/api');
+        
+        // Use Non-Agent API for lead insertion
+        $viciServer = config('services.vici.web_server', 'philli.callix.ai');
+        $this->baseUrl = "https://{$viciServer}/vicidial/non_agent_api.php";
         $this->apiKey = config('services.vici.api_key', 'mock');
         
-        // Database connection details
+        // Database connection details (for fallback/testing)
         $this->mysqlHost = config('services.vici.mysql_host', '37.27.138.222');
         $this->mysqlDb = config('services.vici.mysql_db', 'asterisk');
         $this->mysqlUser = config('services.vici.mysql_user', 'Superman');
@@ -96,9 +99,53 @@ class ViciDialerService
                 'target_list' => '101'
             ]);
 
-            // Use database connection if available, otherwise fallback to API
-            if ($this->mysqlUser && $this->mysqlPass) {
-                return $this->pushLeadToDatabase($lead, $campaignId);
+            // Check if we're in test/local mode
+            if ($this->isTestMode || config('app.env') === 'local') {
+                // Mock mode for local testing
+                Log::info('Vici Mock Mode: Simulating lead push', [
+                    'lead_id' => $lead->id,
+                    'campaign' => $campaignId,
+                    'list' => $this->targetListId
+                ]);
+                
+                $mockViciId = 'MOCK_VICI_' . $lead->id . '_' . time();
+                
+                // Create mock call metrics
+                $callMetrics = ViciCallMetrics::create([
+                    'lead_id' => $lead->id,
+                    'vici_lead_id' => $mockViciId,
+                    'campaign_id' => $campaignId ?? 'AUTODIAL',
+                    'list_id' => $this->targetListId,
+                    'phone_number' => $lead->phone,
+                    'call_status' => 'NEW',
+                    'vici_payload' => [
+                        'mock_mode' => true,
+                        'timestamp' => now()->toIso8601String()
+                    ]
+                ]);
+                
+                return [
+                    'success' => true,
+                    'method' => 'mock',
+                    'vici_lead_id' => $mockViciId,
+                    'call_metrics_id' => $callMetrics->id,
+                    'list_id' => $this->targetListId,
+                    'campaign_id' => $campaignId ?? 'AUTODIAL',
+                    'pushed_at' => now()->toISOString(),
+                    'message' => 'Lead successfully queued (MOCK MODE)'
+                ];
+            }
+            
+            // Production mode - try database first if on server, otherwise API
+            $isProductionServer = gethostname() === 'brain-server' || file_exists('/var/www/brain');
+            
+            if ($isProductionServer && $this->mysqlUser && $this->mysqlPass) {
+                try {
+                    return $this->pushLeadToDatabase($lead, $campaignId);
+                } catch (\Exception $e) {
+                    Log::warning('Database method failed, trying API', ['error' => $e->getMessage()]);
+                    return $this->pushLeadViaAPI($lead, $campaignId);
+                }
             } else {
                 return $this->pushLeadViaAPI($lead, $campaignId);
             }
@@ -214,40 +261,107 @@ class ViciDialerService
     }
 
     /**
-     * Fallback API method (original implementation)
+     * Push lead via ViciDial Non-Agent API
      */
     private function pushLeadViaAPI(Lead $lead, string $campaignId = null): array
     {
-        // Format lead data for API
-        $payload = $this->formatLeadForViciAPI($lead, $campaignId);
+        try {
+            // Format for Non-Agent API add_lead function
+            $params = [
+                'source' => 'brain',
+                'user' => 'apiuser',
+                'pass' => 'apipass123',
+                'function' => 'add_lead',
+                'phone_number' => $lead->phone,
+                'phone_code' => '1', // US country code
+                'list_id' => $this->targetListId,
+                'campaign_id' => $campaignId ?? 'AUTODIAL',
+                'first_name' => $lead->first_name ?? $this->extractFirstName($lead->name),
+                'last_name' => $lead->last_name ?? $this->extractLastName($lead->name),
+                'address1' => $lead->address ?? '',
+                'city' => $lead->city ?? '',
+                'state' => $lead->state ?? '',
+                'postal_code' => $lead->zip_code ?? '',
+                'vendor_lead_code' => 'BRAIN_' . $lead->id,
+                'source_id' => 'BRAIN',
+                'comments' => "Lead from Brain System - ID: {$lead->id}"
+            ];
 
-        // Create call metrics record
-        $callMetrics = ViciCallMetrics::create([
-            'lead_id' => $lead->id,
-            'vici_lead_id' => $lead->external_lead_id ?? $lead->id,
-            'campaign_id' => $campaignId,
-            'phone_number' => $lead->phone,
-            'call_status' => 'QUEUED',
-            'vici_payload' => $payload
-        ]);
+            // Add email if available
+            if ($lead->email) {
+                $params['email'] = $lead->email;
+            }
 
-        // Make API call
-        $response = $this->makeApiCall('/leads', $payload);
+            Log::info('Vici Non-Agent API: Sending lead', [
+                'lead_id' => $lead->id,
+                'params' => array_merge($params, ['pass' => 'HIDDEN'])
+            ]);
 
-        // Update call metrics
-        $callMetrics->addCallAttempt([
-            'action' => 'lead_pushed',
-            'status' => $response['success'] ? 'success' : 'failed',
-            'response' => $response
-        ]);
-
-        return [
-            'success' => $response['success'] ?? false,
-            'method' => 'api',
-            'vici_response' => $response,
-            'call_metrics_id' => $callMetrics->id,
-            'pushed_at' => now()->toISOString()
-        ];
+            // Make API call using GET parameters (Non-Agent API uses GET)
+            $url = $this->baseUrl . '?' . http_build_query($params);
+            $response = Http::timeout(30)->get($url);
+            
+            $responseBody = $response->body();
+            
+            // Parse response (Non-Agent API returns plain text)
+            if (strpos($responseBody, 'SUCCESS') !== false) {
+                // Extract lead ID from response if available
+                preg_match('/lead_id: (\d+)/', $responseBody, $matches);
+                $viciLeadId = $matches[1] ?? null;
+                
+                // Create call metrics record
+                $callMetrics = ViciCallMetrics::create([
+                    'lead_id' => $lead->id,
+                    'vici_lead_id' => $viciLeadId,
+                    'campaign_id' => $campaignId,
+                    'list_id' => $this->targetListId,
+                    'phone_number' => $lead->phone,
+                    'call_status' => 'NEW',
+                    'vici_payload' => $params
+                ]);
+                
+                Log::info('Vici Non-Agent API: Lead added successfully', [
+                    'lead_id' => $lead->id,
+                    'vici_lead_id' => $viciLeadId,
+                    'response' => $responseBody
+                ]);
+                
+                return [
+                    'success' => true,
+                    'method' => 'non_agent_api',
+                    'vici_lead_id' => $viciLeadId,
+                    'call_metrics_id' => $callMetrics->id,
+                    'list_id' => $this->targetListId,
+                    'campaign_id' => $campaignId,
+                    'pushed_at' => now()->toISOString(),
+                    'response' => $responseBody
+                ];
+            } else {
+                Log::error('Vici Non-Agent API: Failed to add lead', [
+                    'lead_id' => $lead->id,
+                    'response' => $responseBody
+                ]);
+                
+                return [
+                    'success' => false,
+                    'method' => 'non_agent_api',
+                    'error' => $responseBody,
+                    'pushed_at' => now()->toISOString()
+                ];
+            }
+        } catch (\Exception $e) {
+            Log::error('Vici Non-Agent API: Exception', [
+                'lead_id' => $lead->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return [
+                'success' => false,
+                'method' => 'non_agent_api',
+                'error' => $e->getMessage(),
+                'pushed_at' => now()->toISOString()
+            ];
+        }
     }
 
     /**
@@ -547,88 +661,9 @@ class ViciDialerService
         ];
     }
 
-    /**
-     * Find or create call metrics record
-     */
-    private function findOrCreateCallMetrics(array $data): ViciCallMetrics
-    {
-        // Try to find by vici_lead_id or brain_lead_id
-        $callMetrics = ViciCallMetrics::where('vici_lead_id', $data['lead_id'] ?? null)
-            ->orWhere('lead_id', $data['brain_lead_id'] ?? null)
-            ->first();
 
-        if (!$callMetrics) {
-            $callMetrics = ViciCallMetrics::create([
-                'vici_lead_id' => $data['lead_id'] ?? null,
-                'lead_id' => $data['brain_lead_id'] ?? null,
-                'campaign_id' => $data['campaign_id'] ?? null,
-                'agent_id' => $data['agent_id'] ?? null,
-                'phone_number' => $data['phone_number'] ?? null,
-                'call_status' => $data['status'] ?? 'UNKNOWN',
-                'vici_payload' => $data
-            ]);
-        }
 
-        return $callMetrics;
-    }
 
-    /**
-     * Update call metrics based on webhook data
-     */
-    private function updateCallMetrics(ViciCallMetrics $callMetrics, array $data): void
-    {
-        $updates = [
-            'call_status' => $data['status'] ?? $callMetrics->call_status,
-            'disposition' => $data['disposition'] ?? $callMetrics->disposition,
-            'agent_id' => $data['agent_id'] ?? $callMetrics->agent_id,
-            'vici_payload' => array_merge($callMetrics->vici_payload ?? [], $data)
-        ];
-
-        // Handle different call statuses
-        switch ($data['status'] ?? '') {
-            case 'INCALL':
-            case 'CONNECTED':
-                $callMetrics->markConnected($data['talk_time'] ?? null);
-                break;
-            
-            case 'HANGUP':
-            case 'DISPO':
-                $updates['hangup_time'] = now();
-                $updates['call_duration'] = $data['call_length'] ?? null;
-                $updates['talk_time'] = $data['talk_time'] ?? null;
-                break;
-        }
-
-        $callMetrics->update($updates);
-
-        // Add to call history
-        $callMetrics->addCallAttempt([
-            'status' => $data['status'] ?? 'unknown',
-            'disposition' => $data['disposition'] ?? null,
-            'agent_id' => $data['agent_id'] ?? null,
-            'webhook_data' => $data
-        ]);
-    }
-
-    /**
-     * Check if webhook data triggers any actions
-     */
-    private function checkTriggerActions(ViciCallMetrics $callMetrics, array $data): array
-    {
-        $actions = [];
-
-        // Example triggers (customize based on your needs)
-        if (($data['disposition'] ?? '') === 'TRANSFER_REQUEST') {
-            $actions[] = 'transfer_requested';
-            $callMetrics->requestTransfer('ringba');
-        }
-
-        if (($data['status'] ?? '') === 'CONNECTED' && !$callMetrics->connected_time) {
-            $actions[] = 'first_connection';
-        }
-
-        return $actions;
-    }
 
     // Helper methods
     private function extractFirstName(string $fullName): string

@@ -1830,22 +1830,38 @@ Route::post('/webhook.php', function (Request $request) {
                 
                 if ($daysSinceCreated < 30) {
                     // Less than 30 days: Update existing lead
+                    // Track lead flow stage for duplicate
+                    $leadData['status'] = 'DUPLICATE_UPDATED';
+                    $leadData['meta'] = json_encode(array_merge(
+                        json_decode($leadData['meta'] ?? '{}', true),
+                        [
+                            'duplicate_action' => 'updated',
+                            'original_created_at' => $existingLead->created_at->toIso8601String(),
+                            'days_since_original' => $daysSinceCreated,
+                            'lead_flow_stage' => $existingLead->status ?? 'UNKNOWN'
+                        ]
+                    ));
+                    
                     $existingLead->update($leadData);
                     $lead = $existingLead;
                     
                     Log::info('✅ Updated existing lead (< 30 days old)', [
                         'lead_id' => $lead->id,
-                        'phone' => $phone
+                        'phone' => $phone,
+                        'flow_stage' => $existingLead->status
                     ]);
                 } elseif ($daysSinceCreated <= 90) {
                     // 30-90 days: Create as re-engagement lead
+                    $leadData['status'] = 'RE_ENGAGEMENT';
                     $leadData['meta'] = json_encode(array_merge(
                         json_decode($leadData['meta'] ?? '{}', true),
                         [
                             're_engagement' => true,
                             'original_lead_id' => $existingLead->id,
                             'original_created_at' => $existingLead->created_at->toIso8601String(),
-                            'days_since_original' => $daysSinceCreated
+                            'days_since_original' => $daysSinceCreated,
+                            'original_flow_stage' => $existingLead->status ?? 'UNKNOWN',
+                            'original_qualified' => $existingLead->qualified ?? false
                         ]
                     ));
                     
@@ -1928,55 +1944,73 @@ Route::post('/webhook.php', function (Request $request) {
             Log::warning('Database storage failed, continuing with Vici integration', ['error' => $dbError->getMessage()]);
         }
         
-        // 🧪 TEMPORARY TESTING MODE: Bypass Vici and send directly to Allstate for API testing
-        // TODO: RESTORE VICI INTEGRATION AFTER TESTING (see memory ID: 5307562)
-        // ALWAYS test with Allstate for now
-        
-        // HEAVY DEBUG - Save debug info to database
-        try {
-            if ($lead && $lead->id) {
-                \DB::table('leads')->where('id', $lead->id)->update([
-                    'meta' => json_encode([
-                        'DEBUG_ALLSTATE_BLOCK' => 'REACHED_AT_' . now()->toIso8601String(),
-                        'lead_exists' => true,
-                        'lead_id' => $lead->id,
-                        'external_lead_id' => $lead->external_lead_id
-                    ])
+        // 🎯 VICI INTEGRATION: Push lead to ViciDial for calling
+        if ($lead && $lead->id) {
+            try {
+                // Initialize ViciDialerService
+                $viciService = new \App\Services\ViciDialerService();
+                
+                // Determine campaign for Vici (Auto2 or Autodial)
+                $viciCampaign = 'AUTODIAL'; // Default campaign
+                if (!empty($leadData['campaign_id'])) {
+                    // Map Brain campaign to Vici campaign if needed
+                    $viciCampaign = in_array($leadData['campaign_id'], ['Auto2', 'auto2']) ? 'AUTO2' : 'AUTODIAL';
+                }
+                
+                Log::info('📞 Pushing lead to ViciDial', [
+                    'lead_id' => $lead->id,
+                    'external_lead_id' => $lead->external_lead_id,
+                    'phone' => $lead->phone,
+                    'campaign' => $viciCampaign,
+                    'target_list' => '101'
                 ]);
-            } else {
-                // Lead is null - save to the most recent lead
-                \DB::table('leads')
-                    ->orderBy('id', 'desc')
-                    ->limit(1)
-                    ->update([
-                        'meta' => json_encode([
-                            'DEBUG_ALLSTATE_BLOCK' => 'REACHED_BUT_LEAD_NULL_AT_' . now()->toIso8601String(),
-                            'lead_exists' => false,
-                            'lead_variable' => $lead ?? 'completely_null'
-                        ])
+                
+                // Push lead to Vici (will go to List 101)
+                $viciResult = $viciService->pushLead($lead, $viciCampaign);
+                
+                if ($viciResult['success']) {
+                    // Update lead with Vici info
+                    $lead->update([
+                        'vici_lead_id' => $viciResult['vici_lead_id'] ?? null,
+                        'vici_pushed_at' => now(),
+                        'vici_list_id' => $viciResult['list_id'] ?? '101',
+                        'meta' => json_encode(array_merge(
+                            json_decode($lead->meta ?? '{}', true),
+                            [
+                                'vici_push_result' => $viciResult,
+                                'vici_campaign' => $viciCampaign,
+                                'vici_pushed_at' => now()->toIso8601String()
+                            ]
+                        ))
                     ]);
+                    
+                    Log::info('✅ Lead successfully pushed to ViciDial', [
+                        'lead_id' => $lead->id,
+                        'vici_lead_id' => $viciResult['vici_lead_id'] ?? null,
+                        'list_id' => $viciResult['list_id'] ?? '101',
+                        'campaign' => $viciCampaign
+                    ]);
+                } else {
+                    Log::error('❌ Failed to push lead to ViciDial', [
+                        'lead_id' => $lead->id,
+                        'error' => $viciResult['error'] ?? 'Unknown error',
+                        'campaign' => $viciCampaign
+                    ]);
+                }
+                
+            } catch (\Exception $e) {
+                Log::error('🚨 Exception pushing lead to ViciDial', [
+                    'lead_id' => $lead->id,
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
             }
-        } catch (\Exception $e) {
-            // Try to log the error somewhere visible
-            \Log::error('DEBUG FAILED: ' . $e->getMessage());
         }
         
-        if ($lead) {
-            // Add immediate feedback
-            Log::error('🚨🚨🚨 ALLSTATE BLOCK REACHED - Lead ID: ' . $lead->id);
-            
-            // HEAVY DEBUG - Save to database that we entered the block
-            try {
-                \DB::table('leads')->where('id', $lead->id)->update([
-                    'meta' => json_encode([
-                        'DEBUG_ALLSTATE_IF_BLOCK' => 'ENTERED_AT_' . now()->toIso8601String(),
-                        'about_to_test' => true
-                    ])
-                ]);
-            } catch (\Exception $e) {
-                // Ignore debug errors
-            }
-            
+        // 🧪 OPTIONAL ALLSTATE TESTING (disabled for production)
+        // Uncomment below to enable Allstate testing
+        /*
+        if ($lead && false) { // Set to true to enable testing
             try {
                 Log::warning('🧪🧪🧪 ALLSTATE TESTING MODE ACTIVE - STARTING', [
                     'lead_id' => $lead->id,
@@ -2061,8 +2095,9 @@ Route::post('/webhook.php', function (Request $request) {
                 'external_lead_id' => $externalLeadId ?? 'none'
             ]);
         }
+        */
         
-        // ORIGINAL VICI INTEGRATION (TEMPORARILY DISABLED FOR TESTING):
+        // Continue with rest of webhook processing
         // if ($externalLeadId) {
         //     try {
         //         $viciResult = sendToViciList101($leadData, $externalLeadId);
