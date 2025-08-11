@@ -5594,6 +5594,47 @@ Route::get('/login', function() {
     return response()->json(['message' => 'Please implement authentication UI']);
 })->name('login');
 
+// Helper function for generating lead IDs - defined before webhook routes
+if (!function_exists('generateLeadId')) {
+    function generateLeadId() {
+        try {
+            // Generate a 13-digit ID using Unix timestamp + sequence
+            // Format: TTTTTTTTTTXXX (10-digit timestamp + 3-digit sequence)
+            $timestamp = time();
+            
+            // Get count of leads created in the same second (for sequence)
+            $startOfSecond = \Carbon\Carbon::createFromTimestamp($timestamp);
+            $endOfSecond = $startOfSecond->copy()->addSecond();
+            
+            $countThisSecond = Lead::whereBetween('created_at', [$startOfSecond, $endOfSecond])
+                                  ->count();
+            
+            // Create sequence number (000-999)
+            $sequence = str_pad($countThisSecond, 3, '0', STR_PAD_LEFT);
+            
+            // Combine timestamp + sequence for 13-digit ID
+            $externalId = $timestamp . $sequence;
+            
+            Log::info('🔢 Generated timestamp-based external_lead_id', [
+                'timestamp' => $timestamp,
+                'sequence' => $sequence,
+                'final_id' => $externalId,
+                'datetime' => date('Y-m-d H:i:s', $timestamp)
+            ]);
+            
+            return $externalId;
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to generate timestamp-based ID, using fallback', [
+                'error' => $e->getMessage()
+            ]);
+            
+            // Fallback: use millisecond timestamp
+            return round(microtime(true) * 1000);
+        }
+    }
+}
+
 // Home Insurance Webhook Endpoint
 Route::post('/webhook/home', function (Request $request) {
     $data = $request->all();
@@ -5849,49 +5890,6 @@ function detectLeadType($data) {
     
     // Default to auto if can't determine
     return 'auto';
-}
-
-function generateLeadId() {
-    try {
-        // Generate a 13-digit ID using Unix timestamp + sequence
-        // Format: TTTTTTTTTTXXX (10-digit timestamp + 3-digit sequence)
-        $timestamp = time();
-        
-        // Get count of leads created in the same second (for sequence)
-        $startOfSecond = \Carbon\Carbon::createFromTimestamp($timestamp);
-        $endOfSecond = $startOfSecond->copy()->addSecond();
-        
-        $countThisSecond = Lead::whereBetween('created_at', [$startOfSecond, $endOfSecond])
-                              ->count();
-        
-        // Create sequence number (000-999)
-        $sequence = str_pad($countThisSecond, 3, '0', STR_PAD_LEFT);
-        
-        // Combine timestamp + sequence for 13-digit ID
-        $externalId = $timestamp . $sequence;
-        
-        Log::info('🔢 Generated timestamp-based external_lead_id', [
-            'timestamp' => $timestamp,
-            'sequence' => $sequence,
-            'final_id' => $externalId,
-            'datetime' => date('Y-m-d H:i:s', $timestamp)
-        ]);
-        
-        return $externalId;
-        
-    } catch (Exception $e) {
-        // Fallback: timestamp + random if database fails
-        $timestamp = time();
-        $random = str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
-        $fallbackId = $timestamp . $random;
-        
-        Log::warning('🔢 Using fallback ID generation', [
-            'error' => $e->getMessage(),
-            'fallback_id' => $fallbackId
-        ]);
-        
-        return $fallbackId;
-    }
 }
 
 // Vici integration function (shared between webhooks)
