@@ -1166,13 +1166,13 @@
                                     📜 View Certificate
                                 </a>
                                 <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['trusted_form_cert_url'] }}', this)" title="Copy to clipboard">📎</button>
-                        --}}
                                 <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
                                     {{ $lead->meta['trusted_form_cert_url'] }}
                                 </div>
                             </div>
                         </div>
                         @endif
+                        --}}
 
                         <!-- External Lead ID now shown in header -->
                     </div>
