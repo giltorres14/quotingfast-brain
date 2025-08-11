@@ -1,40 +1,19 @@
+# CUMULATIVE LEARNING APPLIED - All lessons from repeated failures
+# Last updated: Aug 11, 2025
+# Issues solved: Cache corruption, database auth, heredoc syntax, digest mismatches
+
 FROM php:8.3-apache
 
-# ============================================
-# TEMPORARY DEBUG MODE - REMOVE AFTER FIX
-# Set DEBUG_BUILD=0 to disable all debug output
-# Once issue is fixed, we'll clean this file
-# ============================================
-ARG DEBUG_BUILD=1
+# LESSON 1: Always have cache bust mechanism for Render cache issues
+# Increment when cache corrupts (happens frequently)
+ARG CACHE_BUST=5
+RUN echo "Build version: ${CACHE_BUST} - $(date +%s)"
 
-# Debug: Show build context
-RUN echo "=== BUILD STARTED AT $(date) ===" && \
-    echo "Container OS: $(cat /etc/os-release | head -2)" && \
-    echo "PHP Version: $(php -v | head -1)" && \
-    echo "Current directory: $(pwd)" && \
-    echo "User: $(whoami)" && \
-    echo "Home: $HOME" && \
-    echo "PATH: $PATH"
-
-# Debug: Check what's available in the build context
-RUN echo "=== CHECKING BUILD CONTEXT ===" && \
-    echo "Root directory (/):" && \
-    ls -la / | head -20 && \
-    echo "Temp directory (/tmp):" && \
-    ls -la /tmp | head -10 || echo "Empty" && \
-    echo "Current directory ($(pwd)):" && \
-    ls -la . | head -10 || echo "Empty"
-
-# Install system dependencies with error checking
-RUN echo "=== INSTALLING SYSTEM DEPENDENCIES ===" && \
-    echo "Available disk space:" && \
-    df -h && \
-    echo "Memory info:" && \
-    free -h || echo "free command not available" && \
-    echo "Starting apt-get update..." && \
-    apt-get update 2>&1 | tee /tmp/apt-update.log && \
-    echo "Installing packages..." && \
-    apt-get install -y \
+# LESSON 2: Combine operations to reduce layers (fewer layers = less cache corruption)
+# LESSON 3: Use --no-install-recommends to reduce size
+# LESSON 4: Always clean up in same RUN command
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
         libpq-dev \
         git \
         unzip \
@@ -44,168 +23,42 @@ RUN echo "=== INSTALLING SYSTEM DEPENDENCIES ===" && \
         libonig-dev \
         libxml2-dev \
         zip \
-        libsqlite3-dev \
-        2>&1 | tee /tmp/apt-install.log && \
-    echo "Package installation complete"
-
-# Install PHP extensions with detailed output
-RUN echo "=== INSTALLING PHP EXTENSIONS ===" && \
-    echo "Available PHP extensions before:" && \
-    php -m && \
-    echo "Installing extensions..." && \
-    docker-php-ext-install pdo pdo_pgsql pdo_mysql pdo_sqlite mysqli zip intl opcache xml 2>&1 | tee /tmp/php-ext.log && \
-    echo "PHP extensions after installation:" && \
-    php -m && \
-    echo "Cleaning apt cache..." && \
+        libsqlite3-dev && \
+    docker-php-ext-install pdo pdo_pgsql pdo_mysql pdo_sqlite mysqli zip intl opcache xml && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install Composer with verification
-RUN echo "=== INSTALLING COMPOSER ===" && \
-    echo "Downloading Composer installer..." && \
-    curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php && \
-    echo "Installer downloaded, size: $(ls -lh /tmp/composer-setup.php | awk '{print $5}')" && \
-    echo "Installing Composer..." && \
-    php /tmp/composer-setup.php --install-dir=/usr/bin --filename=composer 2>&1 | tee /tmp/composer-install.log && \
-    echo "Verifying Composer installation..." && \
-    which composer && \
-    composer --version && \
-    echo "Composer installation complete"
+# LESSON 5: Composer install can fail - use direct download method (most reliable)
+# LESSON 6: Don't use COPY --from (causes cache key issues)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
+    composer --version
 
-# Enable Apache modules with verification
-RUN echo "=== CONFIGURING APACHE ===" && \
-    echo "Current Apache modules:" && \
-    apache2ctl -M 2>/dev/null || echo "apache2ctl not ready yet" && \
-    echo "Enabling rewrite module..." && \
-    a2enmod rewrite && \
-    echo "Apache modules after enabling rewrite:" && \
-    ls -la /etc/apache2/mods-enabled/ | grep rewrite || echo "Rewrite module status unclear"
+# Enable Apache modules
+RUN a2enmod rewrite
 
-# Set working directory and verify
+# Set working directory
 WORKDIR /var/www/html
-RUN echo "=== WORKING DIRECTORY ===" && \
-    echo "Changed to: $(pwd)" && \
-    echo "Directory exists: $([ -d /var/www/html ] && echo 'YES' || echo 'NO')" && \
-    echo "Directory permissions: $(ls -ld /var/www/html)" && \
-    echo "Directory contents before copy:" && \
-    ls -la
 
-# Debug: Show what the COPY command will look for
-RUN echo "=== PRE-COPY DIAGNOSTICS ===" && \
-    echo "Docker expects to find 'brain/' directory in build context" && \
-    echo "Build context is the directory where docker build is run from" && \
-    echo "Attempting to list possible source locations..."
-
-# Copy application files with extensive debugging
-RUN echo "=== STARTING FILE COPY ===" && \
-    echo "Expecting files from: brain/ directory in build context"
-
-# Try to copy - this is where it might fail
+# LESSON 7: COPY command is where most failures occur
+# Simple, single COPY is most reliable
 COPY brain/ .
 
-# Immediately verify what was copied
-RUN echo "=== POST-COPY VERIFICATION ===" && \
-    echo "Current directory after COPY:" && \
-    pwd && \
-    echo "Number of files copied: $(find . -type f | wc -l)" && \
-    echo "Number of directories: $(find . -type d | wc -l)" && \
-    echo "Top-level contents:" && \
-    ls -la | head -20 && \
-    echo "=== Checking for critical files ===" && \
-    echo "composer.json: $([ -f composer.json ] && echo 'FOUND' || echo 'MISSING')" && \
-    echo "composer.lock: $([ -f composer.lock ] && echo 'FOUND' || echo 'MISSING')" && \
-    echo "artisan: $([ -f artisan ] && echo 'FOUND' || echo 'MISSING')" && \
-    echo "public/index.php: $([ -f public/index.php ] && echo 'FOUND' || echo 'MISSING')" && \
-    echo ".env.example: $([ -f .env.example ] && echo 'FOUND' || echo 'MISSING')"
+# LESSON 8: Composer install can fail on Render - add retry logic
+# LESSON 9: Use --no-cache to avoid composer cache issues
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-cache || \
+    (sleep 2 && composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-cache)
 
-# Show composer.json content if it exists
-RUN echo "=== COMPOSER.JSON CONTENT ===" && \
-    if [ -f composer.json ]; then \
-        echo "File size: $(ls -lh composer.json | awk '{print $5}')" && \
-        echo "First 20 lines:" && \
-        head -20 composer.json && \
-        echo "Validating JSON syntax..." && \
-        php -r "json_decode(file_get_contents('composer.json')); echo json_last_error() === JSON_ERROR_NONE ? 'JSON is valid' : 'JSON ERROR: ' . json_last_error_msg();" && \
-        echo ""; \
-    else \
-        echo "ERROR: composer.json not found!" && \
-        echo "This means the COPY command didn't work as expected" && \
-        echo "Current directory contents:" && \
-        ls -la && \
-        echo "Searching for composer.json anywhere:" && \
-        find / -name composer.json 2>/dev/null | head -5 || echo "No composer.json found"; \
-    fi
-
-# Check composer.lock
-RUN echo "=== COMPOSER.LOCK CHECK ===" && \
-    if [ -f composer.lock ]; then \
-        echo "composer.lock found, size: $(ls -lh composer.lock | awk '{print $5}')" && \
-        echo "First 10 lines:" && \
-        head -10 composer.lock; \
-    else \
-        echo "WARNING: composer.lock not found" && \
-        echo "Will proceed without lock file"; \
-    fi
-
-# Install PHP dependencies with maximum verbosity
-RUN echo "=== INSTALLING PHP DEPENDENCIES ===" && \
-    if [ -f composer.json ]; then \
-        echo "Running composer install..." && \
-        echo "Composer cache dir: $(composer config cache-dir)" && \
-        echo "Available disk space before install:" && \
-        df -h /var/www/html && \
-        COMPOSER_ALLOW_SUPERUSER=1 composer install \
-            --no-dev \
-            --prefer-dist \
-            --optimize-autoloader \
-            --no-interaction \
-            --verbose \
-            --no-cache \
-            2>&1 | tee /tmp/composer-output.log && \
-        echo "Composer install exit code: $?" && \
-        echo "Vendor directory size: $(du -sh vendor 2>/dev/null | cut -f1 || echo 'vendor not created')" && \
-        echo "Available disk space after install:" && \
-        df -h /var/www/html; \
-    else \
-        echo "FATAL ERROR: Cannot run composer install - composer.json missing" && \
-        echo "Build cannot continue without composer.json" && \
-        exit 1; \
-    fi
-
-# Verify Laravel installation
-RUN echo "=== VERIFYING LARAVEL INSTALLATION ===" && \
-    echo "Checking for Laravel directories:" && \
-    echo "app: $([ -d app ] && echo 'EXISTS' || echo 'MISSING')" && \
-    echo "bootstrap: $([ -d bootstrap ] && echo 'EXISTS' || echo 'MISSING')" && \
-    echo "config: $([ -d config ] && echo 'EXISTS' || echo 'MISSING')" && \
-    echo "database: $([ -d database ] && echo 'EXISTS' || echo 'MISSING')" && \
-    echo "public: $([ -d public ] && echo 'EXISTS' || echo 'MISSING')" && \
-    echo "resources: $([ -d resources ] && echo 'EXISTS' || echo 'MISSING')" && \
-    echo "routes: $([ -d routes ] && echo 'EXISTS' || echo 'MISSING')" && \
-    echo "storage: $([ -d storage ] && echo 'EXISTS' || echo 'MISSING')" && \
-    echo "vendor: $([ -d vendor ] && echo 'EXISTS' || echo 'MISSING')"
-
-# Create storage directories if missing
-RUN echo "=== ENSURING STORAGE STRUCTURE ===" && \
-    mkdir -p storage/app/public && \
-    mkdir -p storage/framework/cache && \
-    mkdir -p storage/framework/sessions && \
-    mkdir -p storage/framework/testing && \
-    mkdir -p storage/framework/views && \
-    mkdir -p storage/logs && \
-    mkdir -p bootstrap/cache && \
-    echo "Storage directories created/verified"
-
-# Create .env file with detailed output
-RUN echo "=== CREATING ENVIRONMENT FILE ===" && \
-    echo "Creating .env file..." && \
-    echo "APP_NAME=QuotingFast-Brain" > .env && \
+# LESSON 10: Database credentials MUST be exact - common failure point
+# LESSON 11: Watch for 'opg0' vs 'bpg0' in hostname (critical difference)
+# LESSON 12: Never use heredocs in Dockerfile - causes parse errors
+# LESSON 13: Use echo with >> for multi-line files
+RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
     echo "APP_ENV=production" >> .env && \
     echo "APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw=" >> .env && \
-    echo "APP_DEBUG=true" >> .env && \
+    echo "APP_DEBUG=false" >> .env && \
     echo "APP_URL=https://quotingfast-brain-ohio.onrender.com" >> .env && \
     echo "LOG_CHANNEL=stack" >> .env && \
-    echo "LOG_LEVEL=debug" >> .env && \
+    echo "LOG_LEVEL=error" >> .env && \
     echo "DB_CONNECTION=pgsql" >> .env && \
     echo "DB_HOST=dpg-d277kvk9c44c7388opg0-a" >> .env && \
     echo "DB_PORT=5432" >> .env && \
@@ -214,31 +67,28 @@ RUN echo "=== CREATING ENVIRONMENT FILE ===" && \
     echo "DB_PASSWORD=KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
     echo "SESSION_DRIVER=file" >> .env && \
-    echo "QUEUE_CONNECTION=sync" >> .env && \
-    echo ".env file created with $(wc -l < .env) lines" && \
-    echo "Verifying .env contents:" && \
-    head -5 .env
+    echo "QUEUE_CONNECTION=sync" >> .env
 
-# Set permissions with verification
-RUN echo "=== SETTING PERMISSIONS ===" && \
-    echo "Before permissions:" && \
-    ls -ld . && \
-    ls -ld storage 2>/dev/null || echo "storage not found" && \
-    ls -ld bootstrap/cache 2>/dev/null || echo "bootstrap/cache not found" && \
-    echo "Setting ownership to www-data..." && \
-    chown -R www-data:www-data /var/www/html && \
-    echo "Setting directory permissions..." && \
+# LESSON 14: Storage directories might not exist - always create them
+# LESSON 15: Combine mkdir operations for efficiency
+RUN mkdir -p \
+    storage/app/public \
+    storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/testing \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache
+
+# LESSON 16: Permissions must be set correctly for Laravel
+# LESSON 17: Use && to ensure all commands succeed
+RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html && \
-    echo "Setting storage permissions..." && \
-    chmod -R 777 storage bootstrap/cache && \
-    echo "After permissions:" && \
-    ls -ld . && \
-    ls -ld storage && \
-    ls -ld bootstrap/cache
+    chmod -R 777 storage bootstrap/cache
 
-# Configure Apache with verification
-RUN echo "=== CONFIGURING APACHE VIRTUAL HOST ===" && \
-    echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf && \
+# LESSON 18: Apache config - avoid complex syntax
+# LESSON 19: Escape ${} variables properly
+RUN echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf && \
     echo "    DocumentRoot /var/www/html/public" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    <Directory /var/www/html/public>" >> /etc/apache2/sites-available/000-default.conf && \
     echo "        Options Indexes FollowSymLinks" >> /etc/apache2/sites-available/000-default.conf && \
@@ -247,40 +97,28 @@ RUN echo "=== CONFIGURING APACHE VIRTUAL HOST ===" && \
     echo "    </Directory>" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    ErrorLog \${APACHE_LOG_DIR}/error.log" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/sites-available/000-default.conf && \
-    echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf && \
-    echo "Apache config created:" && \
-    cat /etc/apache2/sites-available/000-default.conf
+    echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf
 
-# Create startup script with debugging
-RUN echo "=== CREATING STARTUP SCRIPT ===" && \
-    echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
-    echo 'echo "=== CONTAINER STARTING AT $(date) ==="' >> /usr/local/bin/startup.sh && \
-    echo 'echo "PHP Version: $(php -v | head -1)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Current directory: $(pwd)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Environment variables:"' >> /usr/local/bin/startup.sh && \
-    echo 'env | grep -E "APP_|DB_" | sort' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Checking database connection..."' >> /usr/local/bin/startup.sh && \
-    echo 'php artisan db:show || echo "Database connection check failed"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Clearing caches..."' >> /usr/local/bin/startup.sh && \
-    echo 'php artisan config:clear' >> /usr/local/bin/startup.sh && \
-    echo 'php artisan cache:clear' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Running migrations..."' >> /usr/local/bin/startup.sh && \
-    echo 'php artisan migrate --force || echo "Migration failed (may be normal if tables exist)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Starting Apache..."' >> /usr/local/bin/startup.sh && \
+# LESSON 20: Startup script - use || true for non-critical commands
+# LESSON 21: Migrations might fail if tables exist - that's ok
+RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
+    echo 'php artisan config:clear || true' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan cache:clear || true' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan migrate --force || true' >> /usr/local/bin/startup.sh && \
     echo 'apache2-foreground' >> /usr/local/bin/startup.sh && \
-    chmod +x /usr/local/bin/startup.sh && \
-    echo "Startup script created and made executable"
-
-# Final verification
-RUN echo "=== FINAL BUILD VERIFICATION ===" && \
-    echo "Build completed at: $(date)" && \
-    echo "PHP modules loaded:" && \
-    php -m | grep -E "pdo|mysql|pgsql" && \
-    echo "Composer packages installed:" && \
-    [ -f vendor/autoload.php ] && echo "Autoloader exists" || echo "WARNING: Autoloader missing" && \
-    echo "Laravel artisan available:" && \
-    [ -f artisan ] && php artisan --version || echo "Artisan not available" && \
-    echo "=== BUILD COMPLETE ==="
+    chmod +x /usr/local/bin/startup.sh
 
 EXPOSE 80
 CMD ["/usr/local/bin/startup.sh"]
+
+# CUMULATIVE WISDOM:
+# 1. Render cache corrupts frequently - always have CACHE_BUST ready
+# 2. Database credentials change/get miscopied - double-check hostname (opg0 not bpg0)
+# 3. Dockerfile syntax is fragile - no heredocs, simple echo commands
+# 4. Fewer layers = fewer problems
+# 5. Always clean up in same RUN command
+# 6. Composer can fail - add retry logic
+# 7. Permissions are critical for Laravel
+# 8. Test locally first if possible
+# 9. Document every issue and solution
+# 10. When in doubt, increment CACHE_BUST and rebuild
