@@ -1,11 +1,11 @@
 FROM php:8.3-apache
 
 # Force complete rebuild - change this value to bust cache
-ENV REBUILD_VERSION=4
+ENV REBUILD_VERSION=5
 ENV DOCKER_BUILDKIT=0
 
-# Simple echo to start fresh
-RUN echo "Starting fresh build v${REBUILD_VERSION}" && date
+# Simple echo to start fresh - unique timestamp
+RUN echo "Starting fresh build v5 at $(date +%s)" && date
 
 # Install system dependencies, PostgreSQL development libraries, and Composer
 RUN apt-get update && apt-get install -y \
