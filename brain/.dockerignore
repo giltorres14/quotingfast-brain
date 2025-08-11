@@ -1,9 +1,54 @@
-vendor/
-node_modules/
-.git/
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Laravel
+vendor
 .env
 .env.local
 .env.*.local
-*.log
+storage/app/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+bootstrap/cache/*
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Testing
+.phpunit.result.cache
+phpunit.xml
+.phpunit.cache
+
+# Documentation
+*.md
+docs/
+
+# Deployment
+deploy_*.sh
+test_*.php
+fix_*.php
+update_*.php
+create_*.py
+*.html
+
+# Temporary files
+*.tmp
+*.temp
+*.log

@@ -1,9 +1,12 @@
 FROM php:8.3-apache
 
-# CUMULATIVE LEARNING: Docker cache corruption on Render requires aggressive cache busting
-# Solution: Use timestamp-based ARG that changes on every build
+# FORCE COMPLETE REBUILD - Render cache corruption fix
 ARG CACHEBUST=1
-RUN echo "Build timestamp: $(date +%s) - Cache bust: ${CACHEBUST}"
+ARG REBUILD_TIMESTAMP=1734567890
+RUN echo "Force rebuild: ${CACHEBUST}-${REBUILD_TIMESTAMP}-$(date +%s)"
+
+# Disable BuildKit to avoid cache issues
+ENV DOCKER_BUILDKIT=0
 
 # CUMULATIVE LEARNING: Install all system dependencies in ONE layer to minimize cache issues
 RUN apt-get update && apt-get install -y \
@@ -32,14 +35,20 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy Laravel application
+# Copy composer files first for better caching
+COPY composer.json composer.lock /var/www/html/
+
+# Install dependencies first (better layer caching)
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-cache --no-scripts
+
+# Now copy the rest of the application
 COPY . /var/www/html/
 
-# CUMULATIVE LEARNING: Clear ALL caches before composer install
-RUN rm -rf vendor/ bootstrap/cache/*.php storage/framework/cache/* storage/framework/views/* storage/framework/sessions/*
+# Clear any caches that might have been copied
+RUN rm -rf bootstrap/cache/*.php storage/framework/cache/* storage/framework/views/* storage/framework/sessions/* storage/logs/*.log
 
-# Install dependencies
-RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-cache
+# Run post-install scripts
+RUN composer run-script post-autoload-dump
 
 # CUMULATIVE LEARNING: Force .env with PostgreSQL configuration
 RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
