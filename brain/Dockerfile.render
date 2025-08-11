@@ -6,7 +6,7 @@ FROM php:8.3-apache
 
 # LESSON 1: Always have cache bust mechanism for Render cache issues
 # Increment when cache corrupts (happens frequently)
-ARG CACHE_BUST=5
+ARG CACHE_BUST=6
 RUN echo "Build version: ${CACHE_BUST} - $(date +%s)"
 
 # LESSON 2: Combine operations to reduce layers (fewer layers = less cache corruption)
@@ -55,12 +55,12 @@ RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interacti
 RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
     echo "APP_ENV=production" >> .env && \
     echo "APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw=" >> .env && \
-    echo "APP_DEBUG=false" >> .env && \
+    echo "APP_DEBUG=true" >> .env && \
     echo "APP_URL=https://quotingfast-brain-ohio.onrender.com" >> .env && \
     echo "LOG_CHANNEL=stack" >> .env && \
     echo "LOG_LEVEL=error" >> .env && \
     echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "DB_HOST=dpg-d277kvk9c44c7388opg0-a" >> .env && \
+    echo "DB_HOST=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com" >> .env && \
     echo "DB_PORT=5432" >> .env && \
     echo "DB_DATABASE=brain_production" >> .env && \
     echo "DB_USERNAME=brain_user" >> .env && \
