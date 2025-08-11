@@ -1,10 +1,10 @@
 FROM php:8.3-apache
 
-# Force rebuild with unique build argument
-ARG CACHEBUST=1
-RUN echo "Cache bust: ${CACHEBUST}" && \
-    echo "Build timestamp: $(date)" && \
-    echo "=== CLEAN BUILD INITIATED ==="
+# Force complete rebuild - change this value to bust cache
+ENV REBUILD_VERSION=2
+
+# Simple echo to start fresh
+RUN echo "Starting fresh build v${REBUILD_VERSION}"
 
 # Install system dependencies, PostgreSQL development libraries, and Composer
 RUN apt-get update && apt-get install -y \
@@ -20,9 +20,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Install PostgreSQL PHP extensions
 RUN docker-php-ext-install pdo_pgsql pgsql
 
-# Enable Apache rewrite module (mod_negotiation may not exist in php:8.3-apache)
-RUN a2enmod rewrite && \
-    echo "✅ Apache rewrite module enabled"
+# Enable Apache rewrite module
+RUN a2enmod rewrite
 
 # Clear default Apache content
 RUN rm -rf /var/www/html/*
@@ -33,19 +32,9 @@ WORKDIR /var/www/html
 # Verify environment
 RUN php --version && composer --version
 
-# CUMULATIVE LESSON #1: Copy existing Laravel application and install dependencies
+# Copy Laravel application
 COPY brain/ /var/www/html/
-RUN echo "=== USING EXISTING LARAVEL APPLICATION WITH DOCKER DEBUG ===" && \
-    composer install --no-dev --prefer-dist --no-cache --optimize-autoloader && \
-    echo "✅ Existing Laravel application dependencies installed" && \
-    echo "=== POST-INSTALL VERIFICATION ===" && \
-    ls -la && \
-    echo "Vendor directory:" && \
-    ls -la vendor/ | head -5 && \
-    echo "Laravel framework:" && \
-    ls -la vendor/laravel/framework/ | head -3 && \
-    echo "Routes verification:" && \
-    ls -la routes/
+RUN composer install --no-dev --prefer-dist --optimize-autoloader
 
 # CUMULATIVE LESSON #2: Force .env precedence over ALL Render environment variables  
 ENV APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="

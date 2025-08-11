@@ -10,2484 +10,2488 @@
   "fileMap": {
     "nonProjectFiles": [
       {
-        "file": "brain/app/Models/LeadOutcome.php",
-        "hash": "11013977110660645076"
-      },
-      {
-        "file": "packages/twenty-docker/scripts/install.sh",
-        "hash": "2543199809232137510"
-      },
-      {
-        "file": "brain/storage/app/.gitignore",
-        "hash": "6694272520750047496"
-      },
-      {
-        "file": "brain/database/factories/UserFactory.php",
-        "hash": "4716603831961383336"
-      },
-      {
-        "file": "brain-ui-example/.eslintrc.cjs",
-        "hash": "1583860405607698155"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/form/stage.tsx",
-        "hash": "12210706065583249630"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_05_212610_create_lead_outcomes_table.php",
-        "hash": "6371560226091688634"
-      },
-      {
-        "file": "brain/routes/api.php",
-        "hash": "12268710413633364597"
-      },
-      {
-        "file": "brain/app/Services/AllstateValidationService.php",
-        "hash": "15820830342644759654"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/pvc-server.yaml",
-        "hash": "17309724294314713457"
-      },
-      {
-        "file": "brain/app/Console/Commands/ClearTestLeads.php",
-        "hash": "6235850873398699406"
-      },
-      {
-        "file": ".github/workflows/ci-breaking-changes.yaml",
-        "hash": "6831363469210332496"
-      },
-      {
-        "file": "brain-lead-flow/src/index.tsx",
-        "hash": "9986858075715816501"
-      },
-      {
-        "file": "brain/resources/views/dashboard.blade.php",
-        "hash": "6995278599274994968"
-      },
-      {
-        "file": "brain-lead-flow/public/favicon.ico",
-        "hash": "2949791817221603359"
-      },
-      {
-        "file": "docs/docs/providers/smtp.md",
-        "hash": "3996445048121322972"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/service-redis.yaml",
-        "hash": "465792281115749515"
-      },
-      {
-        "file": "docs/docs/how-to/journeys/examples/_category_.json",
-        "hash": "10516454749435253154"
-      },
-      {
-        "file": ".github/vale-styles/docs/NpmGlobal.yml",
-        "hash": "3748454054001448452"
-      },
-      {
-        "file": ".nx/installation/package.json",
-        "hash": "11560503983865555013"
-      },
-      {
-        "file": ".github/workflows/ci-website.yaml",
-        "hash": "14055126866959239301"
-      },
-      {
-        "file": "brain/RINGBA_PRODUCTION_CONFIG.md",
-        "hash": "3559616574971385817"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/kanban/board.tsx",
-        "hash": "221515618985565047"
-      },
-      {
-        "file": "brain/resources/views/components/header.blade.php",
-        "hash": "7514376798182715454"
-      },
-      {
-        "file": "docs/docs/how-to/journeys/examples/exitCriteria.md",
-        "hash": "216232267544131728"
-      },
-      {
-        "file": "brain-ui-example/src/utilities/helpers.ts",
-        "hash": "17659688173798756861"
-      },
-      {
-        "file": "docs/docs/providers/segment.md",
-        "hash": "10680081990955402518"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/README.md",
-        "hash": "8465209814521589035"
-      },
-      {
-        "file": ".github/vale-styles/docs/Wordiness.yml",
-        "hash": "5787547420629903708"
-      },
-      {
-        "file": "brain-lead-flow/src/components/Dashboard.tsx",
-        "hash": "5420055352924573850"
-      },
-      {
-        "file": "brain-ui-example/src/providers/index.ts",
-        "hash": "11591895702202277514"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/deployment-redis.tf",
-        "hash": "3677412587930581890"
-      },
-      {
-        "file": ".github/CLA.md",
-        "hash": "10320991231305315139"
-      },
-      {
-        "file": "brain-ui-example/public/favicon.ico",
-        "hash": "11597087704826516132"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/service-db.tf",
-        "hash": "3739265410542537093"
-      },
-      {
-        "file": "docs/static/img/campaigns_launch.png",
-        "hash": "4019719330696182144"
-      },
-      {
-        "file": "docs/docs/deploy/aws-ec2.md",
-        "hash": "12999442940287790451"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/kanban/column.tsx",
-        "hash": "1338232870248240486"
-      },
-      {
-        "file": "brain-ui-example/src/components/text-icon.tsx",
-        "hash": "14598470922701062895"
-      },
-      {
-        "file": "brain/app/Http/Controllers/OnboardingController.php",
-        "hash": "7995382552386956336"
-      },
-      {
-        "file": "brain/config/database.php",
-        "hash": "14509742145992449129"
-      },
-      {
-        "file": "HEROKU_DEPLOYMENT.md",
-        "hash": "13795680914282251451"
-      },
-      {
-        "file": "brain-ui-example/src/components/skeleton/kanban.tsx",
-        "hash": "17618445645392089187"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_05_191652_create_campaigns_table.php",
-        "hash": "14484305385472630284"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/form/users.tsx",
-        "hash": "13957560973988066941"
-      },
-      {
-        "file": ".nvmrc",
-        "hash": "6593500695046679622"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/deployment-server.yaml",
-        "hash": "2801138359932537887"
-      },
-      {
-        "file": "composer.json.backup",
-        "hash": "1143783997640982967"
-      },
-      {
-        "file": "brain/app/Console/Kernel.php",
-        "hash": "11121747195132191947"
-      },
-      {
-        "file": "docs/docs/how-to/campaigns/launch.md",
-        "hash": "145789301977714627"
-      },
-      {
-        "file": "brain-ui-example/README.MD",
-        "hash": "7717278818814498399"
-      },
-      {
-        "file": ".railwayignore",
-        "hash": "15127032829157596564"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/deployment-redis.yaml",
-        "hash": "1835550130765948718"
-      },
-      {
-        "file": "brain/resources/views/leads/index.blade.php",
-        "hash": "6599982482747970065"
-      },
-      {
-        "file": "docs/docs/how-to/settings/_category_.json",
-        "hash": "15666673189360890175"
-      },
-      {
-        "file": "brain/app/Models/EmailTemplate.php",
-        "hash": "17772764265998982278"
-      },
-      {
-        "file": "brain-ui-example/src/components/custom-avatar.tsx",
-        "hash": "12066552894052747801"
-      },
-      {
-        "file": "brain/create_all_ringba_parameters.php",
-        "hash": "10805779101165569974"
-      },
-      {
-        "file": "test-sms.js",
-        "hash": "18164486227812464591"
-      },
-      {
-        "file": "docs/docs/how-to/index.md",
-        "hash": "10887824866581304727"
-      },
-      {
-        "file": "brain/public/robots.txt",
-        "hash": "8128781345255320682"
-      },
-      {
-        "file": "packages/twenty-docker/podman/podman-compose.yml",
-        "hash": "10180626495545367255"
-      },
-      {
-        "file": "brain/app/Services/CallAnalyticsService.php",
-        "hash": "15587362865234527898"
-      },
-      {
-        "file": ".github/ISSUE_TEMPLATE/report-bug.md",
-        "hash": "11491559371950407206"
-      },
-      {
-        "file": ".github/workflows/actions/save-cache/action.yaml",
-        "hash": "9090470825271410130"
-      },
-      {
-        "file": ".cursor/rules/architecture.mdc",
-        "hash": "11045860719383551777"
-      },
-      {
-        "file": "brain/api-integrations/README.md",
-        "hash": "9507814151558884195"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_06_010553_add_ringba_tracking_to_leads_table.php",
-        "hash": "2002924208668708058"
-      },
-      {
-        "file": ".github/workflows/preview-env-keepalive.yaml",
-        "hash": "4334745520584704616"
-      },
-      {
-        "file": "brain-lead-flow/src/App.css",
-        "hash": "14531349686122091549"
-      },
-      {
-        "file": "brain/app/Http/Controllers/Api/ClientController.php",
-        "hash": "10527479664465164595"
-      },
-      {
-        "file": "brain/app/Services/AllstateCallTransferService.php",
-        "hash": "7900321605618226464"
-      },
-      {
-        "file": "brain/resources/views/emails/weekly_report.blade.php",
-        "hash": "6323135262506500541"
-      },
-      {
-        "file": "docs/static/img/journeys_example_weekly_stats_email.png",
-        "hash": "1744296793134908664"
-      },
-      {
-        "file": "docs/static/img/campaigns_design_visual.png",
-        "hash": "15606043463302585580"
-      },
-      {
-        "file": "docs/static/img/logo.svg",
-        "hash": "15756779054106865036"
-      },
-      {
-        "file": "packages/twenty-docker/docker-compose.yml",
-        "hash": "4373630367380532896"
-      },
-      {
-        "file": ".cursor/mcp.json",
-        "hash": "8427926330747894959"
-      },
-      {
-        "file": "brain/OPTIMIZATION_REPORT.md",
-        "hash": "16552241422328041732"
-      },
-      {
-        "file": "LICENSE.txt",
-        "hash": "7099957074941216186"
-      },
-      {
-        "file": "brain/app/Services/DataNormalizationService.php",
-        "hash": "8926918938931017502"
-      },
-      {
-        "file": "docs/docs/overview/_category_.json",
-        "hash": "2189662968358493520"
-      },
-      {
-        "file": "proxy-server.js",
-        "hash": "16906384703655853753"
-      },
-      {
-        "file": "README.md",
-        "hash": "792906200242950670"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/kanban/item.tsx",
-        "hash": "13614811820010422378"
-      },
-      {
-        "file": "brain/resources/views/crm/index.blade.php",
-        "hash": "7926609427388426875"
-      },
-      {
-        "file": "docs/docs/api/client.md",
-        "hash": "4845967389949797493"
-      },
-      {
-        "file": ".github/workflows/ci-shared.yaml",
-        "hash": "2295791061499973637"
-      },
-      {
-        "file": ".github/SECURITY.md",
-        "hash": "8104977315588711993"
-      },
-      {
-        "file": ".github/workflows/cd-deploy-tag.yaml",
-        "hash": "10709313134869186753"
-      },
-      {
-        "file": "docs/docs/advanced/authentication.md",
-        "hash": "15980776753511160841"
-      },
-      {
-        "file": "brain/resources/views/buyer/billing.blade.php",
-        "hash": "17710063456053366221"
-      },
-      {
-        "file": "brain-ui-example/.gitignore",
-        "hash": "12482846224783963086"
-      },
-      {
-        "file": "docs/static/img/campaigns_design.png",
-        "hash": "1399990210814084651"
-      },
-      {
-        "file": "brain-ui-example/src/vite-env.d.ts",
-        "hash": "12946363841406869089"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_05_202534_create_buyers_table.php",
-        "hash": "2784263388612005660"
-      },
-      {
-        "file": ".github/vale-styles/docs/We.yml",
-        "hash": "10318698866176539527"
-      },
-      {
-        "file": "brain/app/Models/LeadQueue.php",
-        "hash": "9016787365002695124"
-      },
-      {
-        "file": "brain/resources/views/buyer/sign-document.blade.php",
-        "hash": "8550908089864765712"
-      },
-      {
-        "file": "brain-ui-example/index.html",
-        "hash": "1322144037560284392"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/service-db.yaml",
-        "hash": "5358890422211042452"
-      },
-      {
-        "file": "brain/api-integrations/ringba/README.md",
-        "hash": "8150307292768285922"
-      },
-      {
-        "file": "brain/database/migrations/2025_01_10_000002_add_tenant_id_to_existing_tables.php",
-        "hash": "1321848029874119368"
-      },
-      {
-        "file": "FORCE_DEPLOY.txt",
-        "hash": "1632656796663339201"
-      },
-      {
-        "file": "brain/app/Models/User.php",
-        "hash": "14099656150077407633"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_05_214424_add_test_account_fields_to_buyers_table.php",
-        "hash": "1015356039709012677"
-      },
-      {
-        "file": "docker/Dockerfile.render",
-        "hash": "2409992002197820805"
-      },
-      {
-        "file": "brain-ui-example/src/components/layout/current-user.tsx",
-        "hash": "3250141791171183720"
-      },
-      {
-        "file": "brain/app/Http/Controllers/DashboardController.php",
-        "hash": "9935993065514047786"
-      },
-      {
-        "file": "brain/storage/app/private/.gitignore",
-        "hash": "9670290114404186230"
-      },
-      {
-        "file": "brain/package.json",
-        "hash": "10130894957766083160"
-      },
-      {
-        "file": "brain/routes/failsafe-webhook.php",
-        "hash": "6286626482573963471"
-      },
-      {
-        "file": "brain/public/index.php",
-        "hash": "13388017550043203766"
-      },
-      {
-        "file": "brain/resources/views/buyer/crm-settings.blade.php",
-        "hash": "17164829764795206996"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/pv-docker-data.tf",
-        "hash": "3290664363626100759"
-      },
-      {
-        "file": "brain/resources/views/agent/lead-display.blade.php",
-        "hash": "18310268801569609212"
-      },
-      {
-        "file": ".github/workflows/docs.yml",
-        "hash": "4921368810680944231"
-      },
-      {
-        "file": "docs/static/img/campaigns_design_code.png",
-        "hash": "3588678372885185280"
-      },
-      {
-        "file": "brain/app/Models/AllstateTestLog.php",
-        "hash": "16357663683959616110"
-      },
-      {
-        "file": "brain-ui-example/src/components/skeleton/upcoming-events.tsx",
-        "hash": "5570463159311749589"
-      },
-      {
-        "file": ".github/vale-styles/docs/Numbers.yml",
-        "hash": "8382360796736383628"
-      },
-      {
-        "file": "brain/resources/views/buyer/dashboard.blade.php",
-        "hash": "4731530960975655633"
-      },
-      {
-        "file": "brain/DEVELOPMENT_RECOMMENDATIONS.md",
-        "hash": "7605042647514793177"
-      },
-      {
-        "file": "brain/public/test-api.php",
-        "hash": "12235992641174520715"
-      },
-      {
-        "file": "brain/resources/views/admin/allstate-testing.blade.php",
-        "hash": "11618903400642470229"
-      },
-      {
-        "file": "docs/docs/deploy/deploy.md",
-        "hash": "12988715493961405899"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/form/header.tsx",
-        "hash": "4829943435380507878"
-      },
-      {
-        "file": "docs/static/img/journeys_example_exit.png",
-        "hash": "18163348131339068563"
-      },
-      {
-        "file": "docs/docs/providers/index.md",
-        "hash": "1538853251577802419"
-      },
-      {
-        "file": "docs/static/img/journeys_data_key_user_updates.png",
-        "hash": "9316788009891002210"
-      },
-      {
-        "file": "brain/DEPLOYMENT_SUMMARY_2025_08_10.md",
-        "hash": "1766113013196526408"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/pvc-server.tf",
-        "hash": "16077184448607620186"
-      },
-      {
-        "file": ".doignore",
-        "hash": "5711298355632031750"
-      },
-      {
-        "file": "docs/docs/how-to/settings/index.md",
-        "hash": "2232005729249955071"
-      },
-      {
-        "file": "docs/docs/advanced/config.md",
-        "hash": "16202520998909863183"
-      },
-      {
-        "file": "brain-ui-example/.npmrc",
-        "hash": "12691207418986445610"
-      },
-      {
-        "file": "docs/docs/deploy/digitalocean.md",
-        "hash": "13447741293937744867"
-      },
-      {
-        "file": "docs/docs/overview/quick-start.md",
-        "hash": "4588092792212525085"
-      },
-      {
-        "file": ".github/vale-styles/vocabularies/Base/reject.txt",
-        "hash": "3244421341483603138"
-      },
-      {
-        "file": "brain/fix_header_width.php",
-        "hash": "12515033902867655461"
-      },
-      {
-        "file": "brain/ringba_curl_commands.sh",
-        "hash": "6691955905215983627"
-      },
-      {
-        "file": ".vscode/tasks.json",
-        "hash": "12578448764723516866"
-      },
-      {
-        "file": ".github/workflows/build.yml",
-        "hash": "14343283678996018930"
-      },
-      {
-        "file": "brain/app/Services/QuickBooksService.php",
-        "hash": "1892221932748883832"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_03_222538_create_lead_conversions_table.php",
-        "hash": "15135746431390211470"
-      },
-      {
-        "file": ".github/workflows/i18n-pull.yaml",
-        "hash": "16005533952495756038"
-      },
-      {
-        "file": "docs/docs/how-to/journeys/examples/recurringReminder.md",
-        "hash": "13685401169750795492"
-      },
-      {
-        "file": "docs/docs/how-to/journeys/types.md",
-        "hash": "17356632357449714579"
-      },
-      {
-        "file": "brain/app/Models/Campaign.php",
-        "hash": "3731682111487117159"
-      },
-      {
-        "file": "brain-ui-example/src/providers/data/index.tsx",
-        "hash": "1351427198927407801"
-      },
-      {
-        "file": "brain-ui-example/src/components/layout/index.tsx",
-        "hash": "17123430505828206649"
-      },
-      {
-        "file": "docs/docs/how-to/campaigns/create.md",
-        "hash": "1850709023880657288"
-      },
-      {
-        "file": "docs/docs/advanced/_category_.json",
-        "hash": "10802246653007259373"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/README.md",
-        "hash": "15891543954024146057"
-      },
-      {
-        "file": "brain/.dockerignore",
-        "hash": "9602704990280991284"
-      },
-      {
-        "file": "yarn.config.cjs",
-        "hash": "3063833264009364365"
-      },
-      {
-        "file": ".github/vale-styles/docs/Contractions.yml",
-        "hash": "2042097612129541599"
-      },
-      {
-        "file": "brain/public/debug-autoloader.php",
-        "hash": "9559233703265891924"
-      },
-      {
-        "file": "brain-ui-example/src/pages/tasks/create.tsx",
-        "hash": "17574562633192626620"
-      },
-      {
-        "file": "brain/app/Http/Controllers/Web/LeadController.php",
-        "hash": "5617767248827136267"
-      },
-      {
-        "file": "brain/database/migrations/0001_01_01_000001_create_cache_table.php",
-        "hash": "11344814380168248660"
-      },
-      {
-        "file": ".github/CONTRIBUTING.md",
-        "hash": "3543233694770172598"
-      },
-      {
-        "file": "test-server.js",
-        "hash": "14092509034732195853"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/variables.tf",
-        "hash": "11913682236640178635"
-      },
-      {
-        "file": "brain/storage/app/public/.gitignore",
-        "hash": "9670290114404186230"
-      },
-      {
-        "file": ".github/vale-styles/docs/Foreign.yml",
-        "hash": "17381335737164019456"
-      },
-      {
-        "file": "brain/public/favicon_32.png",
-        "hash": "17816156488372959201"
-      },
-      {
-        "file": ".github/release-drafter.yml",
-        "hash": "17282378806277276331"
-      },
-      {
-        "file": "brain-ui-example/src/pages/login/index.tsx",
-        "hash": "3486436289906697821"
-      },
-      {
-        "file": "brain/app/Services/NotificationService.php",
-        "hash": "16597616771695660194"
-      },
-      {
-        "file": "docs/static/.nojekyll",
-        "hash": "3244421341483603138"
-      },
-      {
-        "file": ".github/vale-styles/docs/Npm2Yarn.yml",
-        "hash": "1156892526498414463"
-      },
-      {
-        "file": "brain/Dockerfile.render",
-        "hash": "8495380898856155204"
-      },
-      {
-        "file": "brain-ui-example/tsconfig.json",
-        "hash": "16014874159336570303"
-      },
-      {
-        "file": "docker-compose.yml",
-        "hash": "5902157328312952402"
-      },
-      {
-        "file": "brain-ui-example/src/components/home/upcoming-events.tsx",
-        "hash": "16028087540250955951"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/service-server.tf",
-        "hash": "16263563208069484201"
-      },
-      {
-        "file": "docs/docs/how-to/campaigns/templates.md",
-        "hash": "12123567786315147903"
-      },
-      {
-        "file": "brain/resources/views/welcome.blade.php",
-        "hash": "6826503591693303900"
-      },
-      {
-        "file": ".nx/nxw.js",
-        "hash": "11254603345854076312"
-      },
-      {
-        "file": "docs/static/img/parcelvoy-light.svg",
-        "hash": "3682364847274928114"
-      },
-      {
-        "file": ".github/vale-styles/write-good/Passive.yml",
-        "hash": "13515451013846010075"
-      },
-      {
-        "file": "brain/app/Http/Controllers/Api/PaymentController.php",
-        "hash": "3826194743632031597"
-      },
-      {
-        "file": "packages/twenty-docker/grafana/provisioning/datasources/clickhouse-datasource.yaml",
-        "hash": "7793480011818386972"
-      },
-      {
-        "file": ".eslintrc.global.cjs",
-        "hash": "233283651372094208"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/deployment-db.tf",
-        "hash": "2540537871154491110"
-      },
-      {
-        "file": "brain/app/Services/SafeLeadDeletionService.php",
-        "hash": "6425701308385538243"
-      },
-      {
-        "file": "packages/twenty-docker/scripts/1-click.sh",
-        "hash": "13681819435919536196"
-      },
-      {
-        "file": "docs/docs/providers/twilio.md",
-        "hash": "5169954291253841630"
-      },
-      {
-        "file": "brain/resources/views/admin/color-picker.blade.php",
-        "hash": "2422877585509301379"
-      },
-      {
-        "file": "brain-ui-example/src/components/home/deals-chart.tsx",
-        "hash": "2670965673408772836"
-      },
-      {
-        "file": "brain/app/Models/BuyerPayment.php",
-        "hash": "17988743464008261119"
-      },
-      {
-        "file": "brain/app/Models/Lead.php",
-        "hash": "18285247893429659215"
-      },
-      {
-        "file": "brain/resources/views/admin/lead-queue.blade.php",
-        "hash": "6504171767458017343"
-      },
-      {
-        "file": "brain-ui-example/src/components/skeleton/project-card.tsx",
-        "hash": "11512147542387294064"
-      },
-      {
-        "file": "package.json",
-        "hash": "16943701144492463117"
-      },
-      {
-        "file": "docs/static/img/favicon.ico",
-        "hash": "3863849336789365154"
-      },
-      {
-        "file": "brain/app/Http/Controllers/ErrorDashboardController.php",
-        "hash": "14813152846032205803"
-      },
-      {
-        "file": "docs/docs/how-to/_category_.json",
-        "hash": "11326937905967420703"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/service-redis.tf",
-        "hash": "1332686487107767405"
-      },
-      {
-        "file": "docs/docs/clients/_category_.json",
-        "hash": "11897382872535464240"
-      },
-      {
-        "file": "brain/RINGBA_CONFIGURATION.md",
-        "hash": "2716251106952748644"
-      },
-      {
-        "file": ".github/workflows/ci-release-create.yaml",
-        "hash": "8424093617999510091"
-      },
-      {
-        "file": "docs/src/components/Cards.js",
-        "hash": "1563734505420121163"
-      },
-      {
-        "file": "brain/app/Console/Commands/ProcessLeadQueue.php",
-        "hash": "2491797703883538575"
-      },
-      {
-        "file": "brain-lead-flow/public/logo192.png",
-        "hash": "7585273181698778288"
-      },
-      {
-        "file": "crowdin.yml",
-        "hash": "15481163346228885769"
-      },
-      {
-        "file": "docs/.gitignore",
-        "hash": "16756425970169599954"
-      },
-      {
-        "file": "brain-ui-example/src/utilities/get-name-initials.ts",
-        "hash": "1280199733941127236"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_06_031929_create_allstate_test_logs_table.php",
-        "hash": "879392723577540172"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/namespace.tf",
-        "hash": "2102653388723496266"
-      },
-      {
-        "file": "brain-ui-example/tsconfig.node.json",
-        "hash": "2727897646987735390"
-      },
-      {
-        "file": "brain/tests/Feature/ExampleTest.php",
-        "hash": "17528866281800210070"
-      },
-      {
-        "file": "brain/composer.json",
-        "hash": "12877777562321320921"
-      },
-      {
-        "file": "brain/database/migrations/0001_01_01_000000_create_users_table.php",
-        "hash": "10503126691226975133"
-      },
-      {
-        "file": "brain-ui-example/src/constants/index.tsx",
-        "hash": "3381849658072187496"
-      },
-      {
-        "file": "docs/static/img/campaigns_launch_modal.png",
-        "hash": "17252445240505518294"
-      },
-      {
-        "file": ".github/workflows/ci-release-merge.yaml",
-        "hash": "7199524446640871568"
-      },
-      {
-        "file": ".github/vale-styles/docs/Spacing.yml",
-        "hash": "12212420895905705474"
-      },
-      {
-        "file": "brain/resources/views/campaigns/directory.blade.php",
-        "hash": "4924122064457056591"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/ingress.yaml",
-        "hash": "5126343043859404454"
-      },
-      {
-        "file": "packages/twenty-docker/Makefile",
-        "hash": "4992190839005615659"
-      },
-      {
-        "file": "docs/docs/how-to/journeys/examples/welcome.md",
-        "hash": "5256505417852486823"
-      },
-      {
-        "file": "brain/storage/framework/cache/data/.gitignore",
-        "hash": "9670290114404186230"
-      },
-      {
-        "file": "brain-ui-example/src/pages/tasks/edit.tsx",
-        "hash": "13497874580677626007"
-      },
-      {
-        "file": "docs/docs/how-to/campaigns/design.md",
-        "hash": "17265064495585603971"
-      },
-      {
-        "file": "brain/app/Console/Commands/RestoreLeads.php",
-        "hash": "14943782747458967587"
-      },
-      {
-        "file": ".cursor/environment.docker-compose.json",
-        "hash": "34325828655726390"
-      },
-      {
-        "file": "brain/RINGBA_AUTHENTICATION_GUIDE.md",
-        "hash": "11895875175064866680"
-      },
-      {
-        "file": "brain/app/Services/AutoQualificationService.php",
-        "hash": "5596539654414606322"
-      },
-      {
-        "file": "brain-ui-example/src/utilities/date/index.ts",
-        "hash": "5253234482977597470"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/service-server.yaml",
-        "hash": "7211394624400490526"
-      },
-      {
-        "file": ".vale.ini",
-        "hash": "18226316987174528470"
-      },
-      {
-        "file": ".github/vale-styles/docs/OxfordComma.yml",
-        "hash": "10125309905057420352"
-      },
-      {
-        "file": "brain/app/Http/Controllers/Controller.php",
-        "hash": "1452916944606031554"
-      },
-      {
-        "file": ".github/workflows/actions/nx-affected/action.yaml",
-        "hash": "15569570007310618060"
-      },
-      {
-        "file": "docs/docs/providers/notification.md",
-        "hash": "17779740405940586688"
-      },
-      {
-        "file": "brain/.editorconfig",
-        "hash": "15897492444637670922"
-      },
-      {
-        "file": "docs/package-lock.json",
-        "hash": "11178135080614765620"
-      },
-      {
-        "file": ".github/workflows/actions/restore-cache/action.yaml",
-        "hash": "1584875184432946828"
-      },
-      {
-        "file": "brain/app/Http/Controllers/Api/WebhookController.php",
-        "hash": "13182421277619149276"
-      },
-      {
-        "file": "docker/apache.conf",
-        "hash": "11434982399401395762"
-      },
-      {
-        "file": "brain/resources/views/leads/upload.blade.php",
-        "hash": "5929283469060741000"
-      },
-      {
-        "file": "brain/RINGBA_ALLSTATE_FIELD_MAPPING.md",
-        "hash": "1534649823890766369"
-      },
-      {
-        "file": "brain/PROJECT_MEMORY.md",
-        "hash": "2069548920147136133"
-      },
-      {
-        "file": ".github/vale-styles/write-good/E-Prime.yml",
-        "hash": "31360399892548486"
-      },
-      {
-        "file": "brain/CHANGE_LOG.md",
-        "hash": "16848283087425634492"
-      },
-      {
-        "file": ".github/workflows/actions/yarn-install/action.yaml",
-        "hash": "14435702968904653568"
-      },
-      {
-        "file": "brain/app/Models/ApiEndpoint.php",
-        "hash": "6231375485835322191"
-      },
-      {
-        "file": "brain-ui-example/src/config/resources.tsx",
-        "hash": "3339030370262574279"
-      },
-      {
-        "file": "DEPLOYMENT_STATUS.md",
-        "hash": "3594811689076519551"
-      },
-      {
-        "file": "brain/bootstrap/providers.php",
-        "hash": "14151846271424071026"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/.terraform-docs.yml",
-        "hash": "8097138529744556656"
-      },
-      {
-        "file": "brain/resources/views/admin/clear-leads.blade.php",
-        "hash": "8197548871750577230"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/main.tf",
-        "hash": "3473317575869720615"
-      },
-      {
-        "file": "brain/app/Services/AllstateTestingService.php",
-        "hash": "5794316252395579891"
-      },
-      {
-        "file": "brain-ui-example/src/components/tags/contact-status-tag.tsx",
-        "hash": "1022498168154076457"
-      },
-      {
-        "file": "docs/docs/how-to/journeys/index.md",
-        "hash": "7698614700187752268"
-      },
-      {
-        "file": "packages/twenty-docker/otel-collector/otel-collector-config.yaml",
-        "hash": "14377878028182442493"
-      },
-      {
-        "file": ".github/vale-styles/write-good/Cliches.yml",
-        "hash": "10355329685180203252"
-      },
-      {
-        "file": ".github/vale-styles/docs/Gender.yml",
-        "hash": "11877879674161448563"
-      },
-      {
-        "file": "packages/twenty-docker/.env.example",
-        "hash": "2125563247656448302"
-      },
-      {
-        "file": "brain/resources/views/emails/onboarding.blade.php",
-        "hash": "14407275636564012497"
-      },
-      {
-        "file": "docs/static/img/parcelvoy.svg",
-        "hash": "12715472844395074614"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_05_202540_create_buyer_leads_table.php",
-        "hash": "1149344372240211065"
-      },
-      {
-        "file": "brain-ui-example/src/utilities/get-random-color.ts",
-        "hash": "4306939171070720347"
-      },
-      {
-        "file": ".do/app.yaml",
-        "hash": "12675290256472555879"
-      },
-      {
-        "file": "test-db-connection.js",
-        "hash": "18164486227812464591"
-      },
-      {
-        "file": "brain/public/.htaccess",
-        "hash": "2771967579704743037"
-      },
-      {
-        "file": ".github/workflows/ci-front.yaml",
-        "hash": "5771699951451293480"
-      },
-      {
-        "file": "docs/static/img/journeys_gate.png",
-        "hash": "16054292938503472482"
-      },
-      {
-        "file": "docs/static/robots.txt",
-        "hash": "3790920107759343476"
-      },
-      {
-        "file": "brain/bootstrap/app.php",
-        "hash": "18109954039273901843"
-      },
-      {
-        "file": "docs/docs/how-to/journeys/examples/weeklySummary.md",
-        "hash": "9924989834916560129"
-      },
-      {
-        "file": "brain-lead-flow/public/manifest.json",
-        "hash": "1447645250373428393"
-      },
-      {
-        "file": ".github/vale-styles/docs/Terms.yml",
-        "hash": "14855747953030126188"
-      },
-      {
-        "file": "docs/static/img/campaigns_overview.png",
-        "hash": "6886100058968099685"
-      },
-      {
-        "file": ".github/assets/logo-light.png",
-        "hash": "2708361011542140770"
-      },
-      {
-        "file": "brain-ui-example/src/App.tsx",
-        "hash": "11349990421762020938"
-      },
-      {
-        "file": ".cursor/environment.json",
-        "hash": "2544720074272583828"
-      },
-      {
-        "file": "brain/BRAIN_SYSTEM_DOCUMENTATION.md",
-        "hash": "2037669400737003586"
-      },
-      {
-        "file": "docs/docs/how-to/journeys/examples/reservations.md",
-        "hash": "1551754501395179786"
-      },
-      {
-        "file": "brain/resources/views/buyer/lead-outcomes.blade.php",
-        "hash": "2152373799772351170"
-      },
-      {
-        "file": "brain/config/database-stable.php",
-        "hash": "560982205663565569"
-      },
-      {
-        "file": "brain/RINGBA_MISSING_PARAMETERS.md",
-        "hash": "15292171645003372303"
-      },
-      {
-        "file": ".github/workflows/preview-env-dispatch.yaml",
-        "hash": "399438975621313396"
-      },
-      {
-        "file": "docs/static/img/journeys_example_welcome.png",
-        "hash": "5202533413878916542"
-      },
-      {
-        "file": "brain/resources/views/buyer/notifications.blade.php",
-        "hash": "9125143446861691743"
-      },
-      {
-        "file": "brain/tests/TestCase.php",
-        "hash": "10558211999785590047"
-      },
-      {
-        "file": ".cursor/rules/react-state-management.mdc",
-        "hash": "9332896739615097887"
-      },
-      {
-        "file": "brain/resources/views/analytics/dashboard.blade.php",
-        "hash": "4336896200433006319"
-      },
-      {
-        "file": ".vscode/launch.json",
-        "hash": "15155060840987025582"
-      },
-      {
-        "file": "DEPLOYMENT_CHECKLIST.md",
-        "hash": "2063970463954106260"
-      },
-      {
-        "file": ".github/ISSUE_TEMPLATE/request-technical-work.md",
-        "hash": "8085822383357417037"
-      },
-      {
-        "file": "brain/config/queue.php",
-        "hash": "6480899365733611953"
-      },
-      {
-        "file": "docs/docs/deploy/aws-elasticbeanstalk.md",
-        "hash": "2768608606890596936"
-      },
-      {
-        "file": ".gitignore",
-        "hash": "15559420776362976727"
-      },
-      {
-        "file": "brain-ui-example/package.json",
-        "hash": "2807700699378229495"
-      },
-      {
-        "file": "brain/RINGBA_TESTING_DOCUMENTATION.md",
-        "hash": "11969800195044812071"
-      },
-      {
-        "file": "docs/README.md",
-        "hash": "17852570793030669184"
-      },
-      {
-        "file": "docs/static/img/journeys_airline.png",
-        "hash": "6747969672530723824"
-      },
-      {
-        "file": ".cursor/rules/README.mdc",
-        "hash": "10452454138116281746"
-      },
-      {
-        "file": "brain-ui-example/src/graphql/mutations.ts",
-        "hash": "11099991510341966021"
-      },
-      {
-        "file": ".github/ISSUE_TEMPLATE/add-new-feature---behavior.md",
-        "hash": "8126204743177100928"
-      },
-      {
-        "file": "brain/CLEAR_LEADS_BEFORE_GOING_LIVE.md",
-        "hash": "370160786727398114"
-      },
-      {
-        "file": "brain/public/debug.php",
-        "hash": "3244421341483603138"
-      },
-      {
-        "file": "brain-lead-flow/src/reportWebVitals.ts",
-        "hash": "4905365886999342103"
-      },
-      {
-        "file": "brain/.gitignore",
-        "hash": "7703656895803452929"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/pv-db.tf",
-        "hash": "8413280110337211961"
-      },
-      {
-        "file": "brain-lead-flow/public/robots.txt",
-        "hash": "2790380794362165217"
-      },
-      {
-        "file": "brain-ui-example/src/components/skeleton/latest-activities.tsx",
-        "hash": "7425043953339879833"
-      },
-      {
-        "file": ".cursor/rules/translations.mdc",
-        "hash": "15643597980424058464"
-      },
-      {
-        "file": "docs/static/img/journeys_example_reminder.png",
-        "hash": "1925805040375419849"
-      },
-      {
-        "file": ".github/vale-styles/write-good/ThereIs.yml",
-        "hash": "5694842856819501088"
-      },
-      {
-        "file": ".github/assets/logo-dark.png",
-        "hash": "8075549712180624993"
-      },
-      {
-        "file": "Makefile",
-        "hash": "3751741644275599480"
-      },
-      {
-        "file": ".eslintrc.react.cjs",
-        "hash": "18437799175559209592"
-      },
-      {
-        "file": ".vscode/extensions.json",
-        "hash": "2768690530921079123"
-      },
-      {
-        "file": "docs/static/img/og-image.jpg",
-        "hash": "4265799294642010451"
-      },
-      {
-        "file": "brain/storage/framework/sessions/.gitignore",
-        "hash": "9670290114404186230"
-      },
-      {
-        "file": "brain/config/services.php",
-        "hash": "5704747967110941750"
-      },
-      {
-        "file": "brain/app/Models/LeadQualification.php",
-        "hash": "15763454117932052020"
-      },
-      {
-        "file": "brain/app/Models/DialerLog.php",
-        "hash": "12807297854858122329"
-      },
-      {
-        "file": "brain/CURSOR_EXTENSIONS_SETUP.md",
-        "hash": "10090913240592294108"
-      },
-      {
-        "file": "brain/create_ringba_parameters.php",
-        "hash": "14542929779064780616"
-      },
-      {
-        "file": "docs/docs/how-to/settings/subscriptions.md",
-        "hash": "7468836037827931872"
-      },
-      {
-        "file": ".github/vale-styles/write-good/TooWordy.yml",
-        "hash": "9869830916527739117"
-      },
-      {
-        "file": "brain-lead-flow/package-lock.json",
-        "hash": "482569149946810134"
-      },
-      {
-        "file": "brain/resources/css/app.css",
-        "hash": "816113162194688897"
-      },
-      {
-        "file": "brain/resources/views/leads/create.blade.php",
-        "hash": "1614147086865152553"
-      },
-      {
-        "file": "brain/resources/views/layouts/app.blade.php.bak",
-        "hash": "6398006948564151772"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_05_202540_create_buyer_contracts_table.php",
-        "hash": "11085459700833936716"
-      },
-      {
-        "file": "brain/database/migrations/0001_01_01_000002_create_jobs_table.php",
-        "hash": "8146480780918158474"
-      },
-      {
-        "file": "brain/PRODUCTION_VERIFICATION_CHECKLIST.md",
-        "hash": "1327115267102906058"
-      },
-      {
-        "file": "brain-ui-example/src/pages/forgotPassword/index.tsx",
-        "hash": "14380153110711270960"
-      },
-      {
-        "file": ".github/vale-styles/docs/NpmCommands.yml",
-        "hash": "13897221829763016255"
-      },
-      {
-        "file": "brain/resources/views/buyer/documents.blade.php",
-        "hash": "8486743832587369076"
-      },
-      {
-        "file": "brain/debug-runtime.php",
-        "hash": "6578021568733954589"
-      },
-      {
-        "file": ".github/vale-styles/docs/Ordinal.yml",
-        "hash": "16171883773976862605"
-      },
-      {
-        "file": "brain/README.md",
-        "hash": "2694685302330988303"
-      },
-      {
-        "file": "docs/tsconfig.json",
-        "hash": "12018425124169143138"
-      },
-      {
-        "file": "brain/API_CONFIGURATIONS.md",
-        "hash": "8530397870280835999"
-      },
-      {
-        "file": "brain/app/Models/BuyerLead.php",
-        "hash": "4895942071013539392"
-      },
-      {
-        "file": "brain/public/css/brain-design-system.css",
-        "hash": "4275061154060874349"
-      },
-      {
-        "file": ".github/CODE_OF_CONDUCT.md",
-        "hash": "1049985757995630558"
-      },
-      {
-        "file": "brain/test_allstate.php",
-        "hash": "6614493699689770326"
-      },
-      {
-        "file": "docs/docs/providers/vonage.md",
-        "hash": "2230552132826322451"
-      },
-      {
-        "file": "brain-ui-example/src/pages/index.ts",
-        "hash": "17123289157382426650"
-      },
-      {
-        "file": "brain/setup-cron.sh",
-        "hash": "693760463316860921"
-      },
-      {
-        "file": ".github/vale-styles/docs/Passive.yml",
-        "hash": "10126756652149154460"
-      },
-      {
-        "file": "FINAL_DEPLOYMENT_SOLUTION.md",
-        "hash": "8255889091556898688"
-      },
-      {
-        "file": "brain-ui-example/package-lock.json",
-        "hash": "10717842936524271331"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/form/due-date.tsx",
-        "hash": "17489199444316335113"
-      },
-      {
-        "file": "packages/twenty-docker/twenty/entrypoint.sh",
-        "hash": "8627391288072493190"
-      },
-      {
-        "file": "POSTGRESQL_FIX_GUIDE.md",
-        "hash": "3368287193112014775"
-      },
-      {
-        "file": "brain-lead-flow/src/setupTests.ts",
-        "hash": "16903885983588411080"
-      },
-      {
-        "file": "brain/public/simple-debug.php",
-        "hash": "12962389657916090373"
-      },
-      {
-        "file": ".prettierignore",
-        "hash": "16448050467312557263"
-      },
-      {
-        "file": "Dockerfile",
-        "hash": "17161955333794755290"
-      },
-      {
-        "file": "brain/resources/views/agent/lead-not-found.blade.php",
-        "hash": "4993414360005433181"
-      },
-      {
-        "file": "brain/config/logging.php",
-        "hash": "5011142021159830422"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/pv-docker-data.yaml",
-        "hash": "8871362960303795321"
-      },
-      {
-        "file": ".github/workflows/test.yml",
-        "hash": "6506552882752868189"
-      },
-      {
-        "file": "brain/resources/views/buyer/login.blade.php",
-        "hash": "8485986708209458240"
-      },
-      {
-        "file": "brain-lead-flow/tsconfig.json",
-        "hash": "3664978063588679595"
-      },
-      {
-        "file": ".github/vale-styles/write-good/So.yml",
-        "hash": "12180883485237978806"
-      },
-      {
-        "file": "brain/TASKS.md",
-        "hash": "13788740778247725774"
-      },
-      {
-        "file": "brain/config/mail.php",
-        "hash": "8156498769102310803"
-      },
-      {
-        "file": "brain/app/Http/Controllers/Api/SmsWebhookController.php",
-        "hash": "8695651397765721505"
-      },
-      {
-        "file": "brain/routes/web.php",
-        "hash": "10986476044451893284"
-      },
-      {
-        "file": "brain-lead-flow/src/App.tsx",
-        "hash": "8541534056710049783"
-      },
-      {
-        "file": ".cursor/rules/code-style.mdc",
-        "hash": "7756705273603146581"
-      },
-      {
-        "file": ".yarn/patches/react-phone-number-input-npm-3.4.5-dc2895c306.patch",
-        "hash": "1466345222238783350"
-      },
-      {
-        "file": "brain/public/favicon_16.png",
-        "hash": "226413467067928666"
-      },
-      {
-        "file": "docs/docs/overview/introduction.md",
-        "hash": "4186902697337237588"
-      },
-      {
-        "file": "brain/current_layout.html",
-        "hash": "14100060143327063515"
-      },
-      {
-        "file": "brain/app/Services/ViciDialerService.php",
-        "hash": "6901463702260991716"
-      },
-      {
-        "file": "docs/docs/how-to/users.md",
-        "hash": "6874284745146943256"
-      },
-      {
-        "file": "brain/resources/views/leads/edit.blade.php",
-        "hash": "17130842943519098469"
-      },
-      {
-        "file": "brain/database/seeders/ApiEndpointSeeder.php",
-        "hash": "5067368923052981699"
-      },
-      {
-        "file": "brain-ui-example/src/providers/auth.ts",
-        "hash": "10325460221438350048"
-      },
-      {
-        "file": ".cursor/rules/file-structure.mdc",
-        "hash": "14649755920250299523"
-      },
-      {
-        "file": ".github/vale-styles/docs/Percentages.yml",
-        "hash": "10743204044861821116"
-      },
-      {
-        "file": ".github/vale-styles/docs/WritingLevel.yml",
-        "hash": "5619829490572770954"
-      },
-      {
-        "file": ".prettierrc",
-        "hash": "3723142114829488669"
-      },
-      {
-        "file": "brain-ui-example/src/pages/company/edit.tsx",
-        "hash": "9773873565767487632"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/deployment-db.yaml",
-        "hash": "2862687769256226730"
-      },
-      {
-        "file": "CLAUDE.md",
-        "hash": "11051808308229954654"
-      },
-      {
-        "file": "brain/resources/views/admin/buyer-management.blade.php",
-        "hash": "6030062097280962546"
-      },
-      {
-        "file": "brain/resources/views/dashboard.blade.php.bak",
-        "hash": "6995278599274994968"
-      },
-      {
-        "file": "brain/resources/views/leads/index-old.blade.php",
-        "hash": "13456233317197486631"
-      },
-      {
-        "file": "brain-ui-example/src/pages/company/contacts-table.tsx",
-        "hash": "15961185911643336525"
-      },
-      {
-        "file": "docs/src/css/custom.css",
-        "hash": "17242279929837245364"
-      },
-      {
         "file": "packages/twenty-docker/podman/README.md",
         "hash": "18180584086418027720"
-      },
-      {
-        "file": ".cursor/rules/react-general-guidelines.mdc",
-        "hash": "7332957251185444632"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/pv-db.yaml",
-        "hash": "138077099900324128"
-      },
-      {
-        "file": "docs/docs/clients/ios.md",
-        "hash": "9245154700180542090"
-      },
-      {
-        "file": ".github/workflows/cd-deploy-main.yaml",
-        "hash": "13405234194319447717"
-      },
-      {
-        "file": "docs/static/img/journeys_overview.png",
-        "hash": "2957711935777601663"
-      },
-      {
-        "file": "brain-ui-example/src/components/select-option-with-avatar.tsx",
-        "hash": "7163573638246263097"
-      },
-      {
-        "file": ".github/vale-styles/write-good/meta.json",
-        "hash": "3383634517993673450"
-      },
-      {
-        "file": "brain/config/auth.php",
-        "hash": "9053578417715049577"
-      },
-      {
-        "file": "brain/resources/views/admin/simple-dashboard.blade.php",
-        "hash": "4849969838985583403"
-      },
-      {
-        "file": "brain/app/Providers/AppServiceProvider.php",
-        "hash": "2966536803072324513"
-      },
-      {
-        "file": "docs/src/components/Card.css",
-        "hash": "5041182632123272960"
-      },
-      {
-        "file": "docs/docs/providers/ses.md",
-        "hash": "11210940267186747584"
-      },
-      {
-        "file": ".nx/installation/package-lock.json",
-        "hash": "4282812734583217130"
-      },
-      {
-        "file": "brain/vici-simple-iframe-script.html",
-        "hash": "15839924106011670199"
-      },
-      {
-        "file": "docs/static/img/campaigns_design_text.png",
-        "hash": "18031534204890474160"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/pvc-docker-data.yaml",
-        "hash": "1308153684231097608"
-      },
-      {
-        "file": "docs/package.json",
-        "hash": "13375809265811210272"
-      },
-      {
-        "file": "docs/static/img/api_keys_create_modal.png",
-        "hash": "17344868697916873440"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/secret.tf",
-        "hash": "15378714366095400906"
-      },
-      {
-        "file": "brain-ui-example/src/graphql/queries.ts",
-        "hash": "6981937446101664276"
-      },
-      {
-        "file": ".github/workflows/ci-emails.yaml",
-        "hash": "8351803091699126966"
       },
       {
         "file": "brain/public/favicon.ico",
         "hash": "7489475784424421517"
       },
       {
-        "file": "docs/static/img/campaigns_create.png",
-        "hash": "6526533883121288975"
-      },
-      {
-        "file": "brain-ui-example/src/pages/company/create.tsx",
-        "hash": "13668555153405297798"
-      },
-      {
-        "file": ".github/workflows/ci-e2e.yaml",
-        "hash": "11527917705784358839"
-      },
-      {
-        "file": "brain-ui-example/src/utilities/currency-number.ts",
-        "hash": "14905588715197018746"
-      },
-      {
-        "file": "render.yaml",
-        "hash": "11036839411840600200"
-      },
-      {
-        "file": ".dockerignore",
-        "hash": "9938681415240330445"
-      },
-      {
-        "file": ".yarn/releases/yarn-4.9.2.cjs",
-        "hash": "12485910125495454345"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/pvc-db.tf",
-        "hash": "9445220900925502398"
-      },
-      {
-        "file": "brain/resources/js/app.js",
-        "hash": "448575057459636510"
-      },
-      {
-        "file": ".github/workflows/ci-utils.yaml",
-        "hash": "11691524256441469155"
-      },
-      {
-        "file": "brain-ui-example/src/components/layout/header.tsx",
-        "hash": "12577386791919053316"
-      },
-      {
-        "file": "brain/create_single_ringba_parameter.php",
-        "hash": "9281390091385563624"
-      },
-      {
-        "file": "docs/src/components/Card.js",
-        "hash": "9548708123540097156"
-      },
-      {
-        "file": "docs/docs/how-to/settings/providers.md",
-        "hash": "12146347237641286226"
-      },
-      {
-        "file": "FORCE_PARCELVOY_DEPLOY.txt",
-        "hash": "5671964930805753161"
-      },
-      {
-        "file": "brain/resources/views/messages/index.blade.php",
-        "hash": "16331012684758977311"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/deployment-worker.tf",
-        "hash": "11343323450876230624"
-      },
-      {
-        "file": "brain/app/Models/FailedNotification.php",
-        "hash": "13094105057813751255"
-      },
-      {
-        "file": "docs/docs/providers/posthog.md",
-        "hash": "8151144493164248409"
-      },
-      {
-        "file": "brain-ui-example/vite.config.ts",
-        "hash": "17565050178167872203"
-      },
-      {
-        "file": "brain-ui-example/src/utilities/index.ts",
-        "hash": "13457326653497321867"
-      },
-      {
-        "file": "brain-ui-example/src/graphql/schema.types.ts",
-        "hash": "12624461937475887834"
-      },
-      {
-        "file": "docs/docs/how-to/lists.md",
-        "hash": "11672129741673171796"
-      },
-      {
-        "file": "brain-ui-example/src/index.tsx",
-        "hash": "14735207790294771184"
-      },
-      {
-        "file": "allstate_api_support_email.txt",
-        "hash": "5234368006039336298"
-      },
-      {
-        "file": "docs/static/img/journeys_data_key_campaigns.png",
-        "hash": "11296986251849218329"
-      },
-      {
-        "file": ".github/workflows/ci-chrome-extension.yaml",
-        "hash": "8078760226408139885"
-      },
-      {
-        "file": "docs/docs/providers/telnyx.md",
-        "hash": "4541469136544645355"
-      },
-      {
-        "file": "docs/docs/api/_category_.json",
-        "hash": "12131172779905204643"
-      },
-      {
-        "file": ".github/vale-styles/write-good/README.md",
-        "hash": "9222178948249467225"
-      },
-      {
-        "file": "brain/phpunit.xml",
-        "hash": "17017653731685492959"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/form/description.tsx",
-        "hash": "6577005152523300626"
-      },
-      {
-        "file": "docs/static/img/campaigns_launch_schedule.png",
-        "hash": "3024052179207002885"
-      },
-      {
-        "file": "brain-ui-example/src/components/home/latest-activities.tsx",
-        "hash": "11097779823195382040"
-      },
-      {
-        "file": "brain-lead-flow/public/logo512.png",
-        "hash": "9339365414554387981"
-      },
-      {
-        "file": "docs/static/img/campaigns_design_template.png",
-        "hash": "4271725714963663083"
-      },
-      {
-        "file": "docs/docs/providers/_category_.json",
-        "hash": "15936149168720568107"
-      },
-      {
-        "file": "brain/resources/views/leads/index-new.blade.php",
-        "hash": "6105078992117217847"
-      },
-      {
-        "file": "brain-ui-example/Dockerfile",
-        "hash": "2770798380861089096"
-      },
-      {
-        "file": "docs/docs/clients/android.md",
-        "hash": "14637393323239461620"
-      },
-      {
-        "file": "brain/.env.example",
-        "hash": "319825271991717925"
-      },
-      {
-        "file": ".github/vale-styles/docs/Our.yml",
-        "hash": "2511237850993837443"
-      },
-      {
-        "file": "brain/config/session.php",
-        "hash": "13434264595336843942"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/pv-server.yaml",
-        "hash": "16344646954977509279"
-      },
-      {
-        "file": "jest.preset.js",
-        "hash": "9430166341120122740"
-      },
-      {
-        "file": ".github/vale-styles/docs/HeadingPunctuation.yml",
-        "hash": "48224388836028148"
-      },
-      {
-        "file": "LICENSE",
-        "hash": "5035332337493396964"
-      },
-      {
-        "file": ".github/vale-styles/vocabularies/Base/accept.txt",
-        "hash": "10560381703055542628"
-      },
-      {
-        "file": "brain/resources/views/notifications/errors.blade.php",
-        "hash": "11973444009993285870"
-      },
-      {
-        "file": ".github/vale-styles/docs/ComplexWords.yml",
-        "hash": "2371705569441103002"
-      },
-      {
-        "file": "docs/static/img/journeys_data_key.png",
-        "hash": "8142704003223181664"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/kanban/add-card-button.tsx",
-        "hash": "11354668626235878391"
-      },
-      {
-        "file": ".github/workflows/ci-demo-check.yml",
-        "hash": "368159106058191669"
-      },
-      {
-        "file": "brain/config/filesystems.php",
-        "hash": "2053069918395513424"
-      },
-      {
-        "file": ".github/workflows/i18n-push.yaml",
-        "hash": "7934155818468362227"
-      },
-      {
-        "file": "brain/app/Models/LeadConversion.php",
-        "hash": "7166066162370187837"
-      },
-      {
-        "file": "brain-lead-flow/src/react-app-env.d.ts",
-        "hash": "3195158367843515590"
-      },
-      {
-        "file": "brain/public/js/brain-enhancements.js",
-        "hash": "7766403931021225576"
-      },
-      {
-        "file": "brain/resources/views/buyer/leads.blade.php",
-        "hash": "16291153186513594315"
-      },
-      {
-        "file": "brain-ui-example/src/pages/home/index.tsx",
-        "hash": "1726325291708041883"
-      },
-      {
-        "file": "brain/composer.lock",
-        "hash": "10474705649035057856"
-      },
-      {
-        "file": "brain/bootstrap/cache/.gitignore",
-        "hash": "9670290114404186230"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/pvc-db.yaml",
-        "hash": "4627859166539876088"
-      },
-      {
-        "file": "docs/static/img/journeys_example_weekly_stats_webhook.png",
-        "hash": "16479761958540775943"
-      },
-      {
-        "file": "brain/app/Services/CRMIntegrationService.php",
-        "hash": "13108656789324987471"
-      },
-      {
-        "file": "FORCE_LARAVEL_FRESH_DEPLOY.txt",
-        "hash": "8369950197114818548"
-      },
-      {
-        "file": "brain-ui-example/src/graphql/types.ts",
-        "hash": "10679537301289479288"
-      },
-      {
-        "file": "brain-lead-flow/src/App.test.tsx",
-        "hash": "9515502254003067873"
-      },
-      {
-        "file": "docs/src/pages/markdown-page.md",
-        "hash": "2637912770613796076"
-      },
-      {
-        "file": "brain/config/cache.php",
-        "hash": "638395597699075205"
-      },
-      {
-        "file": "docs/docs/how-to/journeys/data.md",
-        "hash": "14028752780205080694"
-      },
-      {
-        "file": "brain-ui-example/graphql.config.ts",
-        "hash": "15531964364285511171"
-      },
-      {
-        "file": "brain-ui-example/src/pages/register/index.tsx",
-        "hash": "11198471543025236007"
-      },
-      {
-        "file": "docs/docs/advanced/storage.md",
-        "hash": "8213406573990713382"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_05_182306_create_api_endpoints_table.php",
-        "hash": "13658405769214855062"
-      },
-      {
-        "file": ".github/vale-styles/docs/SentenceLength.yml",
-        "hash": "12567298212135106011"
-      },
-      {
-        "file": "brain/storage/framework/testing/.gitignore",
-        "hash": "9670290114404186230"
-      },
-      {
-        "file": "docs/docs/home.md",
-        "hash": "14176691031318041220"
-      },
-      {
-        "file": "brain-ui-example/src/components/skeleton/accordion-header.tsx",
-        "hash": "10005646688597584822"
-      },
-      {
-        "file": ".env.example",
-        "hash": "8364172131419760582"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/manifests/deployment-worker.yaml",
-        "hash": "7586499503577366590"
-      },
-      {
-        "file": "packages/twenty-docker/twenty/Dockerfile",
-        "hash": "6512171560780479483"
-      },
-      {
-        "file": "brain/tests/Unit/ExampleTest.php",
-        "hash": "8263489564073357754"
-      },
-      {
-        "file": "brain-ui-example/src/components/home/total-count-card.tsx",
-        "hash": "13558628235891241921"
-      },
-      {
-        "file": ".vscode/twenty.code-workspace",
-        "hash": "15715630212179672153"
-      },
-      {
-        "file": "brain/init-persistent-db.sh",
-        "hash": "17010955251964896213"
-      },
-      {
-        "file": "brain/DEPLOYMENT_CHECKLIST.md",
-        "hash": "6515438332689535492"
-      },
-      {
-        "file": "brain/app/Models/Buyer.php",
-        "hash": "4050655970951911022"
-      },
-      {
-        "file": "brain-ui-example/src/components/layout/account-settings.tsx",
-        "hash": "2485859661696057573"
-      },
-      {
-        "file": "brain-ui-example/src/components/index.ts",
-        "hash": "2987571348918941192"
-      },
-      {
-        "file": "package-lock.json",
-        "hash": "5893823815375211103"
-      },
-      {
-        "file": "brain/app/Models/Payment.php",
-        "hash": "9788733083223291199"
-      },
-      {
-        "file": ".cursor/rules/testing-guidelines.mdc",
-        "hash": "2232603997938385949"
-      },
-      {
-        "file": "brain/app/Models/ViciCallMetrics.php",
-        "hash": "10715259337469892662"
-      },
-      {
-        "file": "docs/static/img/campaigns_create_modal.png",
-        "hash": "12182968307436130166"
-      },
-      {
-        "file": "brain/storage/framework/.gitignore",
-        "hash": "5744691752594082625"
-      },
-      {
-        "file": "brain/resources/views/buyer/signup.blade.php",
-        "hash": "10036306457597225086"
-      },
-      {
-        "file": "brain-lead-flow/README.md",
-        "hash": "17911282315018038361"
-      },
-      {
-        "file": "docs/static/img/journeys_example_weekly_summary.png",
-        "hash": "12726256589418266205"
-      },
-      {
-        "file": "brain-lead-flow/src/index.css",
-        "hash": "14056909652331273425"
-      },
-      {
-        "file": "docs/docusaurus.config.js",
-        "hash": "584252476619089157"
-      },
-      {
-        "file": "brain/app/Http/Controllers/Api/InvoiceController.php",
-        "hash": "5645328493920155234"
-      },
-      {
-        "file": "docs/docs/how-to/settings/apikeys.md",
-        "hash": "6860836532790746769"
-      },
-      {
-        "file": "docs/docs/clients/javascript.md",
-        "hash": "14149146850438306283"
-      },
-      {
-        "file": "brain/app/Services/RingBAService.php",
-        "hash": "3696432986699034206"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_03_135309_create_lead_qualifications_table.php",
-        "hash": "8322894688215911411"
-      },
-      {
-        "file": "brain-lead-flow/src/logo.svg",
-        "hash": "5137778160416929466"
-      },
-      {
-        "file": "docs/docs/api/admin.md",
-        "hash": "4130948510139769418"
-      },
-      {
-        "file": "brain/app/Http/Middleware/VerifyCsrfToken.php",
-        "hash": "7327446621550061842"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/deployment-server.tf",
-        "hash": "9002457516640902482"
-      },
-      {
-        "file": "docs/docs/providers/sendgrid.md",
-        "hash": "2500126370386222845"
-      },
-      {
-        "file": "brain/app/Models/Client.php",
-        "hash": "14202813960872413306"
-      },
-      {
-        "file": "brain/fix_header_and_content_width.php",
-        "hash": "18164486227812464591"
-      },
-      {
-        "file": "brain-ui-example/src/components/tags/user-tag.tsx",
-        "hash": "2267740884723196699"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_02_212500_create_vici_call_metrics_table.php",
-        "hash": "3261883231322909064"
-      },
-      {
-        "file": ".yarnrc.yml",
-        "hash": "3773074168333402231"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_02_195519_create_leads_table.php",
-        "hash": "8416335259347110536"
-      },
-      {
-        "file": "docs/docs/providers/plivo.md",
-        "hash": "3378017917468170018"
-      },
-      {
         "file": "brain/DEVELOPMENT_SETUP.md",
         "hash": "10548884284642562056"
       },
       {
-        "file": "docs/src/components/Providers.js",
-        "hash": "6982988735163492231"
+        "file": "brain/app/Http/Controllers/Api/PaymentController.php",
+        "hash": "3826194743632031597"
       },
       {
-        "file": "brain-ui-example/src/components/tasks/kanban/card.tsx",
-        "hash": "475816877259393683"
+        "file": ".github/vale-styles/docs/Contractions.yml",
+        "hash": "2042097612129541599"
       },
       {
-        "file": "DEPLOYMENT_STABILITY.md",
-        "hash": "2158941748510267425"
-      },
-      {
-        "file": ".vscode/settings.json",
-        "hash": "5310104343643203537"
-      },
-      {
-        "file": ".github/workflows/ci-test-docker-compose.yaml",
-        "hash": "17697399501329678801"
-      },
-      {
-        "file": "packages/twenty-docker/podman/manual-steps-to-deploy-twenty-on-podman",
-        "hash": "6227084222140663928"
-      },
-      {
-        "file": "brain/vite.config.js",
-        "hash": "13902780464312534877"
-      },
-      {
-        "file": "brain/database/migrations/2025_08_05_202540_create_buyer_payments_table.php",
-        "hash": "17198181190676728822"
-      },
-      {
-        "file": "brain/storage/framework/cache/.gitignore",
-        "hash": "3279050853419475411"
-      },
-      {
-        "file": "docs/static/img/journeys_data_key_gates.png",
-        "hash": "14397296327637016306"
-      },
-      {
-        "file": "brain/storage/framework/views/.gitignore",
-        "hash": "9670290114404186230"
-      },
-      {
-        "file": ".github/vale-styles/docs/TypeScript.yml",
-        "hash": "4991643627288303402"
-      },
-      {
-        "file": ".github/vale-styles/write-good/Illusions.yml",
-        "hash": "5583989492704032923"
-      },
-      {
-        "file": "brain/database/seeders/DatabaseSeeder.php",
-        "hash": "1450247510292508111"
-      },
-      {
-        "file": "brain-ui-example/src/pages/company/list.tsx",
-        "hash": "11197684873111351784"
-      },
-      {
-        "file": "brain/public/favicon.png",
-        "hash": "16044765824920479528"
-      },
-      {
-        "file": ".cursor/rules/typescript-guidelines.mdc",
-        "hash": "241098586063178389"
-      },
-      {
-        "file": ".github/workflows/changed-files.yaml",
-        "hash": "14380331665734071848"
-      },
-      {
-        "file": "DASHBOARD_SETUP.md",
-        "hash": "4723439812515510318"
-      },
-      {
-        "file": "packages/twenty-docker/twenty-postgres-spilo/Dockerfile",
-        "hash": "8108105087008118769"
-      },
-      {
-        "file": "lerna.json",
-        "hash": "11138859179903610696"
-      },
-      {
-        "file": "brain/app/Models/SmsMessage.php",
-        "hash": "10630698545161429297"
-      },
-      {
-        "file": "brain/database/migrations/2025_01_10_000001_create_tenants_table.php",
-        "hash": "10682813642753061600"
-      },
-      {
-        "file": "brain/artisan",
-        "hash": "4328789629471901215"
-      },
-      {
-        "file": "brain/resources/views/components/app-layout.blade.php",
-        "hash": "8364571291321774193"
-      },
-      {
-        "file": "brain/database/.gitignore",
-        "hash": "7315498444509307379"
-      },
-      {
-        "file": "brain-ui-example/src/components/tasks/form/title.tsx",
-        "hash": "4861119111371539597"
-      },
-      {
-        "file": "yarn.lock",
-        "hash": "14164417135765612169"
-      },
-      {
-        "file": "brain/ALLSTATE_FIELD_VALIDATION.md",
-        "hash": "14578306854254151081"
-      },
-      {
-        "file": "brain/resources/views/onboarding/show.blade.php",
-        "hash": "7371371462090422738"
-      },
-      {
-        "file": ".github/vale-styles/write-good/Weasel.yml",
-        "hash": "11619912917542249975"
-      },
-      {
-        "file": "nx.json",
-        "hash": "11333052360771449064"
-      },
-      {
-        "file": "docs/docs/providers/mailgun.md",
-        "hash": "5109341160641382099"
-      },
-      {
-        "file": "docs/babel.config.js",
-        "hash": "1308513646348002384"
-      },
-      {
-        "file": "brain-ui-example/src/pages/tasks/list.tsx",
-        "hash": "8608165121187994500"
-      },
-      {
-        "file": "brain/app/Models/EnrichmentLog.php",
-        "hash": "15690631062671894578"
-      },
-      {
-        "file": "brain/resources/views/components/card.blade.php",
-        "hash": "14300332191289899338"
-      },
-      {
-        "file": "brain/scripts/init-database.sh",
-        "hash": "16105120832081714630"
-      },
-      {
-        "file": "brain-ui-example/src/providers/data/fetch-wrapper.ts",
-        "hash": "4396937680446846839"
-      },
-      {
-        "file": "brain/LEAD_PROTECTION_SYSTEM.md",
-        "hash": "14048996520365245200"
-      },
-      {
-        "file": "tsconfig.base.json",
-        "hash": "16977138141410328693"
-      },
-      {
-        "file": "brain/WEBHOOK_TESTING_PROTOCOL.md",
-        "hash": "3704203310465972128"
-      },
-      {
-        "file": "packages/twenty-docker/k8s/terraform/pvc-docker-data.tf",
-        "hash": "12601544846203023165"
-      },
-      {
-        "file": ".github/workflows/ci-server.yaml",
-        "hash": "8233467465094298662"
-      },
-      {
-        "file": "brain-ui-example/src/components/text.tsx",
-        "hash": "12934195388610995079"
-      },
-      {
-        "file": "brain/resources/views/leads/show.blade.php",
-        "hash": "12749256867606901499"
-      },
-      {
-        "file": "brain/.gitattributes",
-        "hash": "10704831587277192515"
-      },
-      {
-        "file": "brain/LEAD_DELETION_SAFETY.md",
-        "hash": "7827750384915561966"
-      },
-      {
-        "file": "jest.config.js",
-        "hash": "12333515226966617182"
-      },
-      {
-        "file": "brain-ui-example/src/utilities/date/get-date-colors.ts",
-        "hash": "12883843673066058603"
-      },
-      {
-        "file": "docs/docs/advanced/deeplinking.md",
-        "hash": "10306881191813473590"
-      },
-      {
-        "file": "brain/API_INTEGRATIONS_SETUP.md",
-        "hash": "5797201578000155488"
-      },
-      {
-        "file": "brain/app/Models/BuyerContract.php",
-        "hash": "11641866708854111206"
-      },
-      {
-        "file": "nx",
-        "hash": "17165975525224888679"
-      },
-      {
-        "file": "docs/docs/how-to/campaigns/index.md",
-        "hash": "4149863273680239244"
+        "file": "packages/twenty-docker/k8s/terraform/deployment-redis.tf",
+        "hash": "3677412587930581890"
       },
       {
         "file": ".github/vale-styles/docs/FirstPerson.yml",
         "hash": "655354732010989326"
       },
       {
-        "file": "packages/twenty-docker/podman/twentycrm.service",
-        "hash": "17515913099259539903"
+        "file": ".github/vale-styles/docs/Passive.yml",
+        "hash": "10126756652149154460"
       },
       {
-        "file": "brain-lead-flow/public/index.html",
-        "hash": "13308863839730475495"
+        "file": "brain-ui-example/src/utilities/currency-number.ts",
+        "hash": "14905588715197018746"
       },
       {
-        "file": ".github/vale-styles/docs/Acronyms.yml",
-        "hash": "12896690256752298464"
+        "file": "brain-lead-flow/src/App.test.tsx",
+        "hash": "9515502254003067873"
       },
       {
-        "file": "brain/render-root-postgres.yaml",
-        "hash": "12706111590913021912"
+        "file": "packages/twenty-docker/k8s/terraform/deployment-worker.tf",
+        "hash": "11343323450876230624"
       },
       {
-        "file": "brain/database/migrations/2025_08_07_000000_create_lead_queue_table.php",
-        "hash": "16213918451390449169"
+        "file": "render.yaml",
+        "hash": "11036839411840600200"
       },
       {
-        "file": "brain/routes/console.php",
-        "hash": "14490103791661029508"
+        "file": "brain/WEBHOOK_TESTING_PROTOCOL.md",
+        "hash": "3704203310465972128"
       },
       {
-        "file": "brain-lead-flow/package.json",
-        "hash": "4714346216532826143"
+        "file": "packages/twenty-docker/grafana/provisioning/datasources/clickhouse-datasource.yaml",
+        "hash": "7793480011818386972"
       },
       {
-        "file": "docs/sidebars.js",
-        "hash": "15415686705966936464"
+        "file": "composer.json.backup",
+        "hash": "1143783997640982967"
       },
       {
-        "file": "docs/docs/how-to/journeys/_category_.json",
-        "hash": "10035599538518728537"
+        "file": "brain-lead-flow/src/index.tsx",
+        "hash": "9986858075715816501"
       },
       {
-        "file": "brain/config/app.php",
-        "hash": "14365430599556279624"
+        "file": "brain/resources/views/admin/lead-queue.blade.php",
+        "hash": "6504171767458017343"
       },
       {
-        "file": "brain/MULTI_TENANCY_IMPLEMENTATION.md",
-        "hash": "1777420634845269802"
+        "file": "docs/static/img/campaigns_create_modal.png",
+        "hash": "12182968307436130166"
       },
       {
-        "file": "packages/twenty-docker/k8s/terraform/pv-server.tf",
-        "hash": "15788516610258124168"
+        "file": "nx",
+        "hash": "17165975525224888679"
+      },
+      {
+        "file": "docs/docs/how-to/campaigns/design.md",
+        "hash": "17265064495585603971"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_05_182306_create_api_endpoints_table.php",
+        "hash": "13658405769214855062"
+      },
+      {
+        "file": "brain/resources/views/admin/allstate-testing.blade.php",
+        "hash": "11618903400642470229"
+      },
+      {
+        "file": "brain/bootstrap/app.php",
+        "hash": "18109954039273901843"
+      },
+      {
+        "file": "brain-lead-flow/src/react-app-env.d.ts",
+        "hash": "3195158367843515590"
+      },
+      {
+        "file": "brain-ui-example/index.html",
+        "hash": "1322144037560284392"
+      },
+      {
+        "file": "brain-ui-example/src/components/tags/user-tag.tsx",
+        "hash": "2267740884723196699"
+      },
+      {
+        "file": ".github/vale-styles/write-good/So.yml",
+        "hash": "12180883485237978806"
+      },
+      {
+        "file": "brain/resources/views/admin/color-picker.blade.php",
+        "hash": "2422877585509301379"
+      },
+      {
+        "file": "brain/resources/views/dashboard.blade.php",
+        "hash": "6995278599274994968"
+      },
+      {
+        "file": "FINAL_DEPLOYMENT_SOLUTION.md",
+        "hash": "8255889091556898688"
+      },
+      {
+        "file": "brain-ui-example/src/utilities/get-name-initials.ts",
+        "hash": "1280199733941127236"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_05_214424_add_test_account_fields_to_buyers_table.php",
+        "hash": "1015356039709012677"
+      },
+      {
+        "file": "brain/setup-cron.sh",
+        "hash": "693760463316860921"
+      },
+      {
+        "file": "brain-lead-flow/src/App.tsx",
+        "hash": "8541534056710049783"
+      },
+      {
+        "file": "docs/docs/advanced/config.md",
+        "hash": "16202520998909863183"
+      },
+      {
+        "file": ".github/workflows/ci-server.yaml",
+        "hash": "8233467465094298662"
+      },
+      {
+        "file": "brain/resources/views/leads/index.blade.php",
+        "hash": "6599982482747970065"
+      },
+      {
+        "file": "brain/LEAD_DELETION_SAFETY.md",
+        "hash": "7827750384915561966"
+      },
+      {
+        "file": "docs/docs/providers/_category_.json",
+        "hash": "15936149168720568107"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/namespace.tf",
+        "hash": "2102653388723496266"
+      },
+      {
+        "file": "brain-lead-flow/public/robots.txt",
+        "hash": "2790380794362165217"
+      },
+      {
+        "file": "brain/package.json",
+        "hash": "10130894957766083160"
+      },
+      {
+        "file": "brain/app/Models/FailedNotification.php",
+        "hash": "13094105057813751255"
+      },
+      {
+        "file": "docs/docs/how-to/journeys/examples/exitCriteria.md",
+        "hash": "216232267544131728"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/kanban/column.tsx",
+        "hash": "1338232870248240486"
+      },
+      {
+        "file": "brain/resources/views/campaigns/directory.blade.php",
+        "hash": "4924122064457056591"
+      },
+      {
+        "file": ".github/workflows/ci-demo-check.yml",
+        "hash": "368159106058191669"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/form/title.tsx",
+        "hash": "4861119111371539597"
+      },
+      {
+        "file": ".railwayignore",
+        "hash": "15127032829157596564"
+      },
+      {
+        "file": ".github/vale-styles/write-good/ThereIs.yml",
+        "hash": "5694842856819501088"
+      },
+      {
+        "file": "brain/app/Http/Controllers/Web/LeadController.php",
+        "hash": "5617767248827136267"
+      },
+      {
+        "file": "brain/resources/views/agent/lead-not-found.blade.php",
+        "hash": "4993414360005433181"
+      },
+      {
+        "file": "brain/routes/web.php",
+        "hash": "10986476044451893284"
+      },
+      {
+        "file": "test-db-connection.js",
+        "hash": "18164486227812464591"
+      },
+      {
+        "file": "brain/app/Services/CallAnalyticsService.php",
+        "hash": "15587362865234527898"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_05_191652_create_campaigns_table.php",
+        "hash": "14484305385472630284"
+      },
+      {
+        "file": "crowdin.yml",
+        "hash": "15481163346228885769"
+      },
+      {
+        "file": "docs/babel.config.js",
+        "hash": "1308513646348002384"
+      },
+      {
+        "file": ".nx/installation/package-lock.json",
+        "hash": "4282812734583217130"
+      },
+      {
+        "file": "nx.json",
+        "hash": "11333052360771449064"
+      },
+      {
+        "file": "brain-ui-example/src/components/home/total-count-card.tsx",
+        "hash": "13558628235891241921"
+      },
+      {
+        "file": "brain/.gitattributes",
+        "hash": "10704831587277192515"
+      },
+      {
+        "file": "docs/docs/providers/vonage.md",
+        "hash": "2230552132826322451"
+      },
+      {
+        "file": "brain/TASKS.md",
+        "hash": "13788740778247725774"
+      },
+      {
+        "file": ".vscode/twenty.code-workspace",
+        "hash": "15715630212179672153"
+      },
+      {
+        "file": "docs/static/img/journeys_gate.png",
+        "hash": "16054292938503472482"
+      },
+      {
+        "file": ".github/ISSUE_TEMPLATE/add-new-feature---behavior.md",
+        "hash": "8126204743177100928"
+      },
+      {
+        "file": "brain/resources/views/components/header.blade.php",
+        "hash": "7514376798182715454"
+      },
+      {
+        "file": ".github/workflows/ci-chrome-extension.yaml",
+        "hash": "8078760226408139885"
+      },
+      {
+        "file": "brain-ui-example/src/pages/company/edit.tsx",
+        "hash": "9773873565767487632"
+      },
+      {
+        "file": "docs/package-lock.json",
+        "hash": "11178135080614765620"
+      },
+      {
+        "file": "brain-ui-example/src/components/custom-avatar.tsx",
+        "hash": "12066552894052747801"
+      },
+      {
+        "file": "brain/app/Http/Controllers/ErrorDashboardController.php",
+        "hash": "14813152846032205803"
+      },
+      {
+        "file": "brain/app/Services/AllstateTestingService.php",
+        "hash": "5794316252395579891"
+      },
+      {
+        "file": ".github/CLA.md",
+        "hash": "10320991231305315139"
+      },
+      {
+        "file": "brain-ui-example/src/utilities/get-random-color.ts",
+        "hash": "4306939171070720347"
+      },
+      {
+        "file": "brain/DEVELOPMENT_RECOMMENDATIONS.md",
+        "hash": "7605042647514793177"
+      },
+      {
+        "file": "docs/docs/clients/android.md",
+        "hash": "14637393323239461620"
+      },
+      {
+        "file": "packages/twenty-docker/twenty/Dockerfile",
+        "hash": "6512171560780479483"
+      },
+      {
+        "file": "brain/app/Models/ApiEndpoint.php",
+        "hash": "6231375485835322191"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/pv-db.tf",
+        "hash": "8413280110337211961"
+      },
+      {
+        "file": "brain-ui-example/src/pages/index.ts",
+        "hash": "17123289157382426650"
+      },
+      {
+        "file": ".github/workflows/cd-deploy-main.yaml",
+        "hash": "13405234194319447717"
+      },
+      {
+        "file": "docker/Dockerfile.render",
+        "hash": "2409992002197820805"
+      },
+      {
+        "file": "brain/app/Models/AllstateTestLog.php",
+        "hash": "16357663683959616110"
+      },
+      {
+        "file": ".github/workflows/test.yml",
+        "hash": "6506552882752868189"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/pvc-db.yaml",
+        "hash": "4627859166539876088"
+      },
+      {
+        "file": ".github/vale-styles/docs/NpmCommands.yml",
+        "hash": "13897221829763016255"
+      },
+      {
+        "file": "brain/storage/framework/testing/.gitignore",
+        "hash": "9670290114404186230"
+      },
+      {
+        "file": "brain-ui-example/public/favicon.ico",
+        "hash": "11597087704826516132"
+      },
+      {
+        "file": ".github/vale-styles/docs/WritingLevel.yml",
+        "hash": "5619829490572770954"
+      },
+      {
+        "file": "brain-ui-example/package-lock.json",
+        "hash": "10717842936524271331"
+      },
+      {
+        "file": "brain/app/Http/Middleware/VerifyCsrfToken.php",
+        "hash": "7327446621550061842"
+      },
+      {
+        "file": "brain-ui-example/src/pages/company/contacts-table.tsx",
+        "hash": "15961185911643336525"
+      },
+      {
+        "file": "brain-ui-example/src/pages/tasks/create.tsx",
+        "hash": "17574562633192626620"
+      },
+      {
+        "file": "brain/database/seeders/DatabaseSeeder.php",
+        "hash": "1450247510292508111"
+      },
+      {
+        "file": "docs/docs/how-to/campaigns/create.md",
+        "hash": "1850709023880657288"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/main.tf",
+        "hash": "3473317575869720615"
       },
       {
         "file": "packages/twenty-docker/k8s/terraform/ingress.tf",
         "hash": "18418478080567795966"
       },
       {
-        "file": "brain/scripts/ensure-stable-deployment.sh",
-        "hash": "8019818524464352278"
+        "file": "brain/app/Models/BuyerContract.php",
+        "hash": "11641866708854111206"
       },
       {
-        "file": "brain/app/Models/Invoice.php",
-        "hash": "15782999353671310318"
+        "file": "brain-ui-example/src/components/index.ts",
+        "hash": "2987571348918941192"
       },
       {
-        "file": "docs/docs/deploy/_category_.json",
-        "hash": "5522010378235833096"
+        "file": ".eslintrc.global.cjs",
+        "hash": "233283651372094208"
       },
       {
-        "file": "brain/app/Http/Controllers/Web/MessageController.php",
-        "hash": "15074724265662965225"
+        "file": "docs/docs/deploy/deploy.md",
+        "hash": "12988715493961405899"
       },
       {
-        "file": "brain/resources/views/agent/error.blade.php",
-        "hash": "369958689913158965"
+        "file": "docs/docs/api/admin.md",
+        "hash": "4130948510139769418"
       },
       {
-        "file": "brain-ui-example/src/components/accordion.tsx",
-        "hash": "16521510906280029932"
+        "file": ".cursor/rules/file-structure.mdc",
+        "hash": "14649755920250299523"
+      },
+      {
+        "file": ".github/vale-styles/docs/Our.yml",
+        "hash": "2511237850993837443"
+      },
+      {
+        "file": "docs/static/img/favicon.ico",
+        "hash": "3863849336789365154"
+      },
+      {
+        "file": "brain/resources/views/layouts/app.blade.php.bak",
+        "hash": "6398006948564151772"
+      },
+      {
+        "file": ".github/CONTRIBUTING.md",
+        "hash": "3543233694770172598"
+      },
+      {
+        "file": "brain/storage/app/public/.gitignore",
+        "hash": "9670290114404186230"
+      },
+      {
+        "file": "brain-ui-example/src/components/skeleton/upcoming-events.tsx",
+        "hash": "5570463159311749589"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/service-redis.yaml",
+        "hash": "465792281115749515"
+      },
+      {
+        "file": "DEPLOYMENT_STABILITY.md",
+        "hash": "2158941748510267425"
+      },
+      {
+        "file": "docs/static/img/campaigns_create.png",
+        "hash": "6526533883121288975"
+      },
+      {
+        "file": "brain/app/Models/Payment.php",
+        "hash": "9788733083223291199"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/README.md",
+        "hash": "15891543954024146057"
+      },
+      {
+        "file": ".github/workflows/ci-release-create.yaml",
+        "hash": "8424093617999510091"
+      },
+      {
+        "file": "brain/resources/views/emails/onboarding.blade.php",
+        "hash": "14407275636564012497"
+      },
+      {
+        "file": "brain/app/Models/BuyerPayment.php",
+        "hash": "17988743464008261119"
+      },
+      {
+        "file": ".github/workflows/cd-deploy-tag.yaml",
+        "hash": "10709313134869186753"
+      },
+      {
+        "file": "brain-ui-example/src/pages/company/create.tsx",
+        "hash": "13668555153405297798"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/ingress.yaml",
+        "hash": "5126343043859404454"
+      },
+      {
+        "file": "CLAUDE.md",
+        "hash": "11051808308229954654"
+      },
+      {
+        "file": "test-sms.js",
+        "hash": "18164486227812464591"
+      },
+      {
+        "file": ".vscode/settings.json",
+        "hash": "5310104343643203537"
+      },
+      {
+        "file": "brain/tests/Feature/ExampleTest.php",
+        "hash": "17528866281800210070"
+      },
+      {
+        "file": ".github/workflows/preview-env-keepalive.yaml",
+        "hash": "4334745520584704616"
+      },
+      {
+        "file": "brain/RINGBA_TESTING_DOCUMENTATION.md",
+        "hash": "11969800195044812071"
+      },
+      {
+        "file": "docs/docs/deploy/aws-elasticbeanstalk.md",
+        "hash": "2768608606890596936"
+      },
+      {
+        "file": "brain-ui-example/src/providers/index.ts",
+        "hash": "11591895702202277514"
+      },
+      {
+        "file": ".cursor/rules/translations.mdc",
+        "hash": "15643597980424058464"
+      },
+      {
+        "file": ".nvmrc",
+        "hash": "6593500695046679622"
+      },
+      {
+        "file": "brain-ui-example/src/App.tsx",
+        "hash": "11349990421762020938"
+      },
+      {
+        "file": ".github/vale-styles/vocabularies/Base/reject.txt",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "docs/static/img/campaigns_launch_modal.png",
+        "hash": "17252445240505518294"
+      },
+      {
+        "file": "brain-ui-example/src/constants/index.tsx",
+        "hash": "3381849658072187496"
+      },
+      {
+        "file": "docs/static/img/campaigns_overview.png",
+        "hash": "6886100058968099685"
+      },
+      {
+        "file": "brain/public/favicon_32.png",
+        "hash": "17816156488372959201"
+      },
+      {
+        "file": "brain/resources/views/dashboard.blade.php.bak",
+        "hash": "6995278599274994968"
+      },
+      {
+        "file": "brain/public/robots.txt",
+        "hash": "8128781345255320682"
+      },
+      {
+        "file": "brain-ui-example/src/index.tsx",
+        "hash": "14735207790294771184"
+      },
+      {
+        "file": "jest.preset.js",
+        "hash": "9430166341120122740"
+      },
+      {
+        "file": "brain-ui-example/tsconfig.node.json",
+        "hash": "2727897646987735390"
+      },
+      {
+        "file": ".github/vale-styles/docs/SentenceLength.yml",
+        "hash": "12567298212135106011"
+      },
+      {
+        "file": ".yarnrc.yml",
+        "hash": "3773074168333402231"
+      },
+      {
+        "file": "docs/static/img/api_keys_create_modal.png",
+        "hash": "17344868697916873440"
+      },
+      {
+        "file": "docs/docs/clients/_category_.json",
+        "hash": "11897382872535464240"
+      },
+      {
+        "file": "brain/app/Models/ViciCallMetrics.php",
+        "hash": "10715259337469892662"
+      },
+      {
+        "file": ".github/vale-styles/docs/OxfordComma.yml",
+        "hash": "10125309905057420352"
+      },
+      {
+        "file": "brain/app/Services/RingBAService.php",
+        "hash": "3696432986699034206"
       },
       {
         "file": "render.yaml.old",
         "hash": "8533444380779369923"
       },
       {
+        "file": ".github/workflows/ci-test-docker-compose.yaml",
+        "hash": "17697399501329678801"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/variables.tf",
+        "hash": "11913682236640178635"
+      },
+      {
+        "file": "docs/docs/how-to/journeys/examples/weeklySummary.md",
+        "hash": "9924989834916560129"
+      },
+      {
+        "file": "docs/static/img/campaigns_design.png",
+        "hash": "1399990210814084651"
+      },
+      {
+        "file": "docs/docusaurus.config.js",
+        "hash": "584252476619089157"
+      },
+      {
+        "file": "brain/app/Models/LeadOutcome.php",
+        "hash": "11013977110660645076"
+      },
+      {
+        "file": "docs/static/img/journeys_example_welcome.png",
+        "hash": "5202533413878916542"
+      },
+      {
+        "file": "brain/ringba_curl_commands.sh",
+        "hash": "6691955905215983627"
+      },
+      {
+        "file": "brain/bootstrap/cache/.gitignore",
+        "hash": "9670290114404186230"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/kanban/item.tsx",
+        "hash": "13614811820010422378"
+      },
+      {
+        "file": "brain/debug-runtime.php",
+        "hash": "6578021568733954589"
+      },
+      {
+        "file": "proxy-server.js",
+        "hash": "16906384703655853753"
+      },
+      {
+        "file": "docs/docs/advanced/deeplinking.md",
+        "hash": "10306881191813473590"
+      },
+      {
+        "file": "brain-ui-example/src/components/layout/index.tsx",
+        "hash": "17123430505828206649"
+      },
+      {
+        "file": "brain/LEAD_PROTECTION_SYSTEM.md",
+        "hash": "14048996520365245200"
+      },
+      {
+        "file": ".cursor/rules/code-style.mdc",
+        "hash": "7756705273603146581"
+      },
+      {
+        "file": "brain/resources/views/crm/index.blade.php",
+        "hash": "7926609427388426875"
+      },
+      {
+        "file": "brain/artisan",
+        "hash": "4328789629471901215"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_05_202540_create_buyer_contracts_table.php",
+        "hash": "11085459700833936716"
+      },
+      {
+        "file": "brain/app/Services/AllstateCallTransferService.php",
+        "hash": "7900321605618226464"
+      },
+      {
+        "file": ".github/workflows/ci-breaking-changes.yaml",
+        "hash": "6831363469210332496"
+      },
+      {
+        "file": "brain/RINGBA_AUTHENTICATION_GUIDE.md",
+        "hash": "11895875175064866680"
+      },
+      {
+        "file": "docs/docs/how-to/journeys/examples/welcome.md",
+        "hash": "5256505417852486823"
+      },
+      {
+        "file": "docs/docs/providers/notification.md",
+        "hash": "17779740405940586688"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/README.md",
+        "hash": "8465209814521589035"
+      },
+      {
+        "file": "brain-ui-example/README.MD",
+        "hash": "7717278818814498399"
+      },
+      {
+        "file": "brain/storage/framework/.gitignore",
+        "hash": "5744691752594082625"
+      },
+      {
+        "file": "package.json",
+        "hash": "16943701144492463117"
+      },
+      {
+        "file": "docs/static/img/journeys_data_key_campaigns.png",
+        "hash": "11296986251849218329"
+      },
+      {
+        "file": "brain/app/Models/SmsMessage.php",
+        "hash": "10630698545161429297"
+      },
+      {
+        "file": "brain/api-integrations/ringba/README.md",
+        "hash": "8150307292768285922"
+      },
+      {
+        "file": "brain/BRAIN_SYSTEM_DOCUMENTATION.md",
+        "hash": "2037669400737003586"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/service-server.yaml",
+        "hash": "7211394624400490526"
+      },
+      {
+        "file": "docs/docs/providers/posthog.md",
+        "hash": "8151144493164248409"
+      },
+      {
+        "file": ".github/vale-styles/write-good/Weasel.yml",
+        "hash": "11619912917542249975"
+      },
+      {
+        "file": "brain-ui-example/src/utilities/date/get-date-colors.ts",
+        "hash": "12883843673066058603"
+      },
+      {
+        "file": "brain-ui-example/src/components/home/latest-activities.tsx",
+        "hash": "11097779823195382040"
+      },
+      {
+        "file": "brain-ui-example/src/components/layout/current-user.tsx",
+        "hash": "3250141791171183720"
+      },
+      {
+        "file": "packages/twenty-docker/podman/manual-steps-to-deploy-twenty-on-podman",
+        "hash": "6227084222140663928"
+      },
+      {
+        "file": "brain-ui-example/src/graphql/types.ts",
+        "hash": "10679537301289479288"
+      },
+      {
+        "file": "brain/routes/failsafe-webhook.php",
+        "hash": "6286626482573963471"
+      },
+      {
+        "file": ".github/workflows/actions/nx-affected/action.yaml",
+        "hash": "15569570007310618060"
+      },
+      {
+        "file": ".github/workflows/i18n-pull.yaml",
+        "hash": "16005533952495756038"
+      },
+      {
+        "file": ".do/app.yaml",
+        "hash": "12675290256472555879"
+      },
+      {
+        "file": ".prettierrc",
+        "hash": "3723142114829488669"
+      },
+      {
+        "file": "brain/resources/views/leads/index-new.blade.php",
+        "hash": "6105078992117217847"
+      },
+      {
+        "file": "brain/resources/views/agent/lead-display.blade.php",
+        "hash": "18310268801569609212"
+      },
+      {
         "file": "brain/resources/views/api/directory.blade.php",
         "hash": "10228420601725290582"
       },
       {
-        "file": "packages/twenty-docker/twenty-website/Dockerfile",
-        "hash": "6558476332585937766"
+        "file": "test-server.js",
+        "hash": "14092509034732195853"
       },
       {
-        "file": "brain/resources/js/bootstrap.js",
-        "hash": "11725108729902318850"
+        "file": "brain/database/migrations/0001_01_01_000000_create_users_table.php",
+        "hash": "10503126691226975133"
       },
       {
-        "file": "docs/docs/how-to/campaigns/_category_.json",
-        "hash": "2939751565134786670"
+        "file": "docs/docs/overview/_category_.json",
+        "hash": "2189662968358493520"
+      },
+      {
+        "file": ".github/workflows/actions/save-cache/action.yaml",
+        "hash": "9090470825271410130"
+      },
+      {
+        "file": "brain/database/migrations/0001_01_01_000002_create_jobs_table.php",
+        "hash": "8146480780918158474"
+      },
+      {
+        "file": "brain/app/Models/EmailTemplate.php",
+        "hash": "17772764265998982278"
+      },
+      {
+        "file": "brain/README.md",
+        "hash": "2694685302330988303"
+      },
+      {
+        "file": "brain/resources/views/leads/create.blade.php",
+        "hash": "1614147086865152553"
+      },
+      {
+        "file": ".github/vale-styles/docs/HeadingPunctuation.yml",
+        "hash": "48224388836028148"
+      },
+      {
+        "file": "brain-lead-flow/public/favicon.ico",
+        "hash": "2949791817221603359"
+      },
+      {
+        "file": ".cursor/rules/README.mdc",
+        "hash": "10452454138116281746"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/kanban/card.tsx",
+        "hash": "475816877259393683"
+      },
+      {
+        "file": "HEROKU_DEPLOYMENT.md",
+        "hash": "13795680914282251451"
+      },
+      {
+        "file": "docs/static/img/campaigns_launch_schedule.png",
+        "hash": "3024052179207002885"
+      },
+      {
+        "file": ".github/vale-styles/docs/Percentages.yml",
+        "hash": "10743204044861821116"
+      },
+      {
+        "file": "docs/docs/providers/ses.md",
+        "hash": "11210940267186747584"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/deployment-worker.yaml",
+        "hash": "7586499503577366590"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/form/stage.tsx",
+        "hash": "12210706065583249630"
+      },
+      {
+        "file": "packages/twenty-docker/scripts/1-click.sh",
+        "hash": "13681819435919536196"
+      },
+      {
+        "file": "jest.config.js",
+        "hash": "12333515226966617182"
+      },
+      {
+        "file": "brain/app/Http/Controllers/Api/SmsWebhookController.php",
+        "hash": "8695651397765721505"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/pvc-server.tf",
+        "hash": "16077184448607620186"
+      },
+      {
+        "file": "brain-lead-flow/public/manifest.json",
+        "hash": "1447645250373428393"
+      },
+      {
+        "file": "docs/docs/how-to/campaigns/launch.md",
+        "hash": "145789301977714627"
+      },
+      {
+        "file": "docs/docs/home.md",
+        "hash": "14176691031318041220"
+      },
+      {
+        "file": "brain/public/favicon_16.png",
+        "hash": "226413467067928666"
+      },
+      {
+        "file": "package-lock.json",
+        "hash": "5893823815375211103"
+      },
+      {
+        "file": "brain/resources/views/buyer/signup.blade.php",
+        "hash": "10036306457597225086"
+      },
+      {
+        "file": "brain/config/logging.php",
+        "hash": "5011142021159830422"
+      },
+      {
+        "file": "brain/app/Models/BuyerLead.php",
+        "hash": "4895942071013539392"
+      },
+      {
+        "file": "brain/init-persistent-db.sh",
+        "hash": "17010955251964896213"
+      },
+      {
+        "file": "brain/.env.example",
+        "hash": "319825271991717925"
+      },
+      {
+        "file": "brain/test_allstate.php",
+        "hash": "6614493699689770326"
+      },
+      {
+        "file": "brain/public/debug.php",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "brain-ui-example/src/utilities/helpers.ts",
+        "hash": "17659688173798756861"
+      },
+      {
+        "file": "docs/docs/providers/index.md",
+        "hash": "1538853251577802419"
+      },
+      {
+        "file": ".github/workflows/i18n-push.yaml",
+        "hash": "7934155818468362227"
+      },
+      {
+        "file": "brain-ui-example/src/pages/login/index.tsx",
+        "hash": "3486436289906697821"
+      },
+      {
+        "file": "docs/docs/providers/mailgun.md",
+        "hash": "5109341160641382099"
+      },
+      {
+        "file": ".github/vale-styles/docs/TypeScript.yml",
+        "hash": "4991643627288303402"
+      },
+      {
+        "file": ".cursor/environment.json",
+        "hash": "2544720074272583828"
+      },
+      {
+        "file": "brain/storage/framework/sessions/.gitignore",
+        "hash": "9670290114404186230"
+      },
+      {
+        "file": "brain/app/Models/Lead.php",
+        "hash": "18285247893429659215"
       },
       {
         "file": ".github/vale-styles/docs/HeadingColons.yml",
         "hash": "13849789544416796396"
       },
       {
-        "file": "docs/static/img/campaigns_design_push.png",
-        "hash": "14930070868636279590"
+        "file": "docs/docs/how-to/journeys/types.md",
+        "hash": "17356632357449714579"
+      },
+      {
+        "file": ".cursor/rules/react-general-guidelines.mdc",
+        "hash": "7332957251185444632"
+      },
+      {
+        "file": "brain/database/migrations/2025_01_10_000002_add_tenant_id_to_existing_tables.php",
+        "hash": "1321848029874119368"
+      },
+      {
+        "file": "brain/resources/views/buyer/sign-document.blade.php",
+        "hash": "8550908089864765712"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/service-redis.tf",
+        "hash": "1332686487107767405"
+      },
+      {
+        "file": ".github/workflows/ci-e2e.yaml",
+        "hash": "11527917705784358839"
+      },
+      {
+        "file": "tsconfig.base.json",
+        "hash": "16977138141410328693"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_02_195519_create_leads_table.php",
+        "hash": "8416335259347110536"
+      },
+      {
+        "file": "docs/docs/how-to/journeys/examples/reservations.md",
+        "hash": "1551754501395179786"
+      },
+      {
+        "file": "brain/public/debug-autoloader.php",
+        "hash": "9559233703265891924"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/service-server.tf",
+        "hash": "16263563208069484201"
+      },
+      {
+        "file": "brain/resources/views/leads/show.blade.php",
+        "hash": "12749256867606901499"
+      },
+      {
+        "file": "brain/Dockerfile.render",
+        "hash": "17212565774413183067"
+      },
+      {
+        "file": "brain-lead-flow/public/logo512.png",
+        "hash": "9339365414554387981"
+      },
+      {
+        "file": ".vscode/launch.json",
+        "hash": "15155060840987025582"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/pvc-docker-data.tf",
+        "hash": "12601544846203023165"
+      },
+      {
+        "file": "brain/app/Services/SafeLeadDeletionService.php",
+        "hash": "6425701308385538243"
+      },
+      {
+        "file": "docs/static/img/journeys_example_weekly_summary.png",
+        "hash": "12726256589418266205"
+      },
+      {
+        "file": "brain-ui-example/src/components/skeleton/latest-activities.tsx",
+        "hash": "7425043953339879833"
+      },
+      {
+        "file": "docs/docs/advanced/_category_.json",
+        "hash": "10802246653007259373"
+      },
+      {
+        "file": ".vscode/extensions.json",
+        "hash": "2768690530921079123"
+      },
+      {
+        "file": ".github/vale-styles/write-good/Illusions.yml",
+        "hash": "5583989492704032923"
+      },
+      {
+        "file": "brain/PROJECT_MEMORY.md",
+        "hash": "2069548920147136133"
+      },
+      {
+        "file": "brain-ui-example/src/pages/tasks/list.tsx",
+        "hash": "8608165121187994500"
+      },
+      {
+        "file": "docs/src/pages/markdown-page.md",
+        "hash": "2637912770613796076"
+      },
+      {
+        "file": "docs/static/robots.txt",
+        "hash": "3790920107759343476"
+      },
+      {
+        "file": "docs/static/img/campaigns_design_visual.png",
+        "hash": "15606043463302585580"
+      },
+      {
+        "file": "docs/sidebars.js",
+        "hash": "15415686705966936464"
+      },
+      {
+        "file": "docs/docs/how-to/campaigns/_category_.json",
+        "hash": "2939751565134786670"
+      },
+      {
+        "file": "packages/twenty-docker/podman/podman-compose.yml",
+        "hash": "10180626495545367255"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_06_010553_add_ringba_tracking_to_leads_table.php",
+        "hash": "2002924208668708058"
+      },
+      {
+        "file": "FORCE_DEPLOY.txt",
+        "hash": "1632656796663339201"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/kanban/board.tsx",
+        "hash": "221515618985565047"
+      },
+      {
+        "file": "brain/resources/js/bootstrap.js",
+        "hash": "11725108729902318850"
+      },
+      {
+        "file": "packages/twenty-docker/twenty-postgres-spilo/Dockerfile",
+        "hash": "8108105087008118769"
+      },
+      {
+        "file": "brain/resources/js/app.js",
+        "hash": "448575057459636510"
+      },
+      {
+        "file": "brain-ui-example/src/graphql/schema.types.ts",
+        "hash": "12624461937475887834"
+      },
+      {
+        "file": "brain/app/Services/ViciDialerService.php",
+        "hash": "6901463702260991716"
+      },
+      {
+        "file": "brain/resources/views/notifications/errors.blade.php",
+        "hash": "11973444009993285870"
+      },
+      {
+        "file": "README.md",
+        "hash": "792906200242950670"
+      },
+      {
+        "file": "brain-lead-flow/src/setupTests.ts",
+        "hash": "16903885983588411080"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/service-db.tf",
+        "hash": "3739265410542537093"
+      },
+      {
+        "file": "brain/app/Services/DataNormalizationService.php",
+        "hash": "8926918938931017502"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/pvc-db.tf",
+        "hash": "9445220900925502398"
+      },
+      {
+        "file": "docs/static/img/campaigns_launch.png",
+        "hash": "4019719330696182144"
+      },
+      {
+        "file": ".github/vale-styles/docs/Gender.yml",
+        "hash": "11877879674161448563"
+      },
+      {
+        "file": ".prettierignore",
+        "hash": "16448050467312557263"
+      },
+      {
+        "file": "brain/current_layout.html",
+        "hash": "14100060143327063515"
+      },
+      {
+        "file": "docs/static/.nojekyll",
+        "hash": "3244421341483603138"
+      },
+      {
+        "file": "brain/resources/views/messages/index.blade.php",
+        "hash": "16331012684758977311"
+      },
+      {
+        "file": "brain/public/css/brain-design-system.css",
+        "hash": "4275061154060874349"
+      },
+      {
+        "file": "brain-ui-example/src/pages/company/list.tsx",
+        "hash": "11197684873111351784"
+      },
+      {
+        "file": "brain/resources/views/leads/upload.blade.php",
+        "hash": "5929283469060741000"
+      },
+      {
+        "file": "brain-ui-example/.eslintrc.cjs",
+        "hash": "1583860405607698155"
+      },
+      {
+        "file": "docs/tsconfig.json",
+        "hash": "12018425124169143138"
+      },
+      {
+        "file": "brain/render-root-postgres.yaml",
+        "hash": "12706111590913021912"
+      },
+      {
+        "file": "docs/docs/how-to/journeys/data.md",
+        "hash": "14028752780205080694"
+      },
+      {
+        "file": "brain/config/queue.php",
+        "hash": "6480899365733611953"
+      },
+      {
+        "file": "brain/app/Http/Controllers/OnboardingController.php",
+        "hash": "7995382552386956336"
+      },
+      {
+        "file": "brain/app/Models/Client.php",
+        "hash": "14202813960872413306"
+      },
+      {
+        "file": "brain-lead-flow/src/reportWebVitals.ts",
+        "hash": "4905365886999342103"
+      },
+      {
+        "file": "brain/resources/views/buyer/notifications.blade.php",
+        "hash": "9125143446861691743"
+      },
+      {
+        "file": "docs/docs/api/_category_.json",
+        "hash": "12131172779905204643"
+      },
+      {
+        "file": "brain-ui-example/src/config/resources.tsx",
+        "hash": "3339030370262574279"
+      },
+      {
+        "file": "brain/database/seeders/ApiEndpointSeeder.php",
+        "hash": "5067368923052981699"
+      },
+      {
+        "file": "docs/src/components/Cards.js",
+        "hash": "1563734505420121163"
+      },
+      {
+        "file": "brain-ui-example/src/components/select-option-with-avatar.tsx",
+        "hash": "7163573638246263097"
+      },
+      {
+        "file": "brain/public/test-api.php",
+        "hash": "12235992641174520715"
+      },
+      {
+        "file": "brain/app/Http/Controllers/Api/WebhookController.php",
+        "hash": "13182421277619149276"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/secret.tf",
+        "hash": "15378714366095400906"
+      },
+      {
+        "file": "brain/public/simple-debug.php",
+        "hash": "12962389657916090373"
+      },
+      {
+        "file": "brain/resources/views/buyer/login.blade.php",
+        "hash": "8485986708209458240"
+      },
+      {
+        "file": "brain-ui-example/src/components/home/deals-chart.tsx",
+        "hash": "2670965673408772836"
+      },
+      {
+        "file": "docs/docs/how-to/campaigns/index.md",
+        "hash": "4149863273680239244"
+      },
+      {
+        "file": "brain-lead-flow/.gitignore",
+        "hash": "13407608108523925223"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/service-db.yaml",
+        "hash": "5358890422211042452"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/pv-docker-data.yaml",
+        "hash": "8871362960303795321"
+      },
+      {
+        "file": "brain-ui-example/src/pages/tasks/edit.tsx",
+        "hash": "13497874580677626007"
+      },
+      {
+        "file": "docs/static/img/journeys_example_weekly_stats_email.png",
+        "hash": "1744296793134908664"
+      },
+      {
+        "file": "brain/config/database.php",
+        "hash": "14509742145992449129"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/deployment-db.tf",
+        "hash": "2540537871154491110"
+      },
+      {
+        "file": "docs/src/components/Card.js",
+        "hash": "9548708123540097156"
+      },
+      {
+        "file": "brain-lead-flow/package-lock.json",
+        "hash": "482569149946810134"
+      },
+      {
+        "file": "brain/resources/views/admin/buyer-management.blade.php",
+        "hash": "6030062097280962546"
+      },
+      {
+        "file": "docs/static/img/journeys_overview.png",
+        "hash": "2957711935777601663"
+      },
+      {
+        "file": "brain-ui-example/src/graphql/mutations.ts",
+        "hash": "11099991510341966021"
+      },
+      {
+        "file": ".github/vale-styles/write-good/TooWordy.yml",
+        "hash": "9869830916527739117"
+      },
+      {
+        "file": "brain/storage/framework/views/.gitignore",
+        "hash": "9670290114404186230"
+      },
+      {
+        "file": "brain/resources/views/components/card.blade.php",
+        "hash": "14300332191289899338"
+      },
+      {
+        "file": "docs/docs/providers/sendgrid.md",
+        "hash": "2500126370386222845"
+      },
+      {
+        "file": ".github/workflows/docs.yml",
+        "hash": "4921368810680944231"
+      },
+      {
+        "file": ".github/workflows/ci-utils.yaml",
+        "hash": "11691524256441469155"
+      },
+      {
+        "file": "docs/src/components/Card.css",
+        "hash": "5041182632123272960"
+      },
+      {
+        "file": ".github/vale-styles/vocabularies/Base/accept.txt",
+        "hash": "10560381703055542628"
+      },
+      {
+        "file": "brain-lead-flow/README.md",
+        "hash": "17911282315018038361"
+      },
+      {
+        "file": "brain-ui-example/src/vite-env.d.ts",
+        "hash": "12946363841406869089"
+      },
+      {
+        "file": "brain/app/Console/Commands/RestoreLeads.php",
+        "hash": "14943782747458967587"
+      },
+      {
+        "file": "brain/resources/views/admin/clear-leads.blade.php",
+        "hash": "8197548871750577230"
+      },
+      {
+        "file": "brain/RINGBA_CONFIGURATION.md",
+        "hash": "2716251106952748644"
+      },
+      {
+        "file": "brain-ui-example/.npmrc",
+        "hash": "12691207418986445610"
+      },
+      {
+        "file": "docs/static/img/journeys_example_reminder.png",
+        "hash": "1925805040375419849"
+      },
+      {
+        "file": ".cursor/rules/architecture.mdc",
+        "hash": "11045860719383551777"
+      },
+      {
+        "file": ".github/vale-styles/write-good/E-Prime.yml",
+        "hash": "31360399892548486"
       },
       {
         "file": "brain/webhook_examples.php",
         "hash": "17118222207236512590"
       },
       {
+        "file": "brain/composer.json",
+        "hash": "12877777562321320921"
+      },
+      {
+        "file": "brain/app/Models/Campaign.php",
+        "hash": "3731682111487117159"
+      },
+      {
+        "file": "docs/static/img/journeys_airline.png",
+        "hash": "6747969672530723824"
+      },
+      {
+        "file": ".github/assets/logo-dark.png",
+        "hash": "8075549712180624993"
+      },
+      {
+        "file": "packages/twenty-docker/twenty/entrypoint.sh",
+        "hash": "8627391288072493190"
+      },
+      {
+        "file": ".github/vale-styles/docs/Numbers.yml",
+        "hash": "8382360796736383628"
+      },
+      {
+        "file": "brain/resources/views/analytics/dashboard.blade.php",
+        "hash": "4336896200433006319"
+      },
+      {
+        "file": "brain/app/Http/Controllers/Web/MessageController.php",
+        "hash": "15074724265662965225"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_02_212500_create_vici_call_metrics_table.php",
+        "hash": "3261883231322909064"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_03_222538_create_lead_conversions_table.php",
+        "hash": "15135746431390211470"
+      },
+      {
+        "file": "brain/fix_header_and_content_width.php",
+        "hash": "18164486227812464591"
+      },
+      {
+        "file": "brain/resources/views/leads/index-old.blade.php",
+        "hash": "13456233317197486631"
+      },
+      {
+        "file": ".env.example",
+        "hash": "8364172131419760582"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/pvc-docker-data.yaml",
+        "hash": "1308153684231097608"
+      },
+      {
+        "file": "docs/.gitignore",
+        "hash": "16756425970169599954"
+      },
+      {
+        "file": ".github/SECURITY.md",
+        "hash": "8104977315588711993"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/kanban/add-card-button.tsx",
+        "hash": "11354668626235878391"
+      },
+      {
+        "file": "docs/docs/providers/segment.md",
+        "hash": "10680081990955402518"
+      },
+      {
+        "file": "brain/resources/views/welcome.blade.php",
+        "hash": "6826503591693303900"
+      },
+      {
+        "file": "docs/docs/how-to/settings/providers.md",
+        "hash": "12146347237641286226"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/deployment-redis.yaml",
+        "hash": "1835550130765948718"
+      },
+      {
+        "file": ".github/vale-styles/write-good/meta.json",
+        "hash": "3383634517993673450"
+      },
+      {
+        "file": "LICENSE.txt",
+        "hash": "7099957074941216186"
+      },
+      {
+        "file": "brain/routes/api.php",
+        "hash": "12268710413633364597"
+      },
+      {
+        "file": "brain-ui-example/.gitignore",
+        "hash": "12482846224783963086"
+      },
+      {
+        "file": "brain/.editorconfig",
+        "hash": "15897492444637670922"
+      },
+      {
+        "file": "brain-ui-example/src/providers/data/index.tsx",
+        "hash": "1351427198927407801"
+      },
+      {
+        "file": "brain/RINGBA_ALLSTATE_FIELD_MAPPING.md",
+        "hash": "1534649823890766369"
+      },
+      {
         "file": "packages/twenty-docker/podman/install-systemd-user-service",
         "hash": "5458056306440618039"
       },
       {
-        "file": "brain-lead-flow/.gitignore",
-        "hash": "13407608108523925223"
+        "file": ".github/vale-styles/write-good/Cliches.yml",
+        "hash": "10355329685180203252"
+      },
+      {
+        "file": ".github/workflows/preview-env-dispatch.yaml",
+        "hash": "399438975621313396"
+      },
+      {
+        "file": "brain/resources/views/agent/error.blade.php",
+        "hash": "369958689913158965"
+      },
+      {
+        "file": "docker/apache.conf",
+        "hash": "11434982399401395762"
+      },
+      {
+        "file": "docs/docs/overview/quick-start.md",
+        "hash": "4588092792212525085"
+      },
+      {
+        "file": "lerna.json",
+        "hash": "11138859179903610696"
+      },
+      {
+        "file": "docs/src/components/Providers.js",
+        "hash": "6982988735163492231"
+      },
+      {
+        "file": ".github/vale-styles/docs/Acronyms.yml",
+        "hash": "12896690256752298464"
+      },
+      {
+        "file": "docs/static/img/journeys_data_key_user_updates.png",
+        "hash": "9316788009891002210"
+      },
+      {
+        "file": "brain/config/cache.php",
+        "hash": "638395597699075205"
+      },
+      {
+        "file": "brain/database/factories/UserFactory.php",
+        "hash": "4716603831961383336"
+      },
+      {
+        "file": "docs/docs/advanced/authentication.md",
+        "hash": "15980776753511160841"
+      },
+      {
+        "file": "docs/docs/providers/telnyx.md",
+        "hash": "4541469136544645355"
+      },
+      {
+        "file": "brain-lead-flow/src/components/Dashboard.tsx",
+        "hash": "5420055352924573850"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_05_202534_create_buyers_table.php",
+        "hash": "2784263388612005660"
+      },
+      {
+        "file": "brain-ui-example/src/pages/home/index.tsx",
+        "hash": "1726325291708041883"
+      },
+      {
+        "file": "docs/docs/deploy/digitalocean.md",
+        "hash": "13447741293937744867"
+      },
+      {
+        "file": "POSTGRESQL_FIX_GUIDE.md",
+        "hash": "3368287193112014775"
+      },
+      {
+        "file": "docs/static/img/journeys_example_exit.png",
+        "hash": "18163348131339068563"
+      },
+      {
+        "file": "brain/app/Http/Controllers/Controller.php",
+        "hash": "1452916944606031554"
+      },
+      {
+        "file": "yarn.lock",
+        "hash": "14164417135765612169"
+      },
+      {
+        "file": "brain-ui-example/src/components/home/upcoming-events.tsx",
+        "hash": "16028087540250955951"
+      },
+      {
+        "file": "brain/config/mail.php",
+        "hash": "8156498769102310803"
+      },
+      {
+        "file": "packages/twenty-docker/otel-collector/otel-collector-config.yaml",
+        "hash": "14377878028182442493"
+      },
+      {
+        "file": "docs/docs/how-to/journeys/examples/recurringReminder.md",
+        "hash": "13685401169750795492"
+      },
+      {
+        "file": "brain-ui-example/src/components/skeleton/accordion-header.tsx",
+        "hash": "10005646688597584822"
+      },
+      {
+        "file": "docs/docs/how-to/settings/apikeys.md",
+        "hash": "6860836532790746769"
+      },
+      {
+        "file": "brain/fix_header_width.php",
+        "hash": "12515033902867655461"
+      },
+      {
+        "file": "docs/docs/api/client.md",
+        "hash": "4845967389949797493"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_06_031929_create_allstate_test_logs_table.php",
+        "hash": "879392723577540172"
+      },
+      {
+        "file": "brain/vici-simple-iframe-script.html",
+        "hash": "15839924106011670199"
+      },
+      {
+        "file": ".nx/installation/package.json",
+        "hash": "11560503983865555013"
+      },
+      {
+        "file": ".github/vale-styles/docs/We.yml",
+        "hash": "10318698866176539527"
+      },
+      {
+        "file": "brain/app/Models/Invoice.php",
+        "hash": "15782999353671310318"
+      },
+      {
+        "file": "docs/docs/providers/smtp.md",
+        "hash": "3996445048121322972"
+      },
+      {
+        "file": ".github/vale-styles/docs/Npm2Yarn.yml",
+        "hash": "1156892526498414463"
+      },
+      {
+        "file": "docker-compose.yml",
+        "hash": "5902157328312952402"
+      },
+      {
+        "file": "brain/routes/console.php",
+        "hash": "14490103791661029508"
+      },
+      {
+        "file": ".cursor/environment.docker-compose.json",
+        "hash": "34325828655726390"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_05_212610_create_lead_outcomes_table.php",
+        "hash": "6371560226091688634"
+      },
+      {
+        "file": "brain-ui-example/src/utilities/date/index.ts",
+        "hash": "5253234482977597470"
+      },
+      {
+        "file": "brain-ui-example/Dockerfile",
+        "hash": "2770798380861089096"
+      },
+      {
+        "file": "docs/static/img/parcelvoy-light.svg",
+        "hash": "3682364847274928114"
+      },
+      {
+        "file": "brain-ui-example/tsconfig.json",
+        "hash": "16014874159336570303"
+      },
+      {
+        "file": "docs/static/img/journeys_data_key.png",
+        "hash": "8142704003223181664"
+      },
+      {
+        "file": "brain-ui-example/src/components/layout/header.tsx",
+        "hash": "12577386791919053316"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/pv-server.tf",
+        "hash": "15788516610258124168"
+      },
+      {
+        "file": "docs/static/img/campaigns_design_template.png",
+        "hash": "4271725714963663083"
+      },
+      {
+        "file": "brain/vite.config.js",
+        "hash": "13902780464312534877"
+      },
+      {
+        "file": "brain/app/Services/AutoQualificationService.php",
+        "hash": "5596539654414606322"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/.terraform-docs.yml",
+        "hash": "8097138529744556656"
+      },
+      {
+        "file": "brain/fix_lead_edit_width_consistency.php",
+        "hash": "18164486227812464591"
+      },
+      {
+        "file": "brain/storage/framework/cache/.gitignore",
+        "hash": "3279050853419475411"
+      },
+      {
+        "file": "brain/database/.gitignore",
+        "hash": "7315498444509307379"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/deployment-server.yaml",
+        "hash": "2801138359932537887"
+      },
+      {
+        "file": "brain/DEPLOYMENT_SUMMARY_2025_08_10.md",
+        "hash": "1766113013196526408"
+      },
+      {
+        "file": "brain-lead-flow/public/logo192.png",
+        "hash": "7585273181698778288"
+      },
+      {
+        "file": "docs/static/img/parcelvoy.svg",
+        "hash": "12715472844395074614"
+      },
+      {
+        "file": "brain/app/Services/AllstateValidationService.php",
+        "hash": "15820830342644759654"
+      },
+      {
+        "file": "packages/twenty-docker/podman/twentycrm.service",
+        "hash": "17515913099259539903"
+      },
+      {
+        "file": "brain/app/Http/Controllers/Api/ClientController.php",
+        "hash": "10527479664465164595"
+      },
+      {
+        "file": "brain/tests/Unit/ExampleTest.php",
+        "hash": "8263489564073357754"
+      },
+      {
+        "file": ".cursor/mcp.json",
+        "hash": "8427926330747894959"
+      },
+      {
+        "file": "brain-ui-example/src/providers/data/fetch-wrapper.ts",
+        "hash": "4396937680446846839"
+      },
+      {
+        "file": "brain/app/Providers/AppServiceProvider.php",
+        "hash": "2966536803072324513"
+      },
+      {
+        "file": ".dockerignore",
+        "hash": "9938681415240330445"
+      },
+      {
+        "file": ".github/vale-styles/docs/ComplexWords.yml",
+        "hash": "2371705569441103002"
+      },
+      {
+        "file": "brain/RINGBA_PRODUCTION_CONFIG.md",
+        "hash": "3559616574971385817"
+      },
+      {
+        "file": "brain/public/js/brain-enhancements.js",
+        "hash": "7766403931021225576"
+      },
+      {
+        "file": "docs/static/img/campaigns_design_code.png",
+        "hash": "3588678372885185280"
+      },
+      {
+        "file": "docs/docs/how-to/users.md",
+        "hash": "6874284745146943256"
+      },
+      {
+        "file": "packages/twenty-docker/docker-compose.yml",
+        "hash": "4373630367380532896"
+      },
+      {
+        "file": "brain-ui-example/src/components/tags/contact-status-tag.tsx",
+        "hash": "1022498168154076457"
+      },
+      {
+        "file": "brain/config/services.php",
+        "hash": "5704747967110941750"
+      },
+      {
+        "file": "docs/static/img/og-image.jpg",
+        "hash": "4265799294642010451"
+      },
+      {
+        "file": ".yarn/releases/yarn-4.9.2.cjs",
+        "hash": "12485910125495454345"
+      },
+      {
+        "file": "docs/docs/how-to/settings/subscriptions.md",
+        "hash": "7468836037827931872"
+      },
+      {
+        "file": "brain/bootstrap/providers.php",
+        "hash": "14151846271424071026"
+      },
+      {
+        "file": "brain/resources/views/onboarding/show.blade.php",
+        "hash": "7371371462090422738"
+      },
+      {
+        "file": "brain/app/Models/Buyer.php",
+        "hash": "4050655970951911022"
+      },
+      {
+        "file": "docs/docs/how-to/campaigns/templates.md",
+        "hash": "12123567786315147903"
+      },
+      {
+        "file": "packages/twenty-docker/twenty-website/Dockerfile",
+        "hash": "6558476332585937766"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/form/header.tsx",
+        "hash": "4829943435380507878"
+      },
+      {
+        "file": "brain/OPTIMIZATION_REPORT.md",
+        "hash": "16552241422328041732"
+      },
+      {
+        "file": "docs/docs/clients/javascript.md",
+        "hash": "14149146850438306283"
+      },
+      {
+        "file": "docs/docs/clients/ios.md",
+        "hash": "9245154700180542090"
+      },
+      {
+        "file": ".github/workflows/ci-shared.yaml",
+        "hash": "2295791061499973637"
+      },
+      {
+        "file": "brain/app/Http/Controllers/Api/InvoiceController.php",
+        "hash": "5645328493920155234"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/form/due-date.tsx",
+        "hash": "17489199444316335113"
+      },
+      {
+        "file": ".github/workflows/build.yml",
+        "hash": "14343283678996018930"
+      },
+      {
+        "file": "docs/docs/how-to/journeys/_category_.json",
+        "hash": "10035599538518728537"
+      },
+      {
+        "file": "brain/app/Models/LeadQualification.php",
+        "hash": "15763454117932052020"
+      },
+      {
+        "file": "brain/api-integrations/README.md",
+        "hash": "9507814151558884195"
+      },
+      {
+        "file": ".github/vale-styles/docs/Spacing.yml",
+        "hash": "12212420895905705474"
+      },
+      {
+        "file": ".cursor/rules/typescript-guidelines.mdc",
+        "hash": "241098586063178389"
+      },
+      {
+        "file": "docs/package.json",
+        "hash": "13375809265811210272"
+      },
+      {
+        "file": "brain/resources/views/buyer/dashboard.blade.php",
+        "hash": "4731530960975655633"
+      },
+      {
+        "file": "brain-lead-flow/tsconfig.json",
+        "hash": "3664978063588679595"
+      },
+      {
+        "file": "brain/app/Models/DialerLog.php",
+        "hash": "12807297854858122329"
+      },
+      {
+        "file": "brain/storage/app/.gitignore",
+        "hash": "6694272520750047496"
+      },
+      {
+        "file": ".github/workflows/changed-files.yaml",
+        "hash": "14380331665734071848"
+      },
+      {
+        "file": "brain/public/.htaccess",
+        "hash": "2771967579704743037"
+      },
+      {
+        "file": "docs/docs/deploy/aws-ec2.md",
+        "hash": "12999442940287790451"
+      },
+      {
+        "file": "brain/public/favicon.png",
+        "hash": "16044765824920479528"
+      },
+      {
+        "file": "brain/app/Models/LeadQueue.php",
+        "hash": "9016787365002695124"
+      },
+      {
+        "file": "docs/static/img/campaigns_design_push.png",
+        "hash": "14930070868636279590"
+      },
+      {
+        "file": "brain/phpunit.xml",
+        "hash": "17017653731685492959"
+      },
+      {
+        "file": ".github/workflows/ci-website.yaml",
+        "hash": "14055126866959239301"
+      },
+      {
+        "file": ".github/vale-styles/docs/Wordiness.yml",
+        "hash": "5787547420629903708"
+      },
+      {
+        "file": "brain/DEPLOYMENT_CHECKLIST.md",
+        "hash": "6515438332689535492"
+      },
+      {
+        "file": "docs/docs/advanced/storage.md",
+        "hash": "8213406573990713382"
+      },
+      {
+        "file": ".github/CODE_OF_CONDUCT.md",
+        "hash": "1049985757995630558"
+      },
+      {
+        "file": "brain-ui-example/src/components/layout/account-settings.tsx",
+        "hash": "2485859661696057573"
+      },
+      {
+        "file": "brain/app/Console/Kernel.php",
+        "hash": "11121747195132191947"
+      },
+      {
+        "file": "docs/docs/overview/introduction.md",
+        "hash": "4186902697337237588"
+      },
+      {
+        "file": "yarn.config.cjs",
+        "hash": "3063833264009364365"
+      },
+      {
+        "file": "brain/app/Console/Commands/ClearTestLeads.php",
+        "hash": "6235850873398699406"
+      },
+      {
+        "file": "brain-lead-flow/src/index.css",
+        "hash": "14056909652331273425"
+      },
+      {
+        "file": "docs/static/img/campaigns_design_text.png",
+        "hash": "18031534204890474160"
+      },
+      {
+        "file": "packages/twenty-docker/Makefile",
+        "hash": "4992190839005615659"
+      },
+      {
+        "file": "docs/docs/how-to/settings/_category_.json",
+        "hash": "15666673189360890175"
+      },
+      {
+        "file": "brain-ui-example/src/pages/register/index.tsx",
+        "hash": "11198471543025236007"
+      },
+      {
+        "file": "brain-lead-flow/package.json",
+        "hash": "4714346216532826143"
+      },
+      {
+        "file": "brain/tests/TestCase.php",
+        "hash": "10558211999785590047"
+      },
+      {
+        "file": "FORCE_PARCELVOY_DEPLOY.txt",
+        "hash": "5671964930805753161"
+      },
+      {
+        "file": "brain/app/Models/EnrichmentLog.php",
+        "hash": "15690631062671894578"
+      },
+      {
+        "file": "brain-ui-example/src/pages/forgotPassword/index.tsx",
+        "hash": "14380153110711270960"
+      },
+      {
+        "file": "brain-ui-example/vite.config.ts",
+        "hash": "17565050178167872203"
+      },
+      {
+        "file": "brain/resources/views/leads/edit.blade.php",
+        "hash": "17130842943519098469"
+      },
+      {
+        "file": ".github/ISSUE_TEMPLATE/request-technical-work.md",
+        "hash": "8085822383357417037"
+      },
+      {
+        "file": "Makefile",
+        "hash": "3751741644275599480"
+      },
+      {
+        "file": "DEPLOYMENT_CHECKLIST.md",
+        "hash": "2063970463954106260"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/pvc-server.yaml",
+        "hash": "17309724294314713457"
+      },
+      {
+        "file": ".github/workflows/ci-front.yaml",
+        "hash": "5771699951451293480"
+      },
+      {
+        "file": "docs/docs/how-to/journeys/index.md",
+        "hash": "7698614700187752268"
+      },
+      {
+        "file": ".eslintrc.react.cjs",
+        "hash": "18437799175559209592"
+      },
+      {
+        "file": "brain-lead-flow/src/logo.svg",
+        "hash": "5137778160416929466"
+      },
+      {
+        "file": ".github/ISSUE_TEMPLATE/report-bug.md",
+        "hash": "11491559371950407206"
+      },
+      {
+        "file": "brain/CHANGE_LOG.md",
+        "hash": "16848283087425634492"
+      },
+      {
+        "file": "brain/app/Models/User.php",
+        "hash": "14099656150077407633"
+      },
+      {
+        "file": ".github/workflows/ci-emails.yaml",
+        "hash": "8351803091699126966"
+      },
+      {
+        "file": ".github/workflows/ci-release-merge.yaml",
+        "hash": "7199524446640871568"
+      },
+      {
+        "file": ".github/workflows/actions/restore-cache/action.yaml",
+        "hash": "1584875184432946828"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/form/description.tsx",
+        "hash": "6577005152523300626"
+      },
+      {
+        "file": "brain/storage/app/private/.gitignore",
+        "hash": "9670290114404186230"
+      },
+      {
+        "file": "brain/database/migrations/2025_01_10_000001_create_tenants_table.php",
+        "hash": "10682813642753061600"
+      },
+      {
+        "file": "docs/docs/providers/twilio.md",
+        "hash": "5169954291253841630"
+      },
+      {
+        "file": "brain/resources/views/buyer/crm-settings.blade.php",
+        "hash": "17164829764795206996"
+      },
+      {
+        "file": ".github/release-drafter.yml",
+        "hash": "17282378806277276331"
+      },
+      {
+        "file": "docs/docs/deploy/_category_.json",
+        "hash": "5522010378235833096"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_05_202540_create_buyer_payments_table.php",
+        "hash": "17198181190676728822"
+      },
+      {
+        "file": ".cursor/rules/react-state-management.mdc",
+        "hash": "9332896739615097887"
+      },
+      {
+        "file": "brain/scripts/ensure-stable-deployment.sh",
+        "hash": "8019818524464352278"
+      },
+      {
+        "file": "brain/resources/views/admin/simple-dashboard.blade.php",
+        "hash": "4849969838985583403"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_07_000000_create_lead_queue_table.php",
+        "hash": "16213918451390449169"
+      },
+      {
+        "file": "docs/README.md",
+        "hash": "17852570793030669184"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/deployment-server.tf",
+        "hash": "9002457516640902482"
+      },
+      {
+        "file": "brain-ui-example/src/components/skeleton/project-card.tsx",
+        "hash": "11512147542387294064"
+      },
+      {
+        "file": "brain/app/Console/Commands/ProcessLeadQueue.php",
+        "hash": "2491797703883538575"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_03_135309_create_lead_qualifications_table.php",
+        "hash": "8322894688215911411"
+      },
+      {
+        "file": "brain-ui-example/src/components/text-icon.tsx",
+        "hash": "14598470922701062895"
+      },
+      {
+        "file": "docs/static/img/journeys_example_weekly_stats_webhook.png",
+        "hash": "16479761958540775943"
+      },
+      {
+        "file": ".github/workflows/actions/yarn-install/action.yaml",
+        "hash": "14435702968904653568"
+      },
+      {
+        "file": "brain/app/Services/QuickBooksService.php",
+        "hash": "1892221932748883832"
+      },
+      {
+        "file": ".github/vale-styles/docs/NpmGlobal.yml",
+        "hash": "3748454054001448452"
+      },
+      {
+        "file": ".github/vale-styles/docs/Ordinal.yml",
+        "hash": "16171883773976862605"
+      },
+      {
+        "file": "brain/app/Services/NotificationService.php",
+        "hash": "16597616771695660194"
+      },
+      {
+        "file": "docs/docs/how-to/lists.md",
+        "hash": "11672129741673171796"
+      },
+      {
+        "file": ".yarn/patches/react-phone-number-input-npm-3.4.5-dc2895c306.patch",
+        "hash": "1466345222238783350"
+      },
+      {
+        "file": "docs/docs/how-to/_category_.json",
+        "hash": "11326937905967420703"
+      },
+      {
+        "file": "brain-lead-flow/src/App.css",
+        "hash": "14531349686122091549"
+      },
+      {
+        "file": "brain/database/migrations/2025_08_05_202540_create_buyer_leads_table.php",
+        "hash": "1149344372240211065"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/pv-server.yaml",
+        "hash": "16344646954977509279"
+      },
+      {
+        "file": "brain/config/auth.php",
+        "hash": "9053578417715049577"
+      },
+      {
+        "file": ".github/vale-styles/docs/Foreign.yml",
+        "hash": "17381335737164019456"
+      },
+      {
+        "file": "DASHBOARD_SETUP.md",
+        "hash": "4723439812515510318"
+      },
+      {
+        "file": ".gitignore",
+        "hash": "15559420776362976727"
+      },
+      {
+        "file": "docs/docs/how-to/index.md",
+        "hash": "10887824866581304727"
+      },
+      {
+        "file": "brain/app/Models/LeadConversion.php",
+        "hash": "7166066162370187837"
+      },
+      {
+        "file": "brain/app/Services/CRMIntegrationService.php",
+        "hash": "13108656789324987471"
+      },
+      {
+        "file": "brain/API_CONFIGURATIONS.md",
+        "hash": "8530397870280835999"
+      },
+      {
+        "file": "brain/composer.lock",
+        "hash": "10474705649035057856"
+      },
+      {
+        "file": ".github/assets/logo-light.png",
+        "hash": "2708361011542140770"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/deployment-db.yaml",
+        "hash": "2862687769256226730"
+      },
+      {
+        "file": "brain/resources/views/emails/weekly_report.blade.php",
+        "hash": "6323135262506500541"
+      },
+      {
+        "file": "brain/PRODUCTION_VERIFICATION_CHECKLIST.md",
+        "hash": "1327115267102906058"
+      },
+      {
+        "file": ".github/vale-styles/write-good/README.md",
+        "hash": "9222178948249467225"
+      },
+      {
+        "file": "brain/config/database-stable.php",
+        "hash": "560982205663565569"
+      },
+      {
+        "file": ".cursor/rules/testing-guidelines.mdc",
+        "hash": "2232603997938385949"
+      },
+      {
+        "file": "brain-ui-example/src/components/skeleton/kanban.tsx",
+        "hash": "17618445645392089187"
+      },
+      {
+        "file": "brain/resources/views/buyer/documents.blade.php",
+        "hash": "8486743832587369076"
+      },
+      {
+        "file": "brain/resources/views/buyer/lead-outcomes.blade.php",
+        "hash": "2152373799772351170"
+      },
+      {
+        "file": "docs/static/img/journeys_data_key_gates.png",
+        "hash": "14397296327637016306"
+      },
+      {
+        "file": "docs/src/css/custom.css",
+        "hash": "17242279929837245364"
+      },
+      {
+        "file": "brain/create_all_ringba_parameters.php",
+        "hash": "10805779101165569974"
+      },
+      {
+        "file": "LICENSE",
+        "hash": "5035332337493396964"
+      },
+      {
+        "file": "brain/config/filesystems.php",
+        "hash": "2053069918395513424"
+      },
+      {
+        "file": ".github/vale-styles/write-good/Passive.yml",
+        "hash": "13515451013846010075"
+      },
+      {
+        "file": "FORCE_LARAVEL_FRESH_DEPLOY.txt",
+        "hash": "8369950197114818548"
+      },
+      {
+        "file": "brain/config/app.php",
+        "hash": "14365430599556279624"
+      },
+      {
+        "file": "brain/create_single_ringba_parameter.php",
+        "hash": "9281390091385563624"
+      },
+      {
+        "file": "brain-ui-example/src/utilities/index.ts",
+        "hash": "13457326653497321867"
+      },
+      {
+        "file": "brain/scripts/init-database.sh",
+        "hash": "16105120832081714630"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/manifests/pv-db.yaml",
+        "hash": "138077099900324128"
+      },
+      {
+        "file": "docs/docs/how-to/journeys/examples/_category_.json",
+        "hash": "10516454749435253154"
+      },
+      {
+        "file": "brain/storage/framework/cache/data/.gitignore",
+        "hash": "9670290114404186230"
+      },
+      {
+        "file": "brain/RINGBA_MISSING_PARAMETERS.md",
+        "hash": "15292171645003372303"
+      },
+      {
+        "file": "docs/docs/how-to/settings/index.md",
+        "hash": "2232005729249955071"
+      },
+      {
+        "file": "brain-ui-example/src/graphql/queries.ts",
+        "hash": "6981937446101664276"
+      },
+      {
+        "file": "allstate_api_support_email.txt",
+        "hash": "5234368006039336298"
+      },
+      {
+        "file": "brain/resources/css/app.css",
+        "hash": "816113162194688897"
+      },
+      {
+        "file": ".vscode/tasks.json",
+        "hash": "12578448764723516866"
+      },
+      {
+        "file": "brain/config/session.php",
+        "hash": "13434264595336843942"
+      },
+      {
+        "file": "packages/twenty-docker/scripts/install.sh",
+        "hash": "2543199809232137510"
+      },
+      {
+        "file": ".nx/nxw.js",
+        "hash": "11254603345854076312"
+      },
+      {
+        "file": ".github/vale-styles/docs/Terms.yml",
+        "hash": "14855747953030126188"
+      },
+      {
+        "file": "packages/twenty-docker/.env.example",
+        "hash": "2125563247656448302"
+      },
+      {
+        "file": "brain/ALLSTATE_FIELD_VALIDATION.md",
+        "hash": "14578306854254151081"
+      },
+      {
+        "file": "brain/.dockerignore",
+        "hash": "9602704990280991284"
+      },
+      {
+        "file": ".doignore",
+        "hash": "5711298355632031750"
+      },
+      {
+        "file": "docs/docs/providers/plivo.md",
+        "hash": "3378017917468170018"
+      },
+      {
+        "file": "brain-ui-example/package.json",
+        "hash": "2807700699378229495"
+      },
+      {
+        "file": "brain/database/migrations/0001_01_01_000001_create_cache_table.php",
+        "hash": "11344814380168248660"
+      },
+      {
+        "file": "brain/resources/views/buyer/billing.blade.php",
+        "hash": "17710063456053366221"
+      },
+      {
+        "file": "brain/CURSOR_EXTENSIONS_SETUP.md",
+        "hash": "10090913240592294108"
+      },
+      {
+        "file": ".vale.ini",
+        "hash": "18226316987174528470"
+      },
+      {
+        "file": "brain/app/Http/Controllers/DashboardController.php",
+        "hash": "9935993065514047786"
+      },
+      {
+        "file": "brain-ui-example/src/providers/auth.ts",
+        "hash": "10325460221438350048"
+      },
+      {
+        "file": "brain/resources/views/components/app-layout.blade.php",
+        "hash": "8364571291321774193"
+      },
+      {
+        "file": "brain/API_INTEGRATIONS_SETUP.md",
+        "hash": "5797201578000155488"
+      },
+      {
+        "file": "brain-lead-flow/public/index.html",
+        "hash": "13308863839730475495"
+      },
+      {
+        "file": "brain-ui-example/src/components/tasks/form/users.tsx",
+        "hash": "13957560973988066941"
+      },
+      {
+        "file": "brain-ui-example/src/components/accordion.tsx",
+        "hash": "16521510906280029932"
+      },
+      {
+        "file": "brain/create_ringba_parameters.php",
+        "hash": "14542929779064780616"
+      },
+      {
+        "file": "brain/resources/views/buyer/leads.blade.php",
+        "hash": "16291153186513594315"
+      },
+      {
+        "file": "brain-ui-example/src/components/text.tsx",
+        "hash": "12934195388610995079"
+      },
+      {
+        "file": "docs/static/img/logo.svg",
+        "hash": "15756779054106865036"
+      },
+      {
+        "file": "brain/public/index.php",
+        "hash": "13388017550043203766"
+      },
+      {
+        "file": "DEPLOYMENT_STATUS.md",
+        "hash": "3594811689076519551"
+      },
+      {
+        "file": "brain/.gitignore",
+        "hash": "7703656895803452929"
+      },
+      {
+        "file": "packages/twenty-docker/k8s/terraform/pv-docker-data.tf",
+        "hash": "3290664363626100759"
+      },
+      {
+        "file": "brain-ui-example/graphql.config.ts",
+        "hash": "15531964364285511171"
+      },
+      {
+        "file": "brain/MULTI_TENANCY_IMPLEMENTATION.md",
+        "hash": "1777420634845269802"
+      },
+      {
+        "file": "Dockerfile",
+        "hash": "17161955333794755290"
+      },
+      {
+        "file": "brain/CLEAR_LEADS_BEFORE_GOING_LIVE.md",
+        "hash": "370160786727398114"
       }
     ],
     "projectFileMap": {
