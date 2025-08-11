@@ -34,14 +34,15 @@
         }
         
         .header-container {
-            max-width: 100%;
-            width: 100%;
-            box-sizing: border-box;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .logo-section {
@@ -73,14 +74,15 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .page-header {
             background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 2rem 0;
+            width: 100%;
         }
         
         .page-title {
@@ -499,8 +501,12 @@
         /* Responsive */
         @media (max-width: 768px) {
             .main-container {
-                padding: 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .action-grid {
                 grid-template-columns: 1fr;

@@ -26,26 +26,26 @@
         
         /* Header Styles */
         .awesome-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
             transition: all 0.3s ease;
+            width: 100%;
         }
         
         .header-container {
-            max-width: 100%;
-            width: 100%;
-            box-sizing: border-box;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             height: 120px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         /* Logo Section */
@@ -80,7 +80,7 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 1.8rem;
             font-weight: 900;
-            color: #2d3748;
+            color: white;
             line-height: 1;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -88,7 +88,7 @@
         
         .logo-subtitle {
             font-size: 0.85rem;
-            color: #667eea;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -120,19 +120,19 @@
             transition: all 0.2s ease;
             position: relative;
             white-space: nowrap;
-        }
+        color: rgba(255, 255, 255, 0.9);}
         
         .nav-link:hover {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
             text-decoration: none;
             transform: translateY(-1px);
         }
         
         .nav-link.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
         }
         
         .nav-link.active:hover {
@@ -206,14 +206,14 @@
         
         .dropdown-item:hover {
             background: rgba(102, 126, 234, 0.08);
-            color: #667eea;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
             padding-left: 1.5rem;
         }
         
         .dropdown-item.active {
             background: rgba(102, 126, 234, 0.1);
-            color: #667eea;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
         }
         
@@ -231,7 +231,7 @@
             padding: 0.5rem 1rem;
             background: rgba(102, 126, 234, 0.1);
             border-radius: 25px;
-            color: #667eea;
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
             font-size: 0.9rem;
         }
@@ -261,7 +261,7 @@
             background: rgba(102, 126, 234, 0.1);
             border: none;
             border-radius: 8px;
-            color: #667eea;
+            color: rgba(255, 255, 255, 0.9);
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 1.1rem;
@@ -286,8 +286,16 @@
         /* Mobile Responsiveness */
         @media (max-width: 1024px) {
             .header-container {
-                padding: 0 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .nav-menu {
                 gap: 0.25rem;
@@ -301,8 +309,16 @@
         
         @media (max-width: 768px) {
             .header-container {
-                height: 120px;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .logo-image {
                 height: 35px;

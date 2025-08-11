@@ -22,23 +22,25 @@
         
         /* Header Navigation */
         .navbar {
-            background: #4f46e5;
-            color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            z-index: 1000;
+            width: 100%;
         }
         
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             height: 120px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .nav-brand {
@@ -163,12 +165,15 @@
             background: white;
             border-bottom: 1px solid #e2e8f0;
             padding: 2rem 0;
+            width: 100%;
         }
         
         .page-header-content {
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .page-title {
@@ -188,6 +193,8 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         /* Search Section */
@@ -574,8 +581,12 @@
         
         @media (max-width: 768px) {
             .main-container {
-                padding: 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .search-grid {
                 grid-template-columns: 1fr;
