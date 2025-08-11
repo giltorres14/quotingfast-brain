@@ -2671,7 +2671,11 @@ Route::get('/leads', function (Request $request) {
         ];
         
         try {
-            $stats['total_leads'] = Lead::count();
+            // Exclude test leads from total count
+            $stats['total_leads'] = Lead::where(function($q) {
+                $q->where('source', '!=', 'test')
+                  ->orWhereNull('source');
+            })->count();
             
             // Fix today's leads calculation with proper EST timezone handling
             $estNow = \Carbon\Carbon::now('America/New_York');
