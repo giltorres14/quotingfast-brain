@@ -6,7 +6,7 @@ FROM php:8.3-apache
 
 # LESSON 1: Always have cache bust mechanism for Render cache issues
 # Increment when cache corrupts (happens frequently)
-ARG CACHE_BUST=9
+ARG CACHE_BUST=10
 RUN echo "Build version: ${CACHE_BUST} - $(date +%s)"
 
 # LESSON 2: Combine operations to reduce layers (fewer layers = less cache corruption)
@@ -115,7 +115,8 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'chmod -R 777 /var/www/html/bootstrap/cache' >> /usr/local/bin/startup.sh && \
     echo 'php artisan config:clear || true' >> /usr/local/bin/startup.sh && \
     echo 'php artisan cache:clear || true' >> /usr/local/bin/startup.sh && \
-    echo 'php artisan migrate --force || true' >> /usr/local/bin/startup.sh && \
+    echo '# Skip migrations - database already set up' >> /usr/local/bin/startup.sh && \
+    echo '# php artisan migrate --force || true' >> /usr/local/bin/startup.sh && \
     echo 'apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
 
