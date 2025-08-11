@@ -379,33 +379,35 @@
         }
         
         .lead-info-bubble {
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: 1px solid #e9ecef;
             border-radius: 8px;
-            padding: 12px;
+            padding: 15px;
             margin-bottom: 20px;
             position: sticky;
             top: 10px;
             z-index: 100;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
         
         .lead-info-bubble .lead-name {
             font-weight: bold;
-            font-size: 16px;
-            color: #212529;
+            font-size: 18px;
+            color: white;
             margin-bottom: 4px;
         }
         
         .lead-info-bubble .lead-phone {
             font-weight: bold;
             font-size: 14px;
-            color: #007bff;
+            color: #e0f2fe;
             margin-bottom: 4px;
         }
         
         .lead-info-bubble .lead-address {
             font-size: 12px;
-            color: #6c757d;
+            color: rgba(255, 255, 255, 0.9);
             margin-bottom: 8px;
         }
         
@@ -469,7 +471,7 @@
             margin-top: 20px;
             flex-wrap: wrap;
             position: sticky;
-            top: 150px; /* Positioned below the lead info bubble */
+            top: 120px; /* Positioned below the lead info bubble */
             z-index: 99;
             background: white;
             padding: 15px;
@@ -647,9 +649,8 @@
         
                 .save-lead-btn {
             position: fixed;
-            top: 20px;
-            right: 50%;
-            transform: translateX(50%);
+            top: 10px;
+            right: 20px;
             background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             border: none;
@@ -659,18 +660,18 @@
             font-weight: 600;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            z-index: 1000;
+            z-index: 1001;
             transition: all 0.3s ease;
             max-width: 200px;
         }
         
         .save-lead-btn:hover {
-            transform: translateX(50%) translateY(-2px);
+            transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(40, 167, 69, 0.6);
         }
         
         .save-lead-btn:active {
-            transform: translateX(50%) translateY(0);
+            transform: translateY(0);
         }
         
         @media (max-width: 600px) {
