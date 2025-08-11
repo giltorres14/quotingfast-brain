@@ -6,7 +6,7 @@ FROM php:8.3-apache
 
 # LESSON 1: Always have cache bust mechanism for Render cache issues
 # Increment when cache corrupts (happens frequently)
-ARG CACHE_BUST=6
+ARG CACHE_BUST=7
 RUN echo "Build version: ${CACHE_BUST} - $(date +%s)"
 
 # LESSON 2: Combine operations to reduce layers (fewer layers = less cache corruption)
@@ -78,7 +78,9 @@ RUN mkdir -p \
     storage/framework/testing \
     storage/framework/views \
     storage/logs \
-    bootstrap/cache
+    bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
 
 # LESSON 16: Permissions must be set correctly for Laravel
 # LESSON 17: Use && to ensure all commands succeed
@@ -101,7 +103,10 @@ RUN echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf &&
 
 # LESSON 20: Startup script - use || true for non-critical commands
 # LESSON 21: Migrations might fail if tables exist - that's ok
+# LESSON 22: Fix storage permissions before starting
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
+    echo 'chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache' >> /usr/local/bin/startup.sh && \
+    echo 'chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache' >> /usr/local/bin/startup.sh && \
     echo 'php artisan config:clear || true' >> /usr/local/bin/startup.sh && \
     echo 'php artisan cache:clear || true' >> /usr/local/bin/startup.sh && \
     echo 'php artisan migrate --force || true' >> /usr/local/bin/startup.sh && \
