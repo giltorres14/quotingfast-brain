@@ -1,25 +1,25 @@
 # 🧠 BRAIN PROJECT MEMORY
-## Living Documentation System - Last Updated: 2025-08-09 13:15 EST
+## Living Documentation System - Last Updated: 2025-08-11 12:00 EST
 
 ---
 
 ## ⚠️ CRITICAL: ENVIRONMENT SETUP
 
 ### **PRODUCTION ENVIRONMENT**
-- **URL**: https://brain-api.onrender.com (Render deployment)
+- **URL**: https://quotingfast-brain-ohio.onrender.com (Render deployment)
 - **Database**: PostgreSQL on Render (brain-postgres)
 - **Status**: LIVE - Receiving real leads
-- **Lead Count**: 71+ leads received today
-- **Issue**: External lead IDs showing as 014515329, 014515130, etc. instead of 100000001 format
+- **Lead Count**: 100+ leads received
+- **External Lead ID Format**: 13-digit timestamp (e.g., 1734367200000)
 
 ### **LOCAL DEVELOPMENT**
 - **URL**: http://localhost:8001
 - **Database**: SQLite (database.sqlite)
-- **Status**: Testing only - 1 test lead
+- **Status**: Testing and development
 - **Path**: /Users/giltorres/Downloads/platformparcelsms-main/brain
 
 ### **WORKING ENVIRONMENT DECISION**: 
-⚠️ **We should work on PRODUCTION via Render deployment**
+⚠️ **Production via Render deployment for live data**
 - All real leads are there
 - Changes deploy automatically via git push
 - Real-time testing with actual data
@@ -27,14 +27,19 @@
 ---
 
 ## 🎯 CURRENT PROJECT STATUS
-Last Updated: 2025-08-08 12:25 EST
+Last Updated: 2025-08-11 12:00 EST
+
+### **COMPLETED TODAY**
+1. ✅ **Lead Migration System** - CSV import with duplicate detection
+2. ✅ **Vici Integration** - Update vendor_lead_code via DB/API
+3. ✅ **Duplicate Detection** - Time-based strategy on webhook
+4. ✅ **Docker Cache Fix** - Permanent solution with cumulative learning
+5. ✅ **UI Fixes** - Save button position, sticky sections
 
 ### **ACTIVE ISSUES**
-1. **RingBA → Allstate Confirmation** - Validate live call acceptance and routing
-2. **Allstate Testing Logs** - Ensure entries appear in `allstate_test_logs` and dashboard
-3. **Search Module UI/UX** - Layout improvements and filter persistence
-4. **Bulk Processing** - Network error on dashboard
-5. **Logo Sizing** - Make logo 3x bigger globally
+1. **RingBA → Allstate Testing** - Using /marco endpoint with workarounds
+2. **Lead Import** - Ready to import 111k+ leads from LQF
+3. **Multi-tenancy** - Preparation for reselling service
 
 ### **ACTIVE INTEGRATION: Allstate Lead Marketplace API**
 - **Status**: 🧪 TESTING MODE - Vici bypassed, direct to Allstate

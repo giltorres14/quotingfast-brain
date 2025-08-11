@@ -5,7 +5,45 @@
 
 ## 🎯 CURRENT SESSION CHANGES
 
-### **Date: 2025-08-08** *(Current Session)*
+### **Date: 2025-08-11** *(Latest Session)*
+**Focus**: Lead Migration System, Duplicate Detection, Docker Fixes
+
+#### **CHANGES MADE:**
+1. **Lead Migration & CSV Import**
+   - Created `ImportLQFCsv.php` command for bulk lead import
+   - Parses CSV with nested JSON `Data` column
+   - Extracts drivers, vehicles, policy information
+   - Generates `external_lead_id` for each lead
+   - Supports dry-run and limit options
+
+2. **Duplicate Lead Detection**
+   - Implemented time-based strategy:
+     - < 30 days: Update existing lead
+     - 30-90 days: Create re-engagement lead
+     - > 90 days: Treat as new lead
+   - Added to main webhook endpoint (`/webhook.php`)
+   - Prevents multiple calls to same lead
+
+3. **Vici Integration**
+   - Created `UpdateViciVendorCodes.php` command
+   - Updates `vendor_lead_code` field in ViciDial
+   - Filters by Auto2/Autodial campaigns
+   - Whitelist URL: `https://philli.callix.ai:26793/92RG8UJYTW.php`
+   - Added `/test-vici-connection` endpoint for testing
+
+4. **Docker Cache Fix (Permanent)**
+   - Applied cumulative learning from past issues
+   - Uses `ARG CACHEBUST` with timestamp
+   - Single layer for all dependencies
+   - Hardcoded PostgreSQL configuration
+   - Simplified startup script
+
+5. **UI Fixes**
+   - Fixed Save button position (top-right corner)
+   - Made lead info bubble and enrichment buttons sticky
+   - Adjusted z-index for proper layering
+
+### **Date: 2025-08-08** *(Previous Session)*
 **Focus**: Vici Non-Agent API login fix, protocol fallback, form encoding, and successful push to List 101
 
 #### **CHANGES MADE:**
