@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'The Brain' }} - QuotingFast</title>
-    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -334,11 +335,8 @@
         <div class="header-container">
             <!-- Logo Section -->
             <a href="/admin" class="logo-section">
-                <img src="https://quotingfast.com/logoqf0704.png" alt="QuotingFast" class="logo-image" style="height: 50px; width:auto;" onerror="this.src='https://quotingfast.com/qfqflogo.png'; this.onerror=null;">
-                <div class="logo-text">
-                    <div class="logo-subtitle">QuotingFast</div>
-                    <div class="logo-brand">The Brain</div>
-                </div>
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 50px; width:auto;" onerror="this.src='https://quotingfast.com/whitelogo'; this.onerror=null;">
+                <div class="logo-text"><div class="brand-text">The Brain</div></div>
             </a>
             
             <!-- Navigation Menu -->

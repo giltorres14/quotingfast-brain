@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Allstate API Testing Dashboard - Brain</title>
-    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -430,11 +431,10 @@
 <body>
     <div class="header">
         <div class="logo-section">
-            <img src="https://quotingfast.com/logoqf0704.png" alt="QuotingFast" class="logo" 
-                 onerror="this.src='https://quotingfast.com/qfqflogo.png'; this.onerror=null;">
+            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo" 
+                 onerror="this.src='https://quotingfast.com/whitelogo'; this.onerror=null;">
             <div style="display: flex; flex-direction: column; gap: 2px;">
-                <span style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #718096;">QuotingFast</span>
-                <span class="brand-text">The Brain</span>
+                <div class="logo-text"><div class="brand-text">The Brain</div></div>
             </div>
             <div class="title">🧪 Allstate API Testing</div>
         </div>

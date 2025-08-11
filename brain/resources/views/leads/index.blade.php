@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>All Leads - The Brain</title>
-    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <style>
         * {
             margin: 0;
@@ -200,9 +201,13 @@
         
         .search-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto auto;
-            gap: 1rem;
+            grid-template-columns: 3fr repeat(5, 1fr) auto auto;
+            gap: 0.75rem;
             align-items: end;
+            background: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
         }
         
         .form-group {
@@ -602,8 +607,7 @@
         <div class="nav-container">
             <a href="/admin" class="nav-brand">
                 <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                <span style="display: none; font-weight: 800; color: #ffffff; font-size: 1.1rem;">QuotingFast</span>
-                <span>The Brain</span>
+                <div class="logo-text"><div class="brand-text">The Brain</div></div>
             </a>
             <ul class="nav-menu">
                 <!-- Dashboard -->

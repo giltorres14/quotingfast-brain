@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>CSV Lead Upload - The Brain</title>
-    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -326,7 +327,7 @@
         <div class="header-content" style="position: relative;">
             <a href="/leads" class="nav-back">← Back to Leads</a>
             <div class="header-logo">
-                <img src="https://quotingfast.com/logoqf0704.png" alt="QuotingFast" onerror="this.src='https://quotingfast.com/logoqf0704.png'; this.onerror=null;">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" onerror="this.src='https://quotingfast.com/whitelogo'; this.onerror=null;">
             </div>
             <div class="header-text">
                 <h1>📁 CSV Lead Upload</h1>

@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Digital Signature - {{ $document['name'] ?? 'Document' }} | The Brain</title>
-    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * {
@@ -591,7 +592,7 @@
     <div class="header">
         <div class="header-container">
             <div class="logo-section">
-                <img src="https://quotingfast.com/logoqf0704.png" alt="QuotingFast" class="logo" onerror="this.style.display='none';">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo" onerror="this.style.display='none';">
                 <div class="brand-text">The Brain</div>
             </div>
             

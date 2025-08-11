@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API & Webhooks Directory - The Brain</title>
-    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -335,8 +336,8 @@
         <div class="header">
             <div class="header-content">
                 <div class="header-logo">
-                    <img src="https://quotingfast.com/logoqf0704.png" alt="QuotingFast" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                    <span style="display: none; font-weight: 800; color: #667eea; font-size: 1.5rem;">QuotingFast</span>
+                    <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                    <span style="display: none; font-weight: 800; color: white; font-size: 1.5rem;">QuotingFast</span>
                 </div>
                 <div class="header-text">
                     <h1>🧠 API & Webhooks Directory</h1>
