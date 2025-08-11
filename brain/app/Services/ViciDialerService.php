@@ -267,11 +267,11 @@ class ViciDialerService
     {
         try {
             // Format for Non-Agent API add_lead function
-            // FIXED: Use correct UploadAPI credentials that were working before
+            // FIXED: Use correct apiuser credentials that were working on August 8th
             $params = [
                 'source' => 'brain',
-                'user' => 'UploadAPI',
-                'pass' => env('VICI_API_PASS', '8ZDWGAAQRD'), // Use environment variable or fallback
+                'user' => 'apiuser',
+                'pass' => env('VICI_API_PASS', 'UZPATJ59GJAVKG8ES6'), // Use environment variable or fallback
                 'function' => 'add_lead',
                 'phone_number' => $lead->phone,
                 'phone_code' => '1', // US country code
