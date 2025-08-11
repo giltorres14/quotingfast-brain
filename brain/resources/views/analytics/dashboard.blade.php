@@ -21,6 +21,9 @@
         }
         
         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             background: #2563eb;
             color: white;
             padding: 1rem 2rem;

@@ -23,6 +23,9 @@
         
         /* Header */
         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 1.5rem 0;
@@ -30,7 +33,9 @@
         }
         
         .header-container {
-            max-width: 1400px;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
@@ -45,7 +50,7 @@
         }
         
         .logo {
-            height: 150px;
+            height: 100px;
             filter: brightness(1.2);
         }
         
@@ -495,7 +500,7 @@
         
         .realtime-icon {
             width: 50px;
-            height: 150px;
+            height: 100px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             display: flex;

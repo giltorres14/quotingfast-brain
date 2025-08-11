@@ -34,6 +34,9 @@
         }
 
         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px;
@@ -159,7 +162,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             resize: vertical;
-            min-height: 80px;
+            min-height: 100px;
             font-family: inherit;
         }
 
@@ -172,6 +175,9 @@
 
         @media (max-width: 768px) {
             .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
                 padding: 15px;
             }
             

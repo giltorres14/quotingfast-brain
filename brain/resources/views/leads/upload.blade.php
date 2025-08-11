@@ -23,6 +23,9 @@
         }
         
         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             padding: 2rem 0;
@@ -39,7 +42,7 @@
         }
         
         .header-logo img {
-            height: 150px;
+            height: 100px;
             width: auto;
             filter: brightness(1.2);
         }

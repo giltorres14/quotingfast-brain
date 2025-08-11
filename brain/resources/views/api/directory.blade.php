@@ -20,6 +20,9 @@
         
         /* Header */
         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
@@ -37,7 +40,7 @@
             flex-shrink: 0;
         }
         .logo-image {
-            height: 60px;
+            height: 100px;
             width: auto;
         }
         .header-text h1 {

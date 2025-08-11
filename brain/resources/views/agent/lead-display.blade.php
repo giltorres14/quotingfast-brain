@@ -55,6 +55,9 @@
         }
         
         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 16px;
@@ -381,7 +384,7 @@
             border-radius: 4px;
             padding: 8px;
             font-size: 11px;
-            max-height: 60px;
+            max-height: 100px;
             overflow-y: auto;
             color: #856404;
         }
@@ -724,7 +727,7 @@
             @if(isset($mode) && in_array($mode, ['view', 'edit']))
                 <a href="/leads" class="back-button">← Back to Leads</a>
             @endif
-            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="header-logo" style="height: 150px; width:auto;">
+            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="header-logo" style="height: 100px; width:auto;">
             <h1>{{ $lead->name }} 
                 @if(isset($mode) && $mode === 'view')
                     <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
@@ -2659,7 +2662,7 @@
                         
                         <div style="margin-bottom: 20px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Description:</label>
-                            <textarea id="violationDescription" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 60px; resize: vertical;" placeholder="Optional additional details..."></textarea>
+                            <textarea id="violationDescription" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 100px; resize: vertical;" placeholder="Optional additional details..."></textarea>
                         </div>
                         
                         <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -2785,7 +2788,7 @@
                         
                         <div style="margin-bottom: 20px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;">Description:</label>
-                            <textarea id="accidentDescription" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 60px; resize: vertical;" placeholder="Optional additional details..."></textarea>
+                            <textarea id="accidentDescription" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; height: 100px; resize: vertical;" placeholder="Optional additional details..."></textarea>
                         </div>
                         
                         <div style="display: flex; gap: 10px; justify-content: flex-end;">

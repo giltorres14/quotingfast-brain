@@ -24,6 +24,9 @@
         
         /* Header */
         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
             color: white;
             padding: 1.5rem 0;
@@ -46,7 +49,7 @@
         }
         
         .logo {
-            height: 150px;
+            height: 100px;
             filter: brightness(1.2);
         }
         

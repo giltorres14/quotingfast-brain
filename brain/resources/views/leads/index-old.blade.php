@@ -36,7 +36,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 2rem;
-            height: 170px;
+            height: 120px;
         }
         
         .nav-brand {
@@ -224,7 +224,7 @@
         
         .lead-avatar {
             width: 50px;
-            height: 150px;
+            height: 100px;
             border-radius: 50%;
             background: #4f46e5;
             display: flex;

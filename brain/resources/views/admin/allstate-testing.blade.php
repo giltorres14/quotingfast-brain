@@ -23,6 +23,9 @@
         }
         
         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 1rem 2rem;
@@ -39,7 +42,7 @@
         }
         
         .logo {
-            height: 150px;
+            height: 100px;
             width: auto;
         }
         
@@ -279,7 +282,7 @@
             border: none;
             border-radius: 50%;
             width: 60px;
-            height: 60px;
+            height: 100px;
             font-size: 1.5rem;
             cursor: pointer;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);

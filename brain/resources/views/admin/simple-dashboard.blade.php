@@ -41,7 +41,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 var(--qf-space-xl);
-            height: 170px;
+            height: 120px;
         }
         
         .nav-brand {
@@ -54,7 +54,7 @@
         }
         
         .brand-logo {
-            height: 150px;
+            height: 100px;
             width: auto;
             filter: brightness(1.1);
         }

@@ -27,6 +27,9 @@
         }
         
         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100%;
             background: white;
             border-radius: 15px;
             padding: 30px;
