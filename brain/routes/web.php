@@ -1815,23 +1815,84 @@ Route::post('/webhook.php', function (Request $request) {
         $lead = null;
         $externalLeadId = null;
         try {
-            // CRITICAL: Generate our ID BEFORE creating the lead
-            $externalLeadId = generateLeadId();
+            // DUPLICATE DETECTION: Check if lead exists by phone number
+            $phone = $leadData['phone'];
+            $existingLead = Lead::where('phone', $phone)->first();
             
-            // Force our generated ID into the lead data, overriding ANY incoming ID
-            $leadData['external_lead_id'] = $externalLeadId;
+            if ($existingLead) {
+                $daysSinceCreated = $existingLead->created_at->diffInDays(now());
+                
+                Log::info('🔍 Duplicate lead detected', [
+                    'phone' => $phone,
+                    'existing_lead_id' => $existingLead->id,
+                    'days_since_created' => $daysSinceCreated
+                ]);
+                
+                if ($daysSinceCreated < 30) {
+                    // Less than 30 days: Update existing lead
+                    $existingLead->update($leadData);
+                    $lead = $existingLead;
+                    
+                    Log::info('✅ Updated existing lead (< 30 days old)', [
+                        'lead_id' => $lead->id,
+                        'phone' => $phone
+                    ]);
+                } elseif ($daysSinceCreated <= 90) {
+                    // 30-90 days: Create as re-engagement lead
+                    $leadData['meta'] = json_encode(array_merge(
+                        json_decode($leadData['meta'] ?? '{}', true),
+                        [
+                            're_engagement' => true,
+                            'original_lead_id' => $existingLead->id,
+                            'original_created_at' => $existingLead->created_at->toIso8601String(),
+                            'days_since_original' => $daysSinceCreated
+                        ]
+                    ));
+                    
+                    // Generate new external ID for re-engagement
+                    $externalLeadId = generateLeadId();
+                    $leadData['external_lead_id'] = $externalLeadId;
+                    
+                    $lead = Lead::create($leadData);
+                    
+                    Log::info('🔄 Created re-engagement lead (30-90 days old)', [
+                        'new_lead_id' => $lead->id,
+                        'original_lead_id' => $existingLead->id,
+                        'phone' => $phone
+                    ]);
+                } else {
+                    // Over 90 days: Treat as new lead
+                    $externalLeadId = generateLeadId();
+                    $leadData['external_lead_id'] = $externalLeadId;
+                    
+                    $lead = Lead::create($leadData);
+                    
+                    Log::info('🆕 Created new lead (> 90 days since last contact)', [
+                        'lead_id' => $lead->id,
+                        'phone' => $phone,
+                        'days_since_last' => $daysSinceCreated
+                    ]);
+                }
+            } else {
+                // No existing lead found - create new
+                // CRITICAL: Generate our ID BEFORE creating the lead
+                $externalLeadId = generateLeadId();
+                
+                // Force our generated ID into the lead data, overriding ANY incoming ID
+                $leadData['external_lead_id'] = $externalLeadId;
+                
+                Log::info('🔢 Creating lead with generated external_lead_id', [
+                    'generated_id' => $externalLeadId,
+                    'incoming_id' => $data['id'] ?? 'none',
+                    'incoming_external_id' => $data['external_lead_id'] ?? 'none',
+                    'will_use' => $externalLeadId
+                ]);
+                
+                $lead = Lead::create($leadData);
+            }
             
-            Log::info('🔢 Creating lead with generated external_lead_id', [
-                'generated_id' => $externalLeadId,
-                'incoming_id' => $data['id'] ?? 'none',
-                'incoming_external_id' => $data['external_lead_id'] ?? 'none',
-                'will_use' => $externalLeadId
-            ]);
-            
-            $lead = Lead::create($leadData);
-            
-            // Double-check and force update if somehow it got overridden
-            if ($lead->external_lead_id !== $externalLeadId) {
+            // Double-check and force update if somehow it got overridden (only for new leads)
+            if ($externalLeadId && $lead->external_lead_id !== $externalLeadId) {
                 Log::warning('🔢 External ID mismatch, forcing correction', [
                     'expected' => $externalLeadId,
                     'actual' => $lead->external_lead_id,
