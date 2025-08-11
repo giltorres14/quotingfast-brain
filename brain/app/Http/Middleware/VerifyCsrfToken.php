@@ -36,6 +36,10 @@ class VerifyCsrfToken extends Middleware
         'webhook/debug',
         'webhook/vici',
         'webhook/leadsquotingfast',
+        
+        // Test endpoints
+        'test-vici-connection',
+        '/test-vici-connection',
     ];
 }
 

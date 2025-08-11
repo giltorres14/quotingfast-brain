@@ -1,241 +1,87 @@
 FROM php:8.3-apache
 
-# Force complete rebuild - change this value to bust cache
-ENV REBUILD_VERSION=5
-ENV DOCKER_BUILDKIT=0
+# CUMULATIVE LEARNING: Docker cache corruption on Render requires aggressive cache busting
+# Solution: Use timestamp-based ARG that changes on every build
+ARG CACHEBUST=1
+RUN echo "Build timestamp: $(date +%s) - Cache bust: ${CACHEBUST}"
 
-# Simple echo to start fresh - unique timestamp
-RUN echo "Starting fresh build v5 at $(date +%s)" && date
-
-# Install system dependencies, PostgreSQL development libraries, and Composer
+# CUMULATIVE LEARNING: Install all system dependencies in ONE layer to minimize cache issues
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     git \
     unzip \
     procps \
-    && rm -rf /var/lib/apt/lists/*
+    libzip-dev \
+    libicu-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    curl \
+    libsqlite3-dev \
+    && docker-php-ext-install pdo pdo_pgsql pdo_mysql pdo_sqlite mysqli zip intl opcache xml \
+    && docker-php-ext-enable pdo pdo_pgsql pdo_mysql pdo_sqlite mysqli zip intl opcache xml \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install PostgreSQL PHP extensions
-RUN docker-php-ext-install pdo_pgsql pgsql
-
 # Enable Apache rewrite module
 RUN a2enmod rewrite
-
-# Clear default Apache content
-RUN rm -rf /var/www/html/*
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Verify environment
-RUN php --version && composer --version
-
 # Copy Laravel application
 COPY brain/ /var/www/html/
-RUN composer install --no-dev --prefer-dist --optimize-autoloader
 
-# CUMULATIVE LESSON #2: Force .env precedence over ALL Render environment variables  
-ENV APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="
-ENV APP_NAME="QuotingFast-Brain"
-ENV APP_ENV="production"
-ENV APP_DEBUG="false"
-ENV APP_URL="https://brain-api.onrender.com"
+# CUMULATIVE LEARNING: Clear ALL caches before composer install
+RUN rm -rf vendor/ bootstrap/cache/*.php storage/framework/cache/* storage/framework/views/* storage/framework/sessions/*
 
-# CUMULATIVE LESSON #3: Use existing .env and ensure production settings
-RUN echo "=== CONFIGURING EXISTING .ENV FOR PRODUCTION ===" && \
-    cp .env.example .env.backup && \
-    echo "# Laravel Configuration - PRODUCTION WITH DOCKER DEBUG" > .env && \
-    echo "APP_NAME=QuotingFast-Brain" >> .env && \
+# Install dependencies
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-cache
+
+# CUMULATIVE LEARNING: Force .env with PostgreSQL configuration
+RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
     echo "APP_ENV=production" >> .env && \
     echo "APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw=" >> .env && \
     echo "APP_DEBUG=false" >> .env && \
-    echo "APP_URL=https://brain-api.onrender.com" >> .env && \
-    echo "APP_TIMEZONE=UTC" >> .env && \
-    echo "" >> .env && \
-    echo "# Logging" >> .env && \
+    echo "APP_URL=https://quotingfast-brain-ohio.onrender.com" >> .env && \
     echo "LOG_CHANNEL=stack" >> .env && \
     echo "LOG_LEVEL=error" >> .env && \
-    echo "" >> .env && \
-    echo "# Database" >> .env && \
     echo "DB_CONNECTION=pgsql" >> .env && \
-    echo "" >> .env && \
-    echo "# Cache & Session" >> .env && \
+    echo "DB_HOST=dpg-d277kvk9c44c7388bpg0-a" >> .env && \
+    echo "DB_PORT=5432" >> .env && \
+    echo "DB_DATABASE=brain_production" >> .env && \
+    echo "DB_USERNAME=brain_user" >> .env && \
+    echo "DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
     echo "SESSION_DRIVER=file" >> .env && \
-    echo "SESSION_LIFETIME=120" >> .env && \
-    echo "" >> .env && \
-    echo "# Queue" >> .env && \
-    echo "QUEUE_CONNECTION=sync" >> .env && \
-    echo "✅ Production .env configured (APP_KEY will be generated after Laravel setup)"
+    echo "QUEUE_CONNECTION=sync" >> .env
 
-# CUMULATIVE LESSON #4: Ensure symfony/clock is NOT in dependencies (MAJOR VICTORY MAINTAINED)
-RUN echo "=== ENSURING SYMFONY/CLOCK ELIMINATION (VICTORY MAINTAINED) ===" && \
-    composer remove symfony/clock --no-scripts || echo "symfony/clock not present (good)" && \
-    echo "✅ symfony/clock elimination CONFIRMED"
-
-# DOCKER DEBUG: Aggressive cache clearing and rebuild
-RUN echo "=== AGGRESSIVE DOCKER CACHE CLEARING ===" && \
-    composer clear-cache && \
-    rm -rf ~/.composer/cache/* && \
-    rm -rf /tmp/composer-* && \
-    echo "✅ All composer caches cleared"
-
-# CUMULATIVE LESSON #5: Regenerate autoloader with Docker debugging
-RUN echo "=== AUTOLOADER GENERATION WITH DOCKER DEBUG ===" && \
-    composer dump-autoload --optimize --no-scripts --no-cache && \
-    echo "Autoloader files:" && \
-    ls -la vendor/composer/autoload* && \
-    echo "✅ Clean autoloader generated"
-
-# CUMULATIVE LESSON #6: Laravel cache clearing (learned from previous attempts)
-RUN rm -rf bootstrap/cache/*.php && \
-    rm -rf storage/framework/cache/* && \
-    rm -rf storage/framework/views/* && \
-    rm -rf storage/framework/sessions/* && \
-    mkdir -p storage/framework/cache/data && \
-    mkdir -p storage/framework/views && \
-    mkdir -p storage/framework/sessions
-
-# CUMULATIVE LESSON #7: Nuclear service provider cache prevention (learned lesson)
-RUN echo '#!/bin/bash' > /usr/local/bin/clear-laravel-cache.sh && \
-    echo 'rm -f /var/www/html/bootstrap/cache/packages.php' >> /usr/local/bin/clear-laravel-cache.sh && \
-    echo 'rm -f /var/www/html/bootstrap/cache/services.php' >> /usr/local/bin/clear-laravel-cache.sh && \
-    echo 'rm -f /var/www/html/bootstrap/cache/config.php' >> /usr/local/bin/clear-laravel-cache.sh && \
-    chmod +x /usr/local/bin/clear-laravel-cache.sh && \
-    /usr/local/bin/clear-laravel-cache.sh && \
-    echo "Service provider cache prevention enabled"
-
-# Set permissions with debugging
-RUN echo "=== SETTING PERMISSIONS WITH DEBUG ===" && \
-    chown -R www-data:www-data /var/www/html && \
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html && \
-    echo "Permissions set - checking key files:" && \
-    ls -la vendor/autoload.php && \
-    ls -la vendor/laravel/framework/src/Illuminate/Foundation/Application.php
+    chmod -R 777 storage bootstrap/cache
 
-# Configure Apache for Laravel public directory with proper .htaccess support  
-RUN echo "=== CONFIGURING APACHE FOR LARAVEL ===" && \
-    echo "Creating debug files in multiple locations..." && \
-    echo "<?php echo 'FOUND: Apache serving from /var/www/html/public - ' . __DIR__; ?>" > /var/www/html/public/test-apache.php && \
-    echo "<?php echo 'FOUND: Apache serving from /var/www/html - ' . __DIR__; ?>" > /var/www/html/test-apache.php && \
-    echo "<?php echo 'FOUND: Apache serving from /var/www - ' . __DIR__; ?>" > /var/www/test-apache.php && \
-    echo "<?php echo 'FOUND: Apache serving from default location - ' . __DIR__; ?>" > /var/www/html/index.php && \
-    echo "<h1>STATIC HTML TEST - Apache serving from /var/www/html/</h1>" > /var/www/html/static-test.html && \
-    echo "<h1>STATIC HTML TEST - Apache serving from /var/www/html/public/</h1>" > /var/www/html/public/static-test.html && \
-    echo "Debug files created in multiple locations (PHP + HTML)" && \
-    echo "Updating Apache DocumentRoot..." && \
-    sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf && \
-    sed -i 's|<Directory /var/www/>|<Directory /var/www/html/public/>|g' /etc/apache2/apache2.conf && \
-    sed -i 's|AllowOverride None|AllowOverride All|g' /etc/apache2/apache2.conf && \
-    echo "Creating complete VirtualHost configuration..." && \
-    echo "" > /etc/apache2/sites-available/000-default.conf && \
-    echo "<VirtualHost *:80>" >> /etc/apache2/sites-available/000-default.conf && \
+# Configure Apache for Laravel
+RUN echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf && \
     echo "    DocumentRoot /var/www/html/public" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    <Directory /var/www/html/public>" >> /etc/apache2/sites-available/000-default.conf && \
     echo "        Options Indexes FollowSymLinks" >> /etc/apache2/sites-available/000-default.conf && \
     echo "        AllowOverride All" >> /etc/apache2/sites-available/000-default.conf && \
     echo "        Require all granted" >> /etc/apache2/sites-available/000-default.conf && \
-    echo "        DirectoryIndex index.php index.html" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    </Directory>" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    ErrorLog \${APACHE_LOG_DIR}/error.log" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/sites-available/000-default.conf && \
-    echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf && \
-    echo "=== APACHE CONFIG VERIFICATION ===" && \
-    echo "Apache sites-available/000-default.conf:" && \
-    cat /etc/apache2/sites-available/000-default.conf && \
-    echo "=== RELOADING APACHE CONFIGURATION ===" && \
-    service apache2 reload && \
-    echo "✅ Apache configuration reloaded" && \
-    echo "=== LARAVEL PUBLIC DIRECTORY CHECK ===" && \
-    ls -la /var/www/html/public/ && \
-    echo "=== .HTACCESS CHECK ===" && \
-    ls -la /var/www/html/public/.htaccess && \
-    echo "=== DEBUG FILES VERIFICATION ===" && \
-    echo "Files in /var/www/html/public/:" && \
-    ls -la /var/www/html/public/test-apache.php || echo "Missing from public/" && \
-    echo "Files in /var/www/html/:" && \
-    ls -la /var/www/html/test-apache.php || echo "Missing from html/" && \
-    ls -la /var/www/html/index.php || echo "Missing index.php" && \
+    echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf
 
-    echo "✅ Apache configured for Laravel public directory"
-
-# DOCKER DEBUG: Comprehensive verification with detailed output INCLUDING ROUTES
-RUN echo "=== COMPREHENSIVE DOCKER + LARAVEL + ROUTES VERIFICATION ===" && \
-    echo "1. Working directory verification:" && \
-    pwd && \
-    echo "2. Laravel framework file verification:" && \
-    ls -la vendor/laravel/framework/src/Illuminate/Foundation/Application.php && \
-    echo "3. Autoloader verification:" && \
-    php -r "require 'vendor/autoload.php'; echo 'Autoloader: OK\n';" && \
-    echo "4. Laravel Application class verification:" && \
-    php -r "require 'vendor/autoload.php'; if (class_exists('Illuminate\\Foundation\\Application')) { echo 'Class exists: OK\n'; } else { echo 'ERROR: Class missing\n'; exit(1); }" && \
-    echo "5. Laravel Application instantiation verification:" && \
-    php -r "require 'vendor/autoload.php'; \$app = new Illuminate\\Foundation\\Application(realpath(__DIR__)); echo 'Instantiation: OK\n';" && \
-    echo "6. symfony/clock elimination verification:" && \
-    (composer show | grep symfony/clock || echo "✅ symfony/clock eliminated") && \
-    echo "7. APP_KEY verification:" && \
-    echo "   ENV APP_KEY: '$APP_KEY'" && \
-    echo "   .env APP_KEY: $(grep 'APP_KEY' .env)" && \
-    echo "8. Routes verification:" && \
-    echo "   Routes directory: $(ls -la routes/)" && \
-    echo "   Web routes file: $(ls -la routes/web.php)" && \
-    echo "   Routes content preview: $(head -10 routes/web.php)" && \
-    echo "" && \
-    echo "✅ ALL DOCKER + LARAVEL + ROUTES VERIFICATION PASSED"
-
-# CUMULATIVE LESSON #7: Verify proper Laravel APP_KEY is set
-RUN echo "=== VERIFYING LARAVEL APP_KEY ===" && \
-    echo "Current APP_KEY in .env:" && \
-    grep "APP_KEY=" .env && \
-    echo "✅ Laravel APP_KEY verified"
-
-# CUMULATIVE LESSON #8: Enhanced startup with Docker debugging
+# CUMULATIVE LEARNING: Simple startup script that ensures clean state
 RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP DEBUG: Environment check ==="' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Working directory: $(pwd)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Laravel autoloader exists: $(ls -la vendor/autoload.php)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Laravel Application.php exists: $(ls -la vendor/laravel/framework/src/Illuminate/Foundation/Application.php)"' >> /usr/local/bin/startup.sh && \
-    echo '/usr/local/bin/clear-laravel-cache.sh' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: Cache cleared ==="' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: FORCING CORRECT APP_KEY ==="' >> /usr/local/bin/startup.sh && \
-    echo 'export APP_KEY="base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw="' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/APP_KEY=.*/APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+\/nnQgxG8jNi3Iw=/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Current APP_KEY: $(grep APP_KEY .env)"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: Checking SQLite Database ==="' >> /usr/local/bin/startup.sh && \
-    echo 'mkdir -p database' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: FORCING POSTGRESQL CONNECTION ==="' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Hardcoding PostgreSQL environment variables..."' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_CONNECTION=pgsql' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_HOST=dpg-d277kvk9c44c7388opg0-a' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_PORT=5432' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_DATABASE=brain_production' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_USERNAME=brain_user' >> /usr/local/bin/startup.sh && \
-    echo 'export DB_PASSWORD=KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ' >> /usr/local/bin/startup.sh && \
-    echo 'echo "🚨 UNSETTING RENDER AUTO-GENERATED DATABASE_URL - FORCING INDIVIDUAL PARAMS"' >> /usr/local/bin/startup.sh && \
-    echo 'unset DATABASE_URL' >> /usr/local/bin/startup.sh && \
-    echo 'export DATABASE_URL=""' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Updating .env file with PostgreSQL settings..."' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/DB_CONNECTION=.*/DB_CONNECTION=pgsql/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/DB_HOST=.*/DB_HOST=dpg-d277kvk9c44c7388opg0-a/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/DB_PORT=.*/DB_PORT=5432/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s|DB_DATABASE=.*|DB_DATABASE=brain_production|" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/DB_USERNAME=.*/DB_USERNAME=brain_user/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ/" .env' >> /usr/local/bin/startup.sh && \
-    echo 'echo "Final .env database configuration:"' >> /usr/local/bin/startup.sh && \
-    echo 'grep "DB_" .env' >> /usr/local/bin/startup.sh && \
-    echo 'echo "🧹 Clearing Laravel configuration cache..."' >> /usr/local/bin/startup.sh && \
+    echo 'rm -f bootstrap/cache/*.php' >> /usr/local/bin/startup.sh && \
     echo 'php artisan config:clear' >> /usr/local/bin/startup.sh && \
     echo 'php artisan cache:clear' >> /usr/local/bin/startup.sh && \
-    echo 'echo "🔧 FORCING config/database.php to use PostgreSQL..."' >> /usr/local/bin/startup.sh && \
-    echo 'sed -i "s/'"'"'default'"'"' => env('"'"'DB_CONNECTION'"'"'.*/'"'"'default'"'"' => '"'"'pgsql'"'"',/" config/database.php' >> /usr/local/bin/startup.sh && \
-    echo 'echo "✅ Database config forced to PostgreSQL"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "🐘 POSTGRESQL FORCED - Running migrations..."' >> /usr/local/bin/startup.sh && \
-    echo 'php artisan migrate --force --no-interaction' >> /usr/local/bin/startup.sh && \
-    echo 'echo "✅ PostgreSQL database ready!"' >> /usr/local/bin/startup.sh && \
-    echo 'echo "=== STARTUP: Starting Apache ==="' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan migrate --force' >> /usr/local/bin/startup.sh && \
     echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
 
