@@ -1,7 +1,7 @@
 FROM php:8.3-apache
 
 # Force complete rebuild - change this value to bust cache
-ENV REBUILD_VERSION=2
+ENV REBUILD_VERSION=3
 
 # Simple echo to start fresh
 RUN echo "Starting fresh build v${REBUILD_VERSION}"
