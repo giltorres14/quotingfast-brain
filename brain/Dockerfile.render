@@ -1,59 +1,79 @@
 FROM php:8.3-apache
 
-# FORCE COMPLETE REBUILD - Render cache corruption fix
-ARG CACHEBUST=2
-ARG REBUILD_TIMESTAMP=1734567891
-RUN echo "Force rebuild: ${CACHEBUST}-${REBUILD_TIMESTAMP}-$(date +%s)"
+# Debug: Show environment
+RUN echo "=== Starting Docker Build ===" && \
+    echo "PHP Version: $(php -v | head -1)" && \
+    echo "Current directory: $(pwd)" && \
+    echo "User: $(whoami)"
 
-# Disable BuildKit to avoid cache issues
-ENV DOCKER_BUILDKIT=0
-
-# CUMULATIVE LEARNING: Install all system dependencies in ONE layer to minimize cache issues
-RUN apt-get update && apt-get install -y \
+# Install system dependencies and PHP extensions in one layer
+RUN echo "=== Installing System Dependencies ===" && \
+    apt-get update && \
+    apt-get install -y \
     libpq-dev \
     git \
     unzip \
-    procps \
+    curl \
     libzip-dev \
     libicu-dev \
     libonig-dev \
     libxml2-dev \
     zip \
-    curl \
     libsqlite3-dev \
-    && docker-php-ext-install pdo pdo_pgsql pdo_mysql pdo_sqlite mysqli zip intl opcache xml \
-    && docker-php-ext-enable pdo pdo_pgsql pdo_mysql pdo_sqlite mysqli zip intl opcache xml \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && echo "=== Installing PHP Extensions ===" && \
+    docker-php-ext-install pdo pdo_pgsql pdo_mysql pdo_sqlite mysqli zip intl opcache xml \
+    && echo "=== Cleaning up ===" && \
+    apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Composer (avoid --from to prevent cache issues)
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
+# Install Composer directly
+RUN echo "=== Installing Composer ===" && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer && \
+    echo "Composer version: $(composer --version)"
 
-# Enable Apache rewrite module
-RUN a2enmod rewrite
+# Enable Apache modules
+RUN echo "=== Enabling Apache Modules ===" && \
+    a2enmod rewrite && \
+    echo "Apache modules enabled"
 
 # Set working directory
 WORKDIR /var/www/html
+RUN echo "=== Working directory set to: $(pwd) ==="
 
-# Copy composer files first for better caching
-COPY brain/composer.json brain/composer.lock ./
+# Debug: List what files we're looking for
+RUN echo "=== Checking for brain directory in build context ===" && \
+    ls -la / || true && \
+    echo "=== Root directory contents above ==="
 
-# Install dependencies first (better layer caching)
-RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-cache --no-scripts || \
-    (echo "Composer install failed, trying without lock file" && \
-     composer install --no-dev --prefer-dist --optimize-autoloader --no-cache --no-scripts)
-
-# Now copy the rest of the application
+# Copy application files with debug
+RUN echo "=== Attempting to copy brain/ directory ==="
 COPY brain/ .
 
-# Clear any caches that might have been copied
-RUN rm -rf bootstrap/cache/*.php storage/framework/cache/* storage/framework/views/* storage/framework/sessions/* storage/logs/*.log
+# Debug: Show what was copied
+RUN echo "=== Files copied to /var/www/html ===" && \
+    ls -la && \
+    echo "=== Checking for composer.json ===" && \
+    if [ -f composer.json ]; then \
+        echo "composer.json found!"; \
+        head -5 composer.json; \
+    else \
+        echo "ERROR: composer.json NOT found!"; \
+        echo "Current directory contents:"; \
+        ls -la; \
+    fi
 
-# Run post-install scripts
-RUN composer run-script post-autoload-dump
+# Install PHP dependencies with verbose output
+RUN echo "=== Installing Composer Dependencies ===" && \
+    if [ -f composer.json ]; then \
+        composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --verbose; \
+    else \
+        echo "ERROR: Cannot run composer install - composer.json missing"; \
+        exit 1; \
+    fi
 
-# CUMULATIVE LEARNING: Force .env with PostgreSQL configuration
-RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
+# Create .env file with database configuration
+RUN echo "=== Creating .env file ===" && \
+    echo "APP_NAME=QuotingFast-Brain" > .env && \
     echo "APP_ENV=production" >> .env && \
     echo "APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw=" >> .env && \
     echo "APP_DEBUG=false" >> .env && \
@@ -68,15 +88,29 @@ RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
     echo "DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
     echo "SESSION_DRIVER=file" >> .env && \
-    echo "QUEUE_CONNECTION=sync" >> .env
+    echo "QUEUE_CONNECTION=sync" >> .env && \
+    echo ".env file created"
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html && \
+# Set permissions with debug
+RUN echo "=== Setting Permissions ===" && \
+    chown -R www-data:www-data /var/www/html && \
     chmod -R 755 /var/www/html && \
-    chmod -R 777 storage bootstrap/cache
+    if [ -d storage ]; then \
+        chmod -R 777 storage; \
+        echo "Storage permissions set"; \
+    else \
+        echo "WARNING: storage directory not found"; \
+    fi && \
+    if [ -d bootstrap/cache ]; then \
+        chmod -R 777 bootstrap/cache; \
+        echo "Bootstrap cache permissions set"; \
+    else \
+        echo "WARNING: bootstrap/cache directory not found"; \
+    fi
 
-# Configure Apache for Laravel
-RUN echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf && \
+# Configure Apache
+RUN echo "=== Configuring Apache ===" && \
+    echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf && \
     echo "    DocumentRoot /var/www/html/public" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    <Directory /var/www/html/public>" >> /etc/apache2/sites-available/000-default.conf && \
     echo "        Options Indexes FollowSymLinks" >> /etc/apache2/sites-available/000-default.conf && \
@@ -85,16 +119,21 @@ RUN echo "<VirtualHost *:80>" > /etc/apache2/sites-available/000-default.conf &&
     echo "    </Directory>" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    ErrorLog \${APACHE_LOG_DIR}/error.log" >> /etc/apache2/sites-available/000-default.conf && \
     echo "    CustomLog \${APACHE_LOG_DIR}/access.log combined" >> /etc/apache2/sites-available/000-default.conf && \
-    echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf
+    echo "</VirtualHost>" >> /etc/apache2/sites-available/000-default.conf && \
+    echo "Apache configured"
 
-# CUMULATIVE LEARNING: Simple startup script that ensures clean state
-RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
-    echo 'rm -f bootstrap/cache/*.php' >> /usr/local/bin/startup.sh && \
+# Create startup script
+RUN echo "=== Creating Startup Script ===" && \
+    echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
+    echo 'echo "Starting application..."' >> /usr/local/bin/startup.sh && \
     echo 'php artisan config:clear' >> /usr/local/bin/startup.sh && \
     echo 'php artisan cache:clear' >> /usr/local/bin/startup.sh && \
-    echo 'php artisan migrate --force' >> /usr/local/bin/startup.sh && \
-    echo 'exec apache2-foreground' >> /usr/local/bin/startup.sh && \
-    chmod +x /usr/local/bin/startup.sh
+    echo 'php artisan migrate --force || true' >> /usr/local/bin/startup.sh && \
+    echo 'apache2-foreground' >> /usr/local/bin/startup.sh && \
+    chmod +x /usr/local/bin/startup.sh && \
+    echo "Startup script created"
+
+RUN echo "=== Docker Build Complete ==="
 
 EXPOSE 80
 CMD ["/usr/local/bin/startup.sh"]
