@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/css/brain-design-system.css">
     
     <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     
@@ -25,7 +25,7 @@
         
         /* Navigation - Using Design System */
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             padding: 0;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: sticky;
@@ -81,27 +81,31 @@
         }
         
         .nav-link {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            padding: var(--qf-space-sm) var(--qf-space-lg);
-            border-radius: var(--qf-radius-md);
-            transition: var(--qf-transition);
-            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: var(--qf-space-sm);
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 600;
             font-size: 0.95rem;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            position: relative;
+            white-space: nowrap;
         }
         
         .nav-link:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
+            text-decoration: none;
             transform: translateY(-1px);
         }
         
         .nav-link.active {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
             font-weight: 600;
         }
         
@@ -169,15 +173,15 @@
         }
         
         .dropdown-item:hover {
-            background: rgba(79, 70, 229, 0.1);
-            color: #4f46e5;
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
             text-decoration: none;
             padding-left: 1.25rem;
         }
         
         .dropdown-item.active {
-            background: rgba(79, 70, 229, 0.1);
-            color: #4f46e5;
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
             font-weight: 600;
         }
         
@@ -200,7 +204,7 @@
         .page-title {
             font-size: 2rem;
             font-weight: 700;
-            color: #2d3748;
+            color: white;
             margin-bottom: 0.5rem;
         }
         
@@ -250,7 +254,7 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: #4f46e5;
+            background: #2563eb;
         }
         
         .feature-icon {
@@ -263,7 +267,7 @@
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.75rem;
-            color: #2d3748;
+            color: white;
         }
         
         .feature-description {
@@ -287,7 +291,7 @@
         .stat-number {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #4f46e5;
+            color: #2563eb;
             display: block;
         }
         
@@ -320,14 +324,14 @@
         }
         
         .btn-primary {
-            background: #4f46e5;
+            background: #2563eb;
             color: white;
         }
         
         .btn-primary:hover {
-            background: #4338ca;
+            background: #1d4ed8;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
         }
         
         .btn-secondary {
@@ -384,7 +388,7 @@
         .quick-stat-number {
             font-size: 2.5rem;
             font-weight: 700;
-            color: #4f46e5;
+            color: #2563eb;
             display: block;
             margin-bottom: 0.5rem;
         }
@@ -469,7 +473,7 @@
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
-            color: #2d3748;
+            color: white;
             margin-bottom: 0.5rem;
         }
         
@@ -519,7 +523,7 @@
         
         .endpoints-list h3 {
             margin-bottom: 1rem;
-            color: #2d3748;
+            color: white;
         }
         
         .endpoint-item {
@@ -1099,15 +1103,15 @@
                             <h2>📊 Today's Lead Cost Report</h2>
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1rem 0;">
                                 <div style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 6px;">
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;">$${data.summary.total_cost}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: white;">$${data.summary.total_cost}</div>
                                     <div style="color: #718096;">Total Cost Today</div>
                                 </div>
                                 <div style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 6px;">
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;">${data.summary.total_leads}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: white;">${data.summary.total_leads}</div>
                                     <div style="color: #718096;">Total Leads</div>
                                 </div>
                                 <div style="text-align: center; padding: 1rem; background: #f7fafc; border-radius: 6px;">
-                                    <div style="font-size: 1.5rem; font-weight: bold; color: #2d3748;">$${data.summary.average_cost_per_lead}</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: white;">$${data.summary.average_cost_per_lead}</div>
                                     <div style="color: #718096;">Avg Cost/Lead</div>
                                 </div>
                             </div>

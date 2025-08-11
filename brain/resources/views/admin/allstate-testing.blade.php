@@ -17,7 +17,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -49,7 +49,7 @@
         .title {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #2d3748;
+            color: white;
         }
         
         .brand-text {
@@ -76,7 +76,7 @@
         
         .nav-link:hover {
             background: #edf2f7;
-            color: #2d3748;
+            color: white;
         }
         
         .container {
@@ -104,7 +104,7 @@
         .stat-number {
             font-size: 2.5rem;
             font-weight: 700;
-            color: #2d3748;
+            color: white;
             margin-bottom: 0.5rem;
         }
         
@@ -128,7 +128,7 @@
         .section-title {
             font-size: 1.25rem;
             font-weight: 600;
-            color: #2d3748;
+            color: white;
             margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
@@ -317,7 +317,7 @@
         
         .form-group label {
             font-weight: 600;
-            color: #2d3748;
+            color: white;
             font-size: 0.875rem;
         }
         

@@ -20,23 +20,25 @@
         
         /* Header Navigation */
         .navbar {
-            background: #4f46e5;
-            color: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            padding: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            z-index: 1000;
+            width: 100%;
         }
         
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             height: 120px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .nav-brand {
@@ -62,22 +64,31 @@
         }
         
         .nav-link {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
             padding: 0.75rem 1.25rem;
-            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: 10px;
             transition: all 0.2s ease;
-            font-weight: 500;
+            position: relative;
+            white-space: nowrap;
         }
         
         .nav-link:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
         }
         
         .nav-link.active {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
             font-weight: 600;
         }
         
@@ -92,6 +103,8 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .page-title {
@@ -111,6 +124,8 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         /* Search Section */
@@ -151,8 +166,8 @@
         
         .form-input:focus, .form-select:focus {
             outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
         
         .btn {
@@ -170,12 +185,12 @@
         }
         
         .btn-primary {
-            background: #4f46e5;
+            background: #2563eb;
             color: white;
         }
         
         .btn-primary:hover {
-            background: #4338ca;
+            background: #1d4ed8;
             transform: translateY(-1px);
         }
         
@@ -224,9 +239,9 @@
         
         .lead-avatar {
             width: 50px;
-            height: 100px;
+            height: 50px;
             border-radius: 50%;
-            background: #4f46e5;
+            background: #2563eb;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -409,12 +424,12 @@
         }
         
         .btn-view {
-            background: #4f46e5;
+            background: #2563eb;
             color: white;
         }
         
         .btn-view:hover {
-            background: #4338ca;
+            background: #1d4ed8;
         }
         
         .btn-edit {
@@ -459,13 +474,13 @@
         }
         
         .create-lead-btn {
-            background: #4f46e5;
+            background: #2563eb;
             color: white;
             margin-top: 1rem;
         }
         
         .create-lead-btn:hover {
-            background: #4338ca;
+            background: #1d4ed8;
         }
         
         /* Responsive Design */
@@ -493,8 +508,12 @@
         
         @media (max-width: 768px) {
             .main-container {
-                padding: 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .search-grid {
                 grid-template-columns: 1fr;
@@ -558,7 +577,7 @@
         <!-- Statistics Cards -->
         <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
-                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #4f46e5; margin-bottom: 0.5rem;">{{ $stats['total_leads'] ?? 0 }}</div>
+                <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #2563eb; margin-bottom: 0.5rem;">{{ $stats['total_leads'] ?? 0 }}</div>
                 <div class="stat-label" style="color: #6b7280; font-size: 1rem; font-weight: 500;">Total Leads</div>
             </div>
             <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">

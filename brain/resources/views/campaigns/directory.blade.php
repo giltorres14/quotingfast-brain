@@ -16,7 +16,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -82,7 +82,7 @@
         .stat-number {
             font-size: 2rem;
             font-weight: 700;
-            color: #667eea;
+            color: #3b82f6;
             margin-bottom: 0.5rem;
         }
         
@@ -116,7 +116,7 @@
         
         .search-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         .btn {
@@ -133,7 +133,7 @@
         }
         
         .btn-primary {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
         }
         
@@ -244,7 +244,7 @@
         .campaign-id {
             font-family: monospace;
             font-weight: 600;
-            color: #667eea;
+            color: #3b82f6;
         }
         
         .auto-created {
@@ -267,11 +267,11 @@
             margin: 0 0.25rem;
             border-radius: 6px;
             text-decoration: none;
-            color: #667eea;
+            color: #3b82f6;
         }
         
         .pagination .current {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
         }
         

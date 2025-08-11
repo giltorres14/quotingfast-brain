@@ -27,21 +27,23 @@
             overflow-x: hidden;
             width: 100%;
             max-width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             padding: 1.5rem 0;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .header-container {
-            max-width: 100%;
-            width: 100%;
-            box-sizing: border-box;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
         
         .logo-section {
@@ -101,8 +103,13 @@
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 0 2rem;
             display: flex;
-            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .nav-tab {
@@ -115,13 +122,13 @@
         }
         
         .nav-tab:hover {
-            color: #667eea;
+            color: #3b82f6;
             text-decoration: none;
         }
         
         .nav-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
         }
         
         /* Main Content */
@@ -129,6 +136,8 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .page-header {
@@ -189,11 +198,11 @@
         
         .filter-input:focus, .filter-select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         .filter-btn {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
@@ -280,7 +289,7 @@
         
         .lead-id {
             font-weight: 600;
-            color: #667eea;
+            color: #3b82f6;
             text-decoration: none;
         }
         
@@ -432,15 +441,15 @@
         }
         
         .pagination a:hover {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         .pagination .current {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
-            border: 1px solid #667eea;
+            border: 1px solid #3b82f6;
         }
         
         /* Empty State */
@@ -469,7 +478,7 @@
         }
         
         .cta-btn {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
             padding: 0.75rem 2rem;
             border-radius: 8px;
@@ -557,7 +566,7 @@
         
         .form-select:focus, .form-textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         .form-textarea {
@@ -604,10 +613,17 @@
         /* Responsive */
         @media (max-width: 768px) {
             .header-container {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
             
             .user-section {
                 flex-direction: column;
@@ -615,13 +631,24 @@
             }
             
             .nav-container {
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .main-container {
-                padding: 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .filters-grid {
                 grid-template-columns: 1fr;
@@ -728,7 +755,7 @@
     <div class="header">
         <div class="header-container">
             <div class="logo-section">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo" style="height: 100px; width:auto;" onerror="this.style.display='none';">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="" style="height: 100px; width:auto;" onerror="this.style.display='none';">
                 <div class="logo-text" style="display: flex; flex-direction: column; align-items: center; line-height: 1;">
                     <div style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">The</div>
                     <div class="brand-text" style="font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Brain</div>

@@ -11,7 +11,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             min-height: 100vh;
             color: #2d3748;
         }
@@ -42,11 +42,12 @@
         .logo-image {
             height: 100px;
             width: auto;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
         .header-text h1 {
             font-size: 2.5rem;
             font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -65,7 +66,7 @@
         }
         .nav-link {
             background: rgba(255, 255, 255, 0.9);
-            color: #667eea;
+            color: #3b82f6;
             padding: 0.75rem 1.5rem;
             text-decoration: none;
             border-radius: 12px;
@@ -150,7 +151,7 @@
             color: #374151;
             margin-bottom: 1rem;
             padding-left: 1rem;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #3b82f6;
             text-transform: capitalize;
         }
         
@@ -188,7 +189,7 @@
         .endpoint-path {
             font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
             font-size: 0.875rem;
-            color: #3730a3;
+            color: #1e40af;
             background: #e0e7ff;
             padding: 0.25rem 0.5rem;
             border-radius: 6px;
@@ -301,7 +302,7 @@
         
         /* Management Section */
         .management-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             text-align: center;
             padding: 2rem;

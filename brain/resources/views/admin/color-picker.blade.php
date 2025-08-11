@@ -217,8 +217,8 @@
         
         <div class="current-color">
             <h3>Current Color</h3>
-            <div class="current-color-display" style="background: #4f46e5;">
-                #4f46e5
+            <div class="current-color-display" style="background: #2563eb;">
+                #2563eb
             </div>
             <p style="color: #6b7280; margin-top: 10px;">This is the current primary blue used in The Brain</p>
         </div>
@@ -227,8 +227,8 @@
         <div class="custom-color-section">
             <h2>🎯 Custom Color Picker</h2>
             <div class="custom-color-input">
-                <input type="color" id="customColorPicker" value="#4f46e5">
-                <input type="text" id="customColorHex" value="#4f46e5" placeholder="#000000">
+                <input type="color" id="customColorPicker" value="#2563eb">
+                <input type="text" id="customColorHex" value="#2563eb" placeholder="#000000">
                 <button class="copy-btn" onclick="selectColor(document.getElementById('customColorHex').value, 'Custom')" style="width: auto;">
                     Use This Color
                 </button>
@@ -238,14 +238,14 @@
         <!-- Preview Section -->
         <div class="preview-section">
             <h2>👁️ Live Preview</h2>
-            <div class="preview-header" id="previewHeader" style="background: linear-gradient(135deg, #4f46e5 0%, #764ba2 100%);">
+            <div class="preview-header" id="previewHeader" style="background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);">
                 <h3>The Brain - Lead Management System</h3>
                 <p>See how your selected color looks in action</p>
             </div>
             <div>
-                <button class="preview-button" id="previewBtn1" style="background: #4f46e5;">Primary Button</button>
-                <button class="preview-button" id="previewBtn2" style="background: #4f46e5; opacity: 0.9;">Secondary Button</button>
-                <button class="preview-button" id="previewBtn3" style="background: #4f46e5; opacity: 0.7;">Tertiary Button</button>
+                <button class="preview-button" id="previewBtn1" style="background: #2563eb;">Primary Button</button>
+                <button class="preview-button" id="previewBtn2" style="background: #2563eb; opacity: 0.9;">Secondary Button</button>
+                <button class="preview-button" id="previewBtn3" style="background: #2563eb; opacity: 0.7;">Tertiary Button</button>
             </div>
         </div>
         
@@ -288,32 +288,32 @@
         <div class="color-section">
             <h2>💜 Indigo Shades (Current Color Family)</h2>
             <div class="color-grid">
-                <div class="color-card selected" onclick="selectColor('#4f46e5', 'Indigo 600 (Current)')">
-                    <div class="color-display" style="background: #4f46e5;">Current</div>
+                <div class="color-card selected" onclick="selectColor('#2563eb', 'Indigo 600 (Current)')">
+                    <div class="color-display" style="background: #2563eb;">Current</div>
                     <div class="color-info">
                         <div class="color-name">Indigo 600 (Current)</div>
-                        <div class="color-hex">#4f46e5</div>
+                        <div class="color-hex">#2563eb</div>
                     </div>
                 </div>
-                <div class="color-card" onclick="selectColor('#6366f1', 'Indigo 500')">
-                    <div class="color-display" style="background: #6366f1;">Preview</div>
+                <div class="color-card" onclick="selectColor('#3b82f6', 'Indigo 500')">
+                    <div class="color-display" style="background: #3b82f6;">Preview</div>
                     <div class="color-info">
                         <div class="color-name">Indigo 500</div>
-                        <div class="color-hex">#6366f1</div>
+                        <div class="color-hex">#3b82f6</div>
                     </div>
                 </div>
-                <div class="color-card" onclick="selectColor('#4338ca', 'Indigo 700')">
-                    <div class="color-display" style="background: #4338ca;">Preview</div>
+                <div class="color-card" onclick="selectColor('#1d4ed8', 'Indigo 700')">
+                    <div class="color-display" style="background: #1d4ed8;">Preview</div>
                     <div class="color-info">
                         <div class="color-name">Indigo 700</div>
-                        <div class="color-hex">#4338ca</div>
+                        <div class="color-hex">#1d4ed8</div>
                     </div>
                 </div>
-                <div class="color-card" onclick="selectColor('#3730a3', 'Indigo 800')">
-                    <div class="color-display" style="background: #3730a3;">Preview</div>
+                <div class="color-card" onclick="selectColor('#1e40af', 'Indigo 800')">
+                    <div class="color-display" style="background: #1e40af;">Preview</div>
                     <div class="color-info">
                         <div class="color-name">Indigo 800</div>
-                        <div class="color-hex">#3730a3</div>
+                        <div class="color-hex">#1e40af</div>
                     </div>
                 </div>
             </div>
@@ -515,7 +515,7 @@
     </div>
     
     <script>
-        let selectedColor = '#4f46e5';
+        let selectedColor = '#2563eb';
         let selectedName = 'Indigo 600 (Current)';
         
         // Custom color picker sync
@@ -557,7 +557,7 @@
         function updatePreview(hex) {
             // Update preview header gradient
             document.getElementById('previewHeader').style.background = 
-                `linear-gradient(135deg, ${hex} 0%, #764ba2 100%)`;
+                `linear-gradient(135deg, ${hex} 0%, #1d4ed8 100%)`;
             
             // Update preview buttons
             document.getElementById('previewBtn1').style.background = hex;

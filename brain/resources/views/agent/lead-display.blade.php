@@ -58,7 +58,7 @@
             overflow-x: hidden;
             width: 100%;
             max-width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             padding: 16px;
             border-radius: 8px;
@@ -490,7 +490,7 @@
 
         /* Edit functionality styles - Standardized bigger buttons */
         .edit-btn, .btn.btn-sm.btn-outline-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white !important;
             border: none;
             padding: 12px 24px !important;
@@ -506,10 +506,21 @@
             margin-left: 8px;
         }
 
-        .edit-btn:hover, .btn.btn-sm.btn-outline-primary:hover {
-            background: linear-gradient(135deg, #5a51d8 0%, #6a4190 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        .edit-btn, .btn.btn-sm.btn-outline-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white !important;
+            border: none;
+            padding: 12px 24px !important;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px !important;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-left: 8px;
         }
 
         .edit-form {
@@ -748,7 +759,7 @@
             @if(isset($mode) && in_array($mode, ['view', 'edit']))
                 <a href="/leads" class="back-button">← Back to Leads</a>
             @endif
-            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="header-logo" style="height: 100px; width:auto;">
+            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 100px; width:auto;">
             <h1>{{ $lead->name }} 
                 @if(isset($mode) && $mode === 'view')
                     <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
@@ -1147,7 +1158,7 @@
                         @if($campaignName && !$campaign->is_auto_created)
                             <strong>{{ $campaignName }}</strong>
                         @else
-                            <span style="font-family: monospace; color: #667eea;">{{ $campaignId }}</span>
+                            <span style="font-family: monospace; color: #3b82f6;">{{ $campaignId }}</span>
                         @endif
                     </div>
                 </div>

@@ -14,7 +14,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -80,7 +80,7 @@
         .stat-value {
             font-size: 36px;
             font-weight: bold;
-            color: #667eea;
+            color: #3b82f6;
             margin-bottom: 5px;
         }
         
@@ -170,7 +170,7 @@
         
         .spinner {
             border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border-top: 3px solid #3b82f6;
             border-radius: 50%;
             width: 40px;
             height: 40px;

@@ -19,14 +19,14 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             min-height: 100vh;
             color: #333;
         }
         
         /* Header Styles */
         .awesome-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             position: sticky;
@@ -46,6 +46,7 @@
             height: 120px;
             width: 100%;
             box-sizing: border-box;
+            overflow-x: hidden;
         }
         
         /* Logo Section */
@@ -65,7 +66,7 @@
         }
         
         .logo-image {
-            height: 100px; /* 3x bigger from 45px */
+            height: 100px;
             width: auto;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
@@ -137,7 +138,7 @@
         
         .nav-link.active:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
         }
         
         /* Dropdown Styles */
@@ -205,14 +206,14 @@
         }
         
         .dropdown-item:hover {
-            background: rgba(102, 126, 234, 0.08);
+            background: rgba(59, 130, 246, 0.08);
             color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
             padding-left: 1.5rem;
         }
         
         .dropdown-item.active {
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(59, 130, 246, 0.1);
             color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
         }
@@ -229,7 +230,7 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.5rem 1rem;
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(59, 130, 246, 0.1);
             border-radius: 25px;
             color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
@@ -240,7 +241,7 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -258,7 +259,7 @@
         
         .quick-action-btn {
             padding: 0.5rem;
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(59, 130, 246, 0.1);
             border: none;
             border-radius: 8px;
             color: rgba(255, 255, 255, 0.9);
@@ -273,7 +274,7 @@
         }
         
         .quick-action-btn:hover {
-            background: rgba(102, 126, 234, 0.2);
+            background: rgba(59, 130, 246, 0.2);
             transform: translateY(-1px);
         }
         
@@ -295,6 +296,7 @@
             height: 120px;
             width: 100%;
             box-sizing: border-box;
+            overflow-x: hidden;
         }
             
             .nav-menu {
@@ -318,11 +320,14 @@
             height: 120px;
             width: 100%;
             box-sizing: border-box;
+            overflow-x: hidden;
         }
             
             .logo-image {
-                height: 35px;
-            }
+            height: 100px;
+            width: auto;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
             
             .logo-brand {
                 font-size: 1rem;
@@ -353,7 +358,7 @@
         <div class="header-container">
             <!-- Logo Section -->
             <a href="/admin" class="logo-section">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 100px; width:auto;" onerror="this.src='https://quotingfast.com/whitelogo'; this.onerror=null;">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="" style="height: 100px; width:auto;" onerror="this.src='https://quotingfast.com/whitelogo'; this.onerror=null;">
                 <div class="logo-text" style="display: flex; flex-direction: column; align-items: center; line-height: 1;">
                     <div style="font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">The</div>
                     <div class="brand-text" style="font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">Brain</div>

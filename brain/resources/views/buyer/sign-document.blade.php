@@ -34,12 +34,16 @@
         }
         
         .header-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
         
         .logo-section {
@@ -86,12 +90,11 @@
         
         /* Main Container */
         .main-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         /* Document Viewer */
@@ -560,9 +563,12 @@
         /* Responsive */
         @media (max-width: 1024px) {
             .main-container {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .signature-panel {
                 position: static;
@@ -571,14 +577,25 @@
         
         @media (max-width: 768px) {
             .header-container {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
             
             .main-container {
-                padding: 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .signature-options {
                 grid-template-columns: 1fr;

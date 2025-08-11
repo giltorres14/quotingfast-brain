@@ -17,7 +17,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -137,7 +137,7 @@
         
         .form-input:focus, .form-select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         .file-upload-area {
@@ -151,12 +151,12 @@
         }
         
         .file-upload-area:hover {
-            border-color: #667eea;
+            border-color: #3b82f6;
             background: #f0f4ff;
         }
         
         .file-upload-area.dragover {
-            border-color: #667eea;
+            border-color: #3b82f6;
             background: #e6f3ff;
             transform: scale(1.02);
         }
@@ -192,7 +192,7 @@
         }
         
         .btn-primary {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
         }
         
@@ -219,7 +219,7 @@
         
         .progress-fill {
             height: 100%;
-            background: #667eea;
+            background: #3b82f6;
             border-radius: 4px;
             transition: width 0.3s;
             width: 0%;
@@ -298,7 +298,7 @@
         .stat-number {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #667eea;
+            color: #3b82f6;
         }
         
         .stat-label {

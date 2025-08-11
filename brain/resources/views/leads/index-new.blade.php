@@ -115,7 +115,7 @@
         
         .search-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         .search-icon {
@@ -128,7 +128,7 @@
         
         .filter-btn {
             padding: 0.5rem 1rem;
-            background: #667eea;
+            background: #3b82f6;
             color: white;
             border: none;
             border-radius: 8px;
@@ -161,7 +161,7 @@
         .lead-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         .lead-header {
@@ -298,7 +298,7 @@
         }
         
         .btn-edit {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
         }
         
@@ -348,15 +348,15 @@
         }
         
         .pagination a:hover {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         .pagination .current {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
-            border: 1px solid #667eea;
+            border: 1px solid #3b82f6;
         }
         
         /* Empty State */

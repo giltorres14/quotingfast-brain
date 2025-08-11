@@ -26,21 +26,23 @@
             overflow-x: hidden;
             width: 100%;
             max-width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             padding: 1.5rem 0;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .header-container {
-            max-width: 100%;
-            width: 100%;
-            box-sizing: border-box;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
         
         .logo-section {
@@ -132,8 +134,13 @@
         .nav-container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 0 2rem;
             display: flex;
-            gap: 2rem;
+            align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .nav-tab {
@@ -146,13 +153,13 @@
         }
         
         .nav-tab:hover {
-            color: #667eea;
+            color: #3b82f6;
             text-decoration: none;
         }
         
         .nav-tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
         }
         
         /* Main Content */
@@ -160,6 +167,8 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .page-header {
@@ -290,9 +299,9 @@
         }
         
         .filter-btn.active {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         /* Notification Items */
@@ -310,12 +319,12 @@
         
         .notification-item:hover {
             background: #f8fafc;
-            border-left-color: #667eea;
+            border-left-color: #3b82f6;
         }
         
         .notification-item.unread {
             background: #f0f4ff;
-            border-left-color: #667eea;
+            border-left-color: #3b82f6;
         }
         
         .notification-item.read {
@@ -407,9 +416,9 @@
         }
         
         .action-btn.primary {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
-            border-color: #667eea;
+            border-color: #3b82f6;
         }
         
         .action-btn.primary:hover {
@@ -682,10 +691,17 @@
         
         @media (max-width: 768px) {
             .header-container {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
             
             .user-section {
                 flex-direction: column;
@@ -693,13 +709,24 @@
             }
             
             .nav-container {
-                flex-wrap: wrap;
-                gap: 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 120px;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .main-container {
-                padding: 1rem;
-            }
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
             
             .notification-filters {
                 justify-content: center;
