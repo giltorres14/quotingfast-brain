@@ -488,20 +488,28 @@
             box-shadow: 0 4px 12px rgba(0,123,255,0.3);
         }
 
-        /* Edit functionality styles */
-        .edit-btn {
-            background: #6c757d;
-            color: white;
+        /* Edit functionality styles - Standardized bigger buttons */
+        .edit-btn, .btn.btn-sm.btn-outline-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
             border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
+            padding: 12px 24px !important;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 16px !important;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-left: 8px;
         }
 
-        .edit-btn:hover {
-            background: #5a6268;
+        .edit-btn:hover, .btn.btn-sm.btn-outline-primary:hover {
+            background: linear-gradient(135deg, #5a51d8 0%, #6a4190 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .edit-form {
@@ -701,6 +709,19 @@
         setTimeout(resizeParentIframe, 1000);
         
         window.addEventListener('load', resizeParentIframe);
+
+        // Auto-trigger conditional questions based on pre-filled values
+        document.addEventListener("DOMContentLoaded", function() {
+            // Trigger insurance questions if currently insured
+            if (document.getElementById("currently_insured") && document.getElementById("currently_insured").value === "yes") {
+                toggleInsuranceQuestions();
+            }
+            
+            // Trigger DUI questions if DUI is selected
+            if (document.getElementById("dui_sr22") && document.getElementById("dui_sr22").value !== "no" && document.getElementById("dui_sr22").value !== "") {
+                toggleDUIQuestions();
+            }
+        });
     </script>
 </head>
 <body>
@@ -772,34 +793,112 @@
                 <!-- Insurance Questions -->
                 <div class="question-group">
                     <label class="question-label">Are you currently insured?</label>
+                    
+                    @php
+                        $isInsured = null;
+                        $currentProvider = null;
+                        $insuranceDuration = null;
+                        
+                        // Check current_policy for insurance info
+                        if (isset($lead->current_policy)) {
+                            $currentPolicy = is_string($lead->current_policy) ? json_decode($lead->current_policy, true) : $lead->current_policy;
+                            if (is_array($currentPolicy)) {
+                                if (isset($currentPolicy["currently_insured"])) {
+                                    $isInsured = strtolower($currentPolicy["currently_insured"]) === "yes" ? "yes" : "no";
+                                }
+                                if (isset($currentPolicy["current_company"])) {
+                                    $currentProvider = strtolower(str_replace(" ", "_", $currentPolicy["current_company"]));
+                                }
+                                if (isset($currentPolicy["insurance_duration"])) {
+                                    $duration = $currentPolicy["insurance_duration"];
+                                    if (strpos($duration, "6 month") !== false) {
+                                        $insuranceDuration = "under_6_months";
+                                    } elseif (strpos($duration, "1 year") !== false || strpos($duration, "1-3") !== false) {
+                                        $insuranceDuration = "6_months_1_year";
+                                    } elseif (strpos($duration, "3 year") !== false) {
+                                        $insuranceDuration = "1_3_years";
+                                    } else {
+                                        $insuranceDuration = "over_3_years";
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Check drivers data for license and DUI/SR22 info
+                        $hasLicense = null;
+                        $duiSr22 = null;
+                        $duiTimeframe = null;
+                        
+                        if (isset($lead->drivers)) {
+                            $drivers = is_string($lead->drivers) ? json_decode($lead->drivers, true) : $lead->drivers;
+                            if (is_array($drivers) && !empty($drivers)) {
+                                $firstDriver = $drivers[0];
+                                
+                                // Check license status
+                                if (isset($firstDriver["valid_license"])) {
+                                    $hasLicense = $firstDriver["valid_license"] ? "yes" : "no";
+                                } elseif (isset($firstDriver["active_license"])) {
+                                    $hasLicense = strtolower($firstDriver["active_license"]) === "yes" ? "yes" : "no";
+                                }
+                                
+                                // Check DUI/SR22 status
+                                $hasDui = isset($firstDriver["dui"]) && $firstDriver["dui"];
+                                $hasSr22 = isset($firstDriver["requires_sr22"]) && $firstDriver["requires_sr22"];
+                                
+                                if ($hasDui && $hasSr22) {
+                                    $duiSr22 = "both";
+                                } elseif ($hasDui) {
+                                    $duiSr22 = "dui_only";
+                                } elseif ($hasSr22) {
+                                    $duiSr22 = "sr22_only";
+                                } else {
+                                    $duiSr22 = "no";
+                                }
+                                
+                                // Check DUI timeframe
+                                if (isset($firstDriver["dui_timeframe"])) {
+                                    $duiTimeframe = $firstDriver["dui_timeframe"];
+                                }
+                            }
+                        }
+                        
+                        // Count vehicles
+                        $vehicleCount = 0;
+                        if (isset($lead->vehicles)) {
+                            $vehicles = is_string($lead->vehicles) ? json_decode($lead->vehicles, true) : $lead->vehicles;
+                            if (is_array($vehicles)) {
+                                $vehicleCount = count($vehicles);
+                            }
+                        }
+                    @endphp
                     <select class="question-select" id="currently_insured" onchange="toggleInsuranceQuestions()">
                         <option value="">Select...</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
+                        <option value="yes" {{ $isInsured === "yes" ? "selected" : "" }}>Yes</option>
+                        <option value="no" {{ $isInsured === "no" ? "selected" : "" }}>No</option>
                     </select>
                     
                     <div id="insurance_questions" class="conditional-question">
                         <label class="question-label">Who is your current provider?</label>
                         <select class="question-select" id="current_provider" onchange="updateInsuranceSection()">
                             <option value="">Select...</option>
-                            <option value="state_farm">State Farm</option>
-                            <option value="geico">GEICO</option>
-                            <option value="progressive">Progressive</option>
-                            <option value="allstate">Allstate</option>
-                            <option value="farmers">Farmers</option>
-                            <option value="usaa">USAA</option>
-                            <option value="liberty_mutual">Liberty Mutual</option>
-                            <option value="other">Other</option>
+                            <option value="state_farm" {{ $currentProvider === "state_farm" ? "selected" : "" }}>State Farm</option>
+                            <option value="geico" {{ $currentProvider === "geico" ? "selected" : "" }}>GEICO</option>
+                            <option value="progressive" {{ $currentProvider === "progressive" ? "selected" : "" }}>Progressive</option>
+                            <option value="allstate" {{ $currentProvider === "allstate" ? "selected" : "" }}>Allstate</option>
+                            <option value="farmers" {{ $currentProvider === "farmers" ? "selected" : "" }}>Farmers</option>
+                            <option value="usaa" {{ $currentProvider === "usaa" ? "selected" : "" }}>USAA</option>
+                            <option value="liberty_mutual" {{ $currentProvider === "liberty_mutual" ? "selected" : "" }}>Liberty Mutual</option>
+                            <option value="other" {{ $currentProvider && !in_array($currentProvider, ["state_farm", "geico", "progressive", "allstate", "farmers", "usaa", "liberty_mutual"]) ? "selected" : "" }}>Other</option>
                         </select>
                         
                         <div style="margin-top: 12px;">
                             <label class="question-label">How long have you been continuously insured?</label>
                             <select class="question-select" id="insurance_duration">
                                 <option value="">Select...</option>
-                                <option value="under_6_months">Under 6 months</option>
-                                <option value="6_months_1_year">6 months - 1 year</option>
-                                <option value="1_3_years">1-3 years</option>
-                                <option value="over_3_years">Over 3 years</option>
+                                <option value="under_6_months" {{ $insuranceDuration === "under_6_months" ? "selected" : "" }}>Under 6 months</option>
+                                <option value="6_months_1_year" {{ $insuranceDuration === "6_months_1_year" ? "selected" : "" }}>6 months - 1 year</option>
+                                <option value="1_3_years" {{ $insuranceDuration === "1_3_years" ? "selected" : "" }}>1-3 years</option>
+                                <option value="over_3_years" {{ $insuranceDuration === "over_3_years" ? "selected" : "" }}>Over 3 years</option>
                             </select>
                         </div>
                     </div>
@@ -812,8 +911,8 @@
                     <label class="question-label">Do you have an active driver's license?</label>
                     <select class="question-select" id="active_license">
                         <option value="">Select...</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
+                        <option value="yes" {{ $hasLicense === "yes" ? "selected" : "" }}>Yes</option>
+                        <option value="no" {{ $hasLicense === "no" ? "selected" : "" }}>No</option>
                         <option value="suspended">Suspended</option>
                     </select>
                 </div>
@@ -823,19 +922,19 @@
                     <label class="question-label">DUI or SR22?</label>
                     <select class="question-select" id="dui_sr22" onchange="toggleDUIQuestions()">
                         <option value="">Select...</option>
-                        <option value="no">No</option>
-                        <option value="dui_only">DUI Only</option>
-                        <option value="sr22_only">SR22 Only</option>
-                        <option value="both">Both</option>
+                        <option value="no" {{ $duiSr22 === "no" ? "selected" : "" }}>No</option>
+                        <option value="dui_only" {{ $duiSr22 === "dui_only" ? "selected" : "" }}>DUI Only</option>
+                        <option value="sr22_only" {{ $duiSr22 === "sr22_only" ? "selected" : "" }}>SR22 Only</option>
+                        <option value="both" {{ $duiSr22 === "both" ? "selected" : "" }}>Both</option>
                     </select>
                     
                     <div id="dui_questions" class="conditional-question">
                         <label class="question-label">If DUI – How long ago?</label>
                         <select class="question-select" id="dui_timeframe">
                             <option value="">Select...</option>
-                            <option value="1">Under 1 year</option>
-                            <option value="2">1–3 years</option>
-                            <option value="3">Over 3 years</option>
+                            <option value="1" {{ $duiTimeframe == "1" ? "selected" : "" }}>Under 1 year</option>
+                            <option value="2" {{ $duiTimeframe == "2" ? "selected" : "" }}>1–3 years</option>
+                            <option value="3" {{ $duiTimeframe == "3" ? "selected" : "" }}>Over 3 years</option>
                         </select>
                     </div>
                 </div>
@@ -909,10 +1008,10 @@
                     <label class="question-label">How many cars are you going to need a quote for?</label>
                     <select class="question-select" id="num_vehicles">
                         <option value="">Select...</option>
-                        <option value="1">1 Vehicle</option>
-                        <option value="2">2 Vehicles</option>
-                        <option value="3">3 Vehicles</option>
-                        <option value="4">4+ Vehicles</option>
+                        <option value="1" {{ $vehicleCount == 1 ? "selected" : "" }}>1 Vehicle</option>
+                        <option value="2" {{ $vehicleCount == 2 ? "selected" : "" }}>2 Vehicles</option>
+                        <option value="3" {{ $vehicleCount == 3 ? "selected" : "" }}>3 Vehicles</option>
+                        <option value="4" {{ $vehicleCount >= 4 ? "selected" : "" }}>4+ Vehicles</option>
                     </select>
                 </div>
 
@@ -977,7 +1076,7 @@
         <div class="section">
             <div class="section-title contact">📞 Lead Details 
                 @if(!isset($mode) || $mode !== 'view')
-                    <button class="edit-btn" onclick="toggleEdit('contact')" style="font-size: 16px; padding: 10px 20px;">Edit</button>
+                    <button class="edit-btn" onclick="toggleEdit('contact')">✏️ Edit</button>
                 @endif
             </div>
             <div class="contact-layout" id="contact-display">
@@ -1355,7 +1454,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h4>Driver {{ $index + 1 }}: {{ ($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? '') }}</h4>
                     @if(!isset($mode) || $mode !== 'view')
-                        <button class="btn btn-sm btn-outline-primary" onclick="editDriver({{ $index }})">✏️ Edit</button>
+                        <button class="edit-btn" onclick="editDriver({{ $index }})">✏️ Edit</button>
                     @endif
                 </div>
                 <div class="info-grid">
@@ -1591,7 +1690,7 @@
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h4>Vehicle {{ $index + 1 }}: {{ ($vehicle['year'] ?? '') . ' ' . ($vehicle['make'] ?? '') . ' ' . ($vehicle['model'] ?? '') }}</h4>
                     @if(!isset($mode) || $mode !== 'view')
-                        <button class="btn btn-sm btn-outline-primary" onclick="editVehicle({{ $index }})">✏️ Edit</button>
+                        <button class="edit-btn" onclick="editVehicle({{ $index }})">✏️ Edit</button>
                     @endif
                 </div>
                 @if(isset($vehicle['vin']) && !empty($vehicle['vin']))
@@ -1698,7 +1797,7 @@
                         @endif
                     </h4>
                     @if(!isset($mode) || $mode !== 'view')
-                        <button class="btn btn-sm btn-outline-primary" onclick="editProperty({{ $index }})">✏️ Edit</button>
+                        <button class="edit-btn" onclick="editProperty({{ $index }})">✏️ Edit</button>
                     @endif
                 </div>
                 
@@ -1883,7 +1982,7 @@
         <div class="section">
             <div class="section-title insurance">🛡️ Current Insurance 
                 @if(!isset($mode) || $mode !== 'view')
-                    <button class="edit-btn" onclick="toggleEdit('insurance')">Edit</button>
+                    <button class="edit-btn" onclick="toggleEdit('insurance')">✏️ Edit</button>
                 @endif
             </div>
             <div class="info-grid" id="insurance-display">
