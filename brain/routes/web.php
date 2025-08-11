@@ -6300,6 +6300,11 @@ Route::get('/admin', function () {
     return view('admin.simple-dashboard');
 });
 
+// Color Picker Page
+Route::get('/admin/color-picker', function () {
+    return view('admin.color-picker');
+});
+
 // API & Webhooks Directory - Dynamic data from database (Admin Only)
 Route::get('/api-directory', function () {
     // Check if user is admin (simple check - you can enhance this based on your auth system)
