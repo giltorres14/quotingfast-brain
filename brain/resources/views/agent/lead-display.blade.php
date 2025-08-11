@@ -879,7 +879,7 @@
             @if(isset($mode) && in_array($mode, ['view', 'edit']) && !request()->get('iframe'))
                 <a href="/leads" class="back-button admin-only">← Back to Leads</a>
             @endif
-            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 100px; width:auto;">
+            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 150px; width:auto;">
             <h1>{{ $lead->name }} 
                 @if(isset($mode) && $mode === 'view')
                     <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
@@ -917,8 +917,8 @@
                 🎯 Lead Qualification & Ringba Enrichment (Enhanced)
             </div>
             
-            <!-- Sticky Lead Info Bubble -->
-            <div class="lead-info-bubble">
+            <!-- Sticky Lead Info Bubble (Centered) -->
+            <div class="lead-info-bubble" style="text-align: center;">
                 <div class="lead-name">{{ $lead->name }}</div>
                 <div class="lead-phone">{{ preg_replace('/(\d{3})(\d{3})(\d{4})/', '($1)$2-$3', preg_replace('/[^0-9]/', '', $lead->phone)) }}</div>
                 <div class="lead-address">
@@ -934,7 +934,7 @@
 
             <!-- Qualification Questions -->
             <form id="qualificationForm">
-                <!-- Insurance Questions -->
+                <!-- 1. Insurance Questions -->
                 <div class="question-group">
                     <label class="question-label">Are you currently insured?</label>
                     
@@ -968,8 +968,7 @@
                             }
                         }
                         
-                        // Check drivers data for license and DUI/SR22 info
-                        $hasLicense = null;
+                        // Check drivers data for DUI/SR22 info (removed license check)
                         $duiSr22 = null;
                         $duiTimeframe = null;
                         
@@ -977,13 +976,6 @@
                             $drivers = is_string($lead->drivers) ? json_decode($lead->drivers, true) : $lead->drivers;
                             if (is_array($drivers) && !empty($drivers)) {
                                 $firstDriver = $drivers[0];
-                                
-                                // Check license status
-                                if (isset($firstDriver["valid_license"])) {
-                                    $hasLicense = $firstDriver["valid_license"] ? "yes" : "no";
-                                } elseif (isset($firstDriver["active_license"])) {
-                                    $hasLicense = strtolower($firstDriver["active_license"]) === "yes" ? "yes" : "no";
-                                }
                                 
                                 // Check DUI/SR22 status
                                 $hasDui = isset($firstDriver["dui"]) && $firstDriver["dui"];
@@ -1022,7 +1014,7 @@
                     </select>
                     
                     <div id="insurance_questions" class="conditional-question">
-                        <label class="question-label">Who is your current provider?</label>
+                        <label class="question-label">1B. Who is your current provider?</label>
                         <select class="question-select" id="current_provider" onchange="updateInsuranceSection()">
                             <option value="">Select...</option>
                             <option value="state_farm" {{ $currentProvider === "state_farm" ? "selected" : "" }}>State Farm</option>
@@ -1036,7 +1028,7 @@
                         </select>
                         
                         <div style="margin-top: 12px;">
-                            <label class="question-label">How long have you been continuously insured?</label>
+                            <label class="question-label">1C. How long have you been continuously insured?</label>
                             <select class="question-select" id="insurance_duration">
                                 <option value="">Select...</option>
                                 <option value="under_6_months" {{ $insuranceDuration === "under_6_months" ? "selected" : "" }}>Under 6 months</option>
@@ -1048,22 +1040,41 @@
                     </div>
                 </div>
 
-
-
-                <!-- License Question -->
+                <!-- 2. How many cars -->
                 <div class="question-group">
-                    <label class="question-label">Do you have an active driver's license?</label>
-                    <select class="question-select" id="active_license">
+                    <label class="question-label">2. How many cars are you going to need a quote for?</label>
+                    <select class="question-select" id="num_vehicles">
                         <option value="">Select...</option>
-                        <option value="yes" {{ $hasLicense === "yes" ? "selected" : "" }}>Yes</option>
-                        <option value="no" {{ $hasLicense === "no" ? "selected" : "" }}>No</option>
-                        <option value="suspended">Suspended</option>
+                        <option value="1" {{ $vehicleCount == 1 ? "selected" : "" }}>1 Vehicle</option>
+                        <option value="2" {{ $vehicleCount == 2 ? "selected" : "" }}>2 Vehicles</option>
+                        <option value="3" {{ $vehicleCount == 3 ? "selected" : "" }}>3 Vehicles</option>
+                        <option value="4" {{ $vehicleCount >= 4 ? "selected" : "" }}>4+ Vehicles</option>
                     </select>
                 </div>
 
-                <!-- Risk Level Questions -->
+                <!-- 3. Home Ownership -->
                 <div class="question-group">
-                    <label class="question-label">DUI or SR22?</label>
+                    <label class="question-label">3. Do you own or rent your home?</label>
+                    <select class="question-select" id="home_status">
+                        <option value="">Select...</option>
+                        @php
+                            $residenceType = null;
+                            if (isset($lead->payload) && is_string($lead->payload)) {
+                                $payload = json_decode($lead->payload, true);
+                                if (isset($payload['data']['drivers'][0]['residence_type'])) {
+                                    $residenceType = strtolower($payload['data']['drivers'][0]['residence_type']);
+                                }
+                            }
+                        @endphp
+                        <option value="own" {{ $residenceType === 'own' ? 'selected' : '' }}>Own</option>
+                        <option value="rent" {{ $residenceType === 'rent' ? 'selected' : '' }}>Rent</option>
+                        <option value="other" {{ $residenceType && !in_array($residenceType, ['own', 'rent']) ? 'selected' : '' }}>Other</option>
+                    </select>
+                </div>
+
+                <!-- 4. DUI or SR22 -->
+                <div class="question-group">
+                    <label class="question-label">4. DUI or SR22?</label>
                     <select class="question-select" id="dui_sr22" onchange="toggleDUIQuestions()">
                         <option value="">Select...</option>
                         <option value="no" {{ $duiSr22 === "no" ? "selected" : "" }}>No</option>
@@ -1073,7 +1084,7 @@
                     </select>
                     
                     <div id="dui_questions" class="conditional-question">
-                        <label class="question-label">If DUI – How long ago?</label>
+                        <label class="question-label">4B. If DUI – How long ago?</label>
                         <select class="question-select" id="dui_timeframe">
                             <option value="">Select...</option>
                             <option value="1" {{ $duiTimeframe == "1" ? "selected" : "" }}>Under 1 year</option>
@@ -1083,9 +1094,9 @@
                     </div>
                 </div>
 
-                <!-- Address Questions -->
+                <!-- 5. State -->
                 <div class="question-group">
-                    <label class="question-label">State</label>
+                    <label class="question-label">5. State</label>
                     <select class="question-select" id="state">
                         <option value="">Select State...</option>
                         <option value="AL" {{ ($lead->state ?? '') == 'AL' ? 'selected' : '' }}>AL</option>
@@ -1142,46 +1153,15 @@
                     </select>
                 </div>
 
+                <!-- 6. ZIP Code -->
                 <div class="question-group">
-                    <label class="question-label">ZIP Code</label>
+                    <label class="question-label">6. ZIP Code</label>
                     <input type="text" class="question-select" id="zip_code" value="{{ $lead->zip_code ?? '' }}" placeholder="Enter ZIP code">
                 </div>
 
-                <!-- Auto Question -->
+                <!-- 7. Competitive Quote -->
                 <div class="question-group">
-                    <label class="question-label">How many cars are you going to need a quote for?</label>
-                    <select class="question-select" id="num_vehicles">
-                        <option value="">Select...</option>
-                        <option value="1" {{ $vehicleCount == 1 ? "selected" : "" }}>1 Vehicle</option>
-                        <option value="2" {{ $vehicleCount == 2 ? "selected" : "" }}>2 Vehicles</option>
-                        <option value="3" {{ $vehicleCount == 3 ? "selected" : "" }}>3 Vehicles</option>
-                        <option value="4" {{ $vehicleCount >= 4 ? "selected" : "" }}>4+ Vehicles</option>
-                    </select>
-                </div>
-
-                <!-- Home Ownership -->
-                <div class="question-group">
-                    <label class="question-label">Do you own or rent your home?</label>
-                    <select class="question-select" id="home_status">
-                        <option value="">Select...</option>
-                        @php
-                            $residenceType = null;
-                            if (isset($lead->payload) && is_string($lead->payload)) {
-                                $payload = json_decode($lead->payload, true);
-                                if (isset($payload['data']['drivers'][0]['residence_type'])) {
-                                    $residenceType = strtolower($payload['data']['drivers'][0]['residence_type']);
-                                }
-                            }
-                        @endphp
-                        <option value="own" {{ $residenceType === 'own' ? 'selected' : '' }}>Own</option>
-                        <option value="rent" {{ $residenceType === 'rent' ? 'selected' : '' }}>Rent</option>
-                        <option value="other" {{ $residenceType && !in_array($residenceType, ['own', 'rent']) ? 'selected' : '' }}>Other</option>
-                    </select>
-                </div>
-
-                <!-- Competitive Quote -->
-                <div class="question-group">
-                    <label class="question-label">Have you received a quote from Allstate in the last 2 months?</label>
+                    <label class="question-label">7. Let me go ahead and see who has the better rates in your area based on what we have. Oh ok, it looks like Allstate has the better rates in that area. Have you received a quote from Allstate in the last 2 months?</label>
                     <select class="question-select" id="allstate_quote">
                         <option value="">Select...</option>
                         <option value="yes">Yes</option>
@@ -1189,9 +1169,9 @@
                     </select>
                 </div>
 
-                <!-- Intent -->
+                <!-- 8. Intent -->
                 <div class="question-group">
-                    <label class="question-label">Ready to speak with an agent now?</label>
+                    <label class="question-label">8. Ready to speak with an agent now?</label>
                     <select class="question-select" id="ready_to_speak">
                         <option value="">Select...</option>
                         <option value="yes">Yes</option>
@@ -2526,7 +2506,7 @@
                     ['current_insurance_company', data.current_provider || ''],
                     ['allstate', isAllstateCustomer()], // New parameter for RingBA
                     ['continuous_coverage', mapContinuous(data.insurance_duration)],
-                    ['valid_license', yn(data.active_license)],
+                    ['valid_license', 'true'], // Hardcoded to true as requested
                     ['num_vehicles', data.num_vehicles || ''],
                     ['dui', (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
                     ['requires_sr22', (data.dui_sr22 === 'sr22_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
@@ -2611,7 +2591,7 @@
                     ['current_insurance_company', ''],
                     ['allstate', isAllstateCustomer()], // New parameter for RingBA
                     ['continuous_coverage', '0'],
-                    ['valid_license', yn(data.active_license)],
+                    ['valid_license', 'true'], // Hardcoded to true as requested
                     ['num_vehicles', data.num_vehicles || ''],
                     ['dui', (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
                     ['requires_sr22', (data.dui_sr22 === 'sr22_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],

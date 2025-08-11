@@ -98,3 +98,4 @@ const yn = (v) => (/^(y|yes|true|1)$/i.test(`${v}`) ? 'true' : 'false');
 4. ⚠️ **TODO**: Add missing fields (date_of_birth, gender, marital_status, etc.)
 5. ⚠️ **TODO**: Map homeowner to residence_status properly
 6. ⚠️ **TODO**: Update RingBA configuration to use correct tag names
+

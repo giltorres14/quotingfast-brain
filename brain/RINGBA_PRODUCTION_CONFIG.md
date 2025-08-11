@@ -142,3 +142,4 @@ After the JavaScript conversion in the enrichment button, The Brain sends these 
 ✅ **RingBA sends to Allstate** using tags with proper boolean/string formatting
 
 The logic is all in place - you just need to update the RingBA Request Body configuration to use the correct tag names and remove quotes from boolean fields!
+

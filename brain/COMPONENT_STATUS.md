@@ -225,3 +225,4 @@ Example: "Work on search module"
 ---
 
 *Each section is self-contained with everything needed to continue work on that component.*
+

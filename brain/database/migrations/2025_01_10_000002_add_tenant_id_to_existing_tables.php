@@ -139,3 +139,4 @@ class AddTenantIdToExistingTables extends Migration
         DB::table('tenants')->where('slug', 'quotingfast')->delete();
     }
 }
+

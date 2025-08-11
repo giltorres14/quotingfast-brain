@@ -112,3 +112,4 @@ class CreateTenantsTable extends Migration
         Schema::dropIfExists('tenants');
     }
 }
+
