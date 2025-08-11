@@ -5594,6 +5594,23 @@ Route::get('/login', function() {
     return response()->json(['message' => 'Please implement authentication UI']);
 })->name('login');
 
+// Simple test route to check database
+Route::get('/test-leads', function() {
+    try {
+        $count = \App\Models\Lead::count();
+        return response()->json([
+            'success' => true,
+            'lead_count' => $count,
+            'database' => 'connected'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Helper function for generating lead IDs - defined before webhook routes
 if (!function_exists('generateLeadId')) {
     function generateLeadId() {
