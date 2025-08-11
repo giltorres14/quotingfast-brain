@@ -982,7 +982,7 @@
         <div class="section">
             <div class="section-title contact">📞 Lead Details 
                 @if(!isset($mode) || $mode !== 'view')
-                    <button class="edit-btn" onclick="toggleEdit('contact')">Edit</button>
+                    <button class="edit-btn" onclick="toggleEdit('contact')" style="font-size: 16px; padding: 10px 20px;">Edit</button>
                 @endif
             </div>
             <div class="contact-layout" id="contact-display">
@@ -1153,7 +1153,7 @@
                                 <a href="{{ $lead->meta['landing_page_url'] }}" target="_blank" style="color: #007bff; text-decoration: none;">
                                     🔗 View Landing Page
                                 </a>
-                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['landing_page_url'] }}', this)">Copy</button>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['landing_page_url'] }}', this)" title="Copy to clipboard">📎</button>
                                 <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
                                     {{ $lead->meta['landing_page_url'] }}
                                 </div>
@@ -1169,7 +1169,7 @@
                                 <a href="{{ $lead->meta['trusted_form_cert_url'] }}" target="_blank" style="color: #28a745; text-decoration: none;">
                                     📜 View Certificate
                                 </a>
-                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['trusted_form_cert_url'] }}', this)">Copy</button>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['trusted_form_cert_url'] }}', this)" title="Copy to clipboard">📎</button>
                                 <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
                                     {{ $lead->meta['trusted_form_cert_url'] }}
                                 </div>

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'The Brain' }} - QuotingFast</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
         /* Global Reset */
@@ -40,7 +42,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 70px;
+            height: 100px; /* Increased to accommodate larger logo */
         }
         
         /* Logo Section */
@@ -60,7 +62,7 @@
         }
         
         .logo-image {
-            height: 45px;
+            height: 135px; /* 3x bigger from 45px */
             width: auto;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
@@ -72,10 +74,13 @@
         }
         
         .logo-brand {
-            font-size: 1.1rem;
-            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
             color: #2d3748;
             line-height: 1;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
         
         .logo-subtitle {
