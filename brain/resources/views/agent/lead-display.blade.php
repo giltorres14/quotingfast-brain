@@ -16,15 +16,13 @@
         }
         
         html, body {
-            height: 100vh !important;
-            width: 100vw !important;
+            height: 100%;
+            width: 100%;
             margin: 0;
             padding: 0;
             overflow: auto; /* Allow scrolling if needed */
-            /* AGGRESSIVE: Force iframe content to break out of small containers */
-            min-height: 900px !important;
-            min-width: 1400px !important;
-            /* Try to force parent iframe to resize */
+            /* Removed min-width to allow narrower display */
+            min-height: 600px;
             position: relative;
             z-index: 999;
         }
@@ -38,31 +36,22 @@
         }
         
         .container {
-            width: 100% !important;
-            max-width: none !important; /* Remove width restriction for Vici iframe */
-            padding: 16px;
-            min-height: 900px !important; /* Force minimum height for Vici */
-            min-width: 1400px !important; /* Force minimum width for Vici */
-            /* AGGRESSIVE: Try to expand beyond iframe constraints */
+            width: 100%;
+            max-width: 900px; /* Narrower max width for iframe */
+            margin: 0 auto;
+            padding: 12px;
+            min-height: 600px;
+            /* Removed min-width to allow responsive sizing */
             transform: scale(1.0);
             transform-origin: top left;
-            /* Force parent iframe to resize */
-            overflow: visible !important;
+            overflow: visible;
         }
         
-        /* AGGRESSIVE IFRAME PARENT TARGETING */
+        /* Responsive iframe sizing */
         body {
-            /* Try to communicate size to parent iframe */
-            --iframe-width: 1400px;
-            --iframe-height: 900px;
-        }
-        
-        /* Force any parent iframe to be larger */
-        iframe {
-            min-width: 1400px !important;
-            min-height: 900px !important;
-            width: 1400px !important;
-            height: 900px !important;
+            /* Communicate responsive size to parent iframe */
+            --iframe-width: 100%;
+            --iframe-height: auto;
         }
         
         .header {
@@ -118,8 +107,8 @@
         .section {
             background: white;
             border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
@@ -1128,6 +1117,7 @@
                     </div>
                 </div>
 
+                        {{-- Hidden: Originally Created, Landing Page, TrustedForm Certificate - Not needed in lead edit view
                         <!-- Originally Created -->
                         @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['originally_created']))
                         <div class="info-item">
@@ -1173,6 +1163,7 @@
                                     📜 View Certificate
                                 </a>
                                 <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['trusted_form_cert_url'] }}', this)" title="Copy to clipboard">📎</button>
+                        --}}
                                 <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
                                     {{ $lead->meta['trusted_form_cert_url'] }}
                                 </div>

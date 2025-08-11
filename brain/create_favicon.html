@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Favicon</title>
+</head>
+<body>
+    <h1>Creating a visible favicon</h1>
+    <canvas id="favicon" width="64" height="64"></canvas>
+    <script>
+        // Create a favicon with purple background and white QF letters
+        const canvas = document.getElementById('favicon');
+        const ctx = canvas.getContext('2d');
+        
+        // Purple background (matching QuotingFast brand)
+        ctx.fillStyle = '#6B46C1';
+        ctx.fillRect(0, 0, 64, 64);
+        
+        // White text
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 28px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        // Draw QF
+        ctx.fillText('QF', 32, 32);
+        
+        // Convert to data URL and log it
+        const dataURL = canvas.toDataURL('image/png');
+        console.log('Copy this data URL and save as favicon:');
+        console.log(dataURL);
+        
+        // Also create a download link
+        const link = document.createElement('a');
+        link.download = 'favicon.png';
+        link.href = dataURL;
+        link.textContent = 'Download Favicon';
+        document.body.appendChild(link);
+    </script>
+    <p>Open this file in a browser, then click "Download Favicon" to get the new favicon.</p>
+</body>
+</html>
