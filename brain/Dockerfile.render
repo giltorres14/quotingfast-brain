@@ -1,8 +1,10 @@
 FROM php:8.3-apache
 
-# DOCKER DEBUG: Force complete rebuild by adding timestamp
-RUN echo "Docker build timestamp: $(date)" && \
-    echo "=== FORCING COMPLETE DOCKER REBUILD ==="
+# Force rebuild with unique build argument
+ARG CACHEBUST=1
+RUN echo "Cache bust: ${CACHEBUST}" && \
+    echo "Build timestamp: $(date)" && \
+    echo "=== CLEAN BUILD INITIATED ==="
 
 # Install system dependencies, PostgreSQL development libraries, and Composer
 RUN apt-get update && apt-get install -y \
@@ -22,22 +24,14 @@ RUN docker-php-ext-install pdo_pgsql pgsql
 RUN a2enmod rewrite && \
     echo "✅ Apache rewrite module enabled"
 
-# DOCKER DEBUG: Clear any potential cached directories
-RUN rm -rf /var/www/html/* && \
-    rm -rf /tmp/* && \
-    echo "=== CLEARED ALL CACHED DIRECTORIES ==="
+# Clear default Apache content
+RUN rm -rf /var/www/html/*
 
 # Set working directory
 WORKDIR /var/www/html
 
-# DOCKER DEBUG: Verify clean environment
-RUN echo "=== DOCKER ENVIRONMENT DEBUG ===" && \
-    echo "Working directory: $(pwd)" && \
-    echo "Directory contents:" && \
-    ls -la && \
-    echo "PHP version: $(php --version)" && \
-    echo "Composer version: $(composer --version)" && \
-    echo "=== ENVIRONMENT VERIFIED ==="
+# Verify environment
+RUN php --version && composer --version
 
 # CUMULATIVE LESSON #1: Copy existing Laravel application and install dependencies
 COPY brain/ /var/www/html/
