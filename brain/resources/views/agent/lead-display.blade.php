@@ -684,6 +684,44 @@
         }
         
         /* REMOVED: Allstate validation progress CSS per user request */
+
+        /* Hide elements when in iframe (agent view) */
+        .agent-iframe-view .back-button {
+            display: none !important;
+        }
+        
+        .agent-iframe-view .admin-only {
+            display: none !important;
+        }
+        
+        .agent-iframe-view .nav-menu {
+            display: none !important;
+        }
+        
+        .agent-iframe-view .dropdown {
+            display: none !important;
+        }
+        
+        /* Adjust header when in iframe */
+        .agent-iframe-view .header {
+            padding: 12px;
+            min-height: auto;
+        }
+        
+        .agent-iframe-view .header-logo {
+            height: 60px;
+        }
+        
+        /* Make the container full width in iframe */
+        .agent-iframe-view .container {
+            max-width: 100%;
+            padding: 10px;
+        }
+        
+        /* Hide save lead button in top corner for agents */
+        .agent-iframe-view .save-lead-btn {
+            display: none !important;
+        }
     </style>
     
     <!-- JavaScript to try to resize parent iframe -->
@@ -721,8 +759,31 @@
         
         window.addEventListener('load', resizeParentIframe);
 
+        // Detect if we are in an iframe (Vici agent view) or direct access (admin)
+        function isInIframe() {
+            try {
+                return window.self !== window.top;
+            } catch (e) {
+                return true;
+            }
+        }
+        
         // Auto-trigger conditional questions based on pre-filled values
         document.addEventListener("DOMContentLoaded", function() {
+            // Add class to body based on access type
+            if (isInIframe()) {
+                document.body.classList.add("agent-iframe-view");
+                // Hide admin-only elements
+                const adminElements = document.querySelectorAll(".admin-only");
+                adminElements.forEach(el => el.style.display = "none");
+                
+                // Also hide navigation menus if they exist
+                const navMenus = document.querySelectorAll(".nav-menu, .dropdown-menu");
+                navMenus.forEach(el => el.style.display = "none");
+            } else {
+                document.body.classList.add("admin-direct-view");
+            }
+            
             // Trigger insurance questions if currently insured
             if (document.getElementById("currently_insured") && document.getElementById("currently_insured").value === "yes") {
                 toggleInsuranceQuestions();
@@ -756,8 +817,8 @@
         </div>
         <!-- Header - Agent View (No Admin Data) -->
         <div class="header">
-            @if(isset($mode) && in_array($mode, ['view', 'edit']))
-                <a href="/leads" class="back-button">← Back to Leads</a>
+            @if(isset($mode) && in_array($mode, ['view', 'edit']) && !request()->get('iframe'))
+                <a href="/leads" class="back-button admin-only">← Back to Leads</a>
             @endif
             <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 100px; width:auto;">
             <h1>{{ $lead->name }} 
@@ -776,6 +837,19 @@
                 @endif
             </div>
         </div>
+        
+        <!-- Agent Message (shown only in iframe) -->
+        <div class="agent-message-container" style="display: none;">
+            <div class="agent-message" style="background: #e3f2fd; color: #1565c0; padding: 10px; margin: 10px 0; border-radius: 8px; text-align: center;">
+                <strong>Agent View</strong> - Edit lead information and save changes below
+            </div>
+        </div>
+        <script>
+            // Show agent message if in iframe
+            if (typeof isInIframe !== "undefined" && isInIframe()) {
+                document.querySelector(".agent-message-container").style.display = "block";
+            }
+        </script>
 
         <!-- Ringba Qualification Form -->
         @if(!isset($mode) || $mode === 'agent' || $mode === 'edit')

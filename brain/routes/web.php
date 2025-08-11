@@ -2540,6 +2540,10 @@ Route::get('/leads', function (Request $request) {
 // Agent iframe endpoint - displays full lead data with transfer button
 Route::get('/agent/lead/{leadId}', function ($leadId) {
     $mode = request()->get('mode', 'agent'); // 'agent', 'view', or 'edit'
+    $isIframe = request()->get('iframe') || request()->get('agent');
+    
+    // Store iframe status for the view
+    view()->share('isIframe', $isIframe);
     try {
         // For test lead IDs, use mock data directly (no database query)
         if (str_starts_with($leadId, 'BRAIN_TEST') || str_starts_with($leadId, 'TEST_')) {
