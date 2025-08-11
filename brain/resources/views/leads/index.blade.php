@@ -832,7 +832,7 @@
                                         @if(!$lead->first_name && !$lead->last_name)
                                             {{ $lead->name ?? 'Unknown Lead' }}
                                         @endif
-                                        @if($lead->external_lead_id)
+                                        @if(isset($lead->external_lead_id) && $lead->external_lead_id)
                                             <span style="font-size: 0.8rem; color: #6b7280; font-weight: 400; margin-left: 0.5rem;">
                                                 #{{ $lead->external_lead_id }}
                                             </span>
