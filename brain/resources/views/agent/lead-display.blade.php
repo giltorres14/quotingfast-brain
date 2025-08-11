@@ -47,6 +47,19 @@
             overflow: visible;
         }
         
+        /* Content wrapper for consistent width */
+        .content-wrapper {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
+        .content-wrapper .section {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        
         /* Responsive iframe sizing */
         body {
             /* Communicate responsive size to parent iframe */
@@ -54,10 +67,11 @@
             --iframe-height: auto;
         }
         
-        .header {
+                .header {
             overflow-x: hidden;
             width: 100%;
-            max-width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             padding: 16px;
@@ -65,6 +79,7 @@
             margin-bottom: 16px;
             text-align: center;
             position: relative;
+            box-sizing: border-box;
         }
         
         .header-logo {
@@ -107,12 +122,17 @@
             font-size: 12px;
         }
         
-        .section {
+                .section {
             background: white;
             border-radius: 8px;
             padding: 12px;
             margin-bottom: 12px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
         }
         
         .section-title {
@@ -220,18 +240,24 @@
             font-style: italic;
         }
         
-        .driver-card, .vehicle-card {
+                .driver-card, .vehicle-card, .property-card {
             background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 8px;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            width: 100%;
+            box-sizing: border-box;
         }
         
-        .driver-card h4, .vehicle-card h4 {
-            color: #495057;
-            margin-bottom: 8px;
-            font-size: 14px;
+                .driver-card, .vehicle-card, .property-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .status-badge {
@@ -327,13 +353,18 @@
         }
         
         /* Ringba Qualification Form Styles */
-        .qualification-form {
-            background: #ffffff;
-            border: 2px solid #007bff;
+                .qualification-form {
+            background: white;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            box-sizing: border-box;
         }
         
         .qualification-header {
@@ -607,21 +638,22 @@
         .save-btn:hover { background: #1e7e34; }
         .cancel-btn:hover { background: #5a6268; }
         
-        .save-lead-btn {
+                .save-lead-btn {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 700;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             z-index: 1000;
             transition: all 0.3s ease;
+            max-width: 200px;
         }
         
         .save-lead-btn:hover {
@@ -703,9 +735,19 @@
         }
         
         /* Adjust header when in iframe */
-        .agent-iframe-view .header {
-            padding: 12px;
-            min-height: auto;
+        .agent-iframe-view         .header {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+            position: relative;
+            box-sizing: border-box;
         }
         
         .agent-iframe-view .header-logo {
@@ -719,12 +761,28 @@
         }
         
         /* Hide save lead button in top corner for agents */
-        .agent-iframe-view .save-lead-btn {
-            display: none !important;
+        .agent-iframe-view         .save-lead-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            max-width: 200px;
         }
     </style>
     
-    <!-- JavaScript to try to resize parent iframe -->
+    <!-- JavaScript to try to resize parent iframe -->        </div><!-- content-wrapper -->
+    </div><!-- container -->
+
     <script>
         // Try to communicate with parent iframe to resize
         function resizeParentIframe() {
@@ -807,6 +865,7 @@
     <!-- REMOVED: Validation Summary Modal per user request -->
     
     <div class="container">
+        <div class="content-wrapper">
         <!-- Debug panel (hidden by default; enable with ?debug=1) -->
         <div id="debug-panel" style="display:none; position:fixed; bottom:10px; left:10px; z-index:9999; background:rgba(0,0,0,0.85); color:#e2e8f0; padding:10px; border-radius:8px; width:420px; max-height:40vh; overflow:auto; font-family:monospace; font-size:12px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
