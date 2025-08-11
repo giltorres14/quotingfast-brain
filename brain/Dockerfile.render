@@ -1,8 +1,8 @@
 FROM php:8.3-apache
 
 # FORCE COMPLETE REBUILD - Render cache corruption fix
-ARG CACHEBUST=1
-ARG REBUILD_TIMESTAMP=1734567890
+ARG CACHEBUST=2
+ARG REBUILD_TIMESTAMP=1734567891
 RUN echo "Force rebuild: ${CACHEBUST}-${REBUILD_TIMESTAMP}-$(date +%s)"
 
 # Disable BuildKit to avoid cache issues
@@ -26,8 +26,8 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install Composer (avoid --from to prevent cache issues)
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
 # Enable Apache rewrite module
 RUN a2enmod rewrite
