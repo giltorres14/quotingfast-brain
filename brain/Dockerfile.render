@@ -67,7 +67,9 @@ RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
     echo "DB_PASSWORD=KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ" >> .env && \
     echo "CACHE_DRIVER=file" >> .env && \
     echo "SESSION_DRIVER=file" >> .env && \
-    echo "QUEUE_CONNECTION=sync" >> .env
+    echo "QUEUE_CONNECTION=sync" >> .env && \
+    echo "VICI_API_PASS=8ZDWGAAQRD" >> .env && \
+    echo "VICI_TEST_MODE=false" >> .env
 
 # LESSON 14: Storage directories might not exist - always create them
 # LESSON 15: Combine mkdir operations for efficiency
