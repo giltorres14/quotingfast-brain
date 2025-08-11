@@ -7,6 +7,25 @@ use App\Models\Lead;
 use App\Models\LeadQueue;
 use App\Services\AllstateTestingService;
 
+// Serve logo/favicon
+Route::get('/logo.png', function () {
+    $imageUrl = 'https://quotingfast.com/logoqf0704.png';
+    $imageContent = @file_get_contents($imageUrl);
+    
+    if ($imageContent === false) {
+        // Fallback to alternative logo
+        $imageUrl = 'https://quotingfast.com/qfqflogo.png';
+        $imageContent = @file_get_contents($imageUrl);
+    }
+    
+    if ($imageContent === false) {
+        // Return a 1x1 transparent PNG if all else fails
+        $imageContent = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+    }
+    
+    return response($imageContent, 200)->header('Content-Type', 'image/png');
+})->withoutMiddleware('*');
+
 // Simple test endpoint to debug
 Route::get('/test-simple', function () {
     return response()->json(['status' => 'ok', 'time' => now()]);

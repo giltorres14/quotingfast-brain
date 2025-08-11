@@ -336,8 +336,8 @@
             <a href="/admin" class="logo-section">
                 <img src="https://quotingfast.com/logoqf0704.png" alt="QuotingFast" class="logo-image" style="height:120px; width:auto;" onerror="this.src='https://quotingfast.com/qfqflogo.png'; this.onerror=null;">
                 <div class="logo-text">
-                    <div class="logo-brand">QuotingFast</div>
-                    <div class="logo-subtitle">The Brain</div>
+                    <div class="logo-subtitle">QuotingFast</div>
+                    <div class="logo-brand">The Brain</div>
                 </div>
             </a>
             

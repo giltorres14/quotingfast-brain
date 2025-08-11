@@ -162,9 +162,12 @@ class AllstateTestingService
                 return !empty($lead->zip_code) ? 'lead_data' : 'default';
 
             case 'num_vehicles':
+                if (isset($qualificationData['num_vehicles'])) return 'top12';
                 return !empty($vehicles) ? 'vehicle_data' : 'default';
 
             case 'home_status':
+            case 'homeowner':
+                if (isset($qualificationData['homeowner'])) return 'top12';
                 foreach ($drivers as $driver) {
                     if (!empty($driver['residence_type'])) return 'driver_data';
                 }
@@ -172,6 +175,7 @@ class AllstateTestingService
                 return 'default';
 
             case 'active_license':
+                if (isset($qualificationData['active_license'])) return 'top12';
                 foreach ($drivers as $driver) {
                     if (!empty($driver['license_status'])) return 'driver_data';
                 }
@@ -229,14 +233,28 @@ class AllstateTestingService
                 if (!empty($payload['credit_score']) || !empty($payload['credit_score_range'])) return 'payload';
                 return 'default';
 
+            case 'allstate_quote':
+                if (isset($qualificationData['allstate_quote'])) return 'top12';
+                if (!empty($payload['allstate_quote'])) return 'payload';
+                return 'smart_logic';
+
+            case 'ready_to_speak':
+                if (isset($qualificationData['ready_to_speak'])) return 'top12';
+                if (!empty($payload['ready_to_speak'])) return 'payload';
+                return 'smart_logic';
+
             case 'current_premium':
+                if (isset($qualificationData['current_premium'])) return 'top12';
                 if (!empty($currentPolicy['premium'])) return 'current_policy';
                 if (!empty($currentPolicy['monthly_premium'])) return 'current_policy';
+                if (!empty($payload['current_premium'])) return 'payload';
                 return 'default';
 
             case 'policy_expires':
+                if (isset($qualificationData['policy_expires'])) return 'top12';
                 if (!empty($currentPolicy['expiration_date'])) return 'current_policy';
                 if (!empty($currentPolicy['policy_expires'])) return 'current_policy';
+                if (!empty($payload['policy_expires'])) return 'payload';
                 return 'default';
 
             case 'lead_quality_score':
