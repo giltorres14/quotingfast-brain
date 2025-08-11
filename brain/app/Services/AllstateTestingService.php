@@ -112,14 +112,7 @@ class AllstateTestingService
     private function determineDataSource($field, $value, $lead, $drivers, $vehicles, $currentPolicy, $payload, $qualificationData = [])
     {
         switch ($field) {
-            // If agent answered in Top 12, prefer that and label it
-            case 'state':
-                if (!empty($qualificationData['state'])) return 'top12';
-                return !empty($lead->state) ? 'lead_data' : 'default';
-
-            case 'zip_code':
-                if (!empty($qualificationData['zip_code'])) return 'top12';
-                return !empty($lead->zip_code) ? 'lead_data' : 'default';
+            // Top 12 Questions fields
             case 'currently_insured':
                 if (isset($qualificationData['currently_insured'])) return 'top12';
                 if (!empty($currentPolicy['current_insurance'])) return 'current_policy';
@@ -130,14 +123,42 @@ class AllstateTestingService
                 return 'smart_logic';
 
             case 'current_company':
+            case 'current_provider':
+                if (isset($qualificationData['current_provider'])) return 'top12';
                 if (!empty($currentPolicy['current_company'])) return 'current_policy';
-                if (!empty($payload['current_insurance'])) return 'payload';
+                if (!empty($payload['current_insurance_company'])) return 'payload';
+                return 'smart_logic';
+
+            case 'insurance_duration':
+                if (isset($qualificationData['insurance_duration'])) return 'top12';
+                if (!empty($currentPolicy['insurance_duration'])) return 'current_policy';
+                return 'smart_logic';
+
+            case 'active_license':
+                if (isset($qualificationData['active_license'])) return 'top12';
+                foreach ($drivers as $driver) {
+                    if (isset($driver['valid_license'])) return 'driver_data';
+                    if (isset($driver['license_status'])) return 'driver_data';
+                }
+                return 'driver_data';
+
+            case 'dui_sr22':
+                if (isset($qualificationData['dui_sr22'])) return 'top12';
+                foreach ($drivers as $driver) {
+                    if (isset($driver['dui']) || isset($driver['requires_sr22'])) return 'driver_data';
+                }
+                return 'default';
+
+            case 'dui_timeframe':
+                if (isset($qualificationData['dui_timeframe'])) return 'top12';
                 return 'smart_logic';
 
             case 'state':
+                if (!empty($qualificationData['state'])) return 'top12';
                 return !empty($lead->state) ? 'lead_data' : 'default';
 
             case 'zip_code':
+                if (!empty($qualificationData['zip_code'])) return 'top12';
                 return !empty($lead->zip_code) ? 'lead_data' : 'default';
 
             case 'num_vehicles':
