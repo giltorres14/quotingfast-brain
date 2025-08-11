@@ -47,7 +47,7 @@ return [
         'api_url' => env('VICI_API_URL', 'https://philli.callix.ai/vicidial/api'),
         'server_ip' => env('VICI_SERVER_IP', '37.27.138.222'),
         'web_server' => env('VICI_WEB_SERVER', 'philli.callix.ai'),
-        'test_mode' => env('VICI_TEST_MODE', true),
+        'test_mode' => env('VICI_TEST_MODE', false), // FIXED: Default to production mode
         'default_campaign' => env('VICI_DEFAULT_CAMPAIGN', 'Autodial'),
         'default_list' => env('VICI_DEFAULT_LIST', '101'),
         // Database connection - PRODUCTION CREDENTIALS
