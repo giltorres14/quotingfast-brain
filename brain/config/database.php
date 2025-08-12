@@ -85,11 +85,12 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL', env('DB_URL')),
-            'host' => env('DB_HOST', '127.0.0.1'),
+            // HARDCODED: Using external hostname because Render caches env variables
+            'host' => env('DB_HOST', 'dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com') ?: 'dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com',
             'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
+            'database' => env('DB_DATABASE', 'brain_production') ?: 'brain_production',
+            'username' => env('DB_USERNAME', 'brain_user') ?: 'brain_user',
+            'password' => env('DB_PASSWORD', 'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ') ?: 'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ',
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
