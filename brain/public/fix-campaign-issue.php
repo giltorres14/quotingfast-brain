@@ -42,6 +42,14 @@ try {
         echo "✅ Campaigns table created\n";
     } else {
         echo "✅ Campaigns table already exists\n";
+        
+        // Check if display_name column exists
+        $hasDisplayName = \DB::select("SELECT column_name FROM information_schema.columns WHERE table_name = 'campaigns' AND column_name = 'display_name'");
+        if (empty($hasDisplayName)) {
+            echo "  ⚠️ Missing display_name column, adding it...\n";
+            \DB::statement("ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS display_name VARCHAR(255)");
+            echo "  ✅ Added display_name column\n";
+        }
     }
     
     // Add some default campaigns
