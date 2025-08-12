@@ -240,13 +240,7 @@ class Lead extends Model
         return is_array($this->vehicles) ? count($this->vehicles) : 0;
     }
 
-    /**
-     * Get Vici call metrics relationship
-     */
-    public function viciCallMetrics()
-    {
-        return $this->hasMany(ViciCallMetrics::class, 'lead_id', 'id');
-    }
+    // Removed duplicate viciCallMetrics() method - already defined above
 
     /**
      * Get lead conversions relationship
