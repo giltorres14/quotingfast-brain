@@ -1,4 +1,4 @@
-@extends('components.app-layout')
+@extends('layouts.app')
 
 @section('title', 'Brain Control Center')
 
