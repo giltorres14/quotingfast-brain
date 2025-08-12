@@ -451,10 +451,13 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     // Try to queue it if database fails
                     try {
                         if (\Schema::hasTable('lead_queue')) {
+                            $contact = isset($data['contact']) ? $data['contact'] : $data;
                             LeadQueue::create([
                                 'payload' => $data,
                                 'source' => 'api-webhook-failsafe',
-                                'status' => 'pending'
+                                'status' => 'pending',
+                                'lead_name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
+                                'phone' => $contact['phone'] ?? null
                             ]);
                             \Log::info('✅ Lead queued for retry');
                         }
@@ -498,10 +501,14 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                 // Try to queue even on critical errors
                 try {
                     if (\Schema::hasTable('lead_queue')) {
+                        $contact = isset($data['contact']) ? $data['contact'] : $data;
                         LeadQueue::create([
                             'payload' => $data,
                             'source' => 'api-webhook-error',
-                            'status' => 'pending'
+                            'status' => 'failed',
+                            'lead_name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
+                            'phone' => $contact['phone'] ?? null,
+                            'error_message' => $e->getMessage()
                         ]);
                         \Log::info('✅ Lead queued after error');
                     }
