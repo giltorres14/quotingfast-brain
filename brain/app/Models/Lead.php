@@ -125,6 +125,7 @@ class Lead extends Model
         'campaign_id',
         'external_lead_id',
         'vici_list_id',
+        'tenant_id',
         
         // Complex data as JSON
         'drivers',

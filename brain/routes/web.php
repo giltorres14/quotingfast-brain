@@ -1786,6 +1786,7 @@ Route::post('/webhook.php', function (Request $request) {
             'type' => detectLeadType($data),
             'received_at' => now(),
             'joined_at' => now(),
+            'tenant_id' => 5, // Default tenant ID
             
             // Vendor Information (from LQF payload)
             'vendor_name' => $data['vendor'] ?? $data['vendor_name'] ?? null,
@@ -5905,6 +5906,7 @@ Route::post('/webhook/home', function (Request $request) {
         'type' => 'home', // Explicitly set as home insurance
         'received_at' => now(),
         'joined_at' => now(),
+        'tenant_id' => 5, // Default tenant ID
         
         // Capture additional fields
         'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null,
@@ -6107,6 +6109,7 @@ Route::post('/webhook/auto', function (Request $request) {
         'type' => 'auto', // Explicitly set as auto insurance
         'received_at' => now(),
         'joined_at' => now(),
+        'tenant_id' => 5, // Default tenant ID
         
         // Capture additional fields
         'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null,
