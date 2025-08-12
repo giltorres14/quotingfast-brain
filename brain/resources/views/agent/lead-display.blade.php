@@ -886,25 +886,24 @@
         <!-- Header - Agent View (No Admin Data) -->
         <div class="header" style="position: relative;">
             @if(isset($mode) && in_array($mode, ['view', 'edit']) && !request()->get('iframe'))
-                <a href="/leads" class="back-button admin-only" style="position: absolute; top: 20px; left: 20px; z-index: 100;">← Back to Leads</a>
+                <a href="/leads" class="back-button admin-only" style="position: absolute; top: 15px; left: 170px; z-index: 100;">← Back to Leads</a>
             @endif
             
-            <!-- Lead Type Avatar Circle - Prominent and Eye-catching -->
-            <div style="position: absolute; left: -60px; top: 50%; transform: translateY(-50%); z-index: 50;">
+            <!-- Lead Type Avatar Circle - Smaller and Well-positioned -->
+            <div style="position: absolute; left: 30px; top: 50%; transform: translateY(-50%); z-index: 50;">
                 <div style="
-                    width: 200px; 
-                    height: 200px; 
+                    width: 120px; 
+                    height: 120px; 
                     border-radius: 50%; 
                     display: flex; 
                     align-items: center; 
                     justify-content: center; 
                     font-weight: 900; 
-                    font-size: 56px; 
+                    font-size: 32px; 
                     color: white;
-                    box-shadow: 0 12px 40px rgba(0,0,0,0.25), 0 0 0 8px rgba(255,255,255,0.3);
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 0 0 4px rgba(255,255,255,0.3);
                     background: {{ $lead->type === 'auto' ? 'linear-gradient(135deg, #667eea 0%, #3B82F6 100%)' : ($lead->type === 'home' ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)') }};
-                    border: 4px solid white;
-                    animation: pulse 2s infinite;
+                    border: 3px solid white;
                 ">
                     {{ $lead->type === 'auto' ? 'AUTO' : ($lead->type === 'home' ? 'HOME' : strtoupper(substr($lead->type ?? 'N/A', 0, 4))) }}
                 </div>
