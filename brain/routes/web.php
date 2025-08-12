@@ -5604,6 +5604,54 @@ Route::get('/diagnostics', function() {
 })->name('diagnostics');
 
 // Simple test route to check database
+// Direct database test to debug connection issues
+Route::get('/db-test-direct', function() {
+    $config = config('database.connections.pgsql');
+    
+    $response = [
+        'env_check' => [
+            'DB_HOST' => env('DB_HOST'),
+            'DB_CONNECTION' => env('DB_CONNECTION'),
+            'DB_DATABASE' => env('DB_DATABASE'),
+            'DB_USERNAME' => env('DB_USERNAME'),
+            'password_exists' => !empty(env('DB_PASSWORD'))
+        ],
+        'config_check' => [
+            'host' => $config['host'] ?? 'not set',
+            'port' => $config['port'] ?? 'not set',
+            'database' => $config['database'] ?? 'not set',
+            'username' => $config['username'] ?? 'not set',
+            'driver' => $config['driver'] ?? 'not set'
+        ],
+        'connection_test' => null,
+        'lead_count' => null
+    ];
+    
+    try {
+        // Test connection
+        DB::connection()->getPdo();
+        $response['connection_test'] = 'SUCCESS - Connected to database';
+        
+        // Get lead count
+        $leadCount = DB::table('leads')->count();
+        $response['lead_count'] = $leadCount;
+        
+        // Get some recent leads
+        $recentLeads = DB::table('leads')
+            ->select('id', 'name', 'created_at')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+        $response['recent_leads'] = $recentLeads;
+        
+    } catch (\Exception $e) {
+        $response['connection_test'] = 'FAILED';
+        $response['error'] = $e->getMessage();
+    }
+    
+    return response()->json($response, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+});
+
 Route::get('/test-leads', function() {
     try {
         $count = \App\Models\Lead::count();
