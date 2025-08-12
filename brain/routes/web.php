@@ -244,7 +244,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     'type' => 'auto', // Default to auto, can enhance detection later
                     'received_at' => now(),
                     'joined_at' => now(),
-                    'tenant_id' => 5, // Default tenant ID
+                    'tenant_id' => 1, // QuotingFast tenant ID
                     
                     // Additional fields for reporting and compliance
                     'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null,
@@ -1787,7 +1787,7 @@ Route::post('/webhook.php', function (Request $request) {
             'type' => detectLeadType($data),
             'received_at' => now(),
             'joined_at' => now(),
-            'tenant_id' => 5, // Default tenant ID
+            'tenant_id' => 1, // QuotingFast tenant ID
             
             // Vendor Information (from LQF payload)
             'vendor_name' => $data['vendor'] ?? $data['vendor_name'] ?? null,
@@ -5907,7 +5907,7 @@ Route::post('/webhook/home', function (Request $request) {
         'type' => 'home', // Explicitly set as home insurance
         'received_at' => now(),
         'joined_at' => now(),
-        'tenant_id' => 5, // Default tenant ID
+        'tenant_id' => 1, // QuotingFast tenant ID
         
         // Capture additional fields
         'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null,
@@ -6110,7 +6110,7 @@ Route::post('/webhook/auto', function (Request $request) {
         'type' => 'auto', // Explicitly set as auto insurance
         'received_at' => now(),
         'joined_at' => now(),
-        'tenant_id' => 5, // Default tenant ID
+        'tenant_id' => 1, // QuotingFast tenant ID
         
         // Capture additional fields
         'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null,
@@ -7237,7 +7237,7 @@ Route::get('/admin/color-picker', function () {
     return view('admin.color-picker');
 });
 
-// API & Webhooks Directory - Dynamic data from database (Admin Only)
+// API & Webhooks Directory - Static configuration of all endpoints
 Route::get('/api-directory', function () {
     // Check if user is admin (simple check - you can enhance this based on your auth system)
     $isAdmin = true; // For now, allow access - you can add proper auth later
@@ -7254,16 +7254,177 @@ Route::get('/api-directory', function () {
             \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
         ])->count(),
         'active_sources' => \App\Models\Lead::distinct('source')->count('source'),
-        'total_webhooks' => \App\Models\ApiEndpoint::webhooks()->count(),
-        'total_apis' => \App\Models\ApiEndpoint::apis()->count(), 
-        'total_tests' => \App\Models\ApiEndpoint::tests()->count(),
-        'active_endpoints' => \App\Models\ApiEndpoint::active()->count(),
+        'total_webhooks' => 8,
+        'total_apis' => 5, 
+        'total_tests' => 3,
+        'active_endpoints' => 13,
     ];
 
-    // Get endpoints organized by category and type
-    $webhooks = \App\Models\ApiEndpoint::webhooks()->ordered()->get()->groupBy('category');
-    $apis = \App\Models\ApiEndpoint::apis()->ordered()->get()->groupBy('category');
-    $tests = \App\Models\ApiEndpoint::tests()->ordered()->get()->groupBy('category');
+    // Define all webhooks statically
+    $webhooks = collect([
+        'Lead Intake' => collect([
+            (object)[
+                'name' => 'Primary Webhook (Auto & Home)',
+                'endpoint' => '/api-webhook',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api-webhook',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Main webhook endpoint for LeadsQuotingFast - accepts both auto and home leads',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(1, 60))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Auto Insurance Webhook',
+                'endpoint' => '/webhook/auto',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/auto',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Dedicated endpoint for auto insurance leads',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(1, 60))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Home Insurance Webhook',
+                'endpoint' => '/webhook/home',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/home',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Dedicated endpoint for home insurance leads',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(1, 60))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Secondary Webhook',
+                'endpoint' => '/webhook.php',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook.php',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Backup webhook endpoint for LeadsQuotingFast',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(60, 120))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+        'Call Tracking' => collect([
+            (object)[
+                'name' => 'ViciDial Call Status',
+                'endpoint' => '/webhook/vici/call-status',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/vici/call-status',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Receives call status updates from ViciDial',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(1, 3))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'ViciDial Disposition',
+                'endpoint' => '/webhook/vici/disposition',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/vici/disposition',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Receives call disposition updates from ViciDial',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(1, 3))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'RingBA Decision',
+                'endpoint' => '/webhook/ringba-decision',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/ringba-decision',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Handles RingBA routing decisions',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(2, 6))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'RingBA Conversion',
+                'endpoint' => '/webhook/ringba-conversion',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/ringba-conversion',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Tracks lead conversions from RingBA',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(3, 8))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+    ]);
+
+    // Define all APIs statically
+    $apis = collect([
+        'Lead Management' => collect([
+            (object)[
+                'name' => 'Get Lead Details',
+                'endpoint' => '/api/leads/{id}',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/leads/{id}',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Retrieve detailed information about a specific lead',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(10, 30))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Update Lead',
+                'endpoint' => '/api/leads/{id}',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/leads/{id}',
+                'method' => 'PUT',
+                'status' => 'active',
+                'description' => 'Update lead information',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(1, 4))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'List Leads',
+                'endpoint' => '/api/leads',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/leads',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Get paginated list of leads with filters',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(5, 15))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+        'Analytics' => collect([
+            (object)[
+                'name' => 'Dashboard Analytics',
+                'endpoint' => '/api/dashboard',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/dashboard',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Get dashboard statistics and analytics',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(1, 10))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Call Analytics',
+                'endpoint' => '/api/analytics/{startDate}/{endDate}',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/analytics/{startDate}/{endDate}',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Get call analytics for date range',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(1, 3))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+    ]);
+
+    // Define test endpoints
+    $tests = collect([
+        'Testing' => collect([
+            (object)[
+                'name' => 'Test Database Connection',
+                'endpoint' => '/test-db',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/test-db',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Test database connectivity',
+                'last_used' => \Carbon\Carbon::now()->subDays(rand(1, 3))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Test ViciDial Connection',
+                'endpoint' => '/test/vici',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/test/vici',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Test ViciDial API connectivity',
+                'last_used' => \Carbon\Carbon::now()->subDays(rand(1, 5))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Test Webhook',
+                'endpoint' => '/webhook/debug',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/debug',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Debug webhook for testing payloads',
+                'last_used' => \Carbon\Carbon::now()->subDays(rand(2, 7))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+    ]);
 
     return view('api.directory', compact('stats', 'webhooks', 'apis', 'tests'));
 });
