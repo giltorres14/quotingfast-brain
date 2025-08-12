@@ -188,6 +188,9 @@
                     ⚙️ Management ▼
                 </a>
                 <div class="dropdown-menu" id="managementDropdown">
+                    <a href="/admin/control-center" class="dropdown-item {{ request()->is('admin/control-center') ? 'active' : '' }}">
+                        🧠 Control Center
+                    </a>
                     <a href="/admin/allstate-testing" class="dropdown-item {{ request()->is('admin/allstate-testing') ? 'active' : '' }}">
                         🧪 Allstate Testing
                     </a>
