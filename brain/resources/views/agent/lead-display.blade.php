@@ -67,7 +67,7 @@
             --iframe-height: auto;
         }
         
-                .header {
+        .header {
             overflow-x: hidden;
             width: 100%;
             max-width: 900px;
@@ -122,7 +122,7 @@
             font-size: 12px;
         }
         
-                .section {
+        .section {
             background: white;
             border-radius: 8px;
             padding: 12px;
@@ -1293,7 +1293,7 @@
                         @else
                             <span style="font-family: monospace; color: #3b82f6;">{{ $campaignId }}</span>
                         @endif
-                    </div>
+                </div>
                 </div>
                 @endif
                 
@@ -1325,8 +1325,8 @@
         </div>
         @endif
 
-        <!-- TCPA Compliance Section - BOTH VIEW AND EDIT -->
-        @if(isset($mode) && ($mode === 'view' || $mode === 'edit'))
+        <!-- TCPA Compliance Section - HIDE ONLY IN EDIT MODE -->
+        @if(!isset($mode) || $mode !== 'edit')
         <div class="section">
                     <div class="section-title compliance">🛡️ TCPA Compliance</div>
                     <div class="info-grid">
@@ -1372,33 +1372,7 @@
                         </div>
                         @endif
 
-                        <!-- Landing Page URL -->
-                        @if(isset($lead->landing_page_url) && $lead->landing_page_url)
-                        <div class="info-item">
-                            <div class="info-label">Landing Page</div>
-                            <div class="info-value">
-                                <a href="{{ $lead->landing_page_url }}" target="_blank" style="color: #007bff; text-decoration: none;">
-                                    🔗 View Landing Page
-                                </a>
-                                <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
-                                    {{ $lead->landing_page_url }}
-                                </div>
-                            </div>
-                        </div>
-                        @elseif(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['landing_page_url']))
-                        <div class="info-item">
-                            <div class="info-label">Landing Page</div>
-                            <div class="info-value">
-                                <a href="{{ $lead->meta['landing_page_url'] }}" target="_blank" style="color: #007bff; text-decoration: none;">
-                                    🔗 View Landing Page
-                                </a>
-                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['landing_page_url'] }}', this)" title="Copy to clipboard">📎</button>
-                                <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
-                                    {{ $lead->meta['landing_page_url'] }}
-                                </div>
-            </div>
-        </div>
-        @endif
+
 
                         <!-- TrustedForm Certificate -->
                         @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['trusted_form_cert_url']))
@@ -1411,6 +1385,69 @@
                                 <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['trusted_form_cert_url'] }}', this)" title="Copy to clipboard">📎</button>
                                 <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
                                     {{ $lead->meta['trusted_form_cert_url'] }}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Landing Page from Payload -->
+                        @php
+                            $landingPage = null;
+                            if (isset($lead->payload) && is_string($lead->payload)) {
+                                $payloadData = json_decode($lead->payload, true);
+                                $landingPage = $payloadData['landing_page'] ?? 
+                                              $payloadData['data']['landing_page'] ?? 
+                                              $payloadData['meta']['landing_page'] ?? null;
+                            }
+                            // Also check direct field
+                            if (!$landingPage && isset($lead->landing_page)) {
+                                $landingPage = $lead->landing_page;
+                            }
+                        @endphp
+                        @if($landingPage)
+                        <div class="info-item">
+                            <div class="info-label">Landing Page</div>
+                            <div class="info-value">
+                                <a href="{{ $landingPage }}" target="_blank" style="color: #007bff; text-decoration: none;">
+                                    🔗 View Landing Page
+                                </a>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $landingPage }}', this)" title="Copy to clipboard">📎</button>
+                                <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
+                                    {{ $landingPage }}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- TCPA Consent Text from Payload -->
+                        @php
+                            $tcpaConsentText = null;
+                            if (isset($lead->payload) && is_string($lead->payload)) {
+                                $payloadData = json_decode($lead->payload, true);
+                                $tcpaConsentText = $payloadData['tcpa_consent_text'] ?? 
+                                                  $payloadData['data']['tcpa_consent_text'] ?? 
+                                                  $payloadData['tcpa_text'] ?? 
+                                                  $payloadData['data']['tcpa_text'] ?? null;
+                            }
+                            // Also check direct field
+                            if (!$tcpaConsentText && isset($lead->tcpa_consent_text)) {
+                                $tcpaConsentText = $lead->tcpa_consent_text;
+                            }
+                        @endphp
+                        @if($tcpaConsentText)
+                        <div class="info-item">
+                            <div class="info-label">TCPA Consent Text</div>
+                            <div class="info-value">
+                                <button class="copy-btn" onclick="copyToClipboard('{{ addslashes($tcpaConsentText) }}', this)" title="Copy to clipboard" style="float: right;">📎</button>
+                                <div style="position: relative;">
+                                    <div id="tcpa-text-preview-{{ $lead->id }}" style="max-height: 60px; overflow: hidden; background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 12px; line-height: 1.4; cursor: pointer;" onclick="toggleTcpaText('{{ $lead->id }}')">
+                                        {{ $tcpaConsentText }}
+                                    </div>
+                                    <div id="tcpa-text-full-{{ $lead->id }}" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 12px; line-height: 1.4; max-height: 300px; overflow-y: auto;">
+                                        {{ $tcpaConsentText }}
+                                        <br><br>
+                                        <button onclick="toggleTcpaText('{{ $lead->id }}')" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Collapse</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -3279,7 +3316,7 @@
                     makeSelect.innerHTML += `<option value="${make}">${make}</option>`;
                 });
                 makeSelect.disabled = false;
-            } else {
+                } else {
                 makeSelect.innerHTML = '<option value="">Select Make...</option>';
                 makeSelect.disabled = true;
             }
@@ -3737,7 +3774,7 @@
                 if (result.success) {
                     closeDriverModal();
                     alert(isEditing ? 'Driver updated successfully!' : 'Driver added successfully!');
-                    location.reload();
+            location.reload();
                 } else {
                     alert('Error: ' + result.error);
                 }
@@ -3974,6 +4011,21 @@
                 }
                 document.body.removeChild(textArea);
             });
+        }
+
+        function toggleTcpaText(leadId) {
+            const preview = document.getElementById('tcpa-text-preview-' + leadId);
+            const full = document.getElementById('tcpa-text-full-' + leadId);
+            
+            if (preview && full) {
+                if (preview.style.display === 'none') {
+                    preview.style.display = 'block';
+                    full.style.display = 'none';
+                } else {
+                    preview.style.display = 'none';
+                    full.style.display = 'block';
+                }
+            }
         }
         
         // Notify parent window that iframe is loaded
