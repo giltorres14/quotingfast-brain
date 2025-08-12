@@ -16,7 +16,9 @@ class Campaign extends Model
         'total_leads',
         'is_auto_created',
         'tenant_id',
-        'display_name'
+        'display_name',
+        'buyer_id',
+        'buyer_name'
     ];
 
     protected $casts = [
@@ -29,6 +31,29 @@ class Campaign extends Model
     public function leads()
     {
         return $this->hasMany(Lead::class, 'campaign_id', 'campaign_id');
+    }
+
+    // Many-to-many relationship with buyers
+    public function buyers()
+    {
+        return $this->belongsToMany(Buyer::class, 'campaign_buyer')
+                    ->withPivot('buyer_campaign_id', 'is_primary')
+                    ->withTimestamps();
+    }
+    
+    // Get primary buyer (if designated)
+    public function primaryBuyer()
+    {
+        return $this->buyers()->wherePivot('is_primary', true)->first();
+    }
+    
+    // Add a buyer to this campaign
+    public function addBuyer($buyer, $buyerCampaignId = null, $isPrimary = false)
+    {
+        return $this->buyers()->attach($buyer->id ?? $buyer, [
+            'buyer_campaign_id' => $buyerCampaignId,
+            'is_primary' => $isPrimary
+        ]);
     }
 
     // Auto-create campaign when new ID detected

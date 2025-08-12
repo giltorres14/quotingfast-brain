@@ -4854,7 +4854,8 @@ Route::post('/buyer/logout', function () {
 
 // Admin Campaign Management
 Route::get('/admin/campaigns', function () {
-    $campaigns = \App\Models\Campaign::orderBy('is_auto_created', 'desc')
+    $campaigns = \App\Models\Campaign::with('buyers')
+        ->orderBy('is_auto_created', 'desc')
         ->orderBy('last_lead_received_at', 'desc')
         ->get();
     

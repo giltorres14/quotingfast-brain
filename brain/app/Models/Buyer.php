@@ -35,6 +35,16 @@ class Buyer extends Model
     {
         return $this->hasMany(Lead::class, 'buyer_name', 'name');
     }
+    
+    /**
+     * Many-to-many relationship with campaigns
+     */
+    public function campaigns()
+    {
+        return $this->belongsToMany(Campaign::class, 'campaign_buyer')
+                    ->withPivot('buyer_campaign_id', 'is_primary')
+                    ->withTimestamps();
+    }
 
     /**
      * Add a campaign if it doesn't exist

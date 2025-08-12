@@ -241,7 +241,7 @@ class ImportSurajBulkCsv extends Command
                 }
                 
                 // Build lead data
-                $leadData = $this->buildLeadData($row, $columnMap, $phone, $filename, $fileDate);
+                $leadData = $this->buildLeadData($row, $columnMap, $phone, $filename, $fileDate, $headers);
                 
                 // Import the lead
                 if (!$dryRun) {
@@ -307,22 +307,48 @@ class ImportSurajBulkCsv extends Command
         $columnMap = [];
         
         $mappings = [
-            'phone' => ['phone', 'phone_number', 'telephone', 'mobile', 'cell', 'contact'],
-            'first_name' => ['first_name', 'firstname', 'fname', 'first'],
-            'last_name' => ['last_name', 'lastname', 'lname', 'last'],
-            'email' => ['email', 'email_address', 'e-mail'],
-            'address' => ['address', 'address1', 'street', 'street_address'],
+            'phone' => ['phonenumber', 'phone_number', 'phone', 'telephone', 'mobile', 'cell', 'contact'],
+            'first_name' => ['firstname', 'first_name', 'fname', 'first'],
+            'last_name' => ['lastname', 'last_name', 'lname', 'last'],
+            'email' => ['emailaddress', 'email_address', 'email', 'e-mail'],
+            'address' => ['mailaddress1', 'address', 'address1', 'street', 'street_address'],
             'city' => ['city', 'town'],
-            'state' => ['state', 'province', 'st'],
+            'state' => ['provincestatename', 'state', 'province', 'st'],
             'zip' => ['zip', 'zip_code', 'zipcode', 'postal_code', 'postal'],
             'dob' => ['dob', 'date_of_birth', 'birthdate', 'birth_date'],
-            'gender' => ['gender', 'sex']
+            'gender' => ['gender', 'sex'],
+            'vendor_id' => ['vendor_id', 'vendorid', 'vendor_code'],
+            'vendor_name' => ['vendor_name', 'vendorname', 'vendor'],
+            'campaign_id' => ['vendor_campaign_id', 'campaign_id', 'campaign'],
+            'buyer_id' => ['buyer_id', 'buyerid', 'buyer_code'],
+            'buyer_name' => ['buyer_name', 'buyername', 'buyer'],
+            'buyer_campaign_id' => ['buyer_campaign_id', 'buyercampaignid']
         ];
         
         foreach ($headers as $index => $header) {
             $headerLower = strtolower(trim($header));
             
             foreach ($mappings as $field => $variations) {
+                foreach ($variations as $variation) {
+                    // Try exact match first
+                    if ($headerLower === $variation) {
+                        $columnMap[$field] = $index;
+                        break 2;
+                    }
+                }
+            }
+        }
+        
+        // If we didn't find exact matches, try partial matches for remaining fields
+        foreach ($headers as $index => $header) {
+            $headerLower = strtolower(trim($header));
+            
+            foreach ($mappings as $field => $variations) {
+                // Skip if already mapped
+                if (isset($columnMap[$field])) {
+                    continue;
+                }
+                
                 foreach ($variations as $variation) {
                     if (strpos($headerLower, $variation) !== false) {
                         $columnMap[$field] = $index;
@@ -360,7 +386,7 @@ class ImportSurajBulkCsv extends Command
     /**
      * Build lead data from CSV row
      */
-    private function buildLeadData($row, $columnMap, $phone, $filename, $fileDate)
+    private function buildLeadData($row, $columnMap, $phone, $filename, $fileDate, $headers = [])
     {
         $leadData = [
             'phone' => $phone,
@@ -380,7 +406,13 @@ class ImportSurajBulkCsv extends Command
             'state' => 'state',
             'zip' => 'zip_code',
             'dob' => 'date_of_birth',
-            'gender' => 'gender'
+            'gender' => 'gender',
+            'vendor_id' => 'vendor_id',
+            'vendor_name' => 'vendor_name',
+            'campaign_id' => 'campaign_id',
+            'buyer_id' => 'buyer_id',
+            'buyer_name' => 'buyer_name',
+            'buyer_campaign_id' => 'buyer_campaign_id'
         ];
         
         foreach ($fieldMapping as $csvField => $dbField) {
@@ -400,12 +432,118 @@ class ImportSurajBulkCsv extends Command
             );
         }
         
+        // Auto-create vendor if we have vendor_name
+        if (!empty($leadData['vendor_name'])) {
+            try {
+                $vendor = \App\Models\Vendor::firstOrCreate(
+                    ['name' => $leadData['vendor_name']],
+                    [
+                        'active' => true,
+                        'notes' => 'Auto-created from Suraj import'
+                    ]
+                );
+                
+                // Increment lead count
+                $vendor->increment('total_leads');
+                
+                // Add vendor_id to metadata if provided
+                if (!empty($leadData['vendor_id'])) {
+                    $contactInfo = $vendor->contact_info ?? [];
+                    $contactInfo['vendor_id'] = $leadData['vendor_id'];
+                    $vendor->contact_info = $contactInfo;
+                    $vendor->save();
+                }
+            } catch (\Exception $e) {
+                Log::warning("Failed to create vendor: " . $e->getMessage());
+            }
+        }
+        
+        // Auto-create buyer if we have buyer_name
+        $buyerId = null;
+        if (!empty($leadData['buyer_name'])) {
+            try {
+                $buyer = \App\Models\Buyer::firstOrCreate(
+                    ['name' => $leadData['buyer_name']],
+                    [
+                        'active' => true,
+                        'notes' => 'Auto-created from Suraj import'
+                    ]
+                );
+                
+                // Increment lead count
+                $buyer->increment('total_leads');
+                $buyerId = $buyer->id;
+                
+                // Add buyer_id to metadata if provided
+                if (!empty($leadData['buyer_id'])) {
+                    $contactInfo = $buyer->contact_info ?? [];
+                    $contactInfo['buyer_id'] = $leadData['buyer_id'];
+                    $buyer->contact_info = $contactInfo;
+                    $buyer->save();
+                }
+            } catch (\Exception $e) {
+                Log::warning("Failed to create buyer: " . $e->getMessage());
+            }
+        }
+        
+        // Create or update campaign with buyer info
+        if (!empty($leadData['buyer_campaign_id'])) {
+            try {
+                // Use vendor_campaign_id if available, otherwise use buyer_campaign_id
+                $campaignId = $leadData['campaign_id'] ?? $leadData['buyer_campaign_id'];
+                
+                $campaign = \App\Models\Campaign::firstOrCreate(
+                    ['campaign_id' => $campaignId],
+                    [
+                        'name' => "Campaign #{$campaignId}",
+                        'display_name' => "Campaign #{$campaignId}",
+                        'description' => 'Auto-created from Suraj import',
+                        'status' => 'active',
+                        'is_auto_created' => true,
+                        'tenant_id' => 1
+                    ]
+                );
+                
+                // Link buyer to campaign if we have a buyer
+                if ($buyerId !== null) {
+                    // Check if this buyer is already linked to this campaign
+                    if (!$campaign->buyers()->where('buyer_id', $buyerId)->exists()) {
+                        $campaign->buyers()->attach($buyerId, [
+                            'buyer_campaign_id' => $leadData['buyer_campaign_id'],
+                            'is_primary' => false
+                        ]);
+                    }
+                }
+                
+                // Use the campaign_id for the lead
+                $leadData['campaign_id'] = $campaignId;
+                
+            } catch (\Exception $e) {
+                Log::warning("Failed to create/update campaign: " . $e->getMessage());
+            }
+        }
+        
+        // Create labeled CSV row for payload
+        $csvRowData = [];
+        if (!empty($headers)) {
+            foreach ($headers as $index => $header) {
+                if (isset($row[$index])) {
+                    $csvRowData[$header] = $row[$index];
+                }
+            }
+        }
+        
+        // Store full payload with CSV row data
+        $leadData['payload'] = json_encode($csvRowData);
+        
         // Store metadata
         $leadData['meta'] = json_encode([
             'import_file' => $filename,
             'import_date' => now()->toISOString(),
             'file_date' => $fileDate,
-            'source' => 'Suraj Bulk Import'
+            'source' => 'Suraj Bulk Import',
+            'vendor_id' => $leadData['vendor_id'] ?? null,
+            'buyer_id' => $leadData['buyer_id'] ?? null
         ]);
         
         return $leadData;

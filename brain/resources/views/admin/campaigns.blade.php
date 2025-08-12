@@ -252,15 +252,16 @@
         
         <table>
             <thead>
-                <tr>
-                    <th>Campaign ID</th>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>Total Leads</th>
-                    <th>First Seen</th>
-                    <th>Last Lead</th>
-                    <th>Actions</th>
-                </tr>
+                                    <tr>
+                        <th>Campaign ID</th>
+                        <th>Name</th>
+                        <th>Buyer</th>
+                        <th>Status</th>
+                        <th>Total Leads</th>
+                        <th>First Seen</th>
+                        <th>Last Lead</th>
+                        <th>Actions</th>
+                    </tr>
             </thead>
             <tbody>
                 @forelse($campaigns as $campaign)
@@ -270,6 +271,29 @@
                             <span id="name-{{ $campaign->id }}">{{ $campaign->display_name }}</span>
                             @if($campaign->description)
                                 <br><small style="color: #6b7280;">{{ $campaign->description }}</small>
+                            @endif
+                        </td>
+                        <td>
+                            @php
+                                // Get buyers through the many-to-many relationship
+                                $buyers = [];
+                                if (method_exists($campaign, 'buyers')) {
+                                    $buyers = $campaign->buyers;
+                                }
+                                // Fallback to single buyer_name if no relationship
+                                if ($buyers->isEmpty() && $campaign->buyer_name) {
+                                    $buyers = collect([['name' => $campaign->buyer_name]]);
+                                }
+                            @endphp
+                            
+                            @if($buyers && $buyers->count() > 0)
+                                @foreach($buyers as $buyer)
+                                    <span style="display: inline-block; background: #10b981; color: white; padding: 2px 8px; border-radius: 4px; margin: 2px; font-size: 12px;">
+                                        {{ is_object($buyer) ? $buyer->name : $buyer['name'] }}
+                                    </span>
+                                @endforeach
+                            @else
+                                <span style="color: #999; font-size: 12px;">No buyers assigned</span>
                             @endif
                         </td>
                         <td>
