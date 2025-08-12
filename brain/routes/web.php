@@ -2226,6 +2226,78 @@ Route::post('/webhook/ringba', function (Request $request) {
 // Vici Call Reporting Webhooks
 use App\Http\Controllers\ViciCallWebhookController;
 
+// Suraj Upload Portal
+Route::get('/suraj/upload', function() {
+    return view('suraj.upload-portal');
+})->name('suraj.upload');
+
+Route::post('/suraj/upload', function(Request $request) {
+    try {
+        $file = $request->file('file');
+        $duplicateRule = $request->input('duplicate_rule', 'lqf');
+        
+        if (!$file || !$file->isValid()) {
+            return response()->json(['success' => false, 'message' => 'Invalid file']);
+        }
+        
+        // Save to temp location
+        $tempPath = storage_path('app/suraj_uploads');
+        if (!file_exists($tempPath)) {
+            mkdir($tempPath, 0755, true);
+        }
+        
+        $filename = date('Y-m-d_His') . '_' . $file->getClientOriginalName();
+        $filepath = $file->storeAs('suraj_uploads', $filename);
+        $fullPath = storage_path('app/' . $filepath);
+        
+        // Process the file using the watch folder command
+        $output = [];
+        $returnVar = 0;
+        exec("cd " . base_path() . " && php artisan suraj:watch-folder " . escapeshellarg($tempPath) . " --once --push-to-vici 2>&1", $output, $returnVar);
+        
+        // Parse output for statistics
+        $stats = [
+            'rows' => 0,
+            'imported' => 0,
+            'updated' => 0,
+            'duplicates' => 0
+        ];
+        
+        foreach ($output as $line) {
+            if (strpos($line, 'New:') !== false) {
+                preg_match('/New: (\d+)/', $line, $matches);
+                $stats['imported'] = isset($matches[1]) ? (int)$matches[1] : 0;
+            }
+            if (strpos($line, 'Updated:') !== false) {
+                preg_match('/Updated: (\d+)/', $line, $matches);
+                $stats['updated'] = isset($matches[1]) ? (int)$matches[1] : 0;
+            }
+            if (strpos($line, 'rows') !== false) {
+                preg_match('/(\d+) rows/', $line, $matches);
+                $stats['rows'] = isset($matches[1]) ? (int)$matches[1] : 0;
+            }
+        }
+        
+        Log::info('Suraj file uploaded and processed', [
+            'filename' => $filename,
+            'stats' => $stats
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'File processed successfully',
+            'stats' => $stats
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Suraj upload error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+})->name('suraj.upload.process');
+
 Route::post('/webhook/vici/call-status', [ViciCallWebhookController::class, 'handleCallStatus'])
     ->name('webhook.vici.call-status');
     
