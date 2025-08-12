@@ -919,8 +919,34 @@
                         <span style="font-size: 14px; opacity: 0.8;">(Edit Mode)</span>
                     @endif
                 </h1>
-                <div class="meta" style="text-align: center;">
-                    Lead ID: {{ $lead->external_lead_id ?? $lead->id }}
+                <div class="meta" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px;">
+                    <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
+                    @if($lead->source)
+                        @php
+                            $sourceColors = [
+                                'SURAJ_BULK' => ['bg' => '#8b5cf6', 'label' => 'Suraj Bulk'],
+                                'LQF_BULK' => ['bg' => '#ec4899', 'label' => 'LQF Bulk'],
+                                'LQF' => ['bg' => '#06b6d4', 'label' => 'LQF'],
+                                'SURAJ' => ['bg' => '#10b981', 'label' => 'Suraj'],
+                                'API' => ['bg' => '#f59e0b', 'label' => 'API'],
+                                'MANUAL' => ['bg' => '#6b7280', 'label' => 'Manual'],
+                            ];
+                            $sourceInfo = $sourceColors[$lead->source] ?? ['bg' => '#6b7280', 'label' => $lead->source];
+                        @endphp
+                        <span style="
+                            background: {{ $sourceInfo['bg'] }};
+                            color: white;
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            font-size: 11px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        ">
+                            {{ $sourceInfo['label'] }}
+                        </span>
+                    @endif
                 </div>
             </div>
         </div>

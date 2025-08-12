@@ -543,8 +543,16 @@ class ImportSurajBulkCsv extends Command
             'file_date' => $fileDate,
             'source' => 'Suraj Bulk Import',
             'vendor_id' => $leadData['vendor_id'] ?? null,
-            'buyer_id' => $leadData['buyer_id'] ?? null
+            'buyer_id' => $leadData['buyer_id'] ?? null,
+            'vendor_name' => $leadData['vendor_name'] ?? null,
+            'buyer_name' => $leadData['buyer_name'] ?? null
         ]);
+        
+        // Remove fields that don't exist as columns in leads table
+        // Keep vendor_name and buyer_name as they are now columns
+        unset($leadData['vendor_id']);
+        unset($leadData['buyer_id']);
+        unset($leadData['buyer_campaign_id']);
         
         return $leadData;
     }

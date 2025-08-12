@@ -837,6 +837,33 @@
                                                 #{{ $lead->external_lead_id }}
                                             </span>
                                         @endif
+                                        @if($lead->source)
+                                            @php
+                                                $sourceColors = [
+                                                    'SURAJ_BULK' => ['bg' => '#8b5cf6', 'label' => 'Suraj Bulk'],
+                                                    'LQF_BULK' => ['bg' => '#ec4899', 'label' => 'LQF Bulk'],
+                                                    'LQF' => ['bg' => '#06b6d4', 'label' => 'LQF'],
+                                                    'SURAJ' => ['bg' => '#10b981', 'label' => 'Suraj'],
+                                                    'API' => ['bg' => '#f59e0b', 'label' => 'API'],
+                                                    'MANUAL' => ['bg' => '#6b7280', 'label' => 'Manual'],
+                                                ];
+                                                $sourceInfo = $sourceColors[$lead->source] ?? ['bg' => '#6b7280', 'label' => $lead->source];
+                                            @endphp
+                                            <span style="
+                                                background: {{ $sourceInfo['bg'] }};
+                                                color: white;
+                                                padding: 2px 8px;
+                                                border-radius: 12px;
+                                                font-size: 10px;
+                                                font-weight: 600;
+                                                text-transform: uppercase;
+                                                letter-spacing: 0.3px;
+                                                margin-left: 8px;
+                                                display: inline-block;
+                                            ">
+                                                {{ $sourceInfo['label'] }}
+                                            </span>
+                                        @endif
           </div>
                                     
                                     <!-- Badges and datetime on top line -->
