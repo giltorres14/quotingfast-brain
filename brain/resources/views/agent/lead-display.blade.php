@@ -1275,7 +1275,12 @@
                     $campaign = null;
                     $campaignName = null;
                     if ($campaignId) {
-                        $campaign = \App\Models\Campaign::where('campaign_id', $campaignId)->first();
+                        // Check if Campaign model exists and table exists
+                        if (class_exists('\App\Models\Campaign') && \Schema::hasTable('campaigns')) {
+                            $campaign = \App\Models\Campaign::where('campaign_id', $campaignId)->first();
+                        } else {
+                            $campaign = null;
+                        }
                         $campaignName = $campaign ? $campaign->display_name : null;
                     }
                 @endphp
