@@ -884,13 +884,13 @@
             <div id="debug-log"></div>
         </div>
         <!-- Header - Agent View (No Admin Data) -->
-        <div class="header" style="position: relative;">
+        <div class="header" style="position: relative; padding-left: 200px;">
             @if(isset($mode) && in_array($mode, ['view', 'edit']) && !request()->get('iframe'))
                 <a href="/leads" class="back-button admin-only">← Back to Leads</a>
             @endif
             
-            <!-- Lead Type Avatar Circle -->
-            <div style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 15px;">
+            <!-- Lead Type Avatar Circle - Fixed positioning -->
+            <div style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 15px; z-index: 10;">
                 <div style="
                     width: 60px; 
                     height: 60px; 
@@ -899,7 +899,7 @@
                     align-items: center; 
                     justify-content: center; 
                     font-weight: bold; 
-                    font-size: 20px; 
+                    font-size: 16px; 
                     color: white;
                     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     background: {{ $lead->type === 'auto' ? '#3B82F6' : ($lead->type === 'home' ? '#10B981' : '#8B5CF6') }};
@@ -1382,17 +1382,6 @@
                     </div>
                 </div>
 
-                        {{-- Hidden: Originally Created, Landing Page, TrustedForm Certificate - Not needed in lead edit view
-                        <!-- Originally Created -->
-                        @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['originally_created']))
-                        <div class="info-item">
-                            <div class="info-label">Originally Created</div>
-                            <div class="info-value">{{ \Carbon\Carbon::parse($lead->meta['originally_created'])->format('M j, Y g:i A') }}</div>
-                        </div>
-                        @endif
-
-
-
                         <!-- TrustedForm Certificate -->
                         @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['trusted_form_cert_url']))
                         <div class="info-item">
@@ -1408,6 +1397,19 @@
                             </div>
                         </div>
                         @endif
+                        
+                        <!-- Lead ID Code -->
+                        @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['lead_id_code']))
+                        <div class="info-item">
+                            <div class="info-label">Lead ID Code</div>
+                            <div class="info-value">
+                                <span style="font-family: monospace; background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">
+                                    {{ $lead->meta['lead_id_code'] }}
+                                </span>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['lead_id_code'] }}', this)" title="Copy to clipboard">📎</button>
+                            </div>
+                        </div>
+                        @endif
 
                         <!-- Landing Page from Payload -->
                         @php
@@ -1419,8 +1421,8 @@
                                               $payloadData['meta']['landing_page'] ?? null;
                             }
                             // Also check direct field
-                            if (!$landingPage && isset($lead->landing_page)) {
-                                $landingPage = $lead->landing_page;
+                            if (!$landingPage && isset($lead->landing_page_url)) {
+                                $landingPage = $lead->landing_page_url;
                             }
                         @endphp
                         @if($landingPage)
@@ -1471,7 +1473,6 @@
                             </div>
                         </div>
                         @endif
-                        --}}
 
                         <!-- External Lead ID now shown in header -->
                     </div>
@@ -1801,14 +1802,14 @@
                         <div style="margin-top: 6px; font-size: 10px; color: #6c757d;">
                             <div class="info-grid" style="grid-template-columns: 1fr 1fr; gap: 4px;">
                                 @foreach($driver as $key => $value)
-                                    @if(!in_array($key, ['first_name', 'last_name', 'birth_date', 'gender', 'marital_status', 'license_state', 'license_status', 'years_licensed', 'relationship']))
+                                    @if(!in_array($key, ['first_name', 'last_name', 'birth_date', 'gender', 'marital_status', 'license_state', 'license_status', 'years_licensed', 'relationship', 'claims']))
                                     <div style="padding: 2px 0; border-bottom: 1px solid #f1f3f4;">
                                         <div style="font-size: 9px; color: #868e96; text-transform: uppercase; letter-spacing: 0.5px;">{{ ucwords(str_replace('_', ' ', $key)) }}</div>
                                         <div style="font-size: 10px; color: #495057; margin-top: 1px;">
                                             @if(is_bool($value))
                                                 {{ $value ? 'Yes' : 'No' }}
                                             @elseif(is_array($value) && count($value) > 0)
-                                                @if(in_array($key, ['tickets', 'accidents', 'claims', 'major_violations']) && isset($value[0]) && is_array($value[0]))
+                                                @if(in_array($key, ['tickets', 'accidents', 'major_violations']) && isset($value[0]) && is_array($value[0]))
                                                     <div style="font-weight: 600;">{{ count($value) }} item(s):</div>
                                                     @foreach($value[0] as $subKey => $subValue)
                                                         <div style="font-size: 9px; color: #6c757d; margin-left: 4px;">{{ ucwords(str_replace('_', ' ', $subKey)) }}: {{ $subValue }}</div>
