@@ -851,8 +851,18 @@
                                             
                                             @if(isset($lead->campaign_id) && $lead->campaign_id)
                                                 @php
-                                                    $campaign = \App\Models\Campaign::where('campaign_id', $lead->campaign_id)->first();
-                                                    $campaignName = $campaign ? $campaign->display_name : "Campaign #{$lead->campaign_id}";
+                                                    try {
+                                                        // Check if Campaign model exists and table exists
+                                                        if (class_exists('\App\Models\Campaign') && \Schema::hasTable('campaigns')) {
+                                                            $campaign = \App\Models\Campaign::where('campaign_id', $lead->campaign_id)->first();
+                                                            $campaignName = $campaign ? ($campaign->display_name ?? $campaign->name ?? "Campaign #{$lead->campaign_id}") : "Campaign #{$lead->campaign_id}";
+                                                        } else {
+                                                            $campaignName = "Campaign #{$lead->campaign_id}";
+                                                        }
+                                                    } catch (\Exception $e) {
+                                                        // Fallback if any error occurs
+                                                        $campaignName = "Campaign #{$lead->campaign_id}";
+                                                    }
                                                 @endphp
                                                 <span class="badge badge-campaign">
                                                     {{ $campaignName }}
