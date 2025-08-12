@@ -244,6 +244,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     'type' => 'auto', // Default to auto, can enhance detection later
                     'received_at' => now(),
                     'joined_at' => now(),
+                    'tenant_id' => 5, // Default tenant ID
                     
                     // Additional fields for reporting and compliance
                     'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null,
