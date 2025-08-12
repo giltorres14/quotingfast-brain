@@ -156,7 +156,7 @@ class LeadFlowController extends Controller
      */
     private function getHourlyIntake($startDate, $endDate)
     {
-        return Lead::selectRaw('HOUR(created_at) as hour, COUNT(*) as count')
+        return Lead::selectRaw('EXTRACT(HOUR FROM created_at) as hour, COUNT(*) as count')
                    ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
                    ->groupBy('hour')
                    ->orderBy('hour')
@@ -239,17 +239,17 @@ class LeadFlowController extends Controller
         $breakdown = [];
         
         // By Vici List ID (if you're using different lists)
-        $listData = Lead::selectRaw('
+        $listData = Lead::selectRaw("
                         CASE 
-                            WHEN vici_list_id IS NOT NULL THEN CONCAT("List ", vici_list_id)
-                            WHEN status = "new" THEN "List 101 (New)"
-                            WHEN status IN ("retry", "no_answer") THEN "List 102 (Retry)"
-                            WHEN status = "callback" THEN "List 103 (Callback)"
-                            ELSE "Unassigned"
+                            WHEN vici_list_id IS NOT NULL THEN CONCAT('List ', vici_list_id)
+                            WHEN status = 'new' THEN 'List 101 (New)'
+                            WHEN status IN ('retry', 'no_answer') THEN 'List 102 (Retry)'
+                            WHEN status = 'callback' THEN 'List 103 (Callback)'
+                            ELSE 'Unassigned'
                         END as list_name,
                         COUNT(*) as total,
-                        SUM(CASE WHEN status = "qualified" THEN 1 ELSE 0 END) as qualified,
-                        SUM(CASE WHEN status IN ("transferred", "sold") THEN 1 ELSE 0 END) as sold')
+                        SUM(CASE WHEN status = 'qualified' THEN 1 ELSE 0 END) as qualified,
+                        SUM(CASE WHEN status IN ('transferred', 'sold') THEN 1 ELSE 0 END) as sold")
                       ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
                       ->groupBy('list_name')
                       ->get();
@@ -268,8 +268,8 @@ class LeadFlowController extends Controller
         
         // By Source
         $sources = Lead::selectRaw('source, COUNT(*) as total, 
-                                   SUM(CASE WHEN status = "qualified" THEN 1 ELSE 0 END) as qualified,
-                                   SUM(CASE WHEN status IN ("transferred", "sold") THEN 1 ELSE 0 END) as sold')
+                                   SUM(CASE WHEN status = \'qualified\' THEN 1 ELSE 0 END) as qualified,
+                                   SUM(CASE WHEN status IN (\'transferred\', \'sold\') THEN 1 ELSE 0 END) as sold')
                       ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
                       ->groupBy('source')
                       ->get();
@@ -288,8 +288,8 @@ class LeadFlowController extends Controller
         
         // By Campaign
         $campaigns = Lead::selectRaw('campaign_id, COUNT(*) as total,
-                                     SUM(CASE WHEN status = "qualified" THEN 1 ELSE 0 END) as qualified,
-                                     SUM(CASE WHEN status IN ("transferred", "sold") THEN 1 ELSE 0 END) as sold')
+                                     SUM(CASE WHEN status = \'qualified\' THEN 1 ELSE 0 END) as qualified,
+                                     SUM(CASE WHEN status IN (\'transferred\', \'sold\') THEN 1 ELSE 0 END) as sold')
                         ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
                         ->whereNotNull('campaign_id')
                         ->groupBy('campaign_id')
