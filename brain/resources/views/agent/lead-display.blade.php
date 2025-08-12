@@ -884,7 +884,7 @@
             <div id="debug-log"></div>
         </div>
         <!-- Header - Agent View (No Admin Data) -->
-        <div class="header" style="position: relative; padding-left: 200px;">
+        <div class="header" style="position: relative; padding-left: 220px;">
             @if(isset($mode) && in_array($mode, ['view', 'edit']) && !request()->get('iframe'))
                 <a href="/leads" class="back-button admin-only">← Back to Leads</a>
             @endif
@@ -1342,9 +1342,11 @@
 
         <!-- TCPA Compliance Section - HIDE ONLY IN EDIT MODE -->
         @if(!isset($mode) || $mode !== 'edit')
-        <div class="section">
-                    <div class="section-title compliance">🛡️ TCPA Compliance</div>
-                    <div class="info-grid">
+        <div class="section" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #86efac; border-radius: 12px; padding: 20px;">
+                    <div class="section-title compliance" style="background: #22c55e; color: white; padding: 12px 20px; margin: -20px -20px 20px -20px; border-radius: 10px 10px 0 0; font-size: 18px;">
+                        🛡️ TCPA Compliance & Consent Information
+                    </div>
+                    <div class="info-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                         <!-- TCPA Compliance Status -->
                         <div class="info-item">
                             <div class="info-label">TCPA Compliant</div>
@@ -1386,10 +1388,7 @@
                                 <a href="{{ $lead->meta['trusted_form_cert_url'] }}" target="_blank" style="color: #28a745; text-decoration: none;">
                                     📜 View Certificate
                                 </a>
-                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['trusted_form_cert_url'] }}', this)" title="Copy to clipboard">📎</button>
-                                <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
-                                    {{ $lead->meta['trusted_form_cert_url'] }}
-                                </div>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['trusted_form_cert_url'] }}', this)" title="Copy URL" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
                             </div>
                         </div>
                         @endif
@@ -1399,10 +1398,8 @@
                         <div class="info-item">
                             <div class="info-label">Lead ID Code</div>
                             <div class="info-value">
-                                <span style="font-family: monospace; background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">
-                                    {{ $lead->meta['lead_id_code'] }}
-                                </span>
-                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['lead_id_code'] }}', this)" title="Copy to clipboard">📎</button>
+                                {{ $lead->meta['lead_id_code'] }}
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $lead->meta['lead_id_code'] }}', this)" title="Copy Lead ID" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
                             </div>
                         </div>
                         @endif
@@ -1428,7 +1425,7 @@
                                 <a href="{{ $landingPage }}" target="_blank" style="color: #007bff; text-decoration: none;">
                                     🔗 View Landing Page
                                 </a>
-                                <button class="copy-btn" onclick="copyToClipboard('{{ $landingPage }}', this)" title="Copy to clipboard">📎</button>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $landingPage }}', this)" title="Copy to clipboard">📋</button>
                                 <div style="font-size: 11px; color: #666; margin-top: 3px; word-break: break-all;">
                                     {{ $landingPage }}
                                 </div>
@@ -1455,10 +1452,8 @@
                         <div class="info-item">
                             <div class="info-label">IP Address</div>
                             <div class="info-value">
-                                <span style="font-family: monospace; background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">
-                                    {{ $ipAddress }}
-                                </span>
-                                <button class="copy-btn" onclick="copyToClipboard('{{ $ipAddress }}', this)" title="Copy to clipboard">📎</button>
+                                {{ $ipAddress }}
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $ipAddress }}', this)" title="Copy IP Address" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
                             </div>
                         </div>
                         @endif
@@ -1491,17 +1486,8 @@
                         <div class="info-item">
                             <div class="info-label">TCPA Consent Text</div>
                             <div class="info-value">
-                                <button class="copy-btn" onclick="copyToClipboard('{{ addslashes($tcpaConsentText) }}', this)" title="Copy to clipboard" style="float: right;">📎</button>
-                                <div style="position: relative;">
-                                    <div id="tcpa-text-preview-{{ $lead->id }}" style="max-height: 60px; overflow: hidden; background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 12px; line-height: 1.4; cursor: pointer;" onclick="toggleTcpaText('{{ $lead->id }}')">
-                                        {{ $tcpaConsentText }}
-                                    </div>
-                                    <div id="tcpa-text-full-{{ $lead->id }}" style="display: none; background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 12px; line-height: 1.4; max-height: 300px; overflow-y: auto;">
-                                        {{ $tcpaConsentText }}
-                                        <br><br>
-                                        <button onclick="toggleTcpaText('{{ $lead->id }}')" style="background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Collapse</button>
-                                    </div>
-                                </div>
+                                <span style="color: #28a745;">✓ Consent text available</span>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ addslashes($tcpaConsentText) }}', this)" title="Copy Consent Text" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
                             </div>
                         </div>
                         @endif

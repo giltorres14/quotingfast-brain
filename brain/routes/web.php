@@ -4912,13 +4912,13 @@ Route::get('/admin/lead-queue', function () {
         'failed' => \App\Models\LeadQueue::where('status', 'failed')->count(),
     ];
     
-    $queueItems = \App\Models\LeadQueue::whereIn('status', ['pending', 'processing', 'failed'])
+    $recentQueue = \App\Models\LeadQueue::whereIn('status', ['pending', 'processing', 'failed'])
                     ->orWhere('created_at', '>=', now()->subHours(2))
                     ->orderBy('created_at', 'desc')
                     ->limit(50)
                     ->get();
     
-    return view('admin.lead-queue', compact('stats', 'queueItems'));
+    return view('admin.lead-queue', compact('stats', 'recentQueue'));
 });
 
 // Process queue manually
