@@ -55,7 +55,7 @@ RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interacti
 RUN echo "APP_NAME=QuotingFast-Brain" > .env && \
     echo "APP_ENV=production" >> .env && \
     echo "APP_KEY=base64:J4kS4Yr5fLJpnwGIDjGfIiCfHqZU+/nnQgxG8jNi3Iw=" >> .env && \
-    echo "APP_DEBUG=true" >> .env && \
+    echo "APP_DEBUG=false" >> .env && \
     echo "APP_URL=https://quotingfast-brain-ohio.onrender.com" >> .env && \
     echo "LOG_CHANNEL=stack" >> .env && \
     echo "LOG_LEVEL=error" >> .env && \
