@@ -884,10 +884,34 @@
             <div id="debug-log"></div>
         </div>
         <!-- Header - Agent View (No Admin Data) -->
-        <div class="header">
+        <div class="header" style="position: relative;">
             @if(isset($mode) && in_array($mode, ['view', 'edit']) && !request()->get('iframe'))
                 <a href="/leads" class="back-button admin-only">← Back to Leads</a>
             @endif
+            
+            <!-- Lead Type Avatar Circle -->
+            <div style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 15px;">
+                <div style="
+                    width: 60px; 
+                    height: 60px; 
+                    border-radius: 50%; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    font-weight: bold; 
+                    font-size: 20px; 
+                    color: white;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    background: {{ $lead->type === 'auto' ? '#3B82F6' : ($lead->type === 'home' ? '#10B981' : '#8B5CF6') }};
+                ">
+                    {{ $lead->type === 'auto' ? 'AUTO' : ($lead->type === 'home' ? 'HOME' : strtoupper(substr($lead->type ?? 'N/A', 0, 4))) }}
+                </div>
+                <div>
+                    <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Lead Type</div>
+                    <div style="font-size: 16px; font-weight: 600; color: #111827;">{{ ucfirst($lead->type ?? 'Unknown') }} Insurance</div>
+                </div>
+            </div>
+            
             <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 150px; width:auto;">
             <h1>{{ $lead->name }} 
                 @if(isset($mode) && $mode === 'view')
@@ -898,11 +922,6 @@
             </h1>
             <div class="meta">
                 Lead ID: {{ $lead->external_lead_id ?? $lead->id }}
-                @if($lead->type)
-                    <span style="margin-left: 15px; padding: 4px 12px; background: {{ $lead->type === 'auto' ? '#dbeafe' : '#fef3c7' }}; color: {{ $lead->type === 'auto' ? '#1e40af' : '#d97706' }}; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
-                        {{ ucfirst($lead->type) }} Insurance
-                    </span>
-                @endif
             </div>
         </div>
         
@@ -1681,16 +1700,16 @@
                     </div>
                 </div>
                 
-                <!-- Violations & Accidents - Important for Agent -->
+                <!-- Tickets & Accidents - Important for Agent -->
                 <div class="info-grid" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e9ecef;">
                     <div class="info-item">
-                        <div class="info-label">Violations</div>
+                        <div class="info-label">Tickets</div>
                         <div class="info-value">
                                             @if(isset($driver['violations']) && is_array($driver['violations']) && count($driver['violations']) > 0)
                 <span style="color: #dc3545; font-weight: bold;">{{ count($driver['violations']) }} violation(s)</span>
                                 <button type="button" class="btn btn-sm btn-outline-info" style="margin-left: 8px; padding: 2px 8px; font-size: 10px;" onclick="toggleDetails('violations-{{ $index }}')">View Details</button>
                                 @if(!isset($mode) || $mode !== 'view')
-                                    <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Violation</button>
+                                    <button type="button" class="add-btn" style="margin-left: 4px; padding: 2px 6px; font-size: 9px;" onclick="addViolation({{ $index }})">Add Ticket</button>
                                 @endif
                                 <div id="violations-{{ $index }}" class="violation-details" style="display: none; margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 4px; font-size: 11px;">
                                     @foreach($driver['violations'] as $violationIndex => $violation)
@@ -2895,12 +2914,12 @@
             const modalHtml = `
                 <div id="violationModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; justify-content: center; align-items: center;">
                     <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px; max-height: 90%; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                        <h3 style="margin-top: 0; color: #dc3545; border-bottom: 2px solid #f44336; padding-bottom: 10px;">⚠️ Add Violation</h3>
+                        <h3 style="margin-top: 0; color: #dc3545; border-bottom: 2px solid #f44336; padding-bottom: 10px;">⚠️ Add Ticket</h3>
                         
                         <div style="margin-bottom: 15px;">
-                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Violation Type *:</label>
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;">Ticket Type *:</label>
                             <select id="violationType" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" onchange="handleOtherSelection(this, 'violationTypeOther')" required>
-                                <option value="">Select Violation Type...</option>
+                                <option value="">Select Ticket Type...</option>
                                 <option value="Speeding">Speeding</option>
                                 <option value="DUI/DWI">DUI/DWI</option>
                                 <option value="Reckless Driving">Reckless Driving</option>
