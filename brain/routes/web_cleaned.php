@@ -282,6 +282,9 @@ Route::get('/admin/vendors', function () {
     return view('admin.vendor-management', compact('vendors'));
 });
 
+// Lead Flow Visualization
+Route::get('/admin/lead-flow', 'App\Http\Controllers\LeadFlowController@index')->name('admin.lead-flow');
+
 // ==================================================
 // SURAJ CSV UPLOAD
 // ==================================================
@@ -377,3 +380,4 @@ Route::get('/clear-cache', function() {
 Route::fallback(function () {
     return response()->json(['error' => 'Route not found'], 404);
 });
+

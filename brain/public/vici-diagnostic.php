@@ -85,3 +85,4 @@ echo "5. SOLUTION:\n";
 echo "   Add this IP to Vici whitelist: $server_ip\n";
 echo "   Path in Vici: Admin > System Settings > Security\n";
 
+

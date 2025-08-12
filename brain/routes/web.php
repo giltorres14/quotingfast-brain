@@ -5366,6 +5366,9 @@ Route::post('/admin/clear-test-data', function () {
 });
 
 // Get buyers list API
+// Lead Flow Visualization Panel
+Route::get('/admin/lead-flow', 'App\Http\Controllers\LeadFlowController@index')->name('admin.lead-flow');
+
 Route::get('/admin/buyers-list', function () {
     try {
         $buyers = \App\Models\Buyer::with(['payments', 'leads'])

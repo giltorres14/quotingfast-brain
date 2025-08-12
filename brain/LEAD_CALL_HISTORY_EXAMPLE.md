@@ -166,3 +166,4 @@ $callbackLeads = Lead::whereHas('viciCallMetrics', function($q) {
 
 This ensures you always have the full context when viewing any lead!
 
+

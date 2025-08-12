@@ -414,10 +414,18 @@
                 </li>
                 
                 <!-- Analytics -->
-                <li class="nav-item">
-                    <a href="/analytics" class="nav-link {{ request()->is('analytics*') ? 'active' : '' }}" onclick="alert('Analytics dashboard coming soon!')">
+                <li class="nav-item dropdown" id="analyticsDropdown">
+                    <a href="#" class="nav-link dropdown-toggle {{ request()->is('analytics*') || request()->is('admin/lead-flow*') ? 'active' : '' }}">
                         📈 Analytics
                     </a>
+                    <div class="dropdown-menu">
+                        <a href="/admin/lead-flow" class="dropdown-item {{ request()->is('admin/lead-flow*') ? 'active' : '' }}">
+                            🔄 Lead Flow Visualization
+                        </a>
+                        <a href="/analytics" class="dropdown-item {{ request()->is('analytics') ? 'active' : '' }}" onclick="alert('Full analytics dashboard coming soon!')">
+                            📊 Full Dashboard
+                        </a>
+                    </div>
                 </li>
                 
                 <!-- Communications -->

@@ -78,3 +78,4 @@ if (strpos($response, 'SUCCESS') !== false) {
     echo "4. IP not whitelisted in Vici\n";
 }
 
+
