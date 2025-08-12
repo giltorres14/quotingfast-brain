@@ -269,16 +269,37 @@
             
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="stat-value">{{ number_format(\App\Models\Lead::count()) }}</div>
+                    @php
+                        try {
+                            $totalLeads = \App\Models\Lead::count();
+                        } catch (\Exception $e) {
+                            $totalLeads = 0;
+                        }
+                    @endphp
+                    <div class="stat-value">{{ number_format($totalLeads) }}</div>
                     <div class="stat-label">Total Leads</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-value">{{ number_format(\App\Models\Lead::whereDate('created_at', today())->count()) }}</div>
+                    @php
+                        try {
+                            $todayLeads = \App\Models\Lead::whereDate('created_at', today())->count();
+                        } catch (\Exception $e) {
+                            $todayLeads = 0;
+                        }
+                    @endphp
+                    <div class="stat-value">{{ number_format($todayLeads) }}</div>
                     <div class="stat-label">Today</div>
                 </div>
                 @if(!config('services.vici.push_enabled'))
                 <div class="stat-box" style="background: #fef5e7;">
-                    <div class="stat-value" style="color: #f39c12;">{{ number_format(\App\Models\Lead::where('status', 'pending_vici_push')->count()) }}</div>
+                    @php
+                        try {
+                            $pendingLeads = \App\Models\Lead::where('status', 'pending_vici_push')->count();
+                        } catch (\Exception $e) {
+                            $pendingLeads = 0;
+                        }
+                    @endphp
+                    <div class="stat-value" style="color: #f39c12;">{{ number_format($pendingLeads) }}</div>
                     <div class="stat-label">Pending Push</div>
                 </div>
                 @endif
@@ -475,7 +496,14 @@
                     <div class="stat-label">Queue Depth</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-value">{{ number_format(\App\Models\Lead::where('created_at', '>', now()->subHour())->count()) }}</div>
+                    @php
+                        try {
+                            $hourlyLeads = \App\Models\Lead::where('created_at', '>', now()->subHour())->count();
+                        } catch (\Exception $e) {
+                            $hourlyLeads = 0;
+                        }
+                    @endphp
+                    <div class="stat-value">{{ number_format($hourlyLeads) }}</div>
                     <div class="stat-label">Leads/Hour</div>
                 </div>
                 <div class="stat-box">
@@ -485,10 +513,14 @@
             </div>
             
             <div class="system-health" style="margin-top: 15px;">
-                @php
+                            @php
+                try {
                     $leadsPerDay = \App\Models\Lead::whereDate('created_at', today())->count();
-                    $healthStatus = $leadsPerDay < 10000 ? 'good' : ($leadsPerDay < 25000 ? 'warning' : 'critical');
-                @endphp
+                } catch (\Exception $e) {
+                    $leadsPerDay = 0;
+                }
+                $healthStatus = $leadsPerDay < 10000 ? 'good' : ($leadsPerDay < 25000 ? 'warning' : 'critical');
+            @endphp
                 <div class="health-indicator health-{{ $healthStatus }}"></div>
                 <span>
                     Load Status: 
