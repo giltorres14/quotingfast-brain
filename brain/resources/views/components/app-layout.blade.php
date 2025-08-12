@@ -13,7 +13,7 @@
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <!-- Vite removed - not configured for this project -->
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
