@@ -133,12 +133,25 @@ class Lead extends Model
         'meta',
         'payload',
         
-        // Tracking and analytics
+        // Vendor Information
+        'vendor_name',
+        'vendor_campaign',
+        'cost',
+        
+        // Buyer Information
+        'buyer_name',
+        'buyer_campaign',
         'sell_price',
+        
+        // TCPA Compliance
+        'tcpa_lead_id',
+        'trusted_form_cert',
+        'tcpa_compliant',
+        
+        // Tracking and analytics
         'ip_address',
         'user_agent',
         'landing_page_url',
-        'tcpa_compliant',
         
         // Allstate integration
         'allstate_transfer_id',
@@ -158,6 +171,7 @@ class Lead extends Model
         'joined_at' => 'datetime',
         'allstate_transferred_at' => 'datetime',
         'tcpa_compliant' => 'boolean',
+        'cost' => 'decimal:2',
         'sell_price' => 'decimal:2',
     ];
 

@@ -43,3 +43,4 @@ echo "HTTP Status: $http_code\n";
 echo "Response: " . $response . "\n";
 echo "\n✓ CHECK VICI LIST 101 FOR THIS LEAD\n";
 echo "✓ Phone should be: " . $test_lead['contact']['phone'] . "\n\n";
+

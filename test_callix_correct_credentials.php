@@ -110,3 +110,4 @@ echo "If authentication worked, Vici should now accept connections from your IP.
 echo "The whitelist may need periodic refresh (every 30 minutes).\n\n";
 
 exit(0);
+

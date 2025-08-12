@@ -309,3 +309,4 @@ class ImportFromVici extends Command
         }
     }
 }
+

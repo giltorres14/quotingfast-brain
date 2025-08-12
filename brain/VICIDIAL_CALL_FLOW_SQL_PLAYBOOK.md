@@ -739,3 +739,4 @@ ORDER BY move_date DESC, from_list_id, to_list_id;
 ---
 
 *This playbook is designed for production use with ViciDial 9.x and MySQL 5.7+*
+

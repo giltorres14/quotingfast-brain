@@ -165,3 +165,4 @@ $callbackLeads = Lead::whereHas('viciCallMetrics', function($q) {
 - Timeline of all attempts
 
 This ensures you always have the full context when viewing any lead!
+

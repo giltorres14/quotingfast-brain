@@ -77,3 +77,4 @@ if (strpos($response, 'SUCCESS') !== false) {
     echo "3. List 101 doesn't exist\n";
     echo "4. IP not whitelisted in Vici\n";
 }
+

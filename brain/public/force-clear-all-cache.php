@@ -122,3 +122,4 @@ echo "\n=====================================\n";
 echo "🏁 CACHE CLEARING COMPLETE\n";
 echo "\n⚠️  IMPORTANT: If database still fails, run this command on server:\n";
 echo "php artisan config:cache\n";
+

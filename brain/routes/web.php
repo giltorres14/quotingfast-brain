@@ -1787,9 +1787,22 @@ Route::post('/webhook.php', function (Request $request) {
             'received_at' => now(),
             'joined_at' => now(),
             
-            // NEW: Capture additional fields for reporting and compliance
-            'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null, // Lead cost for reporting
-            'tcpa_compliant' => $data['tcpa_compliant'] ?? $data['meta']['tcpa_compliant'] ?? false,
+            // Vendor Information (from LQF payload)
+            'vendor_name' => $data['vendor'] ?? $data['vendor_name'] ?? null,
+            'vendor_campaign' => $data['vendor_campaign'] ?? $data['vendor_campaign_id'] ?? null,
+            'cost' => $data['cost'] ?? $data['lead_cost'] ?? null,
+            
+            // Buyer Information (from LQF payload)
+            'buyer_name' => $data['buyer'] ?? $data['buyer_name'] ?? null,
+            'buyer_campaign' => $data['buyer_campaign'] ?? $data['buyer_campaign_id'] ?? null,
+            'sell_price' => $data['sell_price'] ?? $data['revenue'] ?? null,
+            
+            // TCPA Compliance (from LQF payload)
+            'tcpa_lead_id' => $data['tcpa_lead_id'] ?? $data['lead_id'] ?? null,
+            'trusted_form_cert' => $data['trusted_form_cert'] ?? $data['trusted_form_cert_url'] ?? null,
+            'tcpa_compliant' => $data['tcpa_compliant'] ?? $data['tcpa'] ?? $data['meta']['tcpa_compliant'] ?? false,
+            
+            // Tracking and analytics
             'landing_page_url' => $data['landing_page_url'] ?? null,
             'user_agent' => $data['user_agent'] ?? null,
             'ip_address' => $data['ip_address'] ?? null,
@@ -1811,6 +1824,38 @@ Route::post('/webhook.php', function (Request $request) {
             'requested_policy' => json_encode($data['data']['requested_policy'] ?? $data['requested_policy'] ?? null),
             'payload' => json_encode($data),
         ];
+        
+        // Auto-create Vendor if doesn't exist
+        if (!empty($leadData['vendor_name'])) {
+            $vendor = \App\Models\Vendor::firstOrCreate(
+                ['name' => $leadData['vendor_name']],
+                [
+                    'campaigns' => [],
+                    'active' => true
+                ]
+            );
+            
+            // Add campaign if provided
+            if (!empty($leadData['vendor_campaign'])) {
+                $vendor->addCampaign($leadData['vendor_campaign']);
+            }
+        }
+        
+        // Auto-create Buyer if doesn't exist
+        if (!empty($leadData['buyer_name'])) {
+            $buyer = \App\Models\Buyer::firstOrCreate(
+                ['name' => $leadData['buyer_name']],
+                [
+                    'campaigns' => [],
+                    'active' => true
+                ]
+            );
+            
+            // Add campaign if provided
+            if (!empty($leadData['buyer_campaign'])) {
+                $buyer->addCampaign($leadData['buyer_campaign']);
+            }
+        }
         
         // Try to store in database first to get auto-increment ID
         $lead = null;

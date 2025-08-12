@@ -229,3 +229,4 @@ echo "3. Verify vendor_lead_code updates in Vici\n";
 echo "4. Update LQF webhook to point to Brain\n\n";
 
 echo "✅ Script complete!\n";
+

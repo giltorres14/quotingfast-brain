@@ -64,3 +64,4 @@ docker build --no-cache
 2. Use Render's native buildpacks if available
 3. Reduce repository size (currently 415MB)
 4. Consider alternative deployment platforms if issues persist
+

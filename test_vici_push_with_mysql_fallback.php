@@ -147,3 +147,4 @@ echo "3. Ensure List 101 exists in AUTODIAL campaign\n\n";
 echo "4. Once whitelisted, leads will flow automatically\n\n";
 
 exit(0);
+

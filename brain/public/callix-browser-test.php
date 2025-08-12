@@ -140,3 +140,4 @@ $result['summary'] = [
 @unlink('/tmp/callix_cookies.txt');
 
 echo json_encode($result, JSON_PRETTY_PRINT);
+

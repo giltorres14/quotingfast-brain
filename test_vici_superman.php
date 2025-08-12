@@ -72,3 +72,4 @@ if (strpos($response, 'VERSION') !== false || strpos($response, 'BUILD') !== fal
 }
 
 echo "\n";
+

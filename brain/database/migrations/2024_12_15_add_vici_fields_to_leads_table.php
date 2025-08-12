@@ -71,3 +71,4 @@ class AddViciFieldsToLeadsTable extends Migration
         });
     }
 }
+

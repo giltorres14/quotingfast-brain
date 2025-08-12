@@ -48,6 +48,10 @@ The QuotingFast Brain system is a Laravel-based lead management platform that:
    - `/webhook/home` - Home insurance leads
    - `/webhook/auto` - Auto insurance leads
 3. **Lead Processing** - Database storage and field mapping
+4. **Vendor/Buyer Tracking** - Auto-creation and campaign management
+   - Vendor fields: name, campaign, cost
+   - Buyer fields: name, campaign, sell_price
+   - TCPA compliance: lead_id, TrustedForm cert, compliant flag
 4. **Diagnostics Dashboard** - Comprehensive testing tools at `/diagnostics`
 
 ### ⏳ Pending Items

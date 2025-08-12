@@ -324,3 +324,4 @@ class ImportLQFLeads extends Command
         ));
     }
 }
+

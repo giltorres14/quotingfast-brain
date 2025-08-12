@@ -77,3 +77,4 @@ if (preg_match('/<form[^>]*>(.*?)<\/form>/is', $html, $formMatch)) {
 echo "\n\n=== FULL HTML (first 2000 chars) ===\n";
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
 echo substr($html, 0, 2000);
+

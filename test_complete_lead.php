@@ -180,3 +180,4 @@ if (strpos($vici_response, 'SUCCESS') !== false) {
 } else {
     echo "\n❌ VICI DID NOT ACCEPT - Likely IP not whitelisted (3.129.111.220)\n";
 }
+

@@ -147,3 +147,4 @@ if ($viciHttpCode === 200 && (strpos($viciResponse, 'VERSION') !== false || strp
 } else {
     echo "❌ Vici API not accessible - whitelist may not be working\n";
 }
+

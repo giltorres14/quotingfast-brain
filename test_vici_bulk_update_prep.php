@@ -194,3 +194,4 @@ echo "php artisan vici:update-vendor-codes --dry-run --batch=10\n\n";
 echo "This will show you what WOULD be updated without making changes.\n";
 
 exit(0);
+

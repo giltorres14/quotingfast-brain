@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Buyer extends Model
+class Vendor extends Model
 {
     use HasFactory;
 
@@ -14,26 +14,24 @@ class Buyer extends Model
         'campaigns',
         'contact_info',
         'total_leads',
-        'total_revenue',
+        'total_cost',
         'active',
-        'api_credentials',
         'notes'
     ];
 
     protected $casts = [
         'campaigns' => 'array',
         'contact_info' => 'array',
-        'api_credentials' => 'encrypted:array',
-        'total_revenue' => 'decimal:2',
+        'total_cost' => 'decimal:2',
         'active' => 'boolean'
     ];
 
     /**
-     * Get all leads sold to this buyer
+     * Get all leads from this vendor
      */
     public function leads()
     {
-        return $this->hasMany(Lead::class, 'buyer_name', 'name');
+        return $this->hasMany(Lead::class, 'vendor_name', 'name');
     }
 
     /**
@@ -55,7 +53,8 @@ class Buyer extends Model
     public function updateStats()
     {
         $this->total_leads = $this->leads()->count();
-        $this->total_revenue = $this->leads()->sum('sell_price');
+        $this->total_cost = $this->leads()->sum('cost');
         $this->save();
     }
 }
+
