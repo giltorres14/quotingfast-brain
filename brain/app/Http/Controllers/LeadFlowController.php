@@ -236,8 +236,35 @@ class LeadFlowController extends Controller
      */
     private function getListBreakdown($startDate, $endDate)
     {
-        // Since we're using List 101 primarily, let's break down by source/campaign
         $breakdown = [];
+        
+        // By Vici List ID (if you're using different lists)
+        $listData = Lead::selectRaw('
+                        CASE 
+                            WHEN vici_list_id IS NOT NULL THEN CONCAT("List ", vici_list_id)
+                            WHEN status = "new" THEN "List 101 (New)"
+                            WHEN status IN ("retry", "no_answer") THEN "List 102 (Retry)"
+                            WHEN status = "callback" THEN "List 103 (Callback)"
+                            ELSE "Unassigned"
+                        END as list_name,
+                        COUNT(*) as total,
+                        SUM(CASE WHEN status = "qualified" THEN 1 ELSE 0 END) as qualified,
+                        SUM(CASE WHEN status IN ("transferred", "sold") THEN 1 ELSE 0 END) as sold')
+                      ->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59'])
+                      ->groupBy('list_name')
+                      ->get();
+        
+        foreach ($listData as $list) {
+            $breakdown[] = [
+                'name' => $list->list_name,
+                'type' => 'List',
+                'total' => $list->total,
+                'qualified' => $list->qualified,
+                'sold' => $list->sold,
+                'qualification_rate' => $list->total > 0 ? round(($list->qualified / $list->total) * 100, 1) : 0,
+                'conversion_rate' => $list->total > 0 ? round(($list->sold / $list->total) * 100, 1) : 0
+            ];
+        }
         
         // By Source
         $sources = Lead::selectRaw('source, COUNT(*) as total, 
