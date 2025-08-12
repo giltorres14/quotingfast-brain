@@ -2223,6 +2223,19 @@ Route::post('/webhook/ringba', function (Request $request) {
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Vici webhook endpoint (dialer system)
+// Vici Call Reporting Webhooks
+use App\Http\Controllers\ViciCallWebhookController;
+
+Route::post('/webhook/vici/call-status', [ViciCallWebhookController::class, 'handleCallStatus'])
+    ->name('webhook.vici.call-status');
+    
+Route::post('/webhook/vici/disposition', [ViciCallWebhookController::class, 'handleDisposition'])
+    ->name('webhook.vici.disposition');
+    
+Route::post('/webhook/vici/realtime', [ViciCallWebhookController::class, 'handleRealTimeEvent'])
+    ->name('webhook.vici.realtime');
+
+// Webhook endpoint for Vici dialer system (legacy)
 Route::post('/webhook/vici', function (Request $request) {
     try {
         Log::info('Vici webhook received', [
@@ -2485,6 +2498,24 @@ Route::get('/webhook/status', function () {
             'endpoint' => '/webhook/vici',
             'description' => 'Vici dialer system integration',
             'fields' => ['contact', 'agent_id', 'disposition', 'call_status'],
+            'active' => true
+        ],
+        'vici_call_status' => [
+            'endpoint' => '/webhook/vici/call-status',
+            'description' => 'Vici call status updates - real-time call tracking',
+            'fields' => ['lead_id', 'vendor_lead_code', 'status', 'agent_id', 'talk_time'],
+            'active' => true
+        ],
+        'vici_disposition' => [
+            'endpoint' => '/webhook/vici/disposition',
+            'description' => 'Vici agent disposition updates',
+            'fields' => ['lead_id', 'status', 'user', 'comments'],
+            'active' => true
+        ],
+        'vici_realtime' => [
+            'endpoint' => '/webhook/vici/realtime',
+            'description' => 'Vici real-time call events',
+            'fields' => ['event', 'lead_id', 'agent_id', 'uniqueid'],
             'active' => true
         ],
         'twilio' => [
