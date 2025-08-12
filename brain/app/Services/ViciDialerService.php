@@ -677,4 +677,110 @@ class ViciDialerService
         $parts = explode(' ', trim($fullName));
         return count($parts) > 1 ? end($parts) : '';
     }
+    
+    /**
+     * Move a lead to a different Vici list through API
+     * YES - The Brain CAN move leads between lists!
+     */
+    public function moveLeadToList(Lead $lead, int $newListId, string $reason = ''): array
+    {
+        try {
+            // Ensure we have the external lead ID
+            if (!$lead->external_lead_id) {
+                return [
+                    'success' => false,
+                    'message' => 'Lead has no external_lead_id for Vici'
+                ];
+            }
+            
+            Log::info('🔄 Moving lead to new Vici list via API', [
+                'lead_id' => $lead->id,
+                'external_lead_id' => $lead->external_lead_id,
+                'current_list' => $lead->vici_list_id ?? 'unknown',
+                'new_list' => $newListId,
+                'reason' => $reason
+            ]);
+            
+            // Use Non-Agent API to update lead's list
+            $apiUrl = "https://philli.callix.ai/vicidial/non_agent_api.php";
+            
+            $params = [
+                'source' => 'brain',
+                'user' => 'apiuser',
+                'pass' => 'UZPATJ59GJAVKG8ES6',
+                'function' => 'update_lead',
+                'vendor_lead_code' => "BRAIN_{$lead->id}",
+                'list_id_field' => $newListId,
+                'reset_called_count' => 'N', // Keep call history
+                'custom_fields' => 'Y'
+            ];
+            
+            // Make API call
+            $response = Http::timeout(15)->asForm()->post($apiUrl, $params);
+            
+            if ($response->successful()) {
+                $body = $response->body();
+                
+                if (strpos($body, 'SUCCESS') !== false || strpos($body, 'lead has been updated') !== false) {
+                    // Update local database
+                    $oldListId = $lead->vici_list_id;
+                    $lead->vici_list_id = $newListId;
+                    
+                    // Track the move in meta
+                    $meta = json_decode($lead->meta ?? '{}', true);
+                    $meta['list_moves'] = $meta['list_moves'] ?? [];
+                    $meta['list_moves'][] = [
+                        'from' => $oldListId ?? 'unknown',
+                        'to' => $newListId,
+                        'reason' => $reason,
+                        'timestamp' => now()->toIso8601String()
+                    ];
+                    $lead->meta = json_encode($meta);
+                    $lead->save();
+                    
+                    Log::info('✅ Successfully moved lead to list ' . $newListId);
+                    
+                    return [
+                        'success' => true,
+                        'message' => "Lead moved to list {$newListId}",
+                        'old_list_id' => $oldListId,
+                        'new_list_id' => $newListId
+                    ];
+                }
+            }
+            
+            return [
+                'success' => false,
+                'message' => 'Failed to move lead in Vici'
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error('Exception moving lead', ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Exception: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Automatically assign lead to appropriate list based on status
+     */
+    public function autoAssignLeadToList(Lead $lead): array
+    {
+        $newListId = 101; // Default
+        
+        // Determine list based on status
+        if (in_array($lead->status, ['dnc', 'bad_number'])) {
+            $newListId = 199; // DNC list
+        } elseif ($lead->status == 'qualified') {
+            $newListId = 104; // Qualified list
+        } elseif ($lead->status == 'callback') {
+            $newListId = 103; // Callback list
+        } elseif (in_array($lead->status, ['no_answer', 'busy'])) {
+            $newListId = 102; // Retry list
+        }
+        
+        return $this->moveLeadToList($lead, $newListId, 'Auto-assigned based on status');
+    }
 }
