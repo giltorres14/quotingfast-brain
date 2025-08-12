@@ -85,12 +85,12 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL', env('DB_URL')),
-            // HARDCODED: Using external hostname because Render caches env variables
-            'host' => env('DB_HOST', 'dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com') ?: 'dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com',
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'brain_production') ?: 'brain_production',
-            'username' => env('DB_USERNAME', 'brain_user') ?: 'brain_user',
-            'password' => env('DB_PASSWORD', 'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ') ?: 'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ',
+            // HARDCODED: Force external hostname - Render caches env variables
+            'host' => 'dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com', // Hardcoded external hostname
+            'port' => '5432',
+            'database' => 'brain_production',
+            'username' => 'brain_user',
+            'password' => 'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ',
             'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
