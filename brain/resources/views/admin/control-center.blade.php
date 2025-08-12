@@ -212,6 +212,22 @@
                 Last sync: {{ now()->subMinutes(5)->diffForHumans() }}
             </span>
         </div>
+        
+        <!-- Migration Status -->
+        @if(!config('services.vici.push_enabled'))
+        <div style="background: #fef5e7; border: 2px solid #f39c12; border-radius: 8px; padding: 15px; margin-top: 15px;">
+            <strong style="color: #e67e22;">⚠️ MIGRATION MODE:</strong>
+            <span style="color: #d68910;">Vici push is DISABLED - Leads are being stored in Brain only</span>
+            <button onclick="enableViciPush()" style="float: right; background: #27ae60; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer;">
+                Enable Vici Push
+            </button>
+        </div>
+        @else
+        <div style="background: #e8f8f5; border: 2px solid #27ae60; border-radius: 8px; padding: 15px; margin-top: 15px;">
+            <strong style="color: #27ae60;">✅ LIVE MODE:</strong>
+            <span style="color: #229954;">Vici push is ENABLED - Leads are being sent to Vici</span>
+        </div>
+        @endif
     </div>
     
     <!-- Main Control Grid -->
@@ -260,7 +276,21 @@
                     <div class="stat-value">{{ number_format(\App\Models\Lead::whereDate('created_at', today())->count()) }}</div>
                     <div class="stat-label">Today</div>
                 </div>
+                @if(!config('services.vici.push_enabled'))
+                <div class="stat-box" style="background: #fef5e7;">
+                    <div class="stat-value" style="color: #f39c12;">{{ number_format(\App\Models\Lead::where('status', 'pending_vici_push')->count()) }}</div>
+                    <div class="stat-label">Pending Push</div>
+                </div>
+                @endif
             </div>
+            
+            @if(!config('services.vici.push_enabled'))
+            <div class="quick-actions" style="margin-top: 15px;">
+                <button class="quick-btn" onclick="pushPendingLeads()" style="background: #f39c12;">
+                    Push Pending Leads to Vici
+                </button>
+            </div>
+            @endif
         </div>
         
         <!-- Vici List Control -->
@@ -566,6 +596,18 @@ function moveToList(listId) {
           .then(data => {
               alert(`Moved ${data.success} leads to list ${listId}`);
           });
+    }
+}
+
+function enableViciPush() {
+    if (confirm('⚠️ WARNING: This will enable pushing leads to Vici.\n\nMake sure LQF is no longer pushing directly to Vici to avoid duplicates.\n\nAre you ready to enable?')) {
+        alert('To enable Vici push:\n\n1. Update VICI_PUSH_ENABLED=true in Render environment\n2. Redeploy the application\n3. Use "Push Pending Leads" to send accumulated leads');
+    }
+}
+
+function pushPendingLeads() {
+    if (confirm('Push all pending leads to Vici?\n\nThis will send leads that were stored during migration.')) {
+        alert('Run this command on the server:\n\nphp artisan vici:push-pending\n\nOr use --dry-run first to preview:\nphp artisan vici:push-pending --dry-run');
     }
 }
 </script>

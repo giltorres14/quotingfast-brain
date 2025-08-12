@@ -92,6 +92,39 @@ class ViciDialerService
     public function pushLead(Lead $lead, string $campaignId = null): array
     {
         try {
+            // MIGRATION CHECK: Don't push to Vici if disabled
+            if (!config('services.vici.push_enabled', false)) {
+                Log::info('⏸️ Vici push DISABLED during migration - Lead stored in Brain only', [
+                    'lead_id' => $lead->id,
+                    'phone' => $lead->phone,
+                    'reason' => 'VICI_PUSH_ENABLED is false to prevent duplicates'
+                ]);
+                
+                // Still create call metrics record for tracking
+                $callMetrics = ViciCallMetrics::firstOrCreate(
+                    ['lead_id' => $lead->id],
+                    [
+                        'phone_number' => $lead->phone,
+                        'status' => 'pending_push',
+                        'campaign_id' => $campaignId ?? 'AUTODIAL',
+                        'total_calls' => 0,
+                        'connected' => false
+                    ]
+                );
+                
+                // Mark lead as pending Vici push
+                $lead->status = 'pending_vici_push';
+                $lead->save();
+                
+                return [
+                    'success' => true,
+                    'message' => 'Lead stored in Brain only (Vici push disabled during migration)',
+                    'vici_lead_id' => null,
+                    'call_metrics_id' => $callMetrics->id,
+                    'push_status' => 'disabled_for_migration'
+                ];
+            }
+            
             Log::info('Vici Lead Push: Starting direct database insert', [
                 'lead_id' => $lead->id,
                 'lead_name' => $lead->name,
