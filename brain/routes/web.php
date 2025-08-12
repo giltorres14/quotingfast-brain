@@ -4928,6 +4928,85 @@ Route::get('/admin/lead-queue/process', function () {
     return redirect('/admin/lead-queue')->with('success', 'Queue processing started!');
 });
 
+// Bulk reprocess leads
+Route::post('/admin/lead-queue/bulk-reprocess', function () {
+    try {
+        $ids = request()->input('ids', []);
+        $processed = 0;
+        
+        foreach ($ids as $id) {
+            $item = \App\Models\LeadQueue::find($id);
+            if ($item && $item->status !== 'completed') {
+                $item->process();
+                $processed++;
+            }
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => "$processed leads reprocessed successfully"
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// Bulk delete leads
+Route::post('/admin/lead-queue/bulk-delete', function () {
+    try {
+        $ids = request()->input('ids', []);
+        \App\Models\LeadQueue::whereIn('id', $ids)->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => count($ids) . " leads deleted successfully"
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// Reprocess single lead
+Route::post('/admin/lead-queue/{id}/reprocess', function ($id) {
+    try {
+        $item = \App\Models\LeadQueue::findOrFail($id);
+        $result = $item->process();
+        
+        return response()->json([
+            'success' => $result,
+            'message' => $result ? 'Lead reprocessed successfully' : 'Failed to reprocess lead'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// Delete single lead
+Route::post('/admin/lead-queue/{id}/delete', function ($id) {
+    try {
+        \App\Models\LeadQueue::destroy($id);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Lead deleted successfully'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Clear test leads (CAREFUL - for pre-production only!)
 Route::get('/admin/clear-test-leads', function () {
     $leadCount = \App\Models\Lead::count();

@@ -1436,19 +1436,55 @@
                         </div>
                         @endif
 
+                        <!-- IP Address from Contact/Payload -->
+                        @php
+                            $ipAddress = null;
+                            if (isset($lead->payload) && is_string($lead->payload)) {
+                                $payloadData = json_decode($lead->payload, true);
+                                $ipAddress = $payloadData['contact']['ip_address'] ?? 
+                                           $payloadData['ip_address'] ?? 
+                                           $payloadData['data']['ip_address'] ?? 
+                                           $payloadData['meta']['ip_address'] ?? null;
+                            }
+                            // Also check direct field
+                            if (!$ipAddress && isset($lead->ip_address)) {
+                                $ipAddress = $lead->ip_address;
+                            }
+                        @endphp
+                        @if($ipAddress)
+                        <div class="info-item">
+                            <div class="info-label">IP Address</div>
+                            <div class="info-value">
+                                <span style="font-family: monospace; background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">
+                                    {{ $ipAddress }}
+                                </span>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $ipAddress }}', this)" title="Copy to clipboard">📎</button>
+                            </div>
+                        </div>
+                        @endif
+
                         <!-- TCPA Consent Text from Payload -->
                         @php
                             $tcpaConsentText = null;
                             if (isset($lead->payload) && is_string($lead->payload)) {
                                 $payloadData = json_decode($lead->payload, true);
+                                // Look in multiple possible locations
                                 $tcpaConsentText = $payloadData['tcpa_consent_text'] ?? 
+                                                  $payloadData['contact']['tcpa_consent_text'] ?? 
                                                   $payloadData['data']['tcpa_consent_text'] ?? 
                                                   $payloadData['tcpa_text'] ?? 
-                                                  $payloadData['data']['tcpa_text'] ?? null;
+                                                  $payloadData['contact']['tcpa_text'] ?? 
+                                                  $payloadData['data']['tcpa_text'] ?? 
+                                                  $payloadData['meta']['tcpa_consent_text'] ?? 
+                                                  $payloadData['meta']['tcpa_text'] ?? null;
                             }
                             // Also check direct field
                             if (!$tcpaConsentText && isset($lead->tcpa_consent_text)) {
                                 $tcpaConsentText = $lead->tcpa_consent_text;
+                            }
+                            // Check in meta field
+                            if (!$tcpaConsentText && isset($lead->meta) && is_array($lead->meta)) {
+                                $tcpaConsentText = $lead->meta['tcpa_consent_text'] ?? $lead->meta['tcpa_text'] ?? null;
                             }
                         @endphp
                         @if($tcpaConsentText)
