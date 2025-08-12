@@ -884,40 +884,45 @@
             <div id="debug-log"></div>
         </div>
         <!-- Header - Agent View (No Admin Data) -->
-        <div class="header" style="position: relative; padding-left: 220px;">
+        <div class="header" style="position: relative;">
             @if(isset($mode) && in_array($mode, ['view', 'edit']) && !request()->get('iframe'))
-                <a href="/leads" class="back-button admin-only">← Back to Leads</a>
+                <a href="/leads" class="back-button admin-only" style="position: absolute; top: 20px; left: 20px; z-index: 100;">← Back to Leads</a>
             @endif
             
-            <!-- Lead Type Avatar Circle - 3x Larger -->
-            <div style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); z-index: 10;">
+            <!-- Lead Type Avatar Circle - Prominent and Eye-catching -->
+            <div style="position: absolute; left: -60px; top: 50%; transform: translateY(-50%); z-index: 50;">
                 <div style="
-                    width: 180px; 
-                    height: 180px; 
+                    width: 200px; 
+                    height: 200px; 
                     border-radius: 50%; 
                     display: flex; 
                     align-items: center; 
                     justify-content: center; 
-                    font-weight: bold; 
-                    font-size: 48px; 
+                    font-weight: 900; 
+                    font-size: 56px; 
                     color: white;
-                    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-                    background: {{ $lead->type === 'auto' ? '#3B82F6' : ($lead->type === 'home' ? '#10B981' : '#8B5CF6') }};
+                    box-shadow: 0 12px 40px rgba(0,0,0,0.25), 0 0 0 8px rgba(255,255,255,0.3);
+                    background: {{ $lead->type === 'auto' ? 'linear-gradient(135deg, #667eea 0%, #3B82F6 100%)' : ($lead->type === 'home' ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)') }};
+                    border: 4px solid white;
+                    animation: pulse 2s infinite;
                 ">
                     {{ $lead->type === 'auto' ? 'AUTO' : ($lead->type === 'home' ? 'HOME' : strtoupper(substr($lead->type ?? 'N/A', 0, 4))) }}
                 </div>
             </div>
             
-            <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 150px; width:auto;">
-            <h1>{{ $lead->name }} 
-                @if(isset($mode) && $mode === 'view')
-                    <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
-                @elseif(isset($mode) && $mode === 'edit')
-                    <span style="font-size: 14px; opacity: 0.8;">(Edit Mode)</span>
-                @endif
-            </h1>
-            <div class="meta">
-                Lead ID: {{ $lead->external_lead_id ?? $lead->id }}
+            <!-- Centered Content -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px 150px;">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 120px; width:auto; margin-bottom: 10px;">
+                <h1 style="margin: 10px 0; text-align: center;">{{ $lead->name }} 
+                    @if(isset($mode) && $mode === 'view')
+                        <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
+                    @elseif(isset($mode) && $mode === 'edit')
+                        <span style="font-size: 14px; opacity: 0.8;">(Edit Mode)</span>
+                    @endif
+                </h1>
+                <div class="meta" style="text-align: center;">
+                    Lead ID: {{ $lead->external_lead_id ?? $lead->id }}
+                </div>
             </div>
         </div>
         
@@ -1227,12 +1232,34 @@
         @endif
 
         <!-- Contact Information -->
-        <div class="section">
+        <div class="section" style="position: relative;">
             <div class="section-title contact">📞 Lead Details 
                 @if(!isset($mode) || $mode !== 'view')
                     <button class="edit-btn" onclick="toggleEdit('contact')">✏️ Edit</button>
                 @endif
             </div>
+            
+            <!-- Payload Button - Only in View Mode -->
+            @if(isset($mode) && $mode === 'view')
+            <button onclick="viewPayload()" style="
+                position: absolute;
+                bottom: 15px;
+                right: 15px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                transition: all 0.3s ease;
+                z-index: 10;
+            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.5)';" 
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)';">
+                📦 View Payload
+            </button>
+            @endif
             <div class="contact-layout" id="contact-display">
                                 <div class="contact-left">
                     <div class="info-item" id="contact-phone">
@@ -4064,6 +4091,116 @@
                     full.style.display = 'block';
                 }
             }
+        }
+        
+        // View Payload function
+        function viewPayload() {
+            @if(isset($lead->payload))
+                const payload = @json($lead->payload);
+                let payloadData;
+                
+                // Parse if it's a string
+                if (typeof payload === 'string') {
+                    try {
+                        payloadData = JSON.parse(payload);
+                    } catch (e) {
+                        payloadData = payload;
+                    }
+                } else {
+                    payloadData = payload;
+                }
+                
+                // Create modal
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0,0,0,0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
+                
+                const content = document.createElement('div');
+                content.style.cssText = `
+                    background: white;
+                    border-radius: 12px;
+                    padding: 30px;
+                    max-width: 80%;
+                    max-height: 80%;
+                    overflow: auto;
+                    position: relative;
+                `;
+                
+                const title = document.createElement('h2');
+                title.textContent = '📦 Lead Payload Data';
+                title.style.cssText = 'margin-bottom: 20px; color: #333;';
+                
+                const pre = document.createElement('pre');
+                pre.style.cssText = `
+                    background: #f5f5f5;
+                    padding: 20px;
+                    border-radius: 8px;
+                    overflow: auto;
+                    font-size: 14px;
+                    line-height: 1.5;
+                `;
+                pre.textContent = JSON.stringify(payloadData, null, 2);
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = '✕ Close';
+                closeBtn.style.cssText = `
+                    position: absolute;
+                    top: 15px;
+                    right: 15px;
+                    background: #dc3545;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 600;
+                `;
+                closeBtn.onclick = () => document.body.removeChild(modal);
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy Payload';
+                copyBtn.style.cssText = `
+                    background: #10b981;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    margin-top: 15px;
+                `;
+                copyBtn.onclick = () => {
+                    navigator.clipboard.writeText(JSON.stringify(payloadData, null, 2));
+                    copyBtn.textContent = '✓ Copied!';
+                    setTimeout(() => copyBtn.textContent = '📋 Copy Payload', 2000);
+                };
+                
+                content.appendChild(title);
+                content.appendChild(pre);
+                content.appendChild(copyBtn);
+                content.appendChild(closeBtn);
+                modal.appendChild(content);
+                document.body.appendChild(modal);
+                
+                // Close on background click
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                };
+            @else
+                alert('No payload data available for this lead.');
+            @endif
         }
         
         // Notify parent window that iframe is loaded
