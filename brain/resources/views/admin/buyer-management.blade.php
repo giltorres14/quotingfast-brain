@@ -553,38 +553,15 @@
         <div class="page-header">
             <h1 class="page-title">Buyer Management & Impersonation 🎭</h1>
             <p class="page-subtitle">
-                Create dummy buyers, generate sample data, and impersonate any buyer to see their exact experience through the Brain.
+                Manage buyer accounts and impersonate any buyer to see their exact experience through the Brain.
             </p>
         </div>
         
-        <!-- Quick Actions -->
-        <div class="action-grid">
-            <div class="action-card" onclick="openCreateBuyerModal()">
-                <div class="action-icon">👤</div>
-                <div class="action-title">Create Dummy Buyer</div>
-                <div class="action-description">
-                    Create a test buyer account with sample data for testing and demonstrations
-                </div>
-                <button class="action-btn">Create New Buyer</button>
-            </div>
-            
-            <div class="action-card" onclick="generateSampleData()">
-                <div class="action-icon">📊</div>
-                <div class="action-title">Generate Sample Data</div>
-                <div class="action-description">
-                    Add sample leads, outcomes, payments, and documents to existing buyer accounts
-                </div>
-                <button class="action-btn secondary">Generate Data</button>
-            </div>
-            
-            <div class="action-card" onclick="clearTestData()">
-                <div class="action-icon">🗑️</div>
-                <div class="action-title">Clear Test Data</div>
-                <div class="action-description">
-                    Remove all test buyers and sample data to clean up the system
-                </div>
-                <button class="action-btn danger">Clear All Test Data</button>
-            </div>
+        <!-- Add Buyer Button -->
+        <div style="margin-bottom: 2rem;">
+            <button class="action-btn" onclick="openCreateBuyerModal()" style="background: #10b981; color: white; padding: 12px 24px; font-size: 16px;">
+                ➕ Add New Buyer
+            </button>
         </div>
         
         <!-- Alert Area -->

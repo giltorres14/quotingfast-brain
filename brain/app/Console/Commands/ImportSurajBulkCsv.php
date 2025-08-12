@@ -71,7 +71,7 @@ class ImportSurajBulkCsv extends Command
         }
         
         $this->info("📁 Folder: $folder");
-        $this->info("📋 Pattern: $pattern");
+        $this->info("📋 Pattern: " . (is_array($pattern) ? implode(', ', $pattern) : $pattern));
         $this->info("🔄 Processing Order: " . ($oldestFirst ? 'Oldest First' : 'Newest First'));
         $this->info("⚠️  Duplicate Rule: STRICT - Skip ALL duplicates");
         $this->newLine();
@@ -80,7 +80,8 @@ class ImportSurajBulkCsv extends Command
         $files = $this->getCSVFiles($folder, $pattern, $oldestFirst);
         
         if (empty($files)) {
-            $this->warn("No CSV files found matching pattern: $pattern");
+            $patternStr = is_array($pattern) ? implode(', ', $pattern) : $pattern;
+            $this->warn("No CSV files found matching pattern: $patternStr");
             return 0;
         }
         
@@ -108,7 +109,15 @@ class ImportSurajBulkCsv extends Command
      */
     private function getCSVFiles($folder, $pattern, $oldestFirst)
     {
-        $files = glob($folder . '/' . $pattern);
+        // Handle pattern as array or string
+        if (is_array($pattern)) {
+            $files = [];
+            foreach ($pattern as $p) {
+                $files = array_merge($files, glob($folder . '/' . $p));
+            }
+        } else {
+            $files = glob($folder . '/' . $pattern);
+        }
         
         if (empty($files)) {
             return [];

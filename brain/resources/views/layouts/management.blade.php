@@ -203,6 +203,9 @@
                     <a href="/admin/campaigns" class="dropdown-item {{ request()->is('admin/campaigns') ? 'active' : '' }}">
                         📊 Campaigns
                     </a>
+                    <a href="/admin/vendor-management" class="dropdown-item {{ request()->is('admin/vendor-management') ? 'active' : '' }}">
+                        🏢 Vendor Management
+                    </a>
                     <a href="/admin/buyer-management" class="dropdown-item {{ request()->is('admin/buyer-management') ? 'active' : '' }}">
                         👥 Buyer Management
                     </a>

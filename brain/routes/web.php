@@ -4902,6 +4902,102 @@ Route::post('/admin/campaigns/{id}/update', function ($id) {
     }
 });
 
+// Admin Vendor Management
+Route::get('/admin/vendor-management', function () {
+    $vendors = \App\Models\Vendor::orderBy('active', 'desc')
+        ->orderBy('total_leads', 'desc')
+        ->get();
+    
+    $stats = [
+        'total_vendors' => \App\Models\Vendor::count(),
+        'active_vendors' => \App\Models\Vendor::where('active', true)->count(),
+        'total_leads' => \App\Models\Lead::whereNotNull('vendor_name')->count(),
+        'total_spent' => \App\Models\Lead::sum('cost') ?? 0
+    ];
+    
+    return view('admin.vendor-management', compact('vendors', 'stats'));
+});
+
+// Create/Update Vendor
+Route::post('/admin/vendors', function () {
+    try {
+        $validated = request()->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email',
+            'phone' => 'nullable|string|max:20',
+            'active' => 'boolean',
+            'notes' => 'nullable|string'
+        ]);
+        
+        $vendor = \App\Models\Vendor::firstOrCreate(
+            ['name' => $validated['name']],
+            [
+                'active' => $validated['active'] ?? true,
+                'notes' => $validated['notes'] ?? null
+            ]
+        );
+        
+        // Update contact info
+        $contactInfo = [];
+        if (!empty($validated['email'])) $contactInfo['email'] = $validated['email'];
+        if (!empty($validated['phone'])) $contactInfo['phone'] = $validated['phone'];
+        
+        if (!empty($contactInfo)) {
+            $vendor->contact_info = $contactInfo;
+            $vendor->save();
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor saved successfully'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// Update Vendor
+Route::put('/admin/vendors/{id}', function ($id) {
+    try {
+        $vendor = \App\Models\Vendor::findOrFail($id);
+        
+        $validated = request()->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email',
+            'phone' => 'nullable|string|max:20',
+            'active' => 'boolean',
+            'notes' => 'nullable|string'
+        ]);
+        
+        $vendor->name = $validated['name'];
+        $vendor->active = $validated['active'] ?? true;
+        $vendor->notes = $validated['notes'] ?? null;
+        
+        // Update contact info
+        $contactInfo = [];
+        if (!empty($validated['email'])) $contactInfo['email'] = $validated['email'];
+        if (!empty($validated['phone'])) $contactInfo['phone'] = $validated['phone'];
+        
+        $vendor->contact_info = !empty($contactInfo) ? $contactInfo : null;
+        $vendor->save();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Vendor updated successfully'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Admin Buyer Management
 Route::get('/admin/buyer-management', function () {
     return view('admin.buyer-management');
