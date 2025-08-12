@@ -5369,6 +5369,11 @@ Route::post('/admin/clear-test-data', function () {
 // Lead Flow Visualization Panel
 Route::get('/admin/lead-flow', 'App\Http\Controllers\LeadFlowController@index')->name('admin.lead-flow');
 
+// Brain Control Center - Central Admin Hub
+Route::get('/admin/control-center', function () {
+    return view('admin.control-center');
+})->name('admin.control-center');
+
 Route::get('/admin/buyers-list', function () {
     try {
         $buyers = \App\Models\Buyer::with(['payments', 'leads'])

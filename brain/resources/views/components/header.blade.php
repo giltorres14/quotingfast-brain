@@ -367,6 +367,13 @@
             
             <!-- Navigation Menu -->
             <nav class="nav-menu">
+                <!-- Control Center -->
+                <li class="nav-item">
+                    <a href="/admin/control-center" class="nav-link {{ request()->is('admin/control-center') ? 'active' : '' }}">
+                        🧠 Control Center
+                    </a>
+                </li>
+                
                 <!-- Dashboard -->
                 <li class="nav-item">
                     <a href="/admin" class="nav-link {{ request()->is('admin') ? 'active' : '' }}">

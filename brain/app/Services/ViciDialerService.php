@@ -764,6 +764,77 @@ class ViciDialerService
     }
     
     /**
+     * Delete a lead from Vici through API
+     * Note: This removes the lead from Vici but can keep it in Brain for records
+     */
+    public function deleteLeadFromVici(Lead $lead, bool $keepInBrain = true): array
+    {
+        try {
+            if (!$lead->external_lead_id) {
+                return [
+                    'success' => false,
+                    'message' => 'Lead has no external_lead_id for Vici'
+                ];
+            }
+            
+            Log::info('🗑️ Deleting lead from Vici', [
+                'lead_id' => $lead->id,
+                'external_lead_id' => $lead->external_lead_id,
+                'keep_in_brain' => $keepInBrain
+            ]);
+            
+            $apiUrl = "https://philli.callix.ai/vicidial/non_agent_api.php";
+            
+            $params = [
+                'source' => 'brain',
+                'user' => 'apiuser',
+                'pass' => 'UZPATJ59GJAVKG8ES6',
+                'function' => 'update_lead',
+                'vendor_lead_code' => "BRAIN_{$lead->id}",
+                'status' => 'DELETE', // Mark as deleted
+                'delete_lead' => 'Y'   // Actually delete from Vici
+            ];
+            
+            $response = Http::timeout(15)->asForm()->post($apiUrl, $params);
+            
+            if ($response->successful()) {
+                if ($keepInBrain) {
+                    // Mark as deleted in Brain but keep record
+                    $lead->status = 'deleted_from_vici';
+                    $lead->vici_list_id = null;
+                    $meta = json_decode($lead->meta ?? '{}', true);
+                    $meta['deleted_from_vici'] = now()->toIso8601String();
+                    $lead->meta = json_encode($meta);
+                    $lead->save();
+                } else {
+                    // Delete from Brain too
+                    $lead->delete();
+                }
+                
+                Log::info('✅ Lead deleted from Vici');
+                
+                return [
+                    'success' => true,
+                    'message' => 'Lead deleted from Vici',
+                    'kept_in_brain' => $keepInBrain
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'message' => 'Failed to delete lead from Vici'
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error('Exception deleting lead', ['error' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'Exception: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
      * Automatically assign lead to appropriate list based on status
      */
     public function autoAssignLeadToList(Lead $lead): array
