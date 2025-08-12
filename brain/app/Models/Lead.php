@@ -11,6 +11,22 @@ class Lead extends Model
     use HasFactory;
     
     /**
+     * Get the call metrics for this lead
+     */
+    public function viciCallMetrics()
+    {
+        return $this->hasOne(ViciCallMetrics::class);
+    }
+    
+    /**
+     * Get all call history (if multiple call records)
+     */
+    public function callHistory()
+    {
+        return $this->hasMany(ViciCallMetrics::class);
+    }
+    
+    /**
      * Boot method to ensure external_lead_id is always set correctly
      */
     protected static function boot()
