@@ -49,7 +49,7 @@
         .title {
             font-size: 1.5rem;
             font-weight: 600;
-            color: white;
+            color: #1e40af;
         }
         
         .brand-text {
@@ -76,7 +76,7 @@
         
         .nav-link:hover {
             background: #edf2f7;
-            color: white;
+            color: #1e40af;
         }
         
         .container {
