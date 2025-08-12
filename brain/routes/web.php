@@ -4845,6 +4845,55 @@ Route::post('/buyer/logout', function () {
     return redirect('/buyer/login');
 });
 
+// Admin Campaign Management
+Route::get('/admin/campaigns', function () {
+    $campaigns = \App\Models\Campaign::orderBy('is_auto_created', 'desc')
+        ->orderBy('last_lead_received_at', 'desc')
+        ->get();
+    
+    $stats = [
+        'total_campaigns' => \App\Models\Campaign::count(),
+        'auto_created' => \App\Models\Campaign::where('is_auto_created', true)->count(),
+        'active_campaigns' => \App\Models\Campaign::where('status', 'active')->count(),
+        'total_leads' => \App\Models\Lead::whereNotNull('campaign_id')->count()
+    ];
+    
+    return view('admin.campaigns', compact('campaigns', 'stats'));
+});
+
+// Update Campaign
+Route::post('/admin/campaigns/{id}/update', function ($id) {
+    try {
+        $campaign = \App\Models\Campaign::findOrFail($id);
+        
+        $validated = request()->validate([
+            'name' => 'required|string|max:255',
+            'status' => 'required|in:active,paused,inactive',
+            'description' => 'nullable|string|max:500'
+        ]);
+        
+        // Update the campaign
+        $campaign->update([
+            'name' => $validated['name'],
+            'status' => $validated['status'],
+            'description' => $validated['description'],
+            'is_auto_created' => false // Mark as manually managed now
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Campaign updated successfully'
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Campaign update error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Admin Buyer Management
 Route::get('/admin/buyer-management', function () {
     return view('admin.buyer-management');

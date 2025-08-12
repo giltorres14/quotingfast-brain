@@ -889,26 +889,22 @@
                 <a href="/leads" class="back-button admin-only">← Back to Leads</a>
             @endif
             
-            <!-- Lead Type Avatar Circle - Fixed positioning -->
-            <div style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 15px; z-index: 10;">
+            <!-- Lead Type Avatar Circle - 3x Larger -->
+            <div style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); z-index: 10;">
                 <div style="
-                    width: 60px; 
-                    height: 60px; 
+                    width: 180px; 
+                    height: 180px; 
                     border-radius: 50%; 
                     display: flex; 
                     align-items: center; 
                     justify-content: center; 
                     font-weight: bold; 
-                    font-size: 16px; 
+                    font-size: 48px; 
                     color: white;
-                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
                     background: {{ $lead->type === 'auto' ? '#3B82F6' : ($lead->type === 'home' ? '#10B981' : '#8B5CF6') }};
                 ">
                     {{ $lead->type === 'auto' ? 'AUTO' : ($lead->type === 'home' ? 'HOME' : strtoupper(substr($lead->type ?? 'N/A', 0, 4))) }}
-                </div>
-                <div>
-                    <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Lead Type</div>
-                    <div style="font-size: 16px; font-weight: 600; color: #111827;">{{ ucfirst($lead->type ?? 'Unknown') }} Insurance</div>
                 </div>
             </div>
             
