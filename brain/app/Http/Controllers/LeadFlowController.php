@@ -319,8 +319,8 @@ class LeadFlowController extends Controller
                                           COUNT(DISTINCT lead_id) as leads_handled,
                                           SUM(total_calls) as total_calls,
                                           AVG(talk_time) as avg_talk_time,
-                                          SUM(CASE WHEN connected = 1 THEN 1 ELSE 0 END) as connected,
-                                          SUM(CASE WHEN transfer_requested = 1 THEN 1 ELSE 0 END) as transfers')
+                                          SUM(CASE WHEN connected = true THEN 1 ELSE 0 END) as connected,
+                                          SUM(CASE WHEN transfer_requested = true THEN 1 ELSE 0 END) as transfers')
                              ->whereHas('lead', function($q) use ($startDate, $endDate) {
                                  $q->whereBetween('created_at', [$startDate, $endDate . ' 23:59:59']);
                              })
