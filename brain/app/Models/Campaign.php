@@ -14,7 +14,9 @@ class Campaign extends Model
         'first_seen_at',
         'last_lead_received_at',
         'total_leads',
-        'is_auto_created'
+        'is_auto_created',
+        'tenant_id',
+        'display_name'
     ];
 
     protected $casts = [
@@ -41,7 +43,9 @@ class Campaign extends Model
                 'first_seen_at' => now(),
                 'last_lead_received_at' => now(),
                 'total_leads' => 1,
-                'is_auto_created' => true
+                'is_auto_created' => true,
+                'tenant_id' => 1, // QuotingFast tenant
+                'display_name' => "Campaign #{$campaignId}"
             ]
         );
     }
@@ -62,6 +66,7 @@ class Campaign extends Model
         
         $this->update([
             'name' => $name,
+            'display_name' => $name,
             'description' => $description ?? $this->description,
             'status' => 'active',
             'is_auto_created' => false

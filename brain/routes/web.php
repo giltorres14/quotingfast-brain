@@ -4875,6 +4875,7 @@ Route::post('/admin/campaigns/{id}/update', function ($id) {
         // Update the campaign
         $campaign->update([
             'name' => $validated['name'],
+            'display_name' => $validated['name'],
             'status' => $validated['status'],
             'description' => $validated['description'],
             'is_auto_created' => false // Mark as manually managed now
