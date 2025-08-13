@@ -242,10 +242,20 @@ class ImportSurajBulkCsvFast extends Command
                 
                 // Add to batch
                 $batch[] = $leadData;
-                $this->existingPhones[$phone] = true;
+                
+                // Debug: Show first lead added to batch
+                if (count($batch) == 1) {
+                    $this->info("   First lead added to batch: phone={$phone}");
+                }
+                
+                // Only track phone if we're skipping duplicates
+                if ($skipDuplicates) {
+                    $this->existingPhones[$phone] = true;
+                }
                 
                 // Insert batch when it reaches the batch size
                 if (count($batch) >= $batchSize) {
+                    $this->info("   Inserting batch of " . count($batch) . " leads...");
                     $this->insertBatch($batch);
                     $imported += count($batch);
                     $batch = [];
@@ -315,14 +325,21 @@ class ImportSurajBulkCsvFast extends Command
         // Use DB::table for faster insertion
         try {
             DB::table('leads')->insert($insertData);
+            Log::info("Successfully inserted batch of " . count($insertData) . " leads");
         } catch (\Exception $e) {
+            Log::error("Batch insert failed: " . $e->getMessage());
             // If batch fails, try inserting one by one
+            $individualSuccess = 0;
             foreach ($insertData as $data) {
                 try {
                     DB::table('leads')->insert($data);
+                    $individualSuccess++;
                 } catch (\Exception $e2) {
                     Log::error("Failed to insert lead: " . $e2->getMessage());
                 }
+            }
+            if ($individualSuccess > 0) {
+                Log::info("Individually inserted $individualSuccess leads after batch failure");
             }
         }
     }
@@ -358,10 +375,18 @@ class ImportSurajBulkCsvFast extends Command
             }
         }
         
+        // Store vendor_campaign_id in meta if it exists
+        if (!empty($leadData['vendor_campaign_id'])) {
+            $meta = isset($leadData['meta']) ? json_decode($leadData['meta'], true) : [];
+            $meta['vendor_campaign_id'] = $leadData['vendor_campaign_id'];
+            $leadData['meta'] = json_encode($meta);
+        }
+        
         // Remove fields that don't exist in leads table
         unset($leadData['vendor_id']);
         unset($leadData['buyer_id']);
         unset($leadData['buyer_campaign_id']);
+        unset($leadData['vendor_campaign_id']); // Remove after storing in meta
     }
     
     /**
@@ -447,10 +472,10 @@ class ImportSurajBulkCsvFast extends Command
             'state' => 'state',
             'zip' => 'zip_code',
             'vendor_name' => 'vendor_name',
-            'vendor_campaign_id' => 'vendor_campaign_id',
             'campaign_id' => 'campaign_id',
             'buyer_name' => 'buyer_name',
             'opt_in_date' => 'opt_in_date'
+            // vendor_campaign_id is handled separately and stored in meta
         ];
         
         foreach ($fieldMapping as $csvField => $dbField) {
@@ -490,12 +515,22 @@ class ImportSurajBulkCsvFast extends Command
         $leadData['payload'] = json_encode($payload);
         
         // Build meta
-        $leadData['meta'] = json_encode([
+        $meta = [
             'import_file' => $filename,
             'import_date' => now()->toISOString(),
             'file_date' => $fileDate,
             'source' => 'Suraj Bulk Import'
-        ]);
+        ];
+        
+        // Add vendor_campaign_id to meta if it exists
+        if (isset($columnMap['vendor_campaign_id']) && isset($row[$columnMap['vendor_campaign_id']])) {
+            $vendor_campaign_id = trim($row[$columnMap['vendor_campaign_id']]);
+            if (!empty($vendor_campaign_id)) {
+                $meta['vendor_campaign_id'] = $vendor_campaign_id;
+            }
+        }
+        
+        $leadData['meta'] = json_encode($meta);
         
         return $leadData;
     }

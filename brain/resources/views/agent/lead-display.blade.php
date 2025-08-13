@@ -1438,12 +1438,20 @@
                     </div>
                 </div>
                 
-                <div class="info-item">
-                    <div class="info-label">Vendor Campaign ID</div>
-                    <div class="info-value">
-                        {{ $vendorPayload['vendor_campaign_id'] ?? 'Not provided' }}
-                    </div>
-                </div>
+                                        <div class="info-item">
+                            <div class="info-label">Vendor Campaign ID</div>
+                            <div class="info-value">
+                                @php
+                                    $vendorCampaignId = $vendorPayload['vendor_campaign_id'] ?? null;
+                                    // Also check meta field for vendor_campaign_id
+                                    if (!$vendorCampaignId && $lead->meta) {
+                                        $metaData = is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta;
+                                        $vendorCampaignId = $metaData['vendor_campaign_id'] ?? null;
+                                    }
+                                @endphp
+                                {{ $vendorCampaignId ?: 'Not provided' }}
+                            </div>
+                        </div>
                 
                 <!-- Buyer Information -->
                 <div class="info-item">

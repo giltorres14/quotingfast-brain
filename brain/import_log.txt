@@ -1,0 +1,19 @@
+========================================
+SURAJ BULK CSV IMPORT - FAST VERSION
+========================================
+
+📁 Folder: /Users/giltorres/Downloads/Suraj Leads
+📋 Pattern: *.csv
+⚡ Batch Size: 1000
+🔄 Skip Duplicates: YES
+
+📂 Found 86 CSV files to process
+
+📱 Loading existing phone numbers...
+   Found 4,006 existing phone numbers
+
+📦 Preloading vendors, buyers, and campaigns...
+   Loaded: 9 vendors, 1 buyers, 12 campaigns
+
+📄 Processing: 12aug_zip_state_lead.csv
+   Date: 2025-08-12 | Size: 429.46 KB
