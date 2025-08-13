@@ -99,19 +99,42 @@ class ViciProxyController extends Controller
         $httpReachable = $connection ? true : false;
         if ($connection) fclose($connection);
         
+        // Try actual SSH connection
+        $sshTest = "Not tested";
+        if (function_exists('shell_exec')) {
+            $testCmd = sprintf(
+                'timeout 5 ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -o PasswordAuthentication=no %s@%s exit 2>&1',
+                $this->viciUser,
+                $this->viciHost
+            );
+            $sshOutput = shell_exec($testCmd);
+            if (strpos($sshOutput, 'Permission denied') !== false) {
+                $sshTest = "SSH reachable (auth required)";
+                $sshReachable = true;
+            } else if (strpos($sshOutput, 'Connection refused') !== false) {
+                $sshTest = "Connection refused";
+            } else if (strpos($sshOutput, 'Connection timed out') !== false) {
+                $sshTest = "Connection timed out";
+            } else if (strpos($sshOutput, 'No route to host') !== false) {
+                $sshTest = "No route to host";
+            }
+        }
+        
         return response()->json([
             'render_ip' => $renderIP,
             'vici_host' => $this->viciHost,
             'ssh_port_22' => $sshReachable ? 'reachable' : 'blocked',
+            'ssh_test_detail' => $sshTest,
             'http_port_80' => $httpReachable ? 'reachable' : 'blocked',
             'message' => !$sshReachable ? 
                 "Whitelist this IP on Vici server: $renderIP" : 
-                "Connection test successful",
+                "Connection test successful - ready to sync!",
             'whitelist_commands' => [
                 'iptables' => "iptables -I INPUT -s $renderIP -j ACCEPT",
                 'hosts.allow' => "echo 'sshd: $renderIP' >> /etc/hosts.allow",
                 'firewalld' => "firewall-cmd --permanent --add-source=$renderIP"
-            ]
+            ],
+            'timestamp' => now()->toIso8601String()
         ]);
     }
     

@@ -23,7 +23,7 @@ class RunViciExport extends Command
                 ->withHeaders([
                     'X-API-Key' => env('VICI_PROXY_KEY', 'your-secret-key-here')
                 ])
-                ->post(url('/vici-proxy/run-export'), [
+                ->post('https://quotingfast-brain-ohio.onrender.com/vici-proxy/run-export', [
                     'db_name' => $dbName
                 ]);
             
