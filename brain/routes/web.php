@@ -5651,7 +5651,164 @@ Route::get('/admin/control-center', function () {
     return view('admin.control-center');
 })->name('admin.control-center');
 
-// Vici Call Logs Dashboard
+// Vici Reports - Comprehensive Call Analytics
+Route::get('/admin/vici-reports', function () {
+    // Get filter parameters
+    $dateFrom = request()->get('from', now()->subDays(7)->format('Y-m-d'));
+    $dateTo = request()->get('to', now()->format('Y-m-d'));
+    $statusFilter = request()->get('status', '');
+    
+    // Calculate main stats
+    $totalCalls = \App\Models\ViciCallMetrics::count();
+    $callsToday = \App\Models\ViciCallMetrics::whereDate('created_at', today())->count();
+    $connectedCalls = \App\Models\ViciCallMetrics::where('connected', true)->count();
+    $avgTalkTime = \App\Models\ViciCallMetrics::where('talk_time', '>', 0)->avg('talk_time') ?: 0;
+    $totalTalkTime = \App\Models\ViciCallMetrics::sum('talk_time');
+    $noAnswer = \App\Models\ViciCallMetrics::where('connected', false)->count();
+    $transferred = \App\Models\ViciCallMetrics::whereNotNull('transfer_status')->count();
+    
+    // Calculate rates
+    $connectionRate = $totalCalls > 0 ? round(($connectedCalls / $totalCalls) * 100, 1) : 0;
+    $noAnswerRate = $totalCalls > 0 ? round(($noAnswer / $totalCalls) * 100, 1) : 0;
+    $transferRate = $connectedCalls > 0 ? round(($transferred / $connectedCalls) * 100, 1) : 0;
+    
+    // Get orphan calls count
+    $orphanCallsCount = \App\Models\OrphanCallLog::unmatched()->count();
+    
+    // Build stats array
+    $stats = [
+        'total_calls' => $totalCalls,
+        'calls_today' => $callsToday,
+        'connected_calls' => $connectedCalls,
+        'connection_rate' => $connectionRate,
+        'avg_talk_time' => round($avgTalkTime),
+        'total_talk_hours' => round($totalTalkTime / 3600, 1),
+        'no_answer' => $noAnswer,
+        'no_answer_rate' => $noAnswerRate,
+        'transferred' => $transferred,
+        'transfer_rate' => $transferRate,
+        'orphan_calls' => $orphanCallsCount
+    ];
+    
+    // Get recent calls with filters
+    $recentCallsQuery = \App\Models\ViciCallMetrics::with('lead');
+    
+    if ($dateFrom) {
+        $recentCallsQuery->whereDate('created_at', '>=', $dateFrom);
+    }
+    if ($dateTo) {
+        $recentCallsQuery->whereDate('created_at', '<=', $dateTo);
+    }
+    if ($statusFilter) {
+        switch($statusFilter) {
+            case 'connected':
+                $recentCallsQuery->where('connected', true);
+                break;
+            case 'no-answer':
+                $recentCallsQuery->where('connected', false);
+                break;
+            case 'transferred':
+                $recentCallsQuery->whereNotNull('transfer_status');
+                break;
+        }
+    }
+    
+    $recentCalls = $recentCallsQuery->latest()->limit(100)->get();
+    
+    // Get campaign performance stats
+    $campaignStats = \App\Models\ViciCallMetrics::select('campaign_id')
+        ->selectRaw('COUNT(*) as total_calls')
+        ->selectRaw('SUM(CASE WHEN connected = true THEN 1 ELSE 0 END) as connected_calls')
+        ->selectRaw('AVG(CASE WHEN talk_time > 0 THEN talk_time END) as avg_talk_time')
+        ->selectRaw('SUM(CASE WHEN transfer_status IS NOT NULL THEN 1 ELSE 0 END) as transferred')
+        ->groupBy('campaign_id')
+        ->get()
+        ->map(function ($campaign) {
+            $campaign->connection_rate = $campaign->total_calls > 0 
+                ? round(($campaign->connected_calls / $campaign->total_calls) * 100, 1) 
+                : 0;
+            $campaign->transfer_rate = $campaign->connected_calls > 0 
+                ? round(($campaign->transferred / $campaign->connected_calls) * 100, 1) 
+                : 0;
+            return $campaign;
+        });
+    
+    // Get agent performance stats
+    $agentStats = \App\Models\ViciCallMetrics::select('agent_id')
+        ->selectRaw('COUNT(*) as total_calls')
+        ->selectRaw('SUM(CASE WHEN connected = true THEN 1 ELSE 0 END) as connected_calls')
+        ->selectRaw('SUM(talk_time) as total_talk_time')
+        ->selectRaw('AVG(CASE WHEN talk_time > 0 THEN talk_time END) as avg_talk_time')
+        ->selectRaw('SUM(CASE WHEN transfer_status IS NOT NULL THEN 1 ELSE 0 END) as transfers')
+        ->whereNotNull('agent_id')
+        ->groupBy('agent_id')
+        ->get()
+        ->map(function ($agent) {
+            $agent->connection_rate = $agent->total_calls > 0 
+                ? round(($agent->connected_calls / $agent->total_calls) * 100, 1) 
+                : 0;
+            return $agent;
+        });
+    
+    // Get orphan calls
+    $orphanCalls = \App\Models\OrphanCallLog::unmatched()->latest()->limit(50)->get();
+    
+    return view('admin.vici-reports', compact(
+        'stats', 'recentCalls', 'campaignStats', 'agentStats', 'orphanCalls'
+    ));
+})->name('admin.vici-reports');
+
+// Process orphan calls endpoint
+Route::post('/admin/vici/process-orphans', function () {
+    try {
+        $dryRun = request()->get('dry_run', false);
+        
+        if ($dryRun) {
+            \Artisan::call('vici:match-orphan-calls', ['--dry-run' => true]);
+        } else {
+            \Artisan::call('vici:match-orphan-calls');
+        }
+        
+        $output = \Artisan::output();
+        
+        // Parse output to get matched/unmatched counts
+        preg_match('/Successfully Matched:\s+([0-9,]+)/', $output, $matched);
+        preg_match('/Still Unmatched:\s+([0-9,]+)/', $output, $unmatched);
+        
+        return response()->json([
+            'success' => true,
+            'matched' => str_replace(',', '', $matched[1] ?? '0'),
+            'unmatched' => str_replace(',', '', $unmatched[1] ?? '0'),
+            'message' => $dryRun ? 'Dry run completed' : 'Orphan calls processed'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+})->name('admin.vici.process-orphans');
+
+// Match single orphan call
+Route::post('/admin/vici/orphan/{id}/match', function ($id) {
+    try {
+        $orphan = \App\Models\OrphanCallLog::findOrFail($id);
+        
+        if ($orphan->tryMatch()) {
+            return response()->json([
+                'success' => true,
+                'lead_name' => $orphan->lead->name ?? 'Unknown',
+                'message' => 'Successfully matched to lead'
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'No matching lead found'
+            ]);
+        }
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+})->name('admin.vici.orphan.match');
+
+// Vici Call Logs Dashboard (keep existing for backward compatibility)
 Route::get('/admin/vici-call-logs', function () {
     $callsToday = \App\Models\ViciCallMetrics::whereDate('created_at', today())->count();
     $connectedCalls = \App\Models\ViciCallMetrics::where('connected', true)->count();
