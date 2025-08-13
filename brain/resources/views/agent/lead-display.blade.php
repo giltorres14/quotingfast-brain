@@ -935,32 +935,6 @@
                 </h1>
                 <div class="meta" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px;">
                     <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
-                    @if($lead->source)
-                        @php
-                            $sourceColors = [
-                                'SURAJ_BULK' => ['bg' => '#8b5cf6', 'label' => 'Suraj Bulk'],
-                                'LQF_BULK' => ['bg' => '#ec4899', 'label' => 'LQF Bulk'],
-                                'LQF' => ['bg' => '#06b6d4', 'label' => 'LQF'],
-                                'SURAJ' => ['bg' => '#10b981', 'label' => 'Suraj'],
-                                'API' => ['bg' => '#f59e0b', 'label' => 'API'],
-                                'MANUAL' => ['bg' => '#6b7280', 'label' => 'Manual'],
-                            ];
-                            $sourceInfo = $sourceColors[$lead->source] ?? ['bg' => '#6b7280', 'label' => $lead->source];
-                        @endphp
-                        <span style="
-                            background: {{ $sourceInfo['bg'] }};
-                            color: white;
-                            padding: 4px 12px;
-                            border-radius: 20px;
-                            font-size: 11px;
-                            font-weight: 600;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                        ">
-                            {{ $sourceInfo['label'] }}
-                        </span>
-                    @endif
                 </div>
             </div>
         </div>
@@ -1378,7 +1352,20 @@
                     <div class="info-label">Jangle Lead ID</div>
                     <div class="info-value">
                         @php
-                            $jangleId = $lead->jangle_lead_id ?: ($vendorPayload['lead_id'] ?? ($vendorPayload['jangle_lead_id'] ?? null));
+                            // First check the jangle_lead_id field
+                            $jangleId = $lead->jangle_lead_id;
+                            
+                            // If not found, check the payload for the "id" field (which is the Jangle ID)
+                            if (!$jangleId && isset($lead->payload)) {
+                                $payloadData = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                $jangleId = $payloadData['id'] ?? ($payloadData['lead_id'] ?? ($payloadData['jangle_lead_id'] ?? null));
+                            }
+                            
+                            // Also check vendor payload
+                            if (!$jangleId) {
+                                $jangleId = $vendorPayload['id'] ?? ($vendorPayload['lead_id'] ?? ($vendorPayload['jangle_lead_id'] ?? null));
+                            }
+                            
                             // Clean numeric ID
                             if ($jangleId && is_numeric($jangleId)) {
                                 $jangleId = rtrim(rtrim(number_format($jangleId, 10, '.', ''), '0'), '.');
