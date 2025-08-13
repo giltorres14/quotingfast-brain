@@ -139,3 +139,4 @@ if (file_exists($viewFile)) {
 }
 
 echo "\n✨ Diagnostics complete!\n";
+

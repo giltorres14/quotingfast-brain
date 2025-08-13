@@ -554,6 +554,9 @@ class ImportSurajBulkCsv extends Command
         unset($leadData['buyer_id']);
         unset($leadData['buyer_campaign_id']);
         
+        // CRITICAL: Add tenant_id (required field)
+        $leadData['tenant_id'] = 1; // Default tenant for imports
+        
         return $leadData;
     }
     
