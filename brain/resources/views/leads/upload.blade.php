@@ -383,6 +383,19 @@ Jane,Smith,555-987-6543,jane@example.com,Orlando,FL,32801
                     </div>
                     
                     <div class="form-group">
+                        <label class="form-label">Lead Source</label>
+                        <select name="source" class="form-select" required>
+                            <option value="">-- Select Source --</option>
+                            <option value="LQF_BULK">LQF Bulk (CSV Import)</option>
+                            <option value="SURAJ_BULK">Suraj Bulk (CSV Import)</option>
+                            <option value="LQF">LQF (Portal Upload)</option>
+                            <option value="SURAJ">Suraj (Portal Upload)</option>
+                            <option value="MANUAL">Manual Entry</option>
+                        </select>
+                        <small style="color: #718096;">Select the source of these leads for tracking</small>
+                    </div>
+                    
+                    <div class="form-group">
                         <label class="form-label">CSV File</label>
                         <div class="file-upload-area" id="fileUploadArea">
                             <div class="upload-icon">📁</div>

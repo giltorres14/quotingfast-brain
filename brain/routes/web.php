@@ -4903,6 +4903,41 @@ Route::post('/admin/campaigns/{id}/update', function ($id) {
     }
 });
 
+// Admin Source Management
+Route::post('/api/sources', function () {
+    try {
+        $validated = request()->validate([
+            'code' => 'required|string|max:50|unique:sources,code',
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:webhook,api,bulk,portal,manual',
+            'label' => 'required|string|max:50',
+            'color' => 'required|string|max:7',
+            'endpoint_url' => 'nullable|string',
+            'api_key' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'active' => 'boolean'
+        ]);
+        
+        $source = \DB::table('sources')->insert(array_merge($validated, [
+            'active' => $validated['active'] ?? true,
+            'total_leads' => 0,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]));
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Source created successfully'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Admin Vendor Management
 Route::get('/admin/vendor-management', function () {
     $vendors = \App\Models\Vendor::orderBy('active', 'desc')
@@ -7492,6 +7527,26 @@ Route::get('/api-directory', function () {
         'total_tests' => 3,
         'active_endpoints' => 13,
     ];
+    
+    // Get lead sources from database
+    $sources = \DB::table('sources')
+        ->orderBy('total_leads', 'desc')
+        ->get()
+        ->map(function($source) {
+            return (object)[
+                'id' => $source->id,
+                'code' => $source->code,
+                'name' => $source->name,
+                'type' => $source->type,
+                'endpoint_url' => $source->endpoint_url,
+                'color' => $source->color,
+                'label' => $source->label,
+                'active' => $source->active,
+                'total_leads' => $source->total_leads,
+                'last_lead_at' => $source->last_lead_at,
+                'notes' => $source->notes
+            ];
+        });
 
     // Define all webhooks statically
     $webhooks = collect([
@@ -7659,7 +7714,7 @@ Route::get('/api-directory', function () {
         ]),
     ]);
 
-    return view('api.directory', compact('stats', 'webhooks', 'apis', 'tests'));
+    return view('api.directory', compact('stats', 'webhooks', 'apis', 'tests', 'sources'));
 });
 
 // Generic date range route - MUST COME AFTER SPECIFIC ROUTES
