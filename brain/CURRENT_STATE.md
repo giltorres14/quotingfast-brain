@@ -1,9 +1,11 @@
 # Current System State - Last Updated: January 14, 2025
 
 ## 🔴 ACTIVE WORK IN PROGRESS
-- **Vici Call Report Integration**: Reviewing and testing orphan call system
-  - Status: System built, no orphan calls currently exist
-  - Next: Test with actual Vici data or manual sync
+- **Vici Call Report Integration**: Implementing agent_stats_export for data
+  - Status: UI complete at /admin/vici-reports, defaults to today
+  - API Working: agent_stats_export returns agent call data
+  - Issue: call_log_report function not working (returns NO FUNCTION error)
+  - Next: Update sync to use agent_stats_export instead
 
 ## ✅ COMPLETED TODAY (January 14)
 - Bulk imports optimized and running (8-13 mins instead of 5 days)
