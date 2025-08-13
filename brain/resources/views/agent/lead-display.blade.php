@@ -1412,25 +1412,36 @@
                 🏢 Vendor & Buyer Information
             </div>
             <div class="info-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                @php
+                    // Handle double-encoded JSON for vendor/buyer info
+                    $vendorPayload = $lead->payload;
+                    if (is_string($vendorPayload)) {
+                        $vendorPayload = json_decode($vendorPayload, true);
+                    }
+                    if (is_string($vendorPayload)) {
+                        $vendorPayload = json_decode($vendorPayload, true);
+                    }
+                @endphp
+                
                 <!-- Vendor Information -->
                 <div class="info-item">
                     <div class="info-label">Vendor Name</div>
                     <div class="info-value">
-                        {{ $lead->vendor_name ?: ($lead->payload['vendor_name'] ?? 'Not provided') }}
+                        {{ $lead->vendor_name ?: ($vendorPayload['vendor_name'] ?? 'Not provided') }}
                     </div>
                 </div>
                 
                 <div class="info-item">
                     <div class="info-label">Vendor ID</div>
                     <div class="info-value">
-                        {{ $lead->payload['vendor_id'] ?? ($lead->meta['vendor_id'] ?? 'Not provided') }}
+                        {{ $vendorPayload['vendor_id'] ?? 'Not provided' }}
                     </div>
                 </div>
                 
                 <div class="info-item">
                     <div class="info-label">Vendor Campaign ID</div>
                     <div class="info-value">
-                        {{ $lead->payload['vendor_campaign_id'] ?? 'Not provided' }}
+                        {{ $vendorPayload['vendor_campaign_id'] ?? 'Not provided' }}
                     </div>
                 </div>
                 
@@ -1438,21 +1449,21 @@
                 <div class="info-item">
                     <div class="info-label">Buyer Name</div>
                     <div class="info-value">
-                        {{ $lead->buyer_name ?: ($lead->payload['buyer_name'] ?? 'Not provided') }}
+                        {{ $lead->buyer_name ?: ($vendorPayload['buyer_name'] ?? 'Not provided') }}
                     </div>
                 </div>
                 
                 <div class="info-item">
                     <div class="info-label">Buyer ID</div>
                     <div class="info-value">
-                        {{ $lead->payload['buyer_id'] ?? ($lead->meta['buyer_id'] ?? 'Not provided') }}
+                        {{ $vendorPayload['buyer_id'] ?? 'Not provided' }}
                     </div>
                 </div>
                 
                 <div class="info-item">
                     <div class="info-label">Campaign ID</div>
                     <div class="info-value">
-                        <strong>{{ $lead->campaign_id ?: ($lead->payload['buyer_campaign_id'] ?? 'Not provided') }}</strong>
+                        <strong>{{ $lead->campaign_id ?: 'Not provided' }}</strong>
                     </div>
                 </div>
             </div>
@@ -1509,32 +1520,45 @@
                                 @php
                                     $optInDate = null;
                                     
-                                    // For LQF leads, check payload.originally_created (CRITICAL for 90-day archiving)
-                                    if (isset($lead->payload['originally_created'])) {
-                                        try {
-                                            $optInDate = \Carbon\Carbon::parse($lead->payload['originally_created'])->format('m/d/Y g:i A');
-                                        } catch (\Exception $e) {
-                                            $optInDate = $lead->payload['originally_created'];
-                                        }
-                                    }
-                                    // For Suraj leads - check payload for timestamp (column B)
-                                    elseif (isset($lead->payload['timestamp'])) {
-                                        try {
-                                            $optInDate = \Carbon\Carbon::parse($lead->payload['timestamp'])->format('m/d/Y g:i A');
-                                        } catch (\Exception $e) {
-                                            // Try alternate format
-                                        }
-                                    }
-                                    // Check for opt_in_date field
-                                    elseif (isset($lead->opt_in_date)) {
+                                    // First check if opt_in_date field exists (already extracted)
+                                    if (isset($lead->opt_in_date) && $lead->opt_in_date) {
                                         try {
                                             $optInDate = \Carbon\Carbon::parse($lead->opt_in_date)->format('m/d/Y g:i A');
                                         } catch (\Exception $e) {
                                             $optInDate = $lead->opt_in_date;
                                         }
                                     }
+                                    // Otherwise check payload
+                                    else {
+                                        // Handle double-encoded JSON
+                                        $payload = $lead->payload;
+                                        if (is_string($payload)) {
+                                            $payload = json_decode($payload, true);
+                                        }
+                                        if (is_string($payload)) {
+                                            $payload = json_decode($payload, true);
+                                        }
+                                        
+                                        // For LQF leads, check originally_created
+                                        if (isset($payload['originally_created'])) {
+                                            try {
+                                                $optInDate = \Carbon\Carbon::parse($payload['originally_created'])->format('m/d/Y g:i A');
+                                            } catch (\Exception $e) {
+                                                $optInDate = $payload['originally_created'];
+                                            }
+                                        }
+                                        // For Suraj leads - check timestamp (column B)
+                                        elseif (isset($payload['timestamp'])) {
+                                            try {
+                                                $optInDate = \Carbon\Carbon::parse($payload['timestamp'])->format('m/d/Y g:i A');
+                                            } catch (\Exception $e) {
+                                                // Try alternate format
+                                            }
+                                        }
+                                    }
+                                    
                                     // Fallback to created_at
-                                    elseif ($lead->created_at) {
+                                    if (!$optInDate && $lead->created_at) {
                                         $optInDate = \Carbon\Carbon::parse($lead->created_at)->format('m/d/Y g:i A');
                                     }
                                 @endphp
