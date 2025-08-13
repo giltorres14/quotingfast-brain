@@ -312,17 +312,18 @@ class ImportSurajBulkCsv extends Command
             'last_name' => ['lastname', 'last_name', 'lname', 'last'],
             'email' => ['emailaddress', 'email_address', 'email', 'e-mail'],
             'address' => ['mailaddress1', 'address', 'address1', 'street', 'street_address'],
-            'city' => ['city', 'town'],
+            'city' => ['cityname', 'city', 'town'],
             'state' => ['provincestatename', 'state', 'province', 'st'],
-            'zip' => ['zip', 'zip_code', 'zipcode', 'postal_code', 'postal'],
-            'dob' => ['dob', 'date_of_birth', 'birthdate', 'birth_date'],
+            'zip' => ['postalzipcode', 'zip', 'zip_code', 'zipcode', 'postal_code', 'postal'],
+            'dob' => ['birthdate', 'dob', 'date_of_birth', 'birth_date'],
             'gender' => ['gender', 'sex'],
             'vendor_id' => ['vendor_id', 'vendorid', 'vendor_code'],
             'vendor_name' => ['vendor_name', 'vendorname', 'vendor'],
-            'campaign_id' => ['vendor_campaign_id', 'campaign_id', 'campaign'],
+            'vendor_campaign_id' => ['vendor_campaign_id'],
+            'campaign_id' => ['buyer_campaign_id'],  // Column L is the actual Campaign ID
             'buyer_id' => ['buyer_id', 'buyerid', 'buyer_code'],
             'buyer_name' => ['buyer_name', 'buyername', 'buyer'],
-            'buyer_campaign_id' => ['buyer_campaign_id', 'buyercampaignid']
+            'opt_in_date' => ['timestamp']  // Column B for opt-in timestamp
         ];
         
         foreach ($headers as $index => $header) {
@@ -392,8 +393,8 @@ class ImportSurajBulkCsv extends Command
             'phone' => $phone,
             'source' => 'SURAJ_BULK',
             'type' => 'auto',
-            'campaign_id' => 'SURAJ_' . $fileDate,
-            'external_lead_id' => Lead::generateExternalLeadId()
+            'external_lead_id' => Lead::generateExternalLeadId(),
+            'tcpa_compliant' => true  // All Suraj leads are TCPA compliant
         ];
         
         // Map available fields
@@ -409,10 +410,10 @@ class ImportSurajBulkCsv extends Command
             'gender' => 'gender',
             'vendor_id' => 'vendor_id',
             'vendor_name' => 'vendor_name',
-            'campaign_id' => 'campaign_id',
+            'vendor_campaign_id' => 'vendor_campaign_id',
+            'campaign_id' => 'campaign_id',  // This will map from buyer_campaign_id column
             'buyer_id' => 'buyer_id',
-            'buyer_name' => 'buyer_name',
-            'buyer_campaign_id' => 'buyer_campaign_id'
+            'buyer_name' => 'buyer_name'
         ];
         
         foreach ($fieldMapping as $csvField => $dbField) {
@@ -543,6 +544,7 @@ class ImportSurajBulkCsv extends Command
             'file_date' => $fileDate,
             'source' => 'Suraj Bulk Import',
             'vendor_id' => $leadData['vendor_id'] ?? null,
+            'vendor_campaign_id' => $leadData['vendor_campaign_id'] ?? null,
             'buyer_id' => $leadData['buyer_id'] ?? null,
             'vendor_name' => $leadData['vendor_name'] ?? null,
             'buyer_name' => $leadData['buyer_name'] ?? null

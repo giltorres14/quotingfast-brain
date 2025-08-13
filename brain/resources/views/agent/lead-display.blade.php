@@ -1289,7 +1289,21 @@
                                 <div class="contact-left">
                     <div class="info-item" id="contact-phone">
                     <div class="info-label">Phone</div>
-                    <div class="info-value">{{ $lead->phone ?: 'Not provided' }}</div>
+                    <div class="info-value">
+                        @php
+                            if ($lead->phone) {
+                                $phone = preg_replace('/[^0-9]/', '', $lead->phone);
+                                if (strlen($phone) == 10) {
+                                    $formatted_phone = '(' . substr($phone, 0, 3) . ')' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+                                } else {
+                                    $formatted_phone = $lead->phone;
+                                }
+                            } else {
+                                $formatted_phone = 'Not provided';
+                            }
+                        @endphp
+                        {{ $formatted_phone }}
+                    </div>
                 </div>
                     <div class="info-item" id="contact-email">
                     <div class="info-label">Email</div>
@@ -1392,6 +1406,58 @@
         </div>
         @endif
 
+        <!-- Vendor/Buyer Information Section -->
+        <div class="section" style="background: linear-gradient(135deg, #f3e7fc 0%, #e9d5ff 100%); border: 2px solid #c084fc; border-radius: 12px; padding: 20px;">
+            <div class="section-title" style="background: #9333ea; color: white; padding: 12px 20px; margin: -20px -20px 20px -20px; border-radius: 10px 10px 0 0; font-size: 18px;">
+                🏢 Vendor & Buyer Information
+            </div>
+            <div class="info-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <!-- Vendor Information -->
+                <div class="info-item">
+                    <div class="info-label">Vendor Name</div>
+                    <div class="info-value">
+                        {{ $lead->vendor_name ?: ($lead->payload['vendor_name'] ?? 'Not provided') }}
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Vendor ID</div>
+                    <div class="info-value">
+                        {{ $lead->payload['vendor_id'] ?? ($lead->meta['vendor_id'] ?? 'Not provided') }}
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Vendor Campaign ID</div>
+                    <div class="info-value">
+                        {{ $lead->payload['vendor_campaign_id'] ?? 'Not provided' }}
+                    </div>
+                </div>
+                
+                <!-- Buyer Information -->
+                <div class="info-item">
+                    <div class="info-label">Buyer Name</div>
+                    <div class="info-value">
+                        {{ $lead->buyer_name ?: ($lead->payload['buyer_name'] ?? 'Not provided') }}
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Buyer ID</div>
+                    <div class="info-value">
+                        {{ $lead->payload['buyer_id'] ?? ($lead->meta['buyer_id'] ?? 'Not provided') }}
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Campaign ID</div>
+                    <div class="info-value">
+                        <strong>{{ $lead->campaign_id ?: ($lead->payload['buyer_campaign_id'] ?? 'Not provided') }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- TCPA Compliance Section - HIDE ONLY IN EDIT MODE -->
         @if(!isset($mode) || $mode !== 'edit')
         <div class="section" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #86efac; border-radius: 12px; padding: 20px;">
@@ -1399,15 +1465,19 @@
                         🛡️ TCPA Compliance & Consent Information
                     </div>
                     <div class="info-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                        <!-- TCPA Compliance Status -->
+                                                <!-- TCPA Compliance Status -->
                         <div class="info-item">
                             <div class="info-label">TCPA Compliant</div>
                             <div class="info-value">
                                 @php
                                     $tcpaCompliant = false;
                                     
+                                    // For SURAJ leads, always TCPA compliant
+                                    if ($lead->source === 'SURAJ_BULK' || $lead->source === 'SURAJ') {
+                                        $tcpaCompliant = true;
+                                    }
                                     // Check direct field first
-                                    if (isset($lead->tcpa_compliant)) {
+                                    elseif (isset($lead->tcpa_compliant)) {
                                         $tcpaCompliant = $lead->tcpa_compliant;
                                     } 
                                     // Check meta field
@@ -1430,7 +1500,47 @@
                                     <span style="color: #dc3545; font-weight: bold;">❌ NO</span>
                                 @endif
                     </div>
-                </div>
+                        </div>
+                        
+                        <!-- Opt-In Date -->
+                        <div class="info-item">
+                            <div class="info-label">Opt-In Date</div>
+                            <div class="info-value">
+                                @php
+                                    $optInDate = null;
+                                    
+                                    // For LQF leads, check payload.originally_created (CRITICAL for 90-day archiving)
+                                    if (isset($lead->payload['originally_created'])) {
+                                        try {
+                                            $optInDate = \Carbon\Carbon::parse($lead->payload['originally_created'])->format('m/d/Y g:i A');
+                                        } catch (\Exception $e) {
+                                            $optInDate = $lead->payload['originally_created'];
+                                        }
+                                    }
+                                    // For Suraj leads - check payload for timestamp (column B)
+                                    elseif (isset($lead->payload['timestamp'])) {
+                                        try {
+                                            $optInDate = \Carbon\Carbon::parse($lead->payload['timestamp'])->format('m/d/Y g:i A');
+                                        } catch (\Exception $e) {
+                                            // Try alternate format
+                                        }
+                                    }
+                                    // Check for opt_in_date field
+                                    elseif (isset($lead->opt_in_date)) {
+                                        try {
+                                            $optInDate = \Carbon\Carbon::parse($lead->opt_in_date)->format('m/d/Y g:i A');
+                                        } catch (\Exception $e) {
+                                            $optInDate = $lead->opt_in_date;
+                                        }
+                                    }
+                                    // Fallback to created_at
+                                    elseif ($lead->created_at) {
+                                        $optInDate = \Carbon\Carbon::parse($lead->created_at)->format('m/d/Y g:i A');
+                                    }
+                                @endphp
+                                {{ $optInDate ?: 'Not provided' }}
+                            </div>
+                        </div>
 
                         <!-- TrustedForm Certificate -->
                         @if(isset($lead->meta) && is_array($lead->meta) && isset($lead->meta['trusted_form_cert_url']))
