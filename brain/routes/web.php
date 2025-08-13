@@ -4,6 +4,13 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
+
+// Vici Proxy Routes (Always through Render's IP)
+Route::prefix('vici-proxy')->group(function () {
+    Route::get('/test', 'App\Http\Controllers\ViciProxyController@testConnection');
+    Route::post('/execute', 'App\Http\Controllers\ViciProxyController@executeCommand');
+    Route::post('/call-logs', 'App\Http\Controllers\ViciProxyController@fetchCallLogs');
+});
 use App\Models\LeadQueue;
 use App\Services\AllstateTestingService;
 
