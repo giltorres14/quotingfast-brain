@@ -59,6 +59,7 @@ class SyncViciCallLogs extends Command
             'total_calls' => 0,
             'new_records' => 0,
             'updated_records' => 0,
+            'orphan_calls' => 0,
             'failed' => 0,
             'leads_updated' => 0
         ];
@@ -85,13 +86,15 @@ class SyncViciCallLogs extends Command
                     $result = $this->processCallLog($log);
                     
                     if ($result['success']) {
-                        if ($result['created']) {
+                        if (isset($result['orphan']) && $result['orphan']) {
+                            $stats['orphan_calls']++;
+                        } elseif ($result['created']) {
                             $stats['new_records']++;
                         } else {
                             $stats['updated_records']++;
                         }
                         
-                        if ($result['lead_updated']) {
+                        if (isset($result['lead_updated']) && $result['lead_updated']) {
                             $stats['leads_updated']++;
                         }
                     } else {
@@ -313,7 +316,24 @@ class SyncViciCallLogs extends Command
             }
             
             if (!$lead) {
-                return ['success' => false, 'message' => 'Lead not found'];
+                // Store as orphan call log for later matching
+                $orphan = \App\Models\OrphanCallLog::create([
+                    'phone_number' => $log['phone_number'] ?? null,
+                    'vendor_lead_code' => $log['vendor_lead_code'] ?? null,
+                    'vici_lead_id' => $log['lead_id'] ?? null,
+                    'campaign_id' => $log['campaign_id'] ?? null,
+                    'agent_id' => $log['user'] ?? null,
+                    'status' => $log['status'] ?? null,
+                    'call_date' => $log['call_date'] ?? now(),
+                    'talk_time' => intval($log['length_in_sec'] ?? 0),
+                    'call_data' => $log
+                ]);
+                
+                return [
+                    'success' => true,
+                    'orphan' => true,
+                    'message' => 'Stored as orphan call for later matching'
+                ];
             }
             
             // Update or create call metrics
@@ -418,6 +438,7 @@ class SyncViciCallLogs extends Command
                 ['Total Calls Processed', number_format($stats['total_calls'])],
                 ['New Call Records', number_format($stats['new_records'])],
                 ['Updated Records', number_format($stats['updated_records'])],
+                ['Orphan Calls (No Lead)', number_format($stats['orphan_calls'])],
                 ['Leads Updated', number_format($stats['leads_updated'])],
                 ['Failed', number_format($stats['failed'])],
             ]
