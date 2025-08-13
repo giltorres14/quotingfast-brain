@@ -8,15 +8,6 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array
-     */
-    protected $commands = [
-        Commands\ProcessLeadQueue::class,
-    ];
-
-    /**
      * Define the application's command schedule.
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
@@ -24,18 +15,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Process lead queue every minute
-        $schedule->command('leads:process-queue')
-                ->everyMinute()
-                ->withoutOverlapping()
-                ->appendOutputTo(storage_path('logs/lead-queue.log'));
-        
-        // Optional: Clean up old completed queue items daily
-        $schedule->call(function () {
-            \App\Models\LeadQueue::where('status', 'completed')
-                ->where('processed_at', '<', now()->subDays(7))
-                ->delete();
-        })->daily();
+        // Sync Vici call logs every 5 minutes
+        $schedule->command('vici:sync-direct')
+            ->everyFiveMinutes()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/vici-sync.log'));
+            
+        // You can also add other scheduled tasks here
+        // $schedule->command('vici:match-orphans')->hourly();
     }
 
     /**
@@ -50,6 +37,3 @@ class Kernel extends ConsoleKernel
         require base_path('routes/console.php');
     }
 }
-
-
-

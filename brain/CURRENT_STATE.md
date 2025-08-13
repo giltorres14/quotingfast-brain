@@ -1,102 +1,114 @@
-# Current System State - Last Updated: August 13, 2025
+# Current System State - Last Updated: August 13, 2025 (5:30 PM EST)
 
-## ✅ JUST COMPLETED
-- **Vici Call Report Integration**: DONE!
-  - UI: Complete at /admin/vici-reports (defaults to today)
-  - API: Working with agent_stats_export function
-  - Sync: New command `php artisan vici:sync-agent-stats`
-  - Data: Successfully synced 78,757 calls from 16 agents
-  - Status: Production ready
+## 📊 BULK IMPORT STATUS - WHERE WE LEFT OFF
+
+### SURAJ BULK IMPORT (PAUSED)
+**Current Status:** STOPPED at file 21 of 86 due to corrupted CSV data
+- **Successfully Imported:** 76,487 leads (after duplicate cleanup)
+- **Files Processed:** 21 of 86 CSV files
+- **Location:** `~/Downloads/Suraj Leads/`
+- **Issues Found:** 
+  - Files 22+ contain HTTP error responses in address fields (corrupted data from failed webhooks)
+  - Example: Address fields contain "Cache-Control: no-cache<br>Connection: keep-alive" etc.
+- **Last Good File:** File 21 completed successfully
+- **Scripts Created:**
+  - `suraj_import_clean.php` - Validates and skips corrupted records
+  - `clean_suraj_duplicates_fast.php` - Removed 2,794 duplicates
+  - `fix_all_suraj_data.php` - Updates missing fields from CSV
+  - `complete_suraj_import.php` - Latest import script with all fixes
+- **TO RESUME:** Need to clean HTTP corruption from CSV files 22-86
+
+### LQF BULK IMPORT (READY TO RUN)
+**Current Status:** TEST COMPLETED - Ready for full import
+- **Test Results:** 10 records imported successfully with source "LQF_BULK"
+- **File:** `~/Downloads/1755044818-webleads_export_2025-05-01_-_2025-08-12.csv`
+- **Total Records:** 149,548 leads to import
+- **File Size:** 397 MB
+- **Command to Run:** `php artisan lqf:bulk-import ~/Downloads/1755044818-webleads_export_2025-05-01_-_2025-08-12.csv`
+- **Features:**
+  - Automatically replaces Suraj duplicates when phone matches
+  - Sets source to "LQF_BULK" (fixed in ImportLqfBulkCsv.php line 262)
+  - Handles all required field mappings
+- **Test Import Examples:** 
+  - Chad Marshall (720-410-1824) - ID: 86167
+  - SARA BARTLETT (850-628-6205) - ID: 86166
+  - View at: https://quotingfast-brain-ohio.onrender.com/agent/lead/[ID]
 
 ## ✅ COMPLETED TODAY (August 13)
-- Bulk imports optimized and running (8-13 mins instead of 5 days)
-- Campaign ID .0 suffix fixed in display and imports
-- Lead view UI improvements (3x logo, removed duplicates)
-- Jangle Lead ID extraction fixed
-- Buy/Sell price display working
-- Vici orphan call system implemented
-- **Vici Call Reports UI** - Complete dashboard at /admin/vici-reports
-- **Vici Agent Stats Sync** - Working sync command pulling real data
-- **Campaign Delete Button** - Added to Campaign Directory (JS needs completion)
+
+### UI Updates - Lead Edit Page
+- **Save button** moved inside Lead Details section
+- **Header** now shows phone and address, made sticky
+- **Vendor/buyer section** hidden in edit mode
+- **Back button** shows for admin, hidden in iframe
+- **Lead Qualification section** removed
+
+### Data Cleanup
+- **Suraj Duplicates:** Cleaned 2,794 duplicate records
+- **Final Count:** 76,487 unique Suraj leads
+- **LQF Import:** Fixed source to use "LQF_BULK" instead of "LQF"
+
+### Other Fixes
+- Campaign ID .0 suffix fixed
+- Vici Call Reports complete at /admin/vici-reports
+- Database nullable fields fixed (tenant_id, password)
 
 ## 🚀 SYSTEM STATUS
 
-### Imports Running (Updated: 3:38 PM EST)
-- **Suraj Bulk**: PID 60881, processing file 2/86 (11,672 imported so far)
-- **LQF Bulk**: PID 61099, running and skipping duplicates correctly
-- **Replacement Logic**: LQF replaces Suraj on duplicate phone
-- **Database Fixes Applied**: 
-  - Made campaigns.tenant_id nullable
-  - Made buyers.password nullable
-  - Fixed json_decode error in Suraj import
-  - Fixed Campaign creation fields in LQF import
-- **Status**: Both running successfully
-- **ETA**: 10-15 minutes for completion
-
-### Database
-- **Type**: PostgreSQL 16 (NOT SQLite)
+### Database Current State
+- **Total Leads:** 81,227
+- **Breakdown by Source:**
+  - SURAJ_BULK: 76,487 (94.2%)
+  - LQF_BULK: 10 (test records)
+  - Other: 4,730
+- **Type**: PostgreSQL 16
 - **Host**: dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com
-- **Database**: brain_production
 
-### Webhooks
-- **Primary**: `/api-webhook` (ACTIVE, receiving leads)
+### Active Webhooks
+- **Primary**: `/api-webhook` (receiving leads)
 - **Secondary**: `/webhook.php` (backup)
-- **Status**: Working, capturing all fields including Jangle ID
+- **Status**: Working, all fields captured
 
-### Vici Integration
-- **Status**: PAUSED during bulk imports
-- **Orphan System**: Active (stores unmatched calls)
-- **Dashboard**: `/admin/vici-call-logs`
+## 📁 KEY FILES FOR RESUMING WORK
 
-## 📁 KEY FILES & THEIR PURPOSE
-
-### Commands (Artisan)
-- `app/Console/Commands/ImportSurajBulkCsvFastV2.php` - Optimized Suraj import
+### Import Scripts
+- `app/Console/Commands/ImportSurajBulkCsvFastV2.php` - Suraj import command
 - `app/Console/Commands/ImportLqfBulkCsv.php` - LQF import with replacement logic
-- `app/Console/Commands/SyncViciCallLogs.php` - Vici sync with orphan handling
-- `app/Console/Commands/MatchOrphanCalls.php` - Match orphan calls to leads
+- `suraj_import_clean.php` - Standalone script for corrupted data
+- `clean_suraj_duplicates_fast.php` - Duplicate removal script
 
-### Views
-- `resources/views/agent/lead-display.blade.php` - Lead view/edit (3x logo, no back button in edit)
-- `resources/views/campaigns/directory.blade.php` - Campaign list (delete button INCOMPLETE)
-- `resources/views/admin/vici-call-logs.blade.php` - Vici dashboard
+### UI Files
+- `resources/views/agent/lead-display.blade.php` - Lead view/edit page
+- `resources/views/campaigns/directory.blade.php` - Campaign list (needs JS for delete)
 
-### Routes
-- `routes/web.php` - All endpoints including `/api-webhook` and Vici routes
+## ⚠️ IMMEDIATE NEXT STEPS
 
-## 🔧 CONFIGURATION NOTES
+1. **Complete LQF Import**: Run full import of 149k records
+   ```bash
+   php artisan lqf:bulk-import ~/Downloads/1755044818-webleads_export_2025-05-01_-_2025-08-12.csv
+   ```
 
-### Lead ID Format
-- **external_lead_id**: 13-digit timestamp (e.g., 1755041041000)
-- **jangle_lead_id**: From `payload['id']` for LQF leads
-- **leadid_code**: Tracking parameter
+2. **Fix Suraj CSV Corruption**: Clean files 22-86 to remove HTTP headers from data
+   - Create script to detect and clean corrupted fields
+   - Re-import cleaned files
 
-### Field Mappings
-- **Opt-in Date**: Column B (Suraj), `originally_created` (LQF)
-- **Campaign ID**: Column L (cleaned to remove .0)
-- **Buy Price**: In meta/payload (not main field)
-- **Sell Price**: Main field in leads table
+3. **Complete Campaign Delete**: Add JavaScript function in campaigns/directory.blade.php
 
-### Display Rules
-- Phone format: (xxx)xxx-xxxx
-- Timestamps: EST timezone
-- Source labels: "SURAJ_BULK", "LQF_BULK", "LQF", "SURAJ"
+## 🎯 QUICK COMMANDS TO RESUME
 
-## ⚠️ CRITICAL REMINDERS
-1. **NEVER** give iframe agents access to Brain (no back buttons in edit mode)
-2. **ALWAYS** test webhooks after deployment
-3. **PostgreSQL** not SQLite in production
-4. Campaign IDs need .0 suffix removed
-5. Vici is PAUSED - don't send leads there during imports
+```bash
+# Check current lead counts
+php artisan tinker --execute="echo 'Suraj: ' . \App\Models\Lead::where('source', 'SURAJ_BULK')->count() . ' | LQF: ' . \App\Models\Lead::where('source', 'LQF_BULK')->count();"
 
-## 📝 NEXT IMMEDIATE TASKS
-1. Complete `deleteCampaign()` JavaScript function
-2. Check if imports are complete
-3. Test webhook with live data
-4. Re-enable Vici after imports done
+# Start LQF import
+php artisan lqf:bulk-import ~/Downloads/1755044818-webleads_export_2025-05-01_-_2025-08-12.csv
 
-## 🎯 QUICK RESUME CHECKLIST
-- [ ] Read this file first
-- [ ] Check import status: `ps aux | grep artisan`
-- [ ] If working on Campaign Delete, go to `resources/views/campaigns/directory.blade.php` line ~520
-- [ ] Remember: PostgreSQL in production, not SQLite
+# Monitor import progress
+tail -f storage/logs/laravel.log
+```
+
+## 📝 NOTES
+- Vici integration is PAUSED during imports
+- Campaign IDs with .0 suffix are automatically cleaned
+- LQF data replaces Suraj data on phone number match
+- All imports use tenant_id = 1

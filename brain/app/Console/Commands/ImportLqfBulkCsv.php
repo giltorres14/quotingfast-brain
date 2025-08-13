@@ -259,7 +259,7 @@ class ImportLqfBulkCsv extends Command
             'external_lead_id' => Lead::generateExternalLeadId(),
             'jangle_lead_id' => $this->getValue($row, $columnMap, 'lead id'), // Column A
             'leadid_code' => $this->getValue($row, $columnMap, 'leadid code'), // Column P
-            'source' => 'LQF',
+            'source' => 'LQF_BULK',
             'type' => $this->extractType($row, $columnMap),
             'tenant_id' => 1,
             'tcpa_compliant' => $this->extractTcpa($row, $columnMap),
