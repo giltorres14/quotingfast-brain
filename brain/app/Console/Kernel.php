@@ -15,11 +15,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // Sync Vici call logs every 5 minutes
-        $schedule->command('vici:sync-direct')
+        // Run Vici export script every 5 minutes (once IPs are whitelisted)
+        $schedule->command('vici:run-export')
             ->everyFiveMinutes()
             ->withoutOverlapping()
-            ->appendOutputTo(storage_path('logs/vici-sync.log'));
+            ->appendOutputTo(storage_path('logs/vici_export.log'));
             
         // You can also add other scheduled tasks here
         // $schedule->command('vici:match-orphans')->hourly();

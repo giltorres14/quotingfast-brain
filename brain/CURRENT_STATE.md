@@ -1,4 +1,24 @@
-# Current System State - Last Updated: August 13, 2025 (5:30 PM EST)
+# Current System State - Last Updated: August 13, 2025 (5:00 PM EST)
+
+## 🔌 VICI SERVER INTEGRATION - NEW!
+
+### Static IP Configuration
+**Render Static Outbound IPs (Ohio Region):**
+1. **3.134.238.10**
+2. **3.129.111.220** (currently active)
+3. **52.15.118.168**
+
+**Vici Server Details:**
+- IP: 37.27.138.222
+- User: root
+- Password: Monster@2213@!
+- **Action Required:** Whitelist all 3 Render IPs on Vici server
+
+### Vici Proxy Setup
+- **Test Endpoint:** https://quotingfast-brain-ohio.onrender.com/vici-proxy/test
+- **Controller:** app/Http/Controllers/ViciProxyController.php
+- **Routes:** /vici-proxy/test, /vici-proxy/execute, /vici-proxy/call-logs
+- **Status:** Deployed and ready for testing once IPs are whitelisted
 
 ## 📊 BULK IMPORT STATUS - WHERE WE LEFT OFF
 
@@ -52,6 +72,25 @@
 - Campaign ID .0 suffix fixed
 - Vici Call Reports complete at /admin/vici-reports
 - Database nullable fields fixed (tenant_id, password)
+
+## 🔌 VICI INTEGRATION STATUS
+
+### Render Static IPs (for Vici Whitelist)
+- **IP 1:** 3.134.238.10
+- **IP 2:** 3.129.111.220 (currently active)
+- **IP 3:** 52.15.118.168
+- **Status:** Awaiting Vici support to whitelist IPs
+- **Vici Server:** 37.27.138.222
+- **Credentials:** root / Monster@2213@!
+
+### Vici Export Script Setup
+- **Script Location:** `/home/vici_export_script.sh` (on Vici server)
+- **Database Name:** Colh42mUsWs40znH
+- **Export Path:** `/home/vici_logs/`
+- **Schedule:** Every 5 minutes via Laravel scheduler
+- **Proxy Endpoint:** `/vici-proxy/run-export`
+- **Manual Run:** `php artisan vici:run-export`
+- **Process CSV:** `php artisan vici:process-csv {file}`
 
 ## 🚀 SYSTEM STATUS
 

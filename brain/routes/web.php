@@ -10,6 +10,7 @@ Route::prefix('vici-proxy')->group(function () {
     Route::get('/test', 'App\Http\Controllers\ViciProxyController@testConnection');
     Route::post('/execute', 'App\Http\Controllers\ViciProxyController@executeCommand');
     Route::post('/call-logs', 'App\Http\Controllers\ViciProxyController@fetchCallLogs');
+    Route::post('/run-export', 'App\Http\Controllers\ViciProxyController@runExportScript');
 });
 use App\Models\LeadQueue;
 use App\Services\AllstateTestingService;

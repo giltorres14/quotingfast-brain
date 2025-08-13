@@ -150,4 +150,107 @@ class ViciProxyController extends Controller
         
         return $this->executeCommand($request->merge(['command' => $command]));
     }
+    
+    /**
+     * Run the Vici export script and process the CSV
+     */
+    public function runExportScript(Request $request)
+    {
+        $dbName = $request->input('db_name', 'Colh42mUsWs40znH');
+        
+        try {
+            // First, upload the export script to Vici server
+            $scriptContent = file_get_contents(base_path('vici_export_script.sh'));
+            $uploadCommand = sprintf(
+                'echo %s | sshpass -p %s ssh -o StrictHostKeyChecking=no %s@%s "cat > /tmp/vici_export.sh && chmod +x /tmp/vici_export.sh"',
+                escapeshellarg($scriptContent),
+                escapeshellarg($this->viciPass),
+                escapeshellarg($this->viciUser),
+                escapeshellarg($this->viciHost)
+            );
+            
+            shell_exec($uploadCommand);
+            
+            // Run the export script
+            $runCommand = sprintf(
+                'sshpass -p %s ssh -o StrictHostKeyChecking=no %s@%s "bash /tmp/vici_export.sh %s"',
+                escapeshellarg($this->viciPass),
+                escapeshellarg($this->viciUser),
+                escapeshellarg($this->viciHost),
+                escapeshellarg($dbName)
+            );
+            
+            $output = shell_exec($runCommand);
+            
+            // Parse output to get CSV filename
+            if (preg_match('/CSV file with header generated at: (.+)/', $output, $matches)) {
+                $remoteFile = trim($matches[1]);
+                $filename = basename($remoteFile);
+                $localPath = storage_path("app/vici_logs/{$filename}");
+                
+                // Ensure directory exists
+                if (!file_exists(dirname($localPath))) {
+                    mkdir(dirname($localPath), 0755, true);
+                }
+                
+                // Download the CSV file
+                $downloadCommand = sprintf(
+                    'sshpass -p %s scp -o StrictHostKeyChecking=no %s@%s:%s %s',
+                    escapeshellarg($this->viciPass),
+                    escapeshellarg($this->viciUser),
+                    escapeshellarg($this->viciHost),
+                    escapeshellarg($remoteFile),
+                    escapeshellarg($localPath)
+                );
+                
+                shell_exec($downloadCommand);
+                
+                if (file_exists($localPath)) {
+                    // Process the CSV using our artisan command
+                    \Artisan::call('vici:process-csv', [
+                        'file' => $localPath
+                    ]);
+                    
+                    $artisanOutput = \Artisan::output();
+                    
+                    // Clean up remote file
+                    $cleanupCommand = sprintf(
+                        'sshpass -p %s ssh -o StrictHostKeyChecking=no %s@%s "rm -f %s"',
+                        escapeshellarg($this->viciPass),
+                        escapeshellarg($this->viciUser),
+                        escapeshellarg($this->viciHost),
+                        escapeshellarg($remoteFile)
+                    );
+                    shell_exec($cleanupCommand);
+                    
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Export script executed and CSV processed',
+                        'filename' => $filename,
+                        'script_output' => $output,
+                        'process_output' => $artisanOutput,
+                        'render_ip' => trim(file_get_contents('https://api.ipify.org'))
+                    ]);
+                }
+            }
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Script executed but CSV not found or downloaded',
+                'output' => $output,
+                'render_ip' => trim(file_get_contents('https://api.ipify.org'))
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Vici export script failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
