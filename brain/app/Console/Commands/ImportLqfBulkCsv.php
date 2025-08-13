@@ -209,6 +209,8 @@ class ImportLqfBulkCsv extends Command
         // Extract basic fields
         $leadData = [
             'external_lead_id' => Lead::generateExternalLeadId(),
+            'jangle_lead_id' => $this->getValue($row, $columnMap, 'lead id'), // Column A
+            'leadid_code' => $this->getValue($row, $columnMap, 'leadid code'), // Column P
             'source' => 'LQF',
             'type' => $this->extractType($row, $columnMap),
             'tenant_id' => 1,
@@ -240,6 +242,12 @@ class ImportLqfBulkCsv extends Command
                 $leadData['campaign_id'] = $matches[1];
             }
         }
+        
+        // TCPA and tracking fields
+        $leadData['trusted_form_cert'] = $this->getValue($row, $columnMap, 'trusted form cert url'); // Column Q
+        $leadData['landing_page_url'] = $this->getValue($row, $columnMap, 'landing page url'); // Column S
+        $leadData['tcpa_consent_text'] = $this->getValue($row, $columnMap, 'tcpa consent text'); // Column U
+        $leadData['ip_address'] = $this->getValue($row, $columnMap, 'ip address');
         
         // Opt-in date from "Originally Created" field
         $originallyCreated = $this->getValue($row, $columnMap, 'originally created');
@@ -412,10 +420,29 @@ class ImportLqfBulkCsv extends Command
         
         // Create or find buyer
         if (!empty($leadData['buyer_name'])) {
-            Buyer::firstOrCreate(
-                ['name' => $leadData['buyer_name']],
-                ['active' => true, 'notes' => 'Auto-created from LQF import']
-            );
+            // Check if buyer exists
+            $buyer = Buyer::where('name', $leadData['buyer_name'])->first();
+            
+            if (!$buyer) {
+                // Parse name for buyers table requirements
+                $nameParts = explode(' - ', $leadData['buyer_name'], 2);
+                $companyName = trim($nameParts[0]);
+                
+                // For names like "QF (QUOTING FAST LEADS TO TRANSFER)"
+                if (strpos($companyName, '(') !== false) {
+                    $companyName = trim(explode('(', $companyName)[0]);
+                }
+                
+                $buyer = Buyer::create([
+                    'name' => $leadData['buyer_name'],
+                    'first_name' => $companyName,
+                    'last_name' => '',
+                    'company' => $leadData['buyer_name'],
+                    'status' => 'active',
+                    'active' => true,
+                    'notes' => 'Auto-created from LQF import'
+                ]);
+            }
         }
         
         // Create or find campaign

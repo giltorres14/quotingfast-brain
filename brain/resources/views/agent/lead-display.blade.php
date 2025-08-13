@@ -1328,79 +1328,12 @@
 
         <!-- Additional Lead Data - Only show in view mode -->
         @if(isset($mode) && $mode === 'view')
-        <div class="section">
-            <div class="section-title">💰 Cost and Buyer</div>
-            <div class="info-grid">
-                <!-- Campaign Information -->
-                @php
-                    $campaignId = $lead->campaign_id;
-                    if (!$campaignId && isset($lead->payload) && is_string($lead->payload)) {
-                        $payload = json_decode($lead->payload, true);
-                        $campaignId = $payload['campaign_id'] ?? null;
-                    }
-                    
-                    // Remove .0 from numeric IDs
-                    if ($campaignId && is_numeric($campaignId)) {
-                        $campaignId = rtrim(rtrim(number_format($campaignId, 10, '.', ''), '0'), '.');
-                    }
-                    
-                    $campaign = null;
-                    $campaignName = null;
-                    if ($campaignId) {
-                        // Check if Campaign model exists and table exists
-                        if (class_exists('\App\Models\Campaign') && \Schema::hasTable('campaigns')) {
-                            $campaign = \App\Models\Campaign::where('campaign_id', $campaignId)->first();
-                        } else {
-                            $campaign = null;
-                        }
-                        $campaignName = $campaign ? $campaign->display_name : null;
-                    }
-                @endphp
-                @if($campaignId)
-                <div class="info-item">
-                    <div class="info-label">Campaign</div>
-                    <div class="info-value">
-                        @if($campaignName && !$campaign->is_auto_created)
-                            <strong>{{ $campaignName }}</strong>
-                        @else
-                            <span style="font-family: monospace; color: #3b82f6;">{{ $campaignId }}</span>
-                        @endif
-                </div>
-                </div>
-                @endif
-                
-                @if($lead->type)
-                <div class="info-item">
-                    <div class="info-label">Lead Type</div>
-                    <div class="info-value">
-                        <span style="
-                            padding: 0.25rem 0.75rem; 
-                            border-radius: 1rem; 
-                            font-size: 0.875rem; 
-                            font-weight: 600;
-                            background: {{ $lead->type === 'auto' ? '#dbeafe' : '#fef3c7' }};
-                            color: {{ $lead->type === 'auto' ? '#1e40af' : '#d97706' }};
-                        ">
-                            {{ ucfirst($lead->type) }} Insurance
-                        </span>
-                    </div>
-                </div>
-                @endif
-                
-                @if(isset($lead->sell_price) && $lead->sell_price)
-                <div class="info-item">
-                    <div class="info-label">Lead Cost</div>
-                    <div class="info-value">${{ number_format($lead->sell_price, 2) }}</div>
-                </div>
-                @endif
-            </div>
-        </div>
         @endif
 
-        <!-- Vendor/Buyer Information Section -->
+        <!-- Combined Vendor, Buyer & Cost Information Section -->
         <div class="section" style="background: linear-gradient(135deg, #f3e7fc 0%, #e9d5ff 100%); border: 2px solid #c084fc; border-radius: 12px; padding: 20px;">
             <div class="section-title" style="background: #9333ea; color: white; padding: 12px 20px; margin: -20px -20px 20px -20px; border-radius: 10px 10px 0 0; font-size: 18px;">
-                🏢 Vendor & Buyer Information
+                🏢 Vendor, Buyer & Cost Information
             </div>
             <div class="info-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 @php
@@ -1412,7 +1345,48 @@
                     if (is_string($vendorPayload)) {
                         $vendorPayload = json_decode($vendorPayload, true);
                     }
+                    
+                    // Get campaign info
+                    $campaignId = $lead->campaign_id;
+                    if (!$campaignId && isset($lead->payload) && is_string($lead->payload)) {
+                        $payload = json_decode($lead->payload, true);
+                        $campaignId = $payload['campaign_id'] ?? null;
+                    }
+                    
+                    // Remove .0 from numeric IDs
+                    if ($campaignId && is_numeric($campaignId)) {
+                        $campaignId = rtrim(rtrim(number_format($campaignId, 10, '.', ''), '0'), '.');
+                    }
                 @endphp
+                
+                <!-- Lead IDs Section -->
+                <div class="info-item">
+                    <div class="info-label">Jangle Lead ID</div>
+                    <div class="info-value">
+                        @php
+                            $jangleId = $lead->jangle_lead_id ?: ($vendorPayload['lead_id'] ?? ($vendorPayload['jangle_lead_id'] ?? null));
+                            // Clean numeric ID
+                            if ($jangleId && is_numeric($jangleId)) {
+                                $jangleId = rtrim(rtrim(number_format($jangleId, 10, '.', ''), '0'), '.');
+                            }
+                        @endphp
+                        <strong style="color: #9333ea;">{{ $jangleId ?: 'Not provided' }}</strong>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">LeadID Code</div>
+                    <div class="info-value">
+                        @if($lead->leadid_code)
+                            <span style="font-family: monospace; font-size: 12px;">{{ $lead->leadid_code }}</span>
+                            <button class="copy-btn" onclick="copyToClipboard('{{ $lead->leadid_code }}', this)" style="margin-left: 10px; padding: 2px 8px; background: #22c55e; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                📋 Copy
+                            </button>
+                        @else
+                            Not provided
+                        @endif
+                    </div>
+                </div>
                 
                 <!-- Vendor Information -->
                 <div class="info-item">
@@ -1488,6 +1462,38 @@
                             }
                         @endphp
                         <strong>{{ $campaignIdDisplay ?: 'Not provided' }}</strong>
+                    </div>
+                </div>
+                
+                <!-- Cost Information -->
+                <div class="info-item">
+                    <div class="info-label">Lead Cost</div>
+                    <div class="info-value">
+                        @if(isset($lead->sell_price) && $lead->sell_price)
+                            <strong style="color: #059669;">${{ number_format($lead->sell_price, 2) }}</strong>
+                        @else
+                            Not provided
+                        @endif
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Lead Type</div>
+                    <div class="info-value">
+                        @if($lead->type)
+                            <span style="
+                                padding: 0.25rem 0.75rem; 
+                                border-radius: 1rem; 
+                                font-size: 0.875rem; 
+                                font-weight: 600;
+                                background: {{ $lead->type === 'auto' ? '#dbeafe' : '#fef3c7' }};
+                                color: {{ $lead->type === 'auto' ? '#1e40af' : '#d97706' }};
+                            ">
+                                {{ ucfirst($lead->type) }} Insurance
+                            </span>
+                        @else
+                            Not provided
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1668,28 +1674,34 @@
                         </div>
                         @endif
 
-                        <!-- TCPA Consent Text from Payload -->
+                        <!-- TrustedForm Certificate -->
                         @php
-                            $tcpaConsentText = null;
-                            if (isset($lead->payload) && is_string($lead->payload)) {
+                            $trustedFormCert = $lead->trusted_form_cert;
+                            if (!$trustedFormCert && isset($lead->payload) && is_string($lead->payload)) {
                                 $payloadData = json_decode($lead->payload, true);
-                                // Look in multiple possible locations
+                                $trustedFormCert = $payloadData['trusted_form_cert'] ?? 
+                                                  $payloadData['trustedform_cert_url'] ?? 
+                                                  $payloadData['trusted_form_cert_url'] ?? null;
+                            }
+                        @endphp
+                        @if($trustedFormCert)
+                        <div class="info-item">
+                            <div class="info-label">TrustedForm Certificate</div>
+                            <div class="info-value">
+                                <span style="color: #28a745;">✓ Certificate available</span>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $trustedFormCert }}', this)" title="Copy Certificate URL" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                            </div>
+                        </div>
+                        @endif
+                        
+                        <!-- TCPA Consent Text -->
+                        @php
+                            $tcpaConsentText = $lead->tcpa_consent_text;
+                            if (!$tcpaConsentText && isset($lead->payload) && is_string($lead->payload)) {
+                                $payloadData = json_decode($lead->payload, true);
                                 $tcpaConsentText = $payloadData['tcpa_consent_text'] ?? 
                                                   $payloadData['contact']['tcpa_consent_text'] ?? 
-                                                  $payloadData['data']['tcpa_consent_text'] ?? 
-                                                  $payloadData['tcpa_text'] ?? 
-                                                  $payloadData['contact']['tcpa_text'] ?? 
-                                                  $payloadData['data']['tcpa_text'] ?? 
-                                                  $payloadData['meta']['tcpa_consent_text'] ?? 
-                                                  $payloadData['meta']['tcpa_text'] ?? null;
-                            }
-                            // Also check direct field
-                            if (!$tcpaConsentText && isset($lead->tcpa_consent_text)) {
-                                $tcpaConsentText = $lead->tcpa_consent_text;
-                            }
-                            // Check in meta field
-                            if (!$tcpaConsentText && isset($lead->meta) && is_array($lead->meta)) {
-                                $tcpaConsentText = $lead->meta['tcpa_consent_text'] ?? $lead->meta['tcpa_text'] ?? null;
+                                                  $payloadData['data']['tcpa_consent_text'] ?? null;
                             }
                         @endphp
                         @if($tcpaConsentText)
@@ -1698,6 +1710,26 @@
                             <div class="info-value">
                                 <span style="color: #28a745;">✓ Consent text available</span>
                                 <button class="copy-btn" onclick="copyToClipboard('{{ addslashes($tcpaConsentText) }}', this)" title="Copy Consent Text" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                            </div>
+                        </div>
+                        @endif
+                        
+                        <!-- Landing Page URL -->
+                        @php
+                            $landingPageUrl = $lead->landing_page_url;
+                            if (!$landingPageUrl && isset($lead->payload) && is_string($lead->payload)) {
+                                $payloadData = json_decode($lead->payload, true);
+                                $landingPageUrl = $payloadData['landing_page_url'] ?? 
+                                                 $payloadData['landing_page'] ?? 
+                                                 $payloadData['url'] ?? null;
+                            }
+                        @endphp
+                        @if($landingPageUrl)
+                        <div class="info-item">
+                            <div class="info-label">Landing Page URL</div>
+                            <div class="info-value">
+                                <a href="{{ $landingPageUrl }}" target="_blank" style="color: #3b82f6; text-decoration: none;">{{ parse_url($landingPageUrl, PHP_URL_HOST) ?: $landingPageUrl }}</a>
+                                <button class="copy-btn" onclick="copyToClipboard('{{ $landingPageUrl }}', this)" title="Copy Landing Page URL" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
                             </div>
                         </div>
                         @endif

@@ -11,6 +11,10 @@ class Buyer extends Model
 
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
+        'company',
+        'status',
         'campaigns',
         'contact_info',
         'total_leads',

@@ -246,13 +246,20 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     'joined_at' => now(),
                     'tenant_id' => 1, // QuotingFast tenant ID
                     
+                    // Lead tracking IDs
+                    'jangle_lead_id' => $data['lead_id'] ?? $data['id'] ?? null,
+                    'leadid_code' => $data['leadid_code'] ?? $data['leadid'] ?? null,
+                    
                     // Additional fields for reporting and compliance
                     'sell_price' => $data['sell_price'] ?? $data['cost'] ?? null,
                     'tcpa_compliant' => $data['tcpa_compliant'] ?? $data['meta']['tcpa_compliant'] ?? false,
-                    'landing_page_url' => $data['landing_page_url'] ?? null,
+                    'tcpa_consent_text' => $data['tcpa_consent_text'] ?? $contact['tcpa_consent_text'] ?? null,
+                    'trusted_form_cert' => $data['trusted_form_cert'] ?? $data['trusted_form_cert_url'] ?? null,
+                    'landing_page_url' => $data['landing_page_url'] ?? $data['landing_page'] ?? null,
                     'user_agent' => $data['user_agent'] ?? null,
                     'ip_address' => $data['ip_address'] ?? $contact['ip_address'] ?? null,
                     'campaign_id' => $data['campaign_id'] ?? null,
+                    'opt_in_date' => isset($data['originally_created']) ? \Carbon\Carbon::parse($data['originally_created'])->format('Y-m-d H:i:s') : now(),
                     
                     // Store compliance and tracking data in meta
                     'meta' => json_encode(array_merge([

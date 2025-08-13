@@ -156,6 +156,8 @@ class Lead extends Model
         'assigned_user_id',
         'campaign_id',
         'external_lead_id',
+        'jangle_lead_id',
+        'leadid_code',
         'vici_list_id',
         'tenant_id',
         
@@ -181,6 +183,8 @@ class Lead extends Model
         'tcpa_lead_id',
         'trusted_form_cert',
         'tcpa_compliant',
+        'tcpa_consent_text',
+        'opt_in_date',
         
         // Tracking and analytics
         'ip_address',
