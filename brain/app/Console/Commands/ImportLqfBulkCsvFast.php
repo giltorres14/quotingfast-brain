@@ -11,16 +11,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-class ImportLqfBulkCsv extends Command
+class ImportLqfBulkCsvFast extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'lqf:bulk-import 
+    protected $signature = 'lqf:bulk-import-fast 
                             {file : The CSV file to import}
                             {--limit=0 : Limit number of records to import (0 = all)}
+                            {--batch-size=1000 : Number of records to insert at once}
                             {--skip-duplicates : Skip duplicate phone numbers}
                             {--dry-run : Preview import without saving}';
 

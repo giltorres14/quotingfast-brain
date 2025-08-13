@@ -21,10 +21,17 @@
 
 ## 🚀 SYSTEM STATUS
 
-### Imports Running
-- **Suraj Bulk**: ~13,800 leads (may be complete)
-- **LQF Bulk**: ~70,000 leads (may be complete)
+### Imports Running (Updated: 3:38 PM EST)
+- **Suraj Bulk**: PID 60881, processing file 2/86 (11,672 imported so far)
+- **LQF Bulk**: PID 61099, running and skipping duplicates correctly
 - **Replacement Logic**: LQF replaces Suraj on duplicate phone
+- **Database Fixes Applied**: 
+  - Made campaigns.tenant_id nullable
+  - Made buyers.password nullable
+  - Fixed json_decode error in Suraj import
+  - Fixed Campaign creation fields in LQF import
+- **Status**: Both running successfully
+- **ETA**: 10-15 minutes for completion
 
 ### Database
 - **Type**: PostgreSQL 16 (NOT SQLite)

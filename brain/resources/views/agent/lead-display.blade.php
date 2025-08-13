@@ -78,7 +78,9 @@
             border-radius: 8px;
             margin-bottom: 16px;
             text-align: center;
-            position: relative;
+            position: sticky;
+            top: 0;
+            z-index: 100;
             box-sizing: border-box;
         }
         
@@ -726,8 +728,22 @@
         
         /* REMOVED: Allstate validation progress CSS per user request */
 
-        /* Hide elements when in iframe (agent view) */
-        .agent-iframe-view .back-button {
+        /* Hide vendor/buyer section in edit mode */
+        .vendor-buyer-section {
+            display: block;
+        }
+        
+        body.edit-mode .vendor-buyer-section {
+            display: none !important;
+        }
+        
+        /* Back button logic: show when NOT in edit mode and NOT in iframe */
+        .back-button {
+            display: block;
+        }
+        
+        body.edit-mode .back-button,
+        body.in-iframe .back-button {
             display: none !important;
         }
         
@@ -839,7 +855,8 @@
         document.addEventListener("DOMContentLoaded", function() {
             // Add class to body based on access type
             if (isInIframe()) {
-                document.body.classList.add("agent-iframe-view");
+                document.body.classList.add("in-iframe");
+                document.body.classList.add("agent-iframe-view"); // Keep for backward compatibility
                 // Hide admin-only elements
                 const adminElements = document.querySelectorAll(".admin-only");
                 adminElements.forEach(el => el.style.display = "none");
@@ -850,6 +867,11 @@
             } else {
                 document.body.classList.add("admin-direct-view");
             }
+            
+            // Add edit mode class if in edit mode
+            @if(isset($mode) && $mode === 'edit')
+                document.body.classList.add('edit-mode');
+            @endif
             
             // Trigger insurance questions if currently insured
             if (document.getElementById("currently_insured") && document.getElementById("currently_insured").value === "yes") {
@@ -864,24 +886,7 @@
     </script>
 </head>
 <body>
-    <!-- Save Lead Button - Positioned near lead info -->
-    @if(!isset($mode) || $mode !== 'view')
-        <style>
-            .save-lead-btn {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 1000;
-            }
-            @media (max-width: 768px) {
-                .save-lead-btn {
-                    top: 10px;
-                    right: 10px;
-                }
-            }
-        </style>
-        <button class="save-lead-btn" onclick="saveAllLeadData()">💾 Save Lead</button>
-    @endif
+    <!-- Save button moved inside lead details section -->
     
     <!-- REMOVED: Allstate validation progress indicator per user request -->
     
@@ -899,9 +904,8 @@
         </div>
         <!-- Header - Agent View (No Admin Data) -->
         <div class="header" style="position: relative;">
-            @if(isset($mode) && $mode === 'view' && !request()->get('iframe'))
-                <a href="/leads" class="back-button admin-only" style="position: absolute; top: 15px; left: 170px; z-index: 100;">← Back to Leads</a>
-            @endif
+            <!-- Back button shows when NOT in edit mode -->
+            <a href="/leads" class="back-button" style="position: absolute; top: 15px; left: 170px; z-index: 100;">← Back to Leads</a>
             
             <!-- Lead Type Avatar Circle - Smaller and Well-positioned -->
             <div style="position: absolute; left: 30px; top: 50%; transform: translateY(-50%); z-index: 50;">
@@ -923,7 +927,7 @@
                 </div>
             </div>
             
-            <!-- Centered Content -->
+            <!-- Centered Content with Address and Phone -->
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px 150px;">
                 <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 180px; width:auto; margin-bottom: 10px;">
                 <h1 style="margin: 10px 0; text-align: center;">{{ $lead->name }} 
@@ -933,8 +937,20 @@
                         <span style="font-size: 14px; opacity: 0.8;">(Edit Mode)</span>
                     @endif
                 </h1>
-                <div class="meta" style="text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px;">
+                <div class="meta" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
                     <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
+                    @php
+                        $formattedPhone = $lead->phone;
+                        if (strlen($formattedPhone) == 10) {
+                            $formattedPhone = '(' . substr($formattedPhone, 0, 3) . ')' . substr($formattedPhone, 3, 3) . '-' . substr($formattedPhone, 6);
+                        }
+                    @endphp
+                    <span style="font-size: 16px; font-weight: 600;">{{ $formattedPhone }}</span>
+                    @if($lead->address || $lead->city || $lead->state || $lead->zip_code)
+                        <span style="font-size: 14px; opacity: 0.9;">
+                            {{ $lead->address }}{{ $lead->address && ($lead->city || $lead->state || $lead->zip_code) ? ', ' : '' }}{{ $lead->city }}{{ $lead->city && ($lead->state || $lead->zip_code) ? ', ' : '' }}{{ $lead->state }} {{ $lead->zip_code }}
+                        </span>
+                    @endif
                 </div>
             </div>
         </div>
@@ -954,6 +970,8 @@
 
         <!-- Ringba Qualification Form -->
         @if(!isset($mode) || $mode === 'agent' || $mode === 'edit')
+        <!-- Lead Qualification section removed per request -->
+        @if(false)
         <div class="qualification-form">
             <div class="qualification-header section-title qualification">
                 🎯 Lead Qualification & Ringba Enrichment (Enhanced)
@@ -1244,11 +1262,23 @@
         </div>
         @endif
 
-        <!-- Contact Information -->
+        <!-- Contact Information with Save Button -->
         <div class="section" style="position: relative;">
             <div class="section-title contact">📞 Lead Details 
                 @if(!isset($mode) || $mode !== 'view')
                     <button class="edit-btn" onclick="toggleEdit('contact')">✏️ Edit</button>
+                    <button class="save-btn" onclick="saveAllLeadData()" style="
+                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                        color: white;
+                        padding: 8px 16px;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        border: none;
+                        cursor: pointer;
+                        margin-left: 10px;
+                        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+                    ">💾 Save Lead</button>
                 @endif
             </div>
             
@@ -1318,8 +1348,8 @@
         @if(isset($mode) && $mode === 'view')
         @endif
 
-        <!-- Combined Vendor, Buyer & Cost Information Section -->
-        <div class="section" style="background: linear-gradient(135deg, #f3e7fc 0%, #e9d5ff 100%); border: 2px solid #c084fc; border-radius: 12px; padding: 20px;">
+        <!-- Combined Vendor, Buyer & Cost Information Section - Hidden in Edit Mode -->
+        <div class="section vendor-buyer-section" style="background: linear-gradient(135deg, #f3e7fc 0%, #e9d5ff 100%); border: 2px solid #c084fc; border-radius: 12px; padding: 20px;">
             <div class="section-title" style="background: #9333ea; color: white; padding: 12px 20px; margin: -20px -20px 20px -20px; border-radius: 10px 10px 0 0; font-size: 18px;">
                 🏢 Vendor, Buyer & Cost Information
             </div>
@@ -2572,10 +2602,11 @@
                 </div>
                 @endif
             </div>
-        </div>
+                </div>
+        @endif
         @endif
 
-    </div>
+        </div>
 
     <script>
         // Debug helpers

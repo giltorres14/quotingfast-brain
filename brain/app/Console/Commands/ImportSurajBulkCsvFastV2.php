@@ -350,7 +350,7 @@ class ImportSurajBulkCsvFastV2 extends Command
         
         // Store vendor_campaign_id in meta if it exists
         if (!empty($leadData['vendor_campaign_id'])) {
-            $meta = isset($leadData['meta']) ? json_decode($leadData['meta'], true) : [];
+            $meta = isset($leadData['meta']) ? (is_array($leadData['meta']) ? $leadData['meta'] : json_decode($leadData['meta'], true)) : [];
             $meta['vendor_campaign_id'] = $leadData['vendor_campaign_id'];
             $leadData['meta'] = json_encode($meta);
             unset($leadData['vendor_campaign_id']); // Remove from main data
