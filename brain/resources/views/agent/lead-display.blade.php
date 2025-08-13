@@ -925,7 +925,7 @@
             
             <!-- Centered Content -->
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px 150px;">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 60px; width:auto; margin-bottom: 10px;">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 180px; width:auto; margin-bottom: 10px;">
                 <h1 style="margin: 10px 0; text-align: center;">{{ $lead->name }} 
                     @if(isset($mode) && $mode === 'view')
                         <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
