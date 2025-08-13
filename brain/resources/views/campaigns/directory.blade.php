@@ -305,6 +305,15 @@
             background: #dd6b20;
         }
         
+        .btn-delete {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #b91c1c;
+        }
+        
         .alert {
             padding: 1rem 1.5rem;
             border-radius: 8px;
@@ -450,10 +459,14 @@
                             </span>
                         </td>
                         <td>
-                            <div class="actions">
+                            <div class="actions" style="display: flex; gap: 8px;">
                                 <a href="#" class="btn btn-sm btn-edit" 
                                    onclick="editCampaign({{ $campaign->id }}, '{{ $campaign->campaign_id }}', '{{ addslashes($campaign->name) }}', '{{ addslashes($campaign->description ?? '') }}')">
                                     ✏️ Edit
+                                </a>
+                                <a href="#" class="btn btn-sm btn-delete" 
+                                   onclick="deleteCampaign({{ $campaign->id }}, '{{ $campaign->campaign_id }}', '{{ addslashes($campaign->display_name) }}', {{ $campaign->total_leads }})">
+                                    🗑️ Delete
                                 </a>
                             </div>
                         </td>
