@@ -73,24 +73,46 @@
 - Vici Call Reports complete at /admin/vici-reports
 - Database nullable fields fixed (tenant_id, password)
 
-## 🔌 VICI INTEGRATION STATUS
+## 🔌 VICI INTEGRATION STATUS - READY TO ACTIVATE
 
-### Render Static IPs (for Vici Whitelist)
+### ✅ Render Static IPs (for Vici Whitelist)
 - **IP 1:** 3.134.238.10
 - **IP 2:** 3.129.111.220 (currently active)
 - **IP 3:** 52.15.118.168
-- **Status:** Awaiting Vici support to whitelist IPs
+- **Status:** Awaiting Vici support to whitelist these IPs
 - **Vici Server:** 37.27.138.222
 - **Credentials:** root / Monster@2213@!
 
-### Vici Export Script Setup
-- **Script Location:** `/home/vici_export_script.sh` (on Vici server)
+### ✅ Vici Export Script Infrastructure (COMPLETE)
+- **Export Script:** `vici_export_script.sh` - Queries vicidial_log + vicidial_dial_log
 - **Database Name:** Colh42mUsWs40znH
 - **Export Path:** `/home/vici_logs/`
-- **Schedule:** Every 5 minutes via Laravel scheduler
-- **Proxy Endpoint:** `/vici-proxy/run-export`
-- **Manual Run:** `php artisan vici:run-export`
-- **Process CSV:** `php artisan vici:process-csv {file}`
+- **Schedule:** Every 5 minutes via Laravel scheduler (ready to run)
+- **Data Window:** Last 5 minutes of call data per run
+- **CSV Format:** 16 fields including phone, status, SIP diagnostics
+
+### ✅ Processing Pipeline (DEPLOYED)
+- **Proxy Controller:** `ViciProxyController` - Ensures all requests from Render IP
+- **Export Command:** `php artisan vici:run-export` - Triggers export & download
+- **Process Command:** `php artisan vici:process-csv {file}` - Imports CSV to database
+- **Scheduler:** Configured in Kernel.php to run every 5 minutes
+- **Logs:** Output to `storage/logs/vici_export.log`
+
+### ✅ Data Collection Improvements
+- **Old API Method:** ❌ Deleted 2,701 aggregated records (backed up)
+- **New Export Method:** ✅ Individual call records with full details
+- **Key Advantages:**
+  - Phone numbers for lead matching
+  - SIP diagnostics for troubleshooting  
+  - Real-time updates (5-minute delay)
+  - Extension/agent tracking
+  - Server IP for load balancing
+
+### 📊 Reports Roadmap (PLANNED)
+- **Phase 1:** Lead Journey, Agent Scorecard, Real-Time Dashboard
+- **Phase 2:** Call Diagnostics, Campaign ROI, Lead Waste Report
+- **Phase 3:** Predictive Scoring, Executive Dashboard
+- **Documentation:** See `VICI_REPORTS_ROADMAP.md` for full list
 
 ## 🚀 SYSTEM STATUS
 
