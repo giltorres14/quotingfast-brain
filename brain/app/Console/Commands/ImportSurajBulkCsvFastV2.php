@@ -459,6 +459,10 @@ class ImportSurajBulkCsvFastV2 extends Command
             if (isset($columnMap[$csvField])) {
                 $value = trim($row[$columnMap[$csvField]] ?? '');
                 if ($value !== '') {
+                    // Clean numeric IDs that have .0 suffix
+                    if (in_array($csvField, ['campaign_id', 'buyer_id', 'vendor_id', 'vendor_campaign_id']) && is_numeric($value)) {
+                        $value = rtrim(rtrim($value, '0'), '.');
+                    }
                     $leadData[$dbField] = $value;
                 }
             }

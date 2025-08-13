@@ -419,7 +419,14 @@
                     @foreach($campaigns as $campaign)
                     <tr class="{{ $campaign->is_auto_created ? 'needs-attention' : '' }}">
                         <td>
-                            <span class="campaign-id">{{ $campaign->campaign_id }}</span>
+                            @php
+                                $campaignId = $campaign->campaign_id;
+                                // Clean numeric ID - remove .0 suffix
+                                if ($campaignId && is_numeric($campaignId)) {
+                                    $campaignId = rtrim(rtrim($campaignId, '0'), '.');
+                                }
+                            @endphp
+                            <span class="campaign-id">{{ $campaignId }}</span>
                         </td>
                         <td>
                             {{ $campaign->display_name }}
