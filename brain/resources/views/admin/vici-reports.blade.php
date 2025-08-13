@@ -480,11 +480,11 @@
                 <div class="filters">
                     <div class="filter-group">
                         <label class="filter-label">Date Range</label>
-                        <input type="date" class="filter-input" id="date-from" value="{{ date('Y-m-d', strtotime('-7 days')) }}">
+                        <input type="date" class="filter-input" id="date-from" value="{{ request()->get('from', date('Y-m-d')) }}">
                     </div>
                     <div class="filter-group">
                         <label class="filter-label">To</label>
-                        <input type="date" class="filter-input" id="date-to" value="{{ date('Y-m-d') }}">
+                        <input type="date" class="filter-input" id="date-to" value="{{ request()->get('to', date('Y-m-d')) }}">
                     </div>
                     <div class="filter-group">
                         <label class="filter-label">Status</label>

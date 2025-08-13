@@ -5653,8 +5653,8 @@ Route::get('/admin/control-center', function () {
 
 // Vici Reports - Comprehensive Call Analytics
 Route::get('/admin/vici-reports', function () {
-    // Get filter parameters
-    $dateFrom = request()->get('from', now()->subDays(7)->format('Y-m-d'));
+    // Get filter parameters - default to today
+    $dateFrom = request()->get('from', now()->format('Y-m-d'));
     $dateTo = request()->get('to', now()->format('Y-m-d'));
     $statusFilter = request()->get('status', '');
     
