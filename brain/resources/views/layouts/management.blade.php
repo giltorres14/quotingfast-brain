@@ -209,6 +209,9 @@
                     <a href="/admin/buyer-management" class="dropdown-item {{ request()->is('admin/buyer-management') ? 'active' : '' }}">
                         👥 Buyer Management
                     </a>
+                    <a href="/admin/vici-reports" class="dropdown-item {{ request()->is('admin/vici-reports') ? 'active' : '' }}">
+                        📞 Vici Call Reports
+                    </a>
                     <a href="/admin/integrations" class="dropdown-item {{ request()->is('admin/integrations') ? 'active' : '' }}">
                         🔌 Integrations
                     </a>
