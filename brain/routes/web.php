@@ -5651,6 +5651,58 @@ Route::get('/admin/control-center', function () {
     return view('admin.control-center');
 })->name('admin.control-center');
 
+// Vici Call Logs Dashboard
+Route::get('/admin/vici-call-logs', function () {
+    $callsToday = \App\Models\ViciCallMetrics::whereDate('created_at', today())->count();
+    $connectedCalls = \App\Models\ViciCallMetrics::where('connected', true)->count();
+    $totalCalls = \App\Models\ViciCallMetrics::count();
+    
+    // Calculate average talk time
+    $avgTalkTime = \App\Models\ViciCallMetrics::where('talk_time', '>', 0)
+        ->avg('talk_time') ?: 0;
+    $avgTalkTime = round($avgTalkTime);
+    
+    // Connection rate
+    $connectionRate = $totalCalls > 0 
+        ? round(($connectedCalls / $totalCalls) * 100, 1)
+        : 0;
+    
+    // Campaign performance
+    $campaigns = \App\Models\ViciCallMetrics::select('campaign_id')
+        ->selectRaw('COUNT(*) as total_calls')
+        ->selectRaw('SUM(CASE WHEN connected = true THEN 1 ELSE 0 END) as connected_calls')
+        ->selectRaw('SUM(talk_time) as total_talk_time')
+        ->groupBy('campaign_id')
+        ->get()
+        ->map(function ($campaign) {
+            $campaign->connection_rate = $campaign->total_calls > 0
+                ? round(($campaign->connected_calls / $campaign->total_calls) * 100, 1)
+                : 0;
+            return $campaign;
+        });
+    
+    // Recent calls
+    $recentCalls = \App\Models\ViciCallMetrics::with('lead')
+        ->latest()
+        ->limit(50)
+        ->get();
+    
+    return view('admin.vici-call-logs', compact(
+        'callsToday', 'connectedCalls', 'avgTalkTime', 'connectionRate',
+        'campaigns', 'recentCalls'
+    ));
+})->name('admin.vici-call-logs');
+
+// Sync Vici Call Logs
+Route::post('/admin/vici/sync-call-logs', function () {
+    try {
+        \Artisan::call('vici:sync-call-logs', ['--days' => 1]);
+        return response()->json(['success' => true, 'message' => 'Sync completed successfully']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+})->name('admin.vici.sync');
+
 Route::get('/admin/buyers-list', function () {
     try {
         $buyers = \App\Models\Buyer::with(['payments', 'leads'])

@@ -864,8 +864,22 @@
     </script>
 </head>
 <body>
-    <!-- Save Lead Button -->
+    <!-- Save Lead Button - Positioned near lead info -->
     @if(!isset($mode) || $mode !== 'view')
+        <style>
+            .save-lead-btn {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1000;
+            }
+            @media (max-width: 768px) {
+                .save-lead-btn {
+                    top: 10px;
+                    right: 10px;
+                }
+            }
+        </style>
         <button class="save-lead-btn" onclick="saveAllLeadData()">💾 Save Lead</button>
     @endif
     
@@ -885,7 +899,7 @@
         </div>
         <!-- Header - Agent View (No Admin Data) -->
         <div class="header" style="position: relative;">
-            @if(isset($mode) && in_array($mode, ['view', 'edit']) && !request()->get('iframe'))
+            @if(isset($mode) && $mode === 'view' && !request()->get('iframe'))
                 <a href="/leads" class="back-button admin-only" style="position: absolute; top: 15px; left: 170px; z-index: 100;">← Back to Leads</a>
             @endif
             
@@ -911,7 +925,7 @@
             
             <!-- Centered Content -->
             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px 150px;">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 120px; width:auto; margin-bottom: 10px;">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 60px; width:auto; margin-bottom: 10px;">
                 <h1 style="margin: 10px 0; text-align: center;">{{ $lead->name }} 
                     @if(isset($mode) && $mode === 'view')
                         <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
@@ -1470,8 +1484,22 @@
                     <div class="info-label">Lead Cost</div>
                     <div class="info-value">
                         @if(isset($lead->sell_price) && $lead->sell_price)
-                            <strong style="color: #059669;">${{ number_format($lead->sell_price, 2) }}</strong>
-                        @else
+                            <div>
+                                <strong style="color: #059669;">Sell: ${{ number_format($lead->sell_price, 2) }}</strong>
+                            </div>
+                        @endif
+                        @php
+                            // Check if buy_price exists in meta or payload
+                            $meta = json_decode($lead->meta ?? '{}', true);
+                            $payload = json_decode($lead->payload ?? '{}', true);
+                            $buyPrice = $meta['buy_price'] ?? $payload['buy_price'] ?? $payload['Buy Price'] ?? null;
+                        @endphp
+                        @if($buyPrice)
+                            <div>
+                                <strong style="color: #dc2626;">Buy: ${{ number_format((float)$buyPrice, 2) }}</strong>
+                            </div>
+                        @endif
+                        @if(!isset($lead->sell_price) && !$buyPrice)
                             Not provided
                         @endif
                     </div>

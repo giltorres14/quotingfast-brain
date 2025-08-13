@@ -109,36 +109,84 @@ class ImportLqfBulkCsv extends Command
                     continue;
                 }
                 
-                // Check duplicate
-                if ($skipDuplicates && isset($existingPhones[$phone])) {
-                    $skipped++;
-                    continue;
-                }
+                // Check for existing lead
+                $existingLead = Lead::where('phone', $phone)->first();
                 
                 // Build lead data
                 $leadData = $this->buildLeadData($row, $columnMap);
                 
-                if ($dryRun) {
-                    // Preview mode - just show what would be imported
-                    if ($imported < 3) { // Show first 3 records as preview
-                        $this->info("Preview Record #" . ($imported + 1) . ":");
-                        $this->info("  Name: " . $leadData['name']);
-                        $this->info("  Phone: " . $leadData['phone']);
-                        $this->info("  Email: " . ($leadData['email'] ?? 'N/A'));
-                        $this->info("  Source: " . $leadData['source']);
-                        $this->info("  Vendor: " . ($leadData['vendor_name'] ?? 'N/A'));
-                        $this->info("  Buyer: " . ($leadData['buyer_name'] ?? 'N/A'));
-                        $this->info("  Campaign ID: " . ($leadData['campaign_id'] ?? 'N/A'));
-                        $this->newLine();
+                if ($existingLead) {
+                    // Check if it's a Suraj lead that should be replaced
+                    if (in_array($existingLead->source, ['SURAJ_BULK', 'SURAJ'])) {
+                        if ($dryRun) {
+                            if ($imported < 3) {
+                                $this->info("Would REPLACE Suraj lead:");
+                                $this->info("  Existing ID: " . $existingLead->external_lead_id);
+                                $this->info("  Name: " . $leadData['name']);
+                                $this->info("  Phone: " . $leadData['phone']);
+                                $this->info("  Old Source: " . $existingLead->source . " → LQF_BULK");
+                                $this->newLine();
+                            }
+                        } else {
+                            // Store old data in meta for audit
+                            $meta = json_decode($leadData['meta'], true) ?? [];
+                            $meta['replaced_from_suraj'] = [
+                                'old_source' => $existingLead->source,
+                                'old_name' => $existingLead->name,
+                                'replaced_at' => now()->toIso8601String()
+                            ];
+                            $leadData['meta'] = json_encode($meta);
+                            
+                            // Update source to LQF_BULK
+                            $leadData['source'] = 'LQF_BULK';
+                            
+                            // Keep the existing external_lead_id
+                            unset($leadData['external_lead_id']);
+                            
+                            // Update the existing lead
+                            $existingLead->update($leadData);
+                            
+                            $this->info("✓ REPLACED Suraj lead → LQF: {$existingLead->name} (ID: {$existingLead->external_lead_id})");
+                        }
+                        $imported++;
+                    } else if ($skipDuplicates) {
+                        // It's a duplicate from another source (like LQF), skip it
+                        $skipped++;
+                        if ($imported < 10) {
+                            $this->warn("  Skipping duplicate (source: {$existingLead->source}): {$phone}");
+                        }
+                        continue;
+                    } else {
+                        // Not skipping duplicates, create anyway
+                        if (!$dryRun) {
+                            $this->createLead($leadData);
+                            $this->warn("⚠ Created duplicate lead: {$leadData['name']} ({$phone})");
+                        }
+                        $imported++;
                     }
                 } else {
-                    // Actually import
-                    $this->createLead($leadData);
-                    
-                    // Add to existing phones
-                    if ($skipDuplicates) {
-                        $existingPhones[$phone] = true;
+                    // No existing lead, create new one
+                    if ($dryRun) {
+                        if ($imported < 3) {
+                            $this->info("Preview NEW Record #" . ($imported + 1) . ":");
+                            $this->info("  Name: " . $leadData['name']);
+                            $this->info("  Phone: " . $leadData['phone']);
+                            $this->info("  Email: " . ($leadData['email'] ?? 'N/A'));
+                            $this->info("  Source: " . $leadData['source']);
+                            $this->info("  Vendor: " . ($leadData['vendor_name'] ?? 'N/A'));
+                            $this->info("  Buyer: " . ($leadData['buyer_name'] ?? 'N/A'));
+                            $this->info("  Campaign ID: " . ($leadData['campaign_id'] ?? 'N/A'));
+                            $this->newLine();
+                        }
+                    } else {
+                        $this->createLead($leadData);
+                        
+                        // Add to existing phones cache
+                        if ($skipDuplicates) {
+                            $existingPhones[$phone] = true;
+                        }
                     }
+                    $imported++;
                 }
                 
                 $imported++;
