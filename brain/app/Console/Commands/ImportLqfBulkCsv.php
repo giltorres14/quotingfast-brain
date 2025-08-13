@@ -6,413 +6,407 @@ use Illuminate\Console\Command;
 use App\Models\Lead;
 use App\Models\Vendor;
 use App\Models\Buyer;
-use App\Services\ViciDialerService;
-use Carbon\Carbon;
+use App\Models\Campaign;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ImportLqfBulkCsv extends Command
 {
-    protected $signature = 'lqf:import-bulk 
-                          {--folder= : Folder path (default: ~/Downloads/LQF)}
-                          {--dry-run : Run without actually importing}
-                          {--push-to-vici : Also push leads to Vici after import}';
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'lqf:bulk-import 
+                            {file : The CSV file to import}
+                            {--limit=0 : Limit number of records to import (0 = all)}
+                            {--skip-duplicates : Skip duplicate phone numbers}
+                            {--dry-run : Preview import without saving}';
 
-    protected $description = 'Bulk import historical LQF CSV files from a folder';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Import LQF (LeadsQuotingFast) CSV export file';
 
-    private $viciService;
-    private $stats = [
-        'total_files' => 0,
-        'total_rows' => 0,
-        'imported' => 0,
-        'skipped_duplicates' => 0,
-        'errors' => 0,
-        'vendors_created' => 0,
-        'buyers_created' => 0
-    ];
-
-    public function __construct(ViciDialerService $viciService)
-    {
-        parent::__construct();
-        $this->viciService = $viciService;
-    }
-
+    /**
+     * Execute the console command.
+     */
     public function handle()
     {
-        $folder = $this->option('folder') ?: '~/Downloads/LQF';
-        $folder = str_replace('~', $_SERVER['HOME'], $folder);
+        $file = $this->argument('file');
+        $limit = (int) $this->option('limit');
+        $skipDuplicates = $this->option('skip-duplicates');
+        $dryRun = $this->option('dry-run');
         
-        if (!is_dir($folder)) {
-            $this->error("Folder not found: $folder");
+        $this->info("========================================");
+        $this->info("LQF CSV IMPORT");
+        $this->info("========================================");
+        $this->newLine();
+        
+        $this->info("📁 File: $file");
+        $this->info("📋 Limit: " . ($limit > 0 ? $limit : 'All records'));
+        $this->info("🔄 Skip Duplicates: " . ($skipDuplicates ? 'YES' : 'NO'));
+        $this->info("🧪 Dry Run: " . ($dryRun ? 'YES (preview only)' : 'NO'));
+        $this->newLine();
+        
+        if (!file_exists($file)) {
+            $this->error("File not found: $file");
             return 1;
         }
-
-        $this->info("Starting LQF bulk import from: $folder");
-        $this->info("Mode: " . ($this->option('dry-run') ? 'DRY RUN' : 'LIVE IMPORT'));
         
-        // Get all CSV files
-        $files = glob($folder . '/*.csv');
-        
-        if (empty($files)) {
-            $this->error("No CSV files found in $folder");
-            return 1;
-        }
-
-        $this->stats['total_files'] = count($files);
-        $this->info("Found {$this->stats['total_files']} CSV files to process");
-
-        // Get existing phone numbers for duplicate check
-        $existingPhones = Lead::pluck('phone')->toArray();
-        $this->info("Loaded " . count($existingPhones) . " existing phone numbers for duplicate check");
-
-        // Process each file
-        foreach ($files as $index => $file) {
-            $fileNum = $index + 1;
-            $this->info("\n[$fileNum/{$this->stats['total_files']}] Processing: " . basename($file));
-            $this->processFile($file, $existingPhones);
-        }
-
-        // Display final stats
-        $this->displayStats();
-
-        return 0;
-    }
-
-    private function processFile($filepath, &$existingPhones)
-    {
-        if (!file_exists($filepath)) {
-            $this->error("File not found: $filepath");
-            $this->stats['errors']++;
-            return;
-        }
-
-        $handle = fopen($filepath, 'r');
+        $handle = fopen($file, 'r');
         if (!$handle) {
-            $this->error("Cannot open file: $filepath");
-            $this->stats['errors']++;
-            return;
+            $this->error("Could not open file: $file");
+            return 1;
         }
-
-        // Read header
-        $header = fgetcsv($handle);
-        if (!$header) {
-            $this->error("Cannot read header from: $filepath");
-            fclose($handle);
-            $this->stats['errors']++;
-            return;
-        }
-
-        // Map headers to indices
-        $map = $this->mapHeaders($header);
         
-        $fileStats = ['imported' => 0, 'skipped' => 0, 'errors' => 0];
-        $rowNum = 1;
-
-        // Process each row
-        while (($row = fgetcsv($handle)) !== false) {
-            $rowNum++;
-            $this->stats['total_rows']++;
-
+        // Read headers
+        $headers = fgetcsv($handle, 0, ',', '"', '\\');
+        if (!$headers) {
+            $this->error("Could not read headers from file");
+            fclose($handle);
+            return 1;
+        }
+        
+        $this->info("📊 Found " . count($headers) . " columns");
+        $this->newLine();
+        
+        // Map headers to array indices
+        $columnMap = $this->mapColumns($headers);
+        
+        $imported = 0;
+        $skipped = 0;
+        $errors = 0;
+        $rowNumber = 1;
+        
+        // Load existing phones if needed
+        $existingPhones = [];
+        if ($skipDuplicates) {
+            $this->info("Loading existing phone numbers...");
+            $existingPhones = Lead::pluck('phone')->flip()->toArray();
+            $this->info("Found " . count($existingPhones) . " existing phone numbers");
+            $this->newLine();
+        }
+        
+        $this->info("Processing records...");
+        
+        while (($row = fgetcsv($handle, 0, ',', '"', '\\')) !== false) {
+            $rowNumber++;
+            
+            // Apply limit if specified
+            if ($limit > 0 && $imported >= $limit) {
+                break;
+            }
+            
             try {
                 // Extract phone
-                $phone = $this->cleanPhone($row[$map['phone']] ?? '');
+                $phone = $this->extractPhone($row, $columnMap);
+                if (!$phone) {
+                    $skipped++;
+                    continue;
+                }
                 
-                if (empty($phone)) {
-                    $this->warn("Row $rowNum: Missing phone number, skipping");
-                    $fileStats['errors']++;
-                    $this->stats['errors']++;
+                // Check duplicate
+                if ($skipDuplicates && isset($existingPhones[$phone])) {
+                    $skipped++;
                     continue;
                 }
-
-                // Check for duplicate
-                if (in_array($phone, $existingPhones)) {
-                    $fileStats['skipped']++;
-                    $this->stats['skipped_duplicates']++;
-                    continue;
-                }
-
-                if (!$this->option('dry-run')) {
-                    // Create lead data
-                    $leadData = $this->mapRowToLead($row, $map);
-                    
-                    // Handle vendor/buyer creation
-                    $this->handleVendorBuyer($leadData);
-                    
-                    // Create lead
-                    $lead = Lead::create($leadData);
-                    
-                    // Push to Vici if requested
-                    if ($this->option('push-to-vici')) {
-                        $this->viciService->pushLead($lead);
+                
+                // Build lead data
+                $leadData = $this->buildLeadData($row, $columnMap);
+                
+                if ($dryRun) {
+                    // Preview mode - just show what would be imported
+                    if ($imported < 3) { // Show first 3 records as preview
+                        $this->info("Preview Record #" . ($imported + 1) . ":");
+                        $this->info("  Name: " . $leadData['name']);
+                        $this->info("  Phone: " . $leadData['phone']);
+                        $this->info("  Email: " . ($leadData['email'] ?? 'N/A'));
+                        $this->info("  Source: " . $leadData['source']);
+                        $this->info("  Vendor: " . ($leadData['vendor_name'] ?? 'N/A'));
+                        $this->info("  Buyer: " . ($leadData['buyer_name'] ?? 'N/A'));
+                        $this->info("  Campaign ID: " . ($leadData['campaign_id'] ?? 'N/A'));
+                        $this->newLine();
                     }
+                } else {
+                    // Actually import
+                    $this->createLead($leadData);
                     
-                    // Add to existing phones list
-                    $existingPhones[] = $phone;
+                    // Add to existing phones
+                    if ($skipDuplicates) {
+                        $existingPhones[$phone] = true;
+                    }
                 }
-
-                $fileStats['imported']++;
-                $this->stats['imported']++;
-
+                
+                $imported++;
+                
+                // Show progress
+                if ($imported % 100 == 0) {
+                    $this->info("  Progress: $imported imported...");
+                }
+                
             } catch (\Exception $e) {
-                $this->error("Row $rowNum error: " . $e->getMessage());
-                $fileStats['errors']++;
-                $this->stats['errors']++;
+                $errors++;
+                Log::error("LQF import error in row $rowNumber: " . $e->getMessage());
+                if (!$dryRun) {
+                    $this->error("Error in row $rowNumber: " . $e->getMessage());
+                }
             }
         }
-
+        
         fclose($handle);
-
-        $this->info(sprintf(
-            "  → Imported: %d, Skipped: %d, Errors: %d",
-            $fileStats['imported'],
-            $fileStats['skipped'],
-            $fileStats['errors']
-        ));
+        
+        $this->newLine();
+        $this->info("========================================");
+        $this->info($dryRun ? "PREVIEW COMPLETE" : "IMPORT COMPLETE");
+        $this->info("========================================");
+        $this->info("✅ " . ($dryRun ? "Would import" : "Imported") . ": $imported");
+        $this->info("🚫 Skipped: $skipped");
+        $this->info("❌ Errors: $errors");
+        
+        return 0;
     }
-
-    private function mapHeaders($header)
+    
+    /**
+     * Map column headers to indices
+     */
+    private function mapColumns($headers)
     {
         $map = [];
-        
-        // Clean headers and create mapping
-        foreach ($header as $index => $column) {
-            $column = trim(strtolower($column));
-            
-            // Map LQF CSV columns to our fields
-            if (str_contains($column, 'lead id')) $map['lead_id'] = $index;
-            if (str_contains($column, 'timestamp')) $map['timestamp'] = $index;
-            if (str_contains($column, 'vertical')) $map['vertical'] = $index;
-            if (str_contains($column, 'buy price')) $map['cost'] = $index;
-            if (str_contains($column, 'sell price')) $map['sell_price'] = $index;
-            if (str_contains($column, 'vendor') && !str_contains($column, 'campaign') && !str_contains($column, 'status')) $map['vendor'] = $index;
-            if (str_contains($column, 'vendor campaign')) $map['vendor_campaign'] = $index;
-            if (str_contains($column, 'buyer') && !str_contains($column, 'campaign') && !str_contains($column, 'status')) $map['buyer'] = $index;
-            if (str_contains($column, 'buyer campaign')) $map['buyer_campaign'] = $index;
-            if (str_contains($column, 'leadid code')) $map['tcpa_lead_id'] = $index;
-            if (str_contains($column, 'trusted form')) $map['trusted_form_cert'] = $index;
-            if ($column === 'tcpa') $map['tcpa_compliant'] = $index;
-            if (str_contains($column, 'first name')) $map['first_name'] = $index;
-            if (str_contains($column, 'last name')) $map['last_name'] = $index;
-            if ($column === 'email') $map['email'] = $index;
-            if ($column === 'phone' && !isset($map['phone'])) $map['phone'] = $index;
-            if ($column === 'address' && !str_contains($column, '2')) $map['address'] = $index;
-            if ($column === 'city') $map['city'] = $index;
-            if ($column === 'state') $map['state'] = $index;
-            if (str_contains($column, 'zip')) $map['zip_code'] = $index;
-            if (str_contains($column, 'ip address')) $map['ip_address'] = $index;
-            if (str_contains($column, 'user agent')) $map['user_agent'] = $index;
-            if (str_contains($column, 'landing page')) $map['landing_page_url'] = $index;
-            if (str_contains($column, 'source id')) $map['source_id'] = $index;
-            if (str_contains($column, 'offer id')) $map['offer_id'] = $index;
+        foreach ($headers as $index => $header) {
+            $normalized = strtolower(trim($header));
+            $map[$normalized] = $index;
         }
-
         return $map;
     }
-
-    private function mapRowToLead($row, $map)
+    
+    /**
+     * Extract phone number from row
+     */
+    private function extractPhone($row, $columnMap)
     {
-        // Parse timestamp
-        $timestamp = null;
-        if (isset($map['timestamp']) && !empty($row[$map['timestamp']])) {
-            try {
-                $timestamp = Carbon::parse($row[$map['timestamp']]);
-            } catch (\Exception $e) {
-                $timestamp = now();
-            }
-        }
-
-        // Parse vertical/type
-        $vertical = $row[$map['vertical']] ?? '';
-        $type = 'auto'; // default
-        if (stripos($vertical, 'home') !== false) {
-            $type = 'home';
-        } elseif (stripos($vertical, 'auto') !== false) {
-            $type = 'auto';
-        }
-
-        // Build lead data
-        $leadData = [
-            'source' => 'LQF',
-            'type' => $type,
-            'status' => 'new',
-            
-            // Contact info
-            'first_name' => $row[$map['first_name']] ?? null,
-            'last_name' => $row[$map['last_name']] ?? null,
-            'phone' => $this->cleanPhone($row[$map['phone']] ?? ''),
-            'email' => $row[$map['email']] ?? null,
-            'address' => $row[$map['address']] ?? null,
-            'city' => $row[$map['city']] ?? null,
-            'state' => $row[$map['state']] ?? null,
-            'zip_code' => $row[$map['zip_code']] ?? null,
-            
-            // Vendor/Buyer info
-            'vendor_name' => $this->cleanVendorName($row[$map['vendor']] ?? null),
-            'vendor_campaign' => $row[$map['vendor_campaign']] ?? null,
-            'cost' => $this->parseDecimal($row[$map['cost']] ?? null),
-            'buyer_name' => $this->cleanBuyerName($row[$map['buyer']] ?? null),
-            'buyer_campaign' => $row[$map['buyer_campaign']] ?? null,
-            'sell_price' => $this->parseDecimal($row[$map['sell_price']] ?? null),
-            
-            // TCPA
-            'tcpa_lead_id' => $row[$map['tcpa_lead_id']] ?? null,
-            'trusted_form_cert' => $row[$map['trusted_form_cert']] ?? null,
-            'tcpa_compliant' => $this->parseTcpa($row[$map['tcpa_compliant']] ?? null),
-            
-            // Tracking
-            'ip_address' => $row[$map['ip_address']] ?? null,
-            'user_agent' => $row[$map['user_agent']] ?? null,
-            'landing_page_url' => $row[$map['landing_page_url']] ?? null,
-            
-            // Timestamps
-            'created_at' => $timestamp ?: now(),
-            'updated_at' => now(),
-        ];
-
-        // Store additional data in meta
-        $meta = [];
-        if (isset($map['source_id']) && !empty($row[$map['source_id']])) {
-            $meta['source_id'] = $row[$map['source_id']];
-        }
-        if (isset($map['offer_id']) && !empty($row[$map['offer_id']])) {
-            $meta['offer_id'] = $row[$map['offer_id']];
-        }
-        if (isset($map['lead_id']) && !empty($row[$map['lead_id']])) {
-            $meta['lqf_lead_id'] = $row[$map['lead_id']];
+        $phoneIndex = $columnMap['phone'] ?? null;
+        if ($phoneIndex === null || !isset($row[$phoneIndex])) {
+            return null;
         }
         
-        if (!empty($meta)) {
-            $leadData['meta'] = json_encode($meta);
+        $phone = preg_replace('/[^0-9]/', '', $row[$phoneIndex]);
+        if (strlen($phone) != 10) {
+            return null;
         }
-
-        // Generate external lead ID
-        $leadData['external_lead_id'] = Lead::generateExternalLeadId();
-
+        
+        return $phone;
+    }
+    
+    /**
+     * Build lead data from CSV row
+     */
+    private function buildLeadData($row, $columnMap)
+    {
+        // Extract basic fields
+        $leadData = [
+            'external_lead_id' => Lead::generateExternalLeadId(),
+            'source' => 'LQF',
+            'type' => $this->extractType($row, $columnMap),
+            'tenant_id' => 1,
+            'tcpa_compliant' => $this->extractTcpa($row, $columnMap),
+        ];
+        
+        // Personal information
+        $leadData['first_name'] = $this->getValue($row, $columnMap, 'first name');
+        $leadData['last_name'] = $this->getValue($row, $columnMap, 'last name');
+        $leadData['name'] = trim($leadData['first_name'] . ' ' . $leadData['last_name']);
+        $leadData['email'] = $this->getValue($row, $columnMap, 'email');
+        $leadData['phone'] = $this->extractPhone($row, $columnMap);
+        
+        // Address information
+        $leadData['address'] = $this->getValue($row, $columnMap, 'address');
+        $leadData['city'] = $this->getValue($row, $columnMap, 'city');
+        $leadData['state'] = $this->getValue($row, $columnMap, 'state');
+        $leadData['zip_code'] = $this->getValue($row, $columnMap, 'zip code');
+        
+        // Vendor/Buyer information
+        $leadData['vendor_name'] = $this->getValue($row, $columnMap, 'vendor');
+        $leadData['buyer_name'] = $this->getValue($row, $columnMap, 'buyer');
+        
+        // Campaign information
+        $buyerCampaign = $this->getValue($row, $columnMap, 'buyer campaign');
+        if ($buyerCampaign) {
+            // Extract campaign ID from buyer campaign string (usually contains ID)
+            if (preg_match('/(\d{7})/', $buyerCampaign, $matches)) {
+                $leadData['campaign_id'] = $matches[1];
+            }
+        }
+        
+        // Opt-in date from "Originally Created" field
+        $originallyCreated = $this->getValue($row, $columnMap, 'originally created');
+        if ($originallyCreated) {
+            try {
+                $leadData['opt_in_date'] = Carbon::parse($originallyCreated)->format('Y-m-d H:i:s');
+            } catch (\Exception $e) {
+                // If parse fails, use timestamp field
+                $timestamp = $this->getValue($row, $columnMap, 'timestamp');
+                if ($timestamp) {
+                    try {
+                        $leadData['opt_in_date'] = Carbon::parse($timestamp)->format('Y-m-d H:i:s');
+                    } catch (\Exception $e2) {
+                        // Skip if both fail
+                    }
+                }
+            }
+        }
+        
+        // Build payload with all original data
+        $payload = [];
+        foreach ($columnMap as $field => $index) {
+            if (isset($row[$index])) {
+                $payload[$field] = $row[$index];
+            }
+        }
+        
+        // Parse and include the "Data" field which contains JSON
+        $dataIndex = $columnMap['data'] ?? null;
+        if ($dataIndex !== null && isset($row[$dataIndex])) {
+            $jsonData = $row[$dataIndex];
+            try {
+                $parsedData = json_decode($jsonData, true);
+                if ($parsedData) {
+                    $payload['parsed_data'] = $parsedData;
+                    
+                    // Extract drivers and vehicles for storage
+                    if (isset($parsedData['drivers'])) {
+                        $leadData['drivers'] = json_encode($parsedData['drivers']);
+                    }
+                    if (isset($parsedData['vehicles'])) {
+                        $leadData['vehicles'] = json_encode($parsedData['vehicles']);
+                    }
+                    if (isset($parsedData['requested_policy'])) {
+                        $leadData['current_policy'] = json_encode($parsedData['requested_policy']);
+                    }
+                }
+            } catch (\Exception $e) {
+                // If JSON parse fails, store as is
+            }
+        }
+        
+        $leadData['payload'] = json_encode($payload);
+        
+        // Build meta information
+        $meta = [
+            'lead_id' => $this->getValue($row, $columnMap, 'lead id'),
+            'vendor_campaign' => $this->getValue($row, $columnMap, 'vendor campaign'),
+            'vendor_status' => $this->getValue($row, $columnMap, 'vendor status'),
+            'buyer_campaign' => $this->getValue($row, $columnMap, 'buyer campaign'),
+            'buyer_status' => $this->getValue($row, $columnMap, 'buyer status'),
+            'buy_price' => $this->getValue($row, $columnMap, 'buy price'),
+            'sell_price' => $this->getValue($row, $columnMap, 'sell price'),
+            'source_id' => $this->getValue($row, $columnMap, 'source id'),
+            'offer_id' => $this->getValue($row, $columnMap, 'offer id'),
+            'leadid_code' => $this->getValue($row, $columnMap, 'leadid code'),
+            'trusted_form_cert' => $this->getValue($row, $columnMap, 'trusted form cert url'),
+            'tcpa_consent_text' => $this->getValue($row, $columnMap, 'tcpa consent text'),
+            'landing_page' => $this->getValue($row, $columnMap, 'landing page url'),
+            'ip_address' => $this->getValue($row, $columnMap, 'ip address'),
+            'user_agent' => $this->getValue($row, $columnMap, 'user agent'),
+            'import_source' => 'LQF Bulk Import',
+            'import_date' => now()->toISOString()
+        ];
+        
+        $leadData['meta'] = json_encode(array_filter($meta));
+        
         return $leadData;
     }
-
-    private function cleanPhone($phone)
+    
+    /**
+     * Get value from row by column name
+     */
+    private function getValue($row, $columnMap, $columnName)
     {
-        // Remove all non-digits
-        $phone = preg_replace('/\D/', '', $phone);
-        
-        // Remove leading 1 if 11 digits
-        if (strlen($phone) == 11 && $phone[0] == '1') {
-            $phone = substr($phone, 1);
+        $index = $columnMap[$columnName] ?? null;
+        if ($index === null || !isset($row[$index])) {
+            return null;
         }
         
-        // Return only if 10 digits
-        return strlen($phone) == 10 ? $phone : '';
+        $value = trim($row[$index]);
+        return $value === '' ? null : $value;
     }
-
-    private function cleanVendorName($name)
+    
+    /**
+     * Extract lead type from vertical field
+     */
+    private function extractType($row, $columnMap)
     {
-        if (empty($name)) return null;
-        
-        // Remove extra info after dash (e.g., "Quinn Street - Quinn Street Auto 2" -> "Quinn Street")
-        if (strpos($name, ' - ') !== false) {
-            $parts = explode(' - ', $name);
-            return trim($parts[0]);
+        $vertical = $this->getValue($row, $columnMap, 'vertical');
+        if (!$vertical) {
+            return 'auto'; // Default
         }
         
-        return trim($name);
+        $vertical = strtolower($vertical);
+        if (strpos($vertical, 'auto') !== false) {
+            return 'auto';
+        } elseif (strpos($vertical, 'home') !== false) {
+            return 'home';
+        } elseif (strpos($vertical, 'health') !== false) {
+            return 'health';
+        } elseif (strpos($vertical, 'life') !== false) {
+            return 'life';
+        }
+        
+        return 'auto'; // Default
     }
-
-    private function cleanBuyerName($name)
+    
+    /**
+     * Extract TCPA compliance
+     */
+    private function extractTcpa($row, $columnMap)
     {
-        if (empty($name)) return null;
+        $tcpa = $this->getValue($row, $columnMap, 'tcpa');
+        if (!$tcpa) {
+            return false;
+        }
         
-        // Remove parentheses content (e.g., "What If Media Group, LLC () - Auto" -> "What If Media Group, LLC")
-        $name = preg_replace('/\s*\([^)]*\)\s*/', ' ', $name);
-        
-        // Remove " - Auto" or " - Home" suffixes
-        $name = preg_replace('/\s*-\s*(Auto|Home)\s*$/i', '', $name);
-        
-        return trim($name);
+        $tcpa = strtolower($tcpa);
+        return in_array($tcpa, ['yes', 'true', '1']);
     }
-
-    private function parseDecimal($value)
+    
+    /**
+     * Create lead record
+     */
+    private function createLead($leadData)
     {
-        if (empty($value)) return null;
-        
-        // Remove dollar signs and commas
-        $value = str_replace(['$', ','], '', $value);
-        
-        return is_numeric($value) ? (float)$value : null;
-    }
-
-    private function parseTcpa($value)
-    {
-        if (empty($value)) return false;
-        
-        $value = strtolower(trim($value));
-        return in_array($value, ['yes', 'true', '1', 'y']);
-    }
-
-    private function handleVendorBuyer($leadData)
-    {
-        // Auto-create vendor if doesn't exist
+        // Create or find vendor
         if (!empty($leadData['vendor_name'])) {
-            $vendor = Vendor::firstOrCreate(
+            Vendor::firstOrCreate(
                 ['name' => $leadData['vendor_name']],
-                [
-                    'campaigns' => [],
-                    'active' => true
-                ]
+                ['active' => true, 'notes' => 'Auto-created from LQF import']
             );
-            
-            if ($vendor->wasRecentlyCreated) {
-                $this->stats['vendors_created']++;
-                $this->info("  → Created new vendor: {$leadData['vendor_name']}");
-            }
-            
-            // Add campaign to vendor
-            if (!empty($leadData['vendor_campaign'])) {
-                $vendor->addCampaign($leadData['vendor_campaign']);
-            }
         }
         
-        // Auto-create buyer if doesn't exist (using the existing Buyer model)
+        // Create or find buyer
         if (!empty($leadData['buyer_name'])) {
-            $buyer = Buyer::firstOrCreate(
+            Buyer::firstOrCreate(
                 ['name' => $leadData['buyer_name']],
+                ['active' => true, 'notes' => 'Auto-created from LQF import']
+            );
+        }
+        
+        // Create or find campaign
+        if (!empty($leadData['campaign_id']) && !empty($leadData['buyer_name'])) {
+            Campaign::firstOrCreate(
+                ['id' => $leadData['campaign_id']],
                 [
-                    'campaigns' => [],
-                    'active' => true
+                    'name' => $leadData['buyer_name'] . ' - Campaign ' . $leadData['campaign_id'],
+                    'buyer_name' => $leadData['buyer_name'],
+                    'active' => true,
+                    'notes' => 'Auto-created from LQF import'
                 ]
             );
-            
-            if ($buyer->wasRecentlyCreated) {
-                $this->stats['buyers_created']++;
-                $this->info("  → Created new buyer: {$leadData['buyer_name']}");
-            }
-            
-            // Add campaign to buyer
-            if (!empty($leadData['buyer_campaign'])) {
-                $buyer->addCampaign($leadData['buyer_campaign']);
-            }
         }
-    }
-
-    private function displayStats()
-    {
-        $this->newLine();
-        $this->info("=== IMPORT COMPLETE ===");
-        $this->table(
-            ['Metric', 'Count'],
-            [
-                ['Files Processed', $this->stats['total_files']],
-                ['Total Rows', $this->stats['total_rows']],
-                ['Imported', $this->stats['imported']],
-                ['Skipped (Duplicates)', $this->stats['skipped_duplicates']],
-                ['Errors', $this->stats['errors']],
-                ['New Vendors', $this->stats['vendors_created']],
-                ['New Buyers', $this->stats['buyers_created']],
-            ]
-        );
         
-        if ($this->option('dry-run')) {
-            $this->warn("This was a DRY RUN - no data was actually imported");
-        }
+        // Create lead
+        return Lead::create($leadData);
     }
 }
