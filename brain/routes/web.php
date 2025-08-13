@@ -3039,7 +3039,7 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                         $lead->meta = json_decode($lead->meta, true) ?: [];
                     }
                     
-                    $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
+                    $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $lead->id)->first();
                 }
             } catch (Exception $dbError) {
                 // Database connection failed - try cache fallback

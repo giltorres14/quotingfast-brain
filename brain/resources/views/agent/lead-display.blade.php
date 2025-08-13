@@ -1490,8 +1490,8 @@
                         @endif
                         @php
                             // Check if buy_price exists in meta or payload
-                            $meta = json_decode($lead->meta ?? '{}', true);
-                            $payload = json_decode($lead->payload ?? '{}', true);
+                            $meta = is_string($lead->meta) ? json_decode($lead->meta ?? '{}', true) : ($lead->meta ?? []);
+                            $payload = is_string($lead->payload) ? json_decode($lead->payload ?? '{}', true) : ($lead->payload ?? []);
                             $buyPrice = $meta['buy_price'] ?? $payload['buy_price'] ?? $payload['Buy Price'] ?? null;
                         @endphp
                         @if($buyPrice)
