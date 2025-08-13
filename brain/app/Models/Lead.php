@@ -34,18 +34,30 @@ class Lead extends Model
         parent::boot();
         
         static::creating(function ($lead) {
+            // CRITICAL: LEAD IDs MUST BE 13 DIGITS - NOT 9 DIGITS
             // If external_lead_id is not set or doesn't match our 13-digit timestamp format, generate it
             if (empty($lead->external_lead_id) || 
                 strlen($lead->external_lead_id) !== 13 || 
                 !is_numeric($lead->external_lead_id)) {
                 
-                // Generate our timestamp-based 13-digit ID
+                // Log if someone tried to use wrong format
+                if (!empty($lead->external_lead_id) && strlen($lead->external_lead_id) !== 13) {
+                    \Log::error('❌ WRONG LEAD ID FORMAT DETECTED - MUST BE 13 DIGITS', [
+                        'attempted_id' => $lead->external_lead_id,
+                        'id_length' => strlen($lead->external_lead_id),
+                        'required_length' => 13,
+                        'note' => 'THE FORMAT IS 13 DIGITS, NOT 9 DIGITS'
+                    ]);
+                }
+                
+                // Generate our timestamp-based 13-digit ID (ALWAYS 13 DIGITS)
                 $lead->external_lead_id = self::generateExternalLeadId();
                 
-                \Log::info('🔢 Lead Model: Generated external_lead_id in boot', [
+                \Log::info('🔢 Lead Model: Generated 13-DIGIT external_lead_id', [
                     'new_id' => $lead->external_lead_id,
-                    'original_id' => $lead->getOriginal('external_lead_id') ?? 'none',
-                    'format' => 'timestamp+sequence (13 digits)'
+                    'id_length' => strlen($lead->external_lead_id),
+                    'format' => '13-DIGIT TIMESTAMP FORMAT (NOT 9 DIGITS)',
+                    'example' => '1755041041000'
                 ]);
             }
         });
@@ -57,6 +69,19 @@ class Lead extends Model
      * Example: 1733520421001
      * 
      * This guarantees uniqueness, is purely numeric, and is time-sortable
+     */
+    /**
+     * CRITICAL: EXTERNAL LEAD ID FORMAT - ALWAYS 13 DIGITS
+     * 
+     * FORMAT: 13-digit timestamp-based ID
+     * Structure: [10-digit Unix timestamp][3-digit sequence]
+     * Example: 1755041041000
+     * 
+     * DO NOT CHANGE TO 9 DIGITS - THE FORMAT IS 13 DIGITS
+     * DO NOT CHANGE TO 9 DIGITS - THE FORMAT IS 13 DIGITS
+     * DO NOT CHANGE TO 9 DIGITS - THE FORMAT IS 13 DIGITS
+     * 
+     * This has been confirmed multiple times. The system uses 13-digit IDs.
      */
     public static function generateExternalLeadId()
     {
@@ -74,13 +99,20 @@ class Lead extends Model
             // Create sequence number (000-999)
             $sequence = str_pad($countThisSecond, 3, '0', STR_PAD_LEFT);
             
-            // Combine timestamp + sequence for 13-digit ID
+            // Combine timestamp + sequence for 13-digit ID (ALWAYS 13 DIGITS)
             $externalId = $timestamp . $sequence;
             
-            \Log::info('🔢 Generated timestamp-based external_lead_id', [
+            // VALIDATION: Ensure it's exactly 13 digits
+            if (strlen($externalId) !== 13) {
+                throw new \Exception("Generated ID is not 13 digits: {$externalId}");
+            }
+            
+            \Log::info('🔢 Generated 13-DIGIT external_lead_id', [
                 'timestamp' => $timestamp,
                 'sequence' => $sequence,
                 'final_id' => $externalId,
+                'id_length' => strlen($externalId),
+                'format' => '13-DIGIT TIMESTAMP FORMAT',
                 'datetime' => date('Y-m-d H:i:s', $timestamp)
             ]);
             
