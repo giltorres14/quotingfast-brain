@@ -1321,21 +1321,7 @@
                         {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
                     </div>
                 </div>
-                    
-                    <!-- Campaign ID moved here from TCPA section -->
-                    @php
-                        $campaignId = $lead->campaign_id;
-                        if (!$campaignId && isset($lead->payload) && is_string($lead->payload)) {
-                            $payload = json_decode($lead->payload, true);
-                            $campaignId = $payload['campaign_id'] ?? null;
-                        }
-                    @endphp
-                    @if($campaignId)
-                    <div class="info-item" id="contact-campaign">
-                        <div class="info-label">Campaign ID</div>
-                        <div class="info-value">{{ $campaignId }}</div>
-            </div>
-                    @endif
+
         </div>
                 </div>
                 </div>
@@ -1351,6 +1337,11 @@
                     if (!$campaignId && isset($lead->payload) && is_string($lead->payload)) {
                         $payload = json_decode($lead->payload, true);
                         $campaignId = $payload['campaign_id'] ?? null;
+                    }
+                    
+                    // Remove .0 from numeric IDs
+                    if ($campaignId && is_numeric($campaignId)) {
+                        $campaignId = rtrim(rtrim(number_format($campaignId, 10, '.', ''), '0'), '.');
                     }
                     
                     $campaign = null;
@@ -1434,7 +1425,14 @@
                 <div class="info-item">
                     <div class="info-label">Vendor ID</div>
                     <div class="info-value">
-                        {{ $vendorPayload['vendor_id'] ?? 'Not provided' }}
+                        @php
+                            $vendorId = $vendorPayload['vendor_id'] ?? null;
+                            // Remove .0 from numeric IDs
+                            if ($vendorId && is_numeric($vendorId)) {
+                                $vendorId = rtrim(rtrim(number_format($vendorId, 10, '.', ''), '0'), '.');
+                            }
+                        @endphp
+                        {{ $vendorId ?: 'Not provided' }}
                     </div>
                 </div>
                 
@@ -1447,6 +1445,10 @@
                                     if (!$vendorCampaignId && $lead->meta) {
                                         $metaData = is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta;
                                         $vendorCampaignId = $metaData['vendor_campaign_id'] ?? null;
+                                    }
+                                    // Remove .0 from numeric IDs
+                                    if ($vendorCampaignId && is_numeric($vendorCampaignId)) {
+                                        $vendorCampaignId = rtrim(rtrim(number_format($vendorCampaignId, 10, '.', ''), '0'), '.');
                                     }
                                 @endphp
                                 {{ $vendorCampaignId ?: 'Not provided' }}
@@ -1464,14 +1466,28 @@
                 <div class="info-item">
                     <div class="info-label">Buyer ID</div>
                     <div class="info-value">
-                        {{ $vendorPayload['buyer_id'] ?? 'Not provided' }}
+                        @php
+                            $buyerId = $vendorPayload['buyer_id'] ?? null;
+                            // Remove .0 from numeric IDs
+                            if ($buyerId && is_numeric($buyerId)) {
+                                $buyerId = rtrim(rtrim(number_format($buyerId, 10, '.', ''), '0'), '.');
+                            }
+                        @endphp
+                        {{ $buyerId ?: 'Not provided' }}
                     </div>
                 </div>
                 
                 <div class="info-item">
                     <div class="info-label">Campaign ID</div>
                     <div class="info-value">
-                        <strong>{{ $lead->campaign_id ?: 'Not provided' }}</strong>
+                        @php
+                            $campaignIdDisplay = $lead->campaign_id;
+                            // Remove .0 from numeric IDs
+                            if ($campaignIdDisplay && is_numeric($campaignIdDisplay)) {
+                                $campaignIdDisplay = rtrim(rtrim(number_format($campaignIdDisplay, 10, '.', ''), '0'), '.');
+                            }
+                        @endphp
+                        <strong>{{ $campaignIdDisplay ?: 'Not provided' }}</strong>
                     </div>
                 </div>
             </div>

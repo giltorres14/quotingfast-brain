@@ -263,7 +263,19 @@ class ImportLqfBulkCsv extends Command
         $payload = [];
         foreach ($columnMap as $field => $index) {
             if (isset($row[$index])) {
-                $payload[$field] = $row[$index];
+                $value = $row[$index];
+                
+                // Clean up numeric IDs in payload
+                if (in_array($field, ['vendor_id', 'buyer_id', 'vendor campaign', 'buyer campaign', 'lead id', 'source id'])) {
+                    if (is_numeric($value) && strpos($value, '.') !== false) {
+                        $value = rtrim(rtrim($value, '0'), '.');
+                    }
+                    if (stripos($value, 'e+') !== false || stripos($value, 'e-') !== false) {
+                        $value = sprintf("%.0f", floatval($value));
+                    }
+                }
+                
+                $payload[$field] = $value;
             }
         }
         
@@ -331,6 +343,19 @@ class ImportLqfBulkCsv extends Command
         }
         
         $value = trim($row[$index]);
+        
+        // Clean up numeric IDs that Excel converted to floats
+        if (in_array($columnName, ['lead id', 'vendor campaign', 'buyer campaign', 'source id', 'vendor_id', 'buyer_id', 'campaign_id'])) {
+            // Remove .0 from the end if it's there
+            if (is_numeric($value) && strpos($value, '.') !== false) {
+                $value = rtrim(rtrim($value, '0'), '.');
+            }
+            // Convert scientific notation if present
+            if (stripos($value, 'e+') !== false || stripos($value, 'e-') !== false) {
+                $value = sprintf("%.0f", floatval($value));
+            }
+        }
+        
         return $value === '' ? null : $value;
     }
     

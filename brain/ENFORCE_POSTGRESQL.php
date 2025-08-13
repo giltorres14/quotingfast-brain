@@ -50,3 +50,4 @@ if (class_exists('\Log')) {
 // Return true to indicate enforcement is active
 return true;
 
+
