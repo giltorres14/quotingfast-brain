@@ -73,46 +73,38 @@
 - Vici Call Reports complete at /admin/vici-reports
 - Database nullable fields fixed (tenant_id, password)
 
-## 🔌 VICI INTEGRATION STATUS - READY TO ACTIVATE
+## 🔌 VICI INTEGRATION STATUS - TROUBLESHOOTING CONNECTION
 
-### ✅ Render Static IPs (for Vici Whitelist)
+### ⚠️ Current Issue: SSH Port 22 Blocked
+- **Test Time:** January 13, 2025 - 10:27 PM EST
+- **IP Being Used:** 52.15.118.168 (one of our static IPs)
+- **Error:** "No route to host" (error 113) on SSH port 22
+- **HTTP Port 80:** ✅ Working (open)
+- **SSH Port 22:** ❌ Blocked
+- **Test URL:** https://quotingfast-brain-ohio.onrender.com/test-vici-ssh.php
+
+### 📋 Render Static IPs (Need SSH Whitelisting)
 - **IP 1:** 3.134.238.10
-- **IP 2:** 3.129.111.220 (currently active)
-- **IP 3:** 52.15.118.168
-- **Status:** Awaiting Vici support to whitelist these IPs
+- **IP 2:** 3.129.111.220
+- **IP 3:** 52.15.118.168 (currently active)
 - **Vici Server:** 37.27.138.222
-- **Credentials:** root / Monster@2213@!
+- **Required:** SSH port 22 access for all 3 IPs
 
-### ✅ Vici Export Script Infrastructure (COMPLETE)
-- **Export Script:** `vici_export_script.sh` - Queries vicidial_log + vicidial_dial_log
-- **Database Name:** Colh42mUsWs40znH
-- **Export Path:** `/home/vici_logs/`
-- **Schedule:** Every 5 minutes via Laravel scheduler (ready to run)
-- **Data Window:** Last 5 minutes of call data per run
-- **CSV Format:** 16 fields including phone, status, SIP diagnostics
+### ✅ Infrastructure (COMPLETE & DEPLOYED)
+- **Export Script:** `vici_export_script.sh` ready
+- **Processing Pipeline:** Fully deployed
+- **Scheduler:** Configured for every 5 minutes
+- **Old Data:** Cleaned (2,701 records backed up)
+- **Commands Ready:**
+  - `php artisan vici:run-export` - Manual trigger
+  - `php artisan vici:process-csv {file}` - Process CSV
+- **Logs:** Will output to `storage/logs/vici_export.log`
 
-### ✅ Processing Pipeline (DEPLOYED)
-- **Proxy Controller:** `ViciProxyController` - Ensures all requests from Render IP
-- **Export Command:** `php artisan vici:run-export` - Triggers export & download
-- **Process Command:** `php artisan vici:process-csv {file}` - Imports CSV to database
-- **Scheduler:** Configured in Kernel.php to run every 5 minutes
-- **Logs:** Output to `storage/logs/vici_export.log`
-
-### ✅ Data Collection Improvements
-- **Old API Method:** ❌ Deleted 2,701 aggregated records (backed up)
-- **New Export Method:** ✅ Individual call records with full details
-- **Key Advantages:**
-  - Phone numbers for lead matching
-  - SIP diagnostics for troubleshooting  
-  - Real-time updates (5-minute delay)
-  - Extension/agent tracking
-  - Server IP for load balancing
-
-### 📊 Reports Roadmap (PLANNED)
-- **Phase 1:** Lead Journey, Agent Scorecard, Real-Time Dashboard
-- **Phase 2:** Call Diagnostics, Campaign ROI, Lead Waste Report
-- **Phase 3:** Predictive Scoring, Executive Dashboard
-- **Documentation:** See `VICI_REPORTS_ROADMAP.md` for full list
+### 🔧 Next Steps
+1. **Verify with Vici support** that all 3 IPs are whitelisted for SSH port 22
+2. **Test connection** at https://quotingfast-brain-ohio.onrender.com/test-vici-ssh.php
+3. **Once connected**, automated sync will begin immediately
+4. **Monitor logs** for successful data collection
 
 ## 🚀 SYSTEM STATUS
 
@@ -144,16 +136,21 @@
 
 ## ⚠️ IMMEDIATE NEXT STEPS
 
-1. **Complete LQF Import**: Run full import of 149k records
+1. **Fix Vici SSH Connection**: 
+   - Contact Vici support to whitelist SSH port 22 for IPs: 3.134.238.10, 3.129.111.220, 52.15.118.168
+   - Test at: https://quotingfast-brain-ohio.onrender.com/test-vici-ssh.php
+   - Once working, automated sync begins
+
+2. **Complete LQF Import**: Run full import of 149k records
    ```bash
    php artisan lqf:bulk-import ~/Downloads/1755044818-webleads_export_2025-05-01_-_2025-08-12.csv
    ```
 
-2. **Fix Suraj CSV Corruption**: Clean files 22-86 to remove HTTP headers from data
+3. **Fix Suraj CSV Corruption**: Clean files 22-86 to remove HTTP headers from data
    - Create script to detect and clean corrupted fields
    - Re-import cleaned files
 
-3. **Complete Campaign Delete**: Add JavaScript function in campaigns/directory.blade.php
+4. **Complete Campaign Delete**: Add JavaScript function in campaigns/directory.blade.php
 
 ## 🎯 QUICK COMMANDS TO RESUME
 
