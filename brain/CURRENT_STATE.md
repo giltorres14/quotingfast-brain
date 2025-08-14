@@ -178,13 +178,19 @@ tail -f storage/logs/laravel.log
 
 ## ✅ RECENTLY FIXED (Cumulative Learning Applied)
 
-### Lead View Page Display Issue - FIXED!
-- **Problem:** Lead view showed header but appeared blank below
-- **Root Cause:** Orphaned edit form HTML (lines 1785-1950) was floating outside proper section structure
+### Lead View Page Display Issue - FIXED! (Second Attempt)
+- **Problem:** Lead view STILL showed blank page even after first fix
+- **Root Cause:** 416 lines of vendor/buyer/TCPA content were INSIDE the edit form div (display:none)
 - **Cumulative Learning Applied:** 
-  - Recognized pattern from previous "blank page but HTML renders" issues
-  - Found duplicate driver sections and orphaned form elements breaking page structure
-  - Applied fix: Properly closed edit form divs and removed duplicate sections
-- **Solution:** Restructured HTML to properly nest edit form inside Lead Details section
-- **Test Lead:** https://quotingfast-brain-ohio.onrender.com/agent/lead/481179 - NOW WORKING
-- **Commit:** "Fix lead view page structure - removed orphaned edit form and duplicate sections"
+  - When content is inside a `display:none` div, it can break page rendering
+  - Edit forms should ONLY contain form inputs, never display content
+  - Misplaced PHP code can cause silent failures that show as blank pages
+- **Solution:** 
+  1. Deleted lines 1351-1766 (misplaced vendor/TCPA content inside edit form)
+  2. Properly closed edit form div after form inputs
+  3. Re-added vendor/buyer and TCPA sections OUTSIDE the edit form
+- **Key Learning:** Content accidentally placed inside hidden divs causes blank pages!
+- **Test Lead:** https://quotingfast-brain-ohio.onrender.com/agent/lead/481179
+- **Commits:** 
+  - First attempt: "Fix lead view page structure - removed orphaned edit form"
+  - Second fix: "Fix lead view page - removed misplaced vendor/TCPA content from edit form div"

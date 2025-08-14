@@ -1542,9 +1542,6 @@
                 }
             }
         @endphp
-        </div>
-        @endif
-        </div>
         
         <!-- Combined Vendor, Buyer & Cost Information Section - Hidden in Edit Mode -->
         <div class="section vendor-buyer-section" style="background: linear-gradient(135deg, #f3e7fc 0%, #e9d5ff 100%); border: 2px solid #c084fc; border-radius: 12px; padding: 20px;">

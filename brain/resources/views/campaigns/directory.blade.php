@@ -531,8 +531,55 @@
                 .catch(error => {
                     alert('❌ Error updating campaign: ' + error.message);
                 });
+                        }
+        }
+        
+        function deleteCampaign(campaignId) {
+            if (!campaignId) {
+                alert('❌ Invalid campaign ID');
+                return;
+            }
+            
+            // Get campaign name for confirmation
+            const row = document.querySelector(`tr[data-campaign-id="${campaignId}"]`);
+            const campaignName = row ? row.querySelector('td:first-child').textContent.trim() : `Campaign #${campaignId}`;
+            
+            if (confirm(`⚠️ Are you sure you want to delete "${campaignName}"?\n\nThis action cannot be undone!`)) {
+                // Send delete request
+                fetch(`/admin/campaigns/${campaignId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('✅ Campaign deleted successfully!');
+                        // Remove the row from the table
+                        if (row) {
+                            row.remove();
+                        } else {
+                            // Reload the page if we can't find the row
+                            window.location.reload();
+                        }
+                    } else {
+                        alert('❌ Error: ' + (data.message || 'Failed to delete campaign'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('❌ Error deleting campaign: ' + error.message);
+                });
             }
         }
-    </script>
+   </script>
 </body>
 </html>
