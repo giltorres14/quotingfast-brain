@@ -1033,7 +1033,8 @@
                         $duiTimeframe = null;
                         
                         if (isset($lead->drivers)) {
-                            $drivers = is_string($lead->drivers) ? json_decode($lead->drivers, true) : $lead->drivers;
+                            // Handle both array and string formats (cumulative learning)
+                            $drivers = is_array($lead->drivers) ? $lead->drivers : json_decode($lead->drivers, true);
                             if (is_array($drivers) && !empty($drivers)) {
                                 $firstDriver = $drivers[0];
                                 
@@ -1061,7 +1062,8 @@
                         // Count vehicles
                         $vehicleCount = 0;
                         if (isset($lead->vehicles)) {
-                            $vehicles = is_string($lead->vehicles) ? json_decode($lead->vehicles, true) : $lead->vehicles;
+                            // Handle both array and string formats (cumulative learning)
+                            $vehicles = is_array($lead->vehicles) ? $lead->vehicles : json_decode($lead->vehicles, true);
                             if (is_array($vehicles)) {
                                 $vehicleCount = count($vehicles);
                             }
@@ -1936,14 +1938,23 @@
             // Only show drivers for Auto insurance leads
             $drivers = null;
             if ($lead->type === 'auto') {
-                if (isset($lead->payload) && is_string($lead->payload)) {
-                    $payload = json_decode($lead->payload, true);
-                    if (isset($payload['data']['drivers']) && is_array($payload['data']['drivers'])) {
-                        $drivers = $payload['data']['drivers'];
+                // Handle both array and JSON string formats (cumulative learning fix)
+                if (isset($lead->drivers)) {
+                    if (is_array($lead->drivers)) {
+                        $drivers = $lead->drivers;
+                    } elseif (is_string($lead->drivers)) {
+                        $drivers = json_decode($lead->drivers, true);
                     }
                 }
-                if (!$drivers && $lead->drivers && is_array($lead->drivers)) {
-                    $drivers = $lead->drivers;
+                
+                // Fallback to payload if no drivers
+                if (!$drivers && isset($lead->payload)) {
+                    $payload = is_array($lead->payload) ? $lead->payload : json_decode($lead->payload, true);
+                    if (isset($payload['drivers']) && is_array($payload['drivers'])) {
+                        $drivers = $payload['drivers'];
+                    } elseif (isset($payload['data']['drivers']) && is_array($payload['data']['drivers'])) {
+                        $drivers = $payload['data']['drivers'];
+                    }
                 }
             }
         @endphp
@@ -2162,22 +2173,23 @@
             $vehicles = null;
             $properties = null;
             
-            // Only get data for the appropriate lead type
-            if (isset($lead->payload) && is_string($lead->payload)) {
-                $payload = json_decode($lead->payload, true);
-                
-                if ($isAutoLead && isset($payload['data']['vehicles']) && is_array($payload['data']['vehicles'])) {
-                    $vehicles = $payload['data']['vehicles'];
-                }
-                
-                if ($isHomeLead && isset($payload['data']['properties']) && is_array($payload['data']['properties'])) {
-                    $properties = $payload['data']['properties'];
+            // Handle vehicles - both array and JSON string formats (cumulative learning fix)
+            if ($isAutoLead && isset($lead->vehicles)) {
+                if (is_array($lead->vehicles)) {
+                    $vehicles = $lead->vehicles;
+                } elseif (is_string($lead->vehicles)) {
+                    $vehicles = json_decode($lead->vehicles, true);
                 }
             }
             
-            // Fallback to lead fields only for the appropriate type
-            if ($isAutoLead && !$vehicles && $lead->vehicles && is_array($lead->vehicles)) {
-                $vehicles = $lead->vehicles;
+            // Fallback to payload if no vehicles
+            if ($isAutoLead && !$vehicles && isset($lead->payload)) {
+                $payload = is_array($lead->payload) ? $lead->payload : json_decode($lead->payload, true);
+                if (isset($payload['vehicles']) && is_array($payload['vehicles'])) {
+                    $vehicles = $payload['vehicles'];
+                } elseif (isset($payload['data']['vehicles']) && is_array($payload['data']['vehicles'])) {
+                    $vehicles = $payload['data']['vehicles'];
+                }
             }
             if ($isHomeLead && !$properties && $lead->properties && is_array($lead->properties)) {
                 $properties = $lead->properties;
