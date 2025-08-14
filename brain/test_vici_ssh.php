@@ -1,89 +1,51 @@
 <?php
-/**
- * Test SSH connection to Vici server
- */
 
-$viciHost = '37.27.138.222';
-$viciUser = 'root';
-$viciPass = 'Monster@2213@!';
+echo "Testing Vici SSH Connection on Port 11845\n";
+echo "==========================================\n\n";
 
-echo "Testing SSH connection to Vici server...\n";
-echo "Host: {$viciHost}\n";
-echo "User: {$viciUser}\n\n";
+// Test basic SSH connectivity
+echo "1. Testing SSH connectivity to 37.27.138.222:11845...\n";
+$testCommand = 'ssh -p 11845 -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@37.27.138.222 "echo CONNECTION_OK" 2>&1';
+$result = shell_exec($testCommand);
+echo "Result: " . ($result ?? "No response") . "\n\n";
 
-// Test basic connectivity
-echo "1. Testing network connectivity (ping)...\n";
-$ping = shell_exec("ping -c 1 -W 2 {$viciHost} 2>&1");
-if (strpos($ping, '1 packets transmitted, 1 received') !== false || strpos($ping, '1 received') !== false) {
-    echo "✅ Ping successful\n\n";
-} else {
-    echo "❌ Ping failed or timed out\n\n";
-}
-
-// Test SSH port
-echo "2. Testing SSH port 22...\n";
-$connection = @fsockopen($viciHost, 22, $errno, $errstr, 5);
-if ($connection) {
-    echo "✅ Port 22 is open\n\n";
-    fclose($connection);
-} else {
-    echo "❌ Port 22 is blocked: {$errstr} ({$errno})\n\n";
-}
-
-// Try SSH connection with sshpass
-echo "3. Testing SSH authentication...\n";
-$testCommand = sprintf(
-    'sshpass -p %s ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 %s@%s "echo SUCCESS; hostname; date" 2>&1',
-    escapeshellarg($viciPass),
-    escapeshellarg($viciUser),
-    escapeshellarg($viciHost)
-);
-
-$output = shell_exec($testCommand);
-echo "SSH Output:\n{$output}\n";
-
-if (strpos($output, 'SUCCESS') !== false) {
-    echo "✅ SSH connection successful!\n\n";
+// If you have sshpass installed, test with password
+echo "2. Testing with sshpass (if available)...\n";
+$sshpassCheck = shell_exec('which sshpass 2>&1');
+if (strpos($sshpassCheck, 'sshpass') !== false) {
+    echo "sshpass found at: " . trim($sshpassCheck) . "\n";
     
-    // Try to check if our export script exists
-    echo "4. Checking for export script on Vici...\n";
-    $checkScript = sprintf(
-        'sshpass -p %s ssh -o StrictHostKeyChecking=no %s@%s "ls -la /home/vici_export_script.sh 2>&1" 2>&1',
-        escapeshellarg($viciPass),
-        escapeshellarg($viciUser),
-        escapeshellarg($viciHost)
+    // Test MySQL query through SSH
+    echo "\n3. Testing MySQL query through SSH...\n";
+    $mysqlQuery = "SELECT COUNT(*) as total FROM vicidial_list WHERE list_id = 101";
+    $sshCommand = sprintf(
+        'sshpass -p %s ssh -p 11845 -o StrictHostKeyChecking=no root@37.27.138.222 "mysql -u cron -p1234 asterisk -e \"%s\"" 2>&1',
+        'Monster@2213@!',
+        $mysqlQuery
     );
-    $scriptCheck = shell_exec($checkScript);
-    echo "Script check:\n{$scriptCheck}\n";
     
-    if (strpos($scriptCheck, 'No such file') !== false) {
-        echo "Script not found. Uploading...\n";
-        
-        // Upload the script
-        $uploadCommand = sprintf(
-            'sshpass -p %s scp -o StrictHostKeyChecking=no vici_export_script.sh %s@%s:/home/vici_export_script.sh 2>&1',
-            escapeshellarg($viciPass),
-            escapeshellarg($viciUser),
-            escapeshellarg($viciHost)
-        );
-        $uploadResult = shell_exec($uploadCommand);
-        echo "Upload result: {$uploadResult}\n";
-        
-        // Make it executable
-        $chmodCommand = sprintf(
-            'sshpass -p %s ssh -o StrictHostKeyChecking=no %s@%s "chmod +x /home/vici_export_script.sh" 2>&1',
-            escapeshellarg($viciPass),
-            escapeshellarg($viciUser),
-            escapeshellarg($viciHost)
-        );
-        shell_exec($chmodCommand);
-        echo "✅ Script uploaded and made executable\n";
-    }
+    echo "Executing: Count leads in list 101...\n";
+    $result = shell_exec($sshCommand);
+    echo "Result: " . ($result ?? "No response") . "\n\n";
+    
+    // Search for specific phone
+    echo "4. Searching for phone 8064378907 in Vici...\n";
+    $searchQuery = "SELECT lead_id, phone_number, vendor_lead_code, list_id FROM vicidial_list WHERE phone_number LIKE '%8064378907%' LIMIT 5";
+    $searchCommand = sprintf(
+        'sshpass -p %s ssh -p 11845 -o StrictHostKeyChecking=no root@37.27.138.222 "mysql -u cron -p1234 asterisk -e \"%s\"" 2>&1',
+        'Monster@2213@!',
+        $searchQuery
+    );
+    
+    $result = shell_exec($searchCommand);
+    echo "Search Result:\n" . ($result ?? "No response") . "\n\n";
     
 } else {
-    echo "❌ SSH connection failed\n";
-    echo "This could mean:\n";
-    echo "- The IPs are not fully whitelisted yet\n";
-    echo "- Only certain IPs from the list are whitelisted\n";
-    echo "- Firewall rules haven't propagated yet\n";
+    echo "sshpass not found. Install with: brew install hudochenkov/sshpass/sshpass (Mac) or apt-get install sshpass (Linux)\n";
+    echo "Or run this script from the deployed Render environment where sshpass should be available.\n";
 }
+
+echo "\n5. Alternative: Use curl to test through Render proxy...\n";
+echo "curl https://quotingfast-brain-ohio.onrender.com/vici-proxy/test\n\n";
+
+echo "Done!\n";

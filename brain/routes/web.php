@@ -5,12 +5,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
 
-// Vici Proxy Routes (Always through Render's IP)
-Route::prefix('vici-proxy')->group(function () {
+// Vici Proxy Routes (Always through Render's IP) - NO CSRF
+Route::prefix('vici-proxy')->withoutMiddleware(['web'])->group(function () {
     Route::get('/test', 'App\Http\Controllers\ViciProxyController@testConnection');
-    Route::post('/execute', 'App\Http\Controllers\ViciProxyController@executeCommand');
-    Route::post('/call-logs', 'App\Http\Controllers\ViciProxyController@fetchCallLogs');
-    Route::post('/run-export', 'App\Http\Controllers\ViciProxyController@runExportScript');
+    Route::post('/execute', 'App\Http\Controllers\ViciProxyController@executeCommand')->withoutMiddleware(['web', 'csrf']);
+    Route::post('/call-logs', 'App\Http\Controllers\ViciProxyController@fetchCallLogs')->withoutMiddleware(['web', 'csrf']);
+    Route::post('/run-export', 'App\Http\Controllers\ViciProxyController@runExportScript')->withoutMiddleware(['web', 'csrf']);
 });
 use App\Models\LeadQueue;
 use App\Services\AllstateTestingService;
