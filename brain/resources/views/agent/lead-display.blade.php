@@ -1263,6 +1263,7 @@
             </div>
         </div>
         @endif
+        @endif
 
         <!-- Contact Information with Save Button -->
         <div class="section" style="position: relative;">
