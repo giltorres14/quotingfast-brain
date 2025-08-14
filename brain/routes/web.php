@@ -12,6 +12,9 @@ Route::prefix('vici-proxy')->withoutMiddleware(['web'])->group(function () {
     Route::post('/call-logs', 'App\Http\Controllers\ViciProxyController@fetchCallLogs')->withoutMiddleware(['web', 'csrf']);
     Route::post('/run-export', 'App\Http\Controllers\ViciProxyController@runExportScript')->withoutMiddleware(['web', 'csrf']);
 });
+
+// Vici Update Route
+Route::post('/vici-update/execute', 'App\Http\Controllers\ViciUpdateController@executeUpdate')->withoutMiddleware(['web', 'csrf']);
 use App\Models\LeadQueue;
 use App\Services\AllstateTestingService;
 
