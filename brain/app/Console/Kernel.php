@@ -21,8 +21,16 @@ class Kernel extends ConsoleKernel
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/vici_export.log'));
             
-        // You can also add other scheduled tasks here
-        // $schedule->command('vici:match-orphans')->hourly();
+        // Incremental Vici call log sync every 5 minutes with overlap protection
+        $schedule->command('vici:sync-incremental')
+            ->everyFiveMinutes()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/vici_sync.log'));
+            
+        // Reprocess orphan calls every 10 minutes
+        $schedule->command('vici:match-orphans')
+            ->everyTenMinutes()
+            ->withoutOverlapping();
     }
 
     /**
