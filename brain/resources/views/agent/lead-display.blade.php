@@ -1262,8 +1262,8 @@
                 </button>
             </div>
         </div>
-        @endif {{-- End @if(false) --}}
-        @endif {{-- End @if(!isset($mode) || $mode === 'agent' || $mode === 'edit') --}}
+        @endif {{-- End @if(false) which disables the qualification form --}}
+        @endif {{-- End outer condition that excludes view mode --}}
 
         <!-- Contact Information with Save Button -->
         <div class="section" style="position: relative;">
