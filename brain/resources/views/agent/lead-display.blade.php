@@ -1262,8 +1262,8 @@
                 </button>
             </div>
         </div>
-        @endif
-        @endif
+        @endif {{-- End @if(false) --}}
+        @endif {{-- End @if(!isset($mode) || $mode === 'agent' || $mode === 'edit') --}}
 
         <!-- Contact Information with Save Button -->
         <div class="section" style="position: relative;">
