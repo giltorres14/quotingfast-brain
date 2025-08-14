@@ -126,7 +126,8 @@ class ViciDialerService
             }
             
             Log::info('Vici Lead Push: Starting direct database insert', [
-                'lead_id' => $lead->id,
+                'brain_lead_id' => $lead->external_lead_id,
+                'internal_id' => $lead->id,
                 'lead_name' => $lead->name,
                 'campaign_id' => $campaignId,
                 'target_list' => '101'
@@ -198,6 +199,119 @@ class ViciDialerService
         }
     }
 
+    /**
+     * Update existing Vici lead with Brain Lead ID
+     */
+    public function updateViciLeadWithBrainId(Lead $lead): array
+    {
+        try {
+            // Ensure we have the 13-digit external_lead_id
+            $brainLeadId = $lead->external_lead_id;
+            if (empty($brainLeadId) || strlen($brainLeadId) !== 13) {
+                Log::warning('Lead missing 13-digit external_lead_id, generating one', [
+                    'lead_id' => $lead->id,
+                    'current_external_id' => $brainLeadId
+                ]);
+                $brainLeadId = Lead::generateExternalLeadId();
+                $lead->external_lead_id = $brainLeadId;
+                $lead->save();
+            }
+            
+            $connection = $this->getViciConnection();
+            
+            // First, try to find the lead in Vici by phone number
+            $findSql = "SELECT lead_id, vendor_lead_code, source_id, comments 
+                       FROM vicidial_list 
+                       WHERE phone_number = :phone 
+                       ORDER BY lead_id DESC 
+                       LIMIT 1";
+            
+            $stmt = $connection->prepare($findSql);
+            $stmt->execute(['phone' => $lead->phone]);
+            $viciLead = $stmt->fetch();
+            
+            if (!$viciLead) {
+                Log::warning('Lead not found in Vici for update', [
+                    'brain_lead_id' => $brainLeadId,
+                    'phone' => $lead->phone
+                ]);
+                return [
+                    'success' => false,
+                    'message' => 'Lead not found in Vici',
+                    'brain_lead_id' => $brainLeadId
+                ];
+            }
+            
+            // Update the Vici lead with Brain Lead ID
+            $updateSql = "UPDATE vicidial_list 
+                         SET vendor_lead_code = :vendor_code,
+                             source_id = :source_id,
+                             comments = :comments,
+                             modify_date = :modify_date
+                         WHERE lead_id = :vici_lead_id";
+            
+            $updateParams = [
+                'vendor_code' => $brainLeadId, // Store 13-digit Brain Lead ID
+                'source_id' => 'BRAIN_' . $brainLeadId,
+                'comments' => "Brain Lead ID: {$brainLeadId} | Updated: " . now()->format('Y-m-d H:i:s') . " | Original: " . ($viciLead['comments'] ?? ''),
+                'modify_date' => now()->format('Y-m-d H:i:s'),
+                'vici_lead_id' => $viciLead['lead_id']
+            ];
+            
+            $stmt = $connection->prepare($updateSql);
+            $result = $stmt->execute($updateParams);
+            
+            if ($result) {
+                // Update our ViciCallMetrics if it exists
+                $callMetrics = ViciCallMetrics::where('lead_id', $lead->id)->first();
+                if ($callMetrics) {
+                    $callMetrics->vici_lead_id = $viciLead['lead_id'];
+                    $callMetrics->save();
+                }
+                
+                Log::info('✅ Vici Lead Updated with Brain ID', [
+                    'brain_lead_id' => $brainLeadId,
+                    'vici_lead_id' => $viciLead['lead_id'],
+                    'phone' => $lead->phone,
+                    'old_vendor_code' => $viciLead['vendor_lead_code']
+                ]);
+                
+                return [
+                    'success' => true,
+                    'message' => 'Vici lead updated with Brain Lead ID',
+                    'brain_lead_id' => $brainLeadId,
+                    'vici_lead_id' => $viciLead['lead_id'],
+                    'old_vendor_code' => $viciLead['vendor_lead_code']
+                ];
+            } else {
+                Log::error('Failed to update Vici lead', [
+                    'brain_lead_id' => $brainLeadId,
+                    'vici_lead_id' => $viciLead['lead_id']
+                ]);
+                
+                return [
+                    'success' => false,
+                    'message' => 'Failed to update Vici lead',
+                    'brain_lead_id' => $brainLeadId,
+                    'vici_lead_id' => $viciLead['lead_id']
+                ];
+            }
+            
+        } catch (PDOException $e) {
+            Log::error('Vici Database Update Failed', [
+                'lead_id' => $lead->id,
+                'error' => $e->getMessage(),
+                'sql_state' => $e->getCode()
+            ]);
+            
+            return [
+                'success' => false,
+                'message' => 'Database error: ' . $e->getMessage(),
+                'brain_lead_id' => $lead->external_lead_id
+            ];
+        }
+    }
+    
     /**
      * Push lead directly to Vici database (fastest method)
      */
@@ -274,6 +388,18 @@ class ViciDialerService
      */
     private function formatLeadForViciDatabase(Lead $lead, string $campaignId = null): array
     {
+        // Ensure we have the 13-digit external_lead_id
+        $brainLeadId = $lead->external_lead_id;
+        if (empty($brainLeadId) || strlen($brainLeadId) !== 13) {
+            Log::warning('Lead missing 13-digit external_lead_id, generating one', [
+                'lead_id' => $lead->id,
+                'current_external_id' => $brainLeadId
+            ]);
+            $brainLeadId = Lead::generateExternalLeadId();
+            $lead->external_lead_id = $brainLeadId;
+            $lead->save();
+        }
+        
         return [
             'lead_id' => null, // Auto-increment
             'phone_number' => $lead->phone,
@@ -287,9 +413,9 @@ class ViciDialerService
             'status' => 'NEW',
             'entry_date' => now()->format('Y-m-d H:i:s'),
             'modify_date' => now()->format('Y-m-d H:i:s'),
-            'vendor_lead_code' => 'BRAIN_' . $lead->id,
-            'source_id' => 'BRAIN',
-            'comments' => "Lead from Brain System - ID: {$lead->id} - Source: {$lead->source}"
+            'vendor_lead_code' => $brainLeadId, // Use 13-digit Brain Lead ID
+            'source_id' => 'BRAIN_' . $brainLeadId, // Include Brain ID in source for clarity
+            'comments' => "Brain Lead ID: {$brainLeadId} | Internal ID: {$lead->id} | Source: {$lead->source}"
         ];
     }
 
@@ -299,6 +425,18 @@ class ViciDialerService
     private function pushLeadViaAPI(Lead $lead, string $campaignId = null): array
     {
         try {
+            // Ensure we have the 13-digit external_lead_id
+            $brainLeadId = $lead->external_lead_id;
+            if (empty($brainLeadId) || strlen($brainLeadId) !== 13) {
+                Log::warning('Lead missing 13-digit external_lead_id, generating one', [
+                    'lead_id' => $lead->id,
+                    'current_external_id' => $brainLeadId
+                ]);
+                $brainLeadId = Lead::generateExternalLeadId();
+                $lead->external_lead_id = $brainLeadId;
+                $lead->save();
+            }
+            
             // Format for Non-Agent API add_lead function
             // FIXED: Use correct apiuser credentials that were working on August 8th
             $params = [
@@ -316,9 +454,9 @@ class ViciDialerService
                 'city' => $lead->city ?? '',
                 'state' => $lead->state ?? '',
                 'postal_code' => $lead->zip_code ?? '',
-                'vendor_lead_code' => 'BRAIN_' . $lead->id,
-                'source_id' => 'BRAIN',
-                'comments' => "Lead from Brain System - ID: {$lead->id}"
+                'vendor_lead_code' => $brainLeadId, // Use 13-digit Brain Lead ID
+                'source_id' => 'BRAIN_' . $brainLeadId, // Include Brain ID in source for clarity
+                'comments' => "Brain Lead ID: {$brainLeadId} | Internal ID: {$lead->id} | Source: {$lead->source}"
             ];
 
             // Add email if available
