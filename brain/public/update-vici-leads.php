@@ -26,8 +26,8 @@ $sshHost = '37.27.138.222';
 $sshPort = 11845;
 $sshUser = 'root';
 $sshPass = 'Monster@2213@!';
-$mysqlUser = 'cron';
-$mysqlPass = '1234';
+$mysqlUser = 'Superman';
+$mysqlPass = '8ZDWGAAQRD';
 $mysqlDb = 'asterisk';
 
 // Function to execute MySQL query through SSH
@@ -35,7 +35,7 @@ function executeMysqlQuery($query) {
     global $sshHost, $sshPort, $sshUser, $sshPass, $mysqlUser, $mysqlPass, $mysqlDb;
     
     $mysqlCommand = sprintf(
-        'mysql -u %s -p%s %s -e %s 2>&1',
+        'mysql -h localhost -u %s -p%s %s -e %s 2>&1',
         escapeshellarg($mysqlUser),
         escapeshellarg($mysqlPass),
         escapeshellarg($mysqlDb),
