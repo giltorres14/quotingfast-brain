@@ -967,7 +967,7 @@
                 document.querySelector(".agent-message-container").style.display = "block";
             }
         </script>
-
+        
         <!-- Ringba Qualification Form -->
         @if(!isset($mode) || $mode === 'agent' || $mode === 'edit')
         <!-- Lead Qualification section removed per request -->
@@ -4329,5 +4329,8 @@
             }
         });
     </script>
+    
+    </div> <!-- End content-wrapper -->
+    </div> <!-- End container -->
 </body>
 </html>
