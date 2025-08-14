@@ -10,6 +10,7 @@ class ViciProxyController extends Controller
     private $viciHost = '37.27.138.222';
     private $viciUser = 'root';
     private $viciPass = 'Monster@2213@!';
+    private $viciSshPort = 11845; // Custom SSH port - NOT DEFAULT 22!
     
     /**
      * Execute commands on Vici server through Render (acts as proxy)
@@ -28,7 +29,7 @@ class ViciProxyController extends Controller
         try {
             // Method 1: Using SSH2 extension (if available)
             if (function_exists('ssh2_connect')) {
-                $connection = ssh2_connect($this->viciHost, 22);
+                $connection = ssh2_connect($this->viciHost, $this->viciSshPort);
                 
                 if (ssh2_auth_password($connection, $this->viciUser, $this->viciPass)) {
                     $stream = ssh2_exec($connection, $command);
@@ -47,8 +48,9 @@ class ViciProxyController extends Controller
             
             // Method 2: Using SSH command with sshpass
             $sshCommand = sprintf(
-                'sshpass -p %s ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 %s@%s %s 2>&1',
+                'sshpass -p %s ssh -p %d -o StrictHostKeyChecking=no -o ConnectTimeout=10 %s@%s %s 2>&1',
                 escapeshellarg($this->viciPass),
+                $this->viciSshPort,
                 escapeshellarg($this->viciUser),
                 escapeshellarg($this->viciHost),
                 escapeshellarg($command)
@@ -59,7 +61,7 @@ class ViciProxyController extends Controller
             if ($output === null) {
                 // Method 3: Using expect script
                 $expectScript = $this->createExpectScript($command);
-                $output = shell_exec("expect -c '$expectScript' 2>&1");
+                $output = shell_exec($expectScript);
             }
             
             return response()->json([
@@ -70,81 +72,79 @@ class ViciProxyController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            Log::error('Vici proxy error', [
+            Log::error('Vici proxy execution failed', [
                 'error' => $e->getMessage(),
                 'command' => $command
             ]);
             
             return response()->json([
                 'success' => false,
-                'error' => $e->getMessage(),
-                'render_ip' => trim(file_get_contents('https://api.ipify.org'))
+                'error' => $e->getMessage()
             ], 500);
         }
     }
     
     /**
-     * Test connection to Vici through Render
+     * Test connection to Vici server
      */
-    public function testConnection()
+    public function testConnection(Request $request)
     {
-        $renderIP = trim(file_get_contents('https://api.ipify.org'));
+        $renderIp = trim(file_get_contents('https://api.ipify.org'));
         
-        // Test if we can reach the Vici server
-        $connection = @fsockopen($this->viciHost, 22, $errno, $errstr, 5);
-        $sshReachable = $connection ? true : false;
-        if ($connection) fclose($connection);
+        // Test SSH port connectivity on port 11845
+        $sshPort = @fsockopen($this->viciHost, $this->viciSshPort, $errno, $errstr, 5);
+        $sshStatus = $sshPort ? 'open' : 'blocked';
+        if ($sshPort) fclose($sshPort);
         
-        $connection = @fsockopen($this->viciHost, 80, $errno, $errstr, 5);
-        $httpReachable = $connection ? true : false;
-        if ($connection) fclose($connection);
+        // Test HTTP port (80)
+        $httpPort = @fsockopen($this->viciHost, 80, $errno, $errstr, 5);
+        $httpStatus = $httpPort ? 'open' : 'blocked';
+        if ($httpPort) fclose($httpPort);
         
-        // Try actual SSH connection
-        $sshTest = "Not tested";
-        if (function_exists('shell_exec')) {
+        // Try to test SSH connection if port is open
+        $sshTestDetail = 'Not tested';
+        if ($sshStatus === 'open' && function_exists('shell_exec')) {
             $testCmd = sprintf(
-                'timeout 5 ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -o PasswordAuthentication=no %s@%s exit 2>&1',
+                'timeout 5 ssh -p %d -o StrictHostKeyChecking=no -o ConnectTimeout=5 -o PasswordAuthentication=no %s@%s exit 2>&1',
+                $this->viciSshPort,
                 $this->viciUser,
                 $this->viciHost
             );
-            $sshOutput = shell_exec($testCmd);
-            if (strpos($sshOutput, 'Permission denied') !== false) {
-                $sshTest = "SSH reachable (auth required)";
-                $sshReachable = true;
-            } else if (strpos($sshOutput, 'Connection refused') !== false) {
-                $sshTest = "Connection refused";
-            } else if (strpos($sshOutput, 'Connection timed out') !== false) {
-                $sshTest = "Connection timed out";
-            } else if (strpos($sshOutput, 'No route to host') !== false) {
-                $sshTest = "No route to host";
+            $sshTest = shell_exec($testCmd);
+            if (strpos($sshTest, 'Permission denied') !== false) {
+                $sshTestDetail = 'SSH reachable (auth required)';
+            } elseif (strpos($sshTest, 'Connection refused') !== false) {
+                $sshTestDetail = 'Port blocked or service down';
+            } else {
+                $sshTestDetail = substr($sshTest, 0, 100);
             }
         }
         
         return response()->json([
-            'render_ip' => $renderIP,
+            'render_ip' => $renderIp,
             'vici_host' => $this->viciHost,
-            'ssh_port_22' => $sshReachable ? 'reachable' : 'blocked',
-            'ssh_test_detail' => $sshTest,
-            'http_port_80' => $httpReachable ? 'reachable' : 'blocked',
-            'message' => !$sshReachable ? 
-                "Whitelist this IP on Vici server: $renderIP" : 
-                "Connection test successful - ready to sync!",
+            'ssh_port_' . $this->viciSshPort => $sshStatus,
+            'ssh_test_detail' => $sshTestDetail,
+            'http_port_80' => $httpStatus,
+            'message' => $sshStatus === 'open' 
+                ? 'SSH port ' . $this->viciSshPort . ' is open - ready to connect!' 
+                : 'Whitelist this IP on Vici server: ' . $renderIp,
             'whitelist_commands' => [
-                'iptables' => "iptables -I INPUT -s $renderIP -j ACCEPT",
-                'hosts.allow' => "echo 'sshd: $renderIP' >> /etc/hosts.allow",
-                'firewalld' => "firewall-cmd --permanent --add-source=$renderIP"
+                'iptables' => 'iptables -I INPUT -s ' . $renderIp . ' -j ACCEPT',
+                'hosts.allow' => 'echo \'sshd: ' . $renderIp . '\' >> /etc/hosts.allow',
+                'firewalld' => 'firewall-cmd --permanent --add-source=' . $renderIp
             ],
-            'timestamp' => now()->toIso8601String()
+            'timestamp' => now()
         ]);
     }
     
     /**
-     * Create expect script for SSH automation
+     * Create expect script for SSH connection
      */
     private function createExpectScript($command)
     {
         return sprintf('
-            spawn ssh -o StrictHostKeyChecking=no %s@%s
+            spawn ssh -p %d -o StrictHostKeyChecking=no %s@%s
             expect "password:"
             send "%s\r"
             expect "$ "
@@ -152,30 +152,36 @@ class ViciProxyController extends Controller
             expect "$ "
             send "exit\r"
             expect eof
-        ', $this->viciUser, $this->viciHost, $this->viciPass, $command);
+        ',
+            $this->viciSshPort,
+            $this->viciUser,
+            $this->viciHost,
+            $this->viciPass,
+            $command
+        );
     }
     
     /**
-     * Fetch Vici call logs through Render proxy
+     * Fetch call logs from Vici
      */
     public function fetchCallLogs(Request $request)
     {
-        $dateFrom = $request->input('from', date('Y-m-d'));
-        $dateTo = $request->input('to', date('Y-m-d'));
+        $startDate = $request->input('start_date', date('Y-m-d', strtotime('-7 days')));
+        $endDate = $request->input('end_date', date('Y-m-d'));
         
-        // Your custom Vici query command here
-        $command = "mysql -u cron -p1234 asterisk -e \"
-            SELECT * FROM vicidial_log 
-            WHERE call_date >= '$dateFrom 00:00:00' 
-            AND call_date <= '$dateTo 23:59:59'
-            LIMIT 100
-        \"";
+        $command = sprintf(
+            'mysql -u %s -p%s asterisk -e "SELECT * FROM vicidial_log WHERE call_date BETWEEN \'%s 00:00:00\' AND \'%s 23:59:59\' LIMIT 100" --batch',
+            'cron',
+            '1234',
+            $startDate,
+            $endDate
+        );
         
-        return $this->executeCommand($request->merge(['command' => $command]));
+        return $this->executeCommand(new Request(['command' => $command]));
     }
     
     /**
-     * Run the Vici export script and process the CSV
+     * Run the Vici export script
      */
     public function runExportScript(Request $request)
     {
@@ -185,9 +191,10 @@ class ViciProxyController extends Controller
             // First, upload the export script to Vici server
             $scriptContent = file_get_contents(base_path('vici_export_script.sh'));
             $uploadCommand = sprintf(
-                'echo %s | sshpass -p %s ssh -o StrictHostKeyChecking=no %s@%s "cat > /tmp/vici_export.sh && chmod +x /tmp/vici_export.sh"',
+                'echo %s | sshpass -p %s ssh -p %d -o StrictHostKeyChecking=no %s@%s "cat > /tmp/vici_export.sh && chmod +x /tmp/vici_export.sh"',
                 escapeshellarg($scriptContent),
                 escapeshellarg($this->viciPass),
+                $this->viciSshPort,
                 escapeshellarg($this->viciUser),
                 escapeshellarg($this->viciHost)
             );
@@ -196,8 +203,9 @@ class ViciProxyController extends Controller
             
             // Run the export script
             $runCommand = sprintf(
-                'sshpass -p %s ssh -o StrictHostKeyChecking=no %s@%s "bash /tmp/vici_export.sh %s"',
+                'sshpass -p %s ssh -p %d -o StrictHostKeyChecking=no %s@%s "bash /tmp/vici_export.sh %s"',
                 escapeshellarg($this->viciPass),
+                $this->viciSshPort,
                 escapeshellarg($this->viciUser),
                 escapeshellarg($this->viciHost),
                 escapeshellarg($dbName)
@@ -211,15 +219,16 @@ class ViciProxyController extends Controller
                 $filename = basename($remoteFile);
                 $localPath = storage_path("app/vici_logs/{$filename}");
                 
-                // Ensure directory exists
+                // Create directory if it doesn't exist
                 if (!file_exists(dirname($localPath))) {
                     mkdir(dirname($localPath), 0755, true);
                 }
                 
-                // Download the CSV file
+                // Download the CSV file (note: scp uses -P for port, not -p)
                 $downloadCommand = sprintf(
-                    'sshpass -p %s scp -o StrictHostKeyChecking=no %s@%s:%s %s',
+                    'sshpass -p %s scp -P %d -o StrictHostKeyChecking=no %s@%s:%s %s',
                     escapeshellarg($this->viciPass),
+                    $this->viciSshPort,
                     escapeshellarg($this->viciUser),
                     escapeshellarg($this->viciHost),
                     escapeshellarg($remoteFile),
@@ -230,20 +239,19 @@ class ViciProxyController extends Controller
                 
                 if (file_exists($localPath)) {
                     // Process the CSV using our artisan command
-                    \Artisan::call('vici:process-csv', [
-                        'file' => $localPath
-                    ]);
-                    
+                    \Artisan::call('vici:process-csv', ['file' => $localPath]);
                     $artisanOutput = \Artisan::output();
                     
                     // Clean up remote file
                     $cleanupCommand = sprintf(
-                        'sshpass -p %s ssh -o StrictHostKeyChecking=no %s@%s "rm -f %s"',
+                        'sshpass -p %s ssh -p %d -o StrictHostKeyChecking=no %s@%s "rm -f %s"',
                         escapeshellarg($this->viciPass),
+                        $this->viciSshPort,
                         escapeshellarg($this->viciUser),
                         escapeshellarg($this->viciHost),
                         escapeshellarg($remoteFile)
                     );
+                    
                     shell_exec($cleanupCommand);
                     
                     return response()->json([
