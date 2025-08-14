@@ -5799,6 +5799,16 @@ Route::get('/admin/vici-reports', function () {
     ));
 })->name('admin.vici-reports');
 
+// Comprehensive Vici Reports with 12 Different Report Types
+Route::get('/admin/vici-comprehensive-reports', 'App\Http\Controllers\ViciReportsController@comprehensiveReports')
+    ->name('admin.vici.comprehensive-reports');
+Route::get('/admin/vici-reports/export/{type}', 'App\Http\Controllers\ViciReportsController@exportReports')
+    ->name('admin.vici.export-reports');
+Route::get('/admin/vici-reports/real-time', 'App\Http\Controllers\ViciReportsController@realTimeData')
+    ->name('admin.vici.real-time');
+Route::get('/admin/vici-reports/lead-journey/{leadId}', 'App\Http\Controllers\ViciReportsController@leadJourney')
+    ->name('admin.vici.lead-journey');
+
 // Process orphan calls endpoint
 Route::post('/admin/vici/process-orphans', function () {
     try {
