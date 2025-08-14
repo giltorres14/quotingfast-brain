@@ -1499,7 +1499,115 @@
                 🏢 Vendor, Buyer & Cost Information
             </div>
             <div class="info-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                <!-- This section's content will be added from the vendor section that was in the wrong place -->
+                @php
+                    // Handle vendor/buyer payload data
+                    $vendorPayload = $lead->payload;
+                    if (is_string($vendorPayload)) {
+                        $vendorPayload = json_decode($vendorPayload, true);
+                    }
+                @endphp
+                
+                <!-- Lead IDs -->
+                <div class="info-item">
+                    <div class="info-label">Jangle Lead ID</div>
+                    <div class="info-value">
+                        @php
+                            $jangleId = $lead->jangle_lead_id;
+                            if (!$jangleId && isset($vendorPayload['id'])) {
+                                $jangleId = $vendorPayload['id'];
+                            }
+                            if ($jangleId && is_numeric($jangleId)) {
+                                $jangleId = rtrim(rtrim(number_format($jangleId, 10, '.', ''), '0'), '.');
+                            }
+                        @endphp
+                        <strong style="color: #9333ea;">{{ $jangleId ?: 'Not provided' }}</strong>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">LeadID Code</div>
+                    <div class="info-value">
+                        @if($lead->leadid_code)
+                            <span style="font-family: monospace; font-size: 12px;">{{ $lead->leadid_code }}</span>
+                            <button class="copy-btn" onclick="copyToClipboard('{{ $lead->leadid_code }}', this)" style="margin-left: 10px; padding: 2px 8px; background: #22c55e; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                📋 Copy
+                            </button>
+                        @else
+                            Not provided
+                        @endif
+                    </div>
+                </div>
+                
+                <!-- Vendor Information -->
+                <div class="info-item">
+                    <div class="info-label">Vendor Name</div>
+                    <div class="info-value">{{ $lead->vendor_name ?: 'Not provided' }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Vendor ID</div>
+                    <div class="info-value">
+                        @php
+                            $vendorId = $lead->vendor_id ?? ($vendorPayload['vendor_id'] ?? null);
+                            if ($vendorId && is_numeric($vendorId)) {
+                                $vendorId = rtrim(rtrim(number_format($vendorId, 10, '.', ''), '0'), '.');
+                            }
+                        @endphp
+                        {{ $vendorId ?: 'Not provided' }}
+                    </div>
+                </div>
+                
+                <!-- Buyer Information -->
+                <div class="info-item">
+                    <div class="info-label">Buyer Name</div>
+                    <div class="info-value">{{ $lead->buyer_name ?: 'Not provided' }}</div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Campaign ID</div>
+                    <div class="info-value">
+                        @php
+                            $campaignId = $lead->campaign_id;
+                            if ($campaignId && is_numeric($campaignId)) {
+                                $campaignId = rtrim(rtrim(number_format($campaignId, 10, '.', ''), '0'), '.');
+                            }
+                        @endphp
+                        <strong>{{ $campaignId ?: 'Not provided' }}</strong>
+                    </div>
+                </div>
+                
+                <!-- Cost Information -->
+                <div class="info-item">
+                    <div class="info-label">Lead Cost</div>
+                    <div class="info-value">
+                        @if(isset($lead->sell_price) && $lead->sell_price)
+                            <div><strong style="color: #059669;">Sell: ${{ number_format($lead->sell_price, 2) }}</strong></div>
+                        @endif
+                        @php
+                            $meta = is_string($lead->meta) ? json_decode($lead->meta ?? '{}', true) : ($lead->meta ?? []);
+                            $buyPrice = $meta['buy_price'] ?? $vendorPayload['buy_price'] ?? null;
+                        @endphp
+                        @if($buyPrice)
+                            <div><strong style="color: #dc2626;">Buy: ${{ number_format((float)$buyPrice, 2) }}</strong></div>
+                        @endif
+                        @if(!isset($lead->sell_price) && !$buyPrice)
+                            Not provided
+                        @endif
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="info-label">Lead Type</div>
+                    <div class="info-value">
+                        @if($lead->type)
+                            <span style="padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600; background: {{ $lead->type === 'auto' ? '#dbeafe' : '#fef3c7' }}; color: {{ $lead->type === 'auto' ? '#1e40af' : '#d97706' }};">
+                                {{ ucfirst($lead->type) }} Insurance
+                            </span>
+                        @else
+                            Not provided
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1510,7 +1618,81 @@
                 🛡️ TCPA Compliance & Consent Information
             </div>
             <div class="info-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                <!-- This section's content will be added -->
+                <!-- TCPA Compliance Status -->
+                <div class="info-item">
+                    <div class="info-label">TCPA Compliant</div>
+                    <div class="info-value">
+                        @php
+                            $tcpaCompliant = false;
+                            if ($lead->source === 'SURAJ_BULK' || $lead->source === 'SURAJ') {
+                                $tcpaCompliant = true;
+                            } elseif (isset($lead->tcpa_compliant)) {
+                                $tcpaCompliant = $lead->tcpa_compliant;
+                            }
+                            if (is_string($tcpaCompliant)) {
+                                $tcpaCompliant = in_array(strtolower($tcpaCompliant), ['true', '1', 'yes', 'on']);
+                            }
+                        @endphp
+                        @if($tcpaCompliant)
+                            <span style="color: #28a745; font-weight: bold;">✅ YES</span>
+                        @else
+                            <span style="color: #dc3545; font-weight: bold;">❌ NO</span>
+                        @endif
+                    </div>
+                </div>
+                
+                <!-- Opt-In Date -->
+                <div class="info-item">
+                    <div class="info-label">Opt-In Date</div>
+                    <div class="info-value">
+                        @php
+                            $optInDate = null;
+                            if (isset($lead->opt_in_date) && $lead->opt_in_date) {
+                                try {
+                                    $optInDate = \Carbon\Carbon::parse($lead->opt_in_date)->format('m/d/Y g:i A');
+                                } catch (\Exception $e) {
+                                    $optInDate = $lead->opt_in_date;
+                                }
+                            } elseif ($lead->created_at) {
+                                $optInDate = \Carbon\Carbon::parse($lead->created_at)->format('m/d/Y g:i A');
+                            }
+                        @endphp
+                        {{ $optInDate ?: 'Not provided' }}
+                    </div>
+                </div>
+                
+                <!-- IP Address -->
+                <div class="info-item">
+                    <div class="info-label">IP Address</div>
+                    <div class="info-value">
+                        {{ $lead->ip_address ?: 'Not provided' }}
+                        @if($lead->ip_address)
+                            <button class="copy-btn" onclick="copyToClipboard('{{ $lead->ip_address }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                        @endif
+                    </div>
+                </div>
+                
+                <!-- TrustedForm Certificate -->
+                @if($lead->trusted_form_cert)
+                <div class="info-item">
+                    <div class="info-label">TrustedForm Certificate</div>
+                    <div class="info-value">
+                        <span style="color: #28a745;">✓ Certificate available</span>
+                        <button class="copy-btn" onclick="copyToClipboard('{{ $lead->trusted_form_cert }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                    </div>
+                </div>
+                @endif
+                
+                <!-- Landing Page URL -->
+                @if($lead->landing_page_url)
+                <div class="info-item">
+                    <div class="info-label">Landing Page URL</div>
+                    <div class="info-value">
+                        <a href="{{ $lead->landing_page_url }}" target="_blank" style="color: #3b82f6; text-decoration: none;">{{ parse_url($lead->landing_page_url, PHP_URL_HOST) ?: $lead->landing_page_url }}</a>
+                        <button class="copy-btn" onclick="copyToClipboard('{{ $lead->landing_page_url }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
         @endif

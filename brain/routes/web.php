@@ -4918,6 +4918,36 @@ Route::post('/admin/campaigns/{id}/update', function ($id) {
     }
 });
 
+// Delete Campaign
+Route::delete('/admin/campaigns/{id}', function ($id) {
+    try {
+        $campaign = \App\Models\Campaign::findOrFail($id);
+        
+        // Check if there are leads associated with this campaign
+        $leadCount = \App\Models\Lead::where('campaign_id', $id)->count();
+        
+        if ($leadCount > 0) {
+            return response()->json([
+                'success' => false, 
+                'message' => "Cannot delete campaign. It has {$leadCount} associated leads."
+            ], 400);
+        }
+        
+        // Delete the campaign
+        $campaign->delete();
+        
+        return response()->json([
+            'success' => true, 
+            'message' => 'Campaign deleted successfully'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false, 
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
 // Admin Source Management
 Route::post('/api/sources', function () {
     try {
