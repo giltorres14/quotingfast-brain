@@ -2441,8 +2441,7 @@
                 </div>
                 @endif
             </div>
-                </div>
-        @endif
+        </div>
         @endif
 
         </div>
