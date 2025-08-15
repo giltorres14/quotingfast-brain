@@ -5974,7 +5974,8 @@ Route::delete('/admin/delete-buyer/{buyerId}', function ($buyerId) {
 });
 
 // Sample data generation functions
-function generateSampleLeads($buyerId, $accountType = 'demo') {
+if (!function_exists('generateSampleLeads')) {
+    function generateSampleLeads($buyerId, $accountType = 'demo') {
     $leadCount = $accountType === 'demo' ? 25 : ($accountType === 'realistic' ? 15 : 5);
     
     $sampleLeads = [
@@ -6112,6 +6113,7 @@ function generateSampleOutcomes($buyerId) {
         ]);
     }
 }
+} // End of if (!function_exists('generateSampleLeads'))
 
 // Manually update lead type (GET for easy testing)
 Route::get('/admin/lead/{leadId}/update-type/{type}', function ($leadId, $type) {
