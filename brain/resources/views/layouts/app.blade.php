@@ -302,7 +302,7 @@
     <nav class="top-nav">
         <div class="top-nav-container">
             <div class="logo">
-                <img src="/quotingfast-logo.png" alt="QuotingFast">
+                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" style="height: 40px; width: auto;">
                 <span class="logo-text">The Brain</span>
             </div>
             
