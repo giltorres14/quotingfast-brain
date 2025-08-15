@@ -1,24 +1,6 @@
-@extends('layouts.app-new')
+@extends('layouts.app')
 
-@section('title', 'SMS Dashboard - QuotingFast Brain')
-
-@section('subnav')
-    <a href="/sms" class="sub-nav-item active">Dashboard</a>
-    <a href="/sms/campaigns" class="sub-nav-item">Campaigns</a>
-    <a href="/sms/templates" class="sub-nav-item">Templates</a>
-    <a href="/sms/analytics" class="sub-nav-item">Analytics</a>
-@endsection
-
-@section('page-header')
-    <h1 class="page-title">SMS Management Dashboard</h1>
-    <div class="breadcrumbs">
-        <span>Home</span>
-        <span class="breadcrumb-separator">›</span>
-        <span>SMS</span>
-        <span class="breadcrumb-separator">›</span>
-        <span>Dashboard</span>
-    </div>
-@endsection
+@section('title', 'SMS Dashboard')
 
 @section('content')
     <div class="card">

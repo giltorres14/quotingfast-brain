@@ -377,18 +377,19 @@
             
             <div class="lead-meta">
                 <div>📞 {{ $lead->phone ?? 'No phone' }}</div>
-                <div>📧 {{ $lead->email ?? 'No email' }}</div>
                 <div>📍 {{ $lead->city ?? '' }}{{ $lead->city && $lead->state ? ', ' : '' }}{{ $lead->state ?? '' }} {{ $lead->zip_code ?? '' }}</div>
-                @if($lead->sent_to_vici)
-                    <div style="color: #10b981;">✅ Sent to Vici</div>
+                @if($lead->vici_list_id)
+                    <div style="color: #10b981;">✅ In Vici (List {{ $lead->vici_list_id }})</div>
+                @else
+                    <div style="color: #f59e0b;">⏳ Not in Dialer</div>
                 @endif
             </div>
             
             <div class="lead-actions">
-                <a href="/agent/lead-display/{{ $lead->id }}" class="btn btn-primary">👁️ View</a>
-                <a href="/agent/lead-display/{{ $lead->id }}?mode=edit" class="btn btn-secondary">✏️ Edit</a>
+                <a href="/agent/lead/{{ $lead->id }}" class="btn btn-primary">👁️ View</a>
+                <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-secondary">✏️ Edit</a>
                 @if(isset($lead->payload) && $lead->payload)
-                    <button class="btn btn-secondary" onclick="alert('Payload feature coming soon')">💾 Payload</button>
+                    <button class="btn btn-secondary" onclick='showPayload({{ json_encode($lead->payload) }})'>💾 Payload</button>
                 @endif
             </div>
         </div>
@@ -414,6 +415,22 @@
         // In production, this would fetch updated stats via AJAX
         console.log('Stats refresh triggered');
     }, 30000);
+    
+    // Show payload in modal
+    function showPayload(payload) {
+        const formatted = JSON.stringify(payload, null, 2);
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999';
+        modal.innerHTML = `
+            <div style="background:white;padding:2rem;border-radius:8px;max-width:800px;max-height:80vh;overflow:auto;position:relative">
+                <h2 style="margin-bottom:1rem">Lead Payload</h2>
+                <button onclick="this.closest('div').parentElement.remove()" style="position:absolute;top:1rem;right:1rem;background:#ef4444;color:white;border:none;padding:0.5rem 1rem;border-radius:4px;cursor:pointer">✕ Close</button>
+                <pre style="background:#f3f4f6;padding:1rem;border-radius:4px;overflow:auto">${formatted}</pre>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.onclick = function(e) { if(e.target === modal) modal.remove(); };
+    }
 </script>
 @endsection
 

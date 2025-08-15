@@ -235,7 +235,7 @@
 
 @section('content')
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-        <h1 style="font-size: 2rem; font-weight: 700; color: #1f2937; margin: 0;">🛡️ Lead Queue Monitor</h1>
+        <h1 style="font-size: 2rem; font-weight: 700; color: #1f2937; margin: 0;">🛡️ Stuck in Queue</h1>
         <div style="display: flex; gap: 0.5rem;">
             <button onclick="location.reload()" class="btn btn-secondary" title="Refresh">🔄 Refresh</button>
             <a href="/admin/lead-queue/process" class="btn btn-primary">▶️ Process Queue</a>

@@ -321,7 +321,7 @@
     <div class="sub-nav active">
         <div class="sub-nav-container">
             <a href="/leads" class="sub-nav-item {{ request()->is('leads') ? 'active' : '' }}">Dashboard</a>
-            <a href="/admin/lead-queue-monitor" class="sub-nav-item {{ request()->is('admin/lead-queue-monitor') ? 'active' : '' }}">Lead Queue</a>
+            <a href="/admin/lead-queue-monitor" class="sub-nav-item {{ request()->is('admin/lead-queue-monitor') ? 'active' : '' }}">Stuck in Queue</a>
             <a href="/leads/import" class="sub-nav-item {{ request()->is('leads/import') ? 'active' : '' }}">Import</a>
             <a href="/admin/vendor-management" class="sub-nav-item {{ request()->is('admin/vendor-management') ? 'active' : '' }}">Sources/Vendors</a>
             <a href="/campaigns/directory" class="sub-nav-item {{ request()->is('campaigns/directory') ? 'active' : '' }}">Campaigns</a>
