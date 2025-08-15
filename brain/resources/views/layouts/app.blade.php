@@ -22,7 +22,7 @@
         
         /* Top Navigation Bar */
         .top-nav {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
@@ -133,7 +133,7 @@
         }
         
         .sub-nav-item.active {
-            background: #667eea;
+            background: #4A90E2;
             color: white;
         }
         
@@ -175,12 +175,12 @@
         }
         
         .btn-primary {
-            background: #667eea;
+            background: #4A90E2;
             color: white;
         }
         
         .btn-primary:hover {
-            background: #5a67d8;
+            background: #357ABD;
         }
         
         .btn-secondary {
@@ -210,7 +210,7 @@
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
-            color: #667eea;
+            color: #4A90E2;
         }
         
         .stat-label {
