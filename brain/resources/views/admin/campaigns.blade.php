@@ -1,7 +1,6 @@
-@extends('layouts.management')
+@extends('layouts.app')
 
 @section('title', 'Campaign Management')
-@section('page-title', '📊 Campaign Management')
 
 @section('styles')
 <style>
@@ -201,11 +200,9 @@
 </style>
 @endsection
 
-@section('nav-actions')
-<button onclick="location.reload()" class="nav-link" title="Refresh">🔄 Refresh</button>
-@endsection
-
 @section('content')
+    <h1 style="font-size: 2rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem;">📊 Campaign Management</h1>
+    
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}

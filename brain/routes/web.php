@@ -5108,18 +5108,34 @@ Route::get('/admin/vendor-management', function () {
     return view('admin.vendor-management', compact('vendors', 'stats'));
 });
 
+// Campaigns Directory
+Route::get('/campaigns/directory', function () {
+    $campaigns = \App\Models\Campaign::orderBy('created_at', 'desc')->get();
+    
+    $stats = [
+        'total_campaigns' => \App\Models\Campaign::count(),
+        'active_campaigns' => \App\Models\Campaign::where('status', 'active')->count(),
+        'total_leads' => \App\Models\Lead::whereNotNull('campaign_id')->count(),
+        'today_leads' => \App\Models\Lead::whereNotNull('campaign_id')
+            ->whereDate('created_at', today())
+            ->count()
+    ];
+    
+    return view('admin.campaigns', compact('campaigns', 'stats'));
+});
+
 // Lead Queue Monitor
 Route::get('/admin/lead-queue-monitor', function () {
     $stats = [
-        'pending' => \App\Models\Lead::whereNull('sent_to_vici')->count(),
+        'pending' => \App\Models\Lead::whereNull('vici_list_id')->count(),
         'processing' => 0, // Placeholder for leads currently being processed
-        'completed' => \App\Models\Lead::whereNotNull('sent_to_vici')
+        'completed' => \App\Models\Lead::whereNotNull('vici_list_id')
             ->whereDate('created_at', today())
             ->count(),
         'failed' => 0 // Placeholder for failed leads
     ];
     
-    $queueItems = \App\Models\Lead::whereNull('sent_to_vici')
+    $queueItems = \App\Models\Lead::whereNull('vici_list_id')
         ->orderBy('created_at', 'desc')
         ->limit(50)
         ->get()
