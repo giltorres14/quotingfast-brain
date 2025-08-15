@@ -5111,18 +5111,36 @@ Route::get('/admin/vendor-management', function () {
 // Lead Queue Monitor
 Route::get('/admin/lead-queue-monitor', function () {
     $stats = [
-        'total_queue' => \App\Models\Lead::whereNull('sent_to_vici')->count(),
-        'today_queue' => \App\Models\Lead::whereNull('sent_to_vici')->whereDate('created_at', today())->count(),
-        'processing' => 0, // Placeholder
-        'failed' => 0 // Placeholder
+        'pending' => \App\Models\Lead::whereNull('sent_to_vici')->count(),
+        'processing' => 0, // Placeholder for leads currently being processed
+        'completed' => \App\Models\Lead::whereNotNull('sent_to_vici')
+            ->whereDate('created_at', today())
+            ->count(),
+        'failed' => 0 // Placeholder for failed leads
     ];
     
-    $recentLeads = \App\Models\Lead::whereNull('sent_to_vici')
+    $queueItems = \App\Models\Lead::whereNull('sent_to_vici')
         ->orderBy('created_at', 'desc')
         ->limit(50)
-        ->get();
+        ->get()
+        ->map(function($lead) {
+            return (object)[
+                'id' => $lead->id,
+                'external_lead_id' => $lead->external_lead_id,
+                'lead_name' => $lead->name ?? ($lead->first_name . ' ' . $lead->last_name),
+                'phone' => $lead->phone,
+                'email' => $lead->email,
+                'source' => $lead->source ?? 'Unknown',
+                'status' => 'pending',
+                'created_at' => $lead->created_at,
+                'processed_at' => null,
+                'attempts' => 0,
+                'error_message' => null
+            ];
+        });
     
-    return view('admin.lead-queue', compact('stats', 'recentLeads'));
+    $recentQueue = $queueItems;
+    return view('admin.lead-queue', compact('stats', 'recentQueue'));
 });
 
 // Create/Update Vendor
