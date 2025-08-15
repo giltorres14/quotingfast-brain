@@ -212,3 +212,4 @@ function insertBatch($pdo, $batch) {
         // Ignore errors for speed
     }
 }
+

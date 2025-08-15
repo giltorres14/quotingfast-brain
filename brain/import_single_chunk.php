@@ -167,3 +167,4 @@ function insertBatch($pdo, $batch) {
         // Ignore duplicates
     }
 }
+

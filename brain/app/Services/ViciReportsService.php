@@ -590,3 +590,4 @@ class ViciReportsService
         return $descriptions[$status] ?? $status;
     }
 }
+

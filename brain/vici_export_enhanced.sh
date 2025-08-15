@@ -109,3 +109,4 @@ fi
 find ${REPORT_PATH} -name "vicidial_data_*.csv" -mtime +7 -delete
 
 echo "Script completed at $(date)"
+

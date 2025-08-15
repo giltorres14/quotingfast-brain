@@ -95,3 +95,4 @@ if ($response) {
     $output = str_replace("Failed to add the host to the list of known hosts (/var/www/.ssh/known_hosts).", "", $output);
     echo trim($output) . "\n";
 }
+

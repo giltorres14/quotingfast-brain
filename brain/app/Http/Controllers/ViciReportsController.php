@@ -132,3 +132,4 @@ class ViciReportsController extends Controller
         ]);
     }
 }
+

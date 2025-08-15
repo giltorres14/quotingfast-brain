@@ -126,3 +126,4 @@ $query = "
 ";
 $output = executeMysqlQuery($query);
 echo $output . "\n";
+

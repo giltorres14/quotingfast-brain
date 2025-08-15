@@ -202,3 +202,4 @@ echo "  • Orphaned (no match): " . number_format($totalOrphaned) . "\n";
 echo "\n";
 echo "✅ Historical data import complete!\n";
 echo "📈 Check your reports at: https://quotingfast-brain-ohio.onrender.com/admin/vici-reports\n\n";
+

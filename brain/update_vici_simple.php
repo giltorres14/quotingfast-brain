@@ -120,3 +120,4 @@ $finalCount = intval(trim($output));
 echo "✅ Total Vici leads with Brain IDs: " . number_format($finalCount) . "\n\n";
 
 $kernel->terminate($request, $response);
+

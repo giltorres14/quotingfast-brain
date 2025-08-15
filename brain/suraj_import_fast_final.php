@@ -123,3 +123,4 @@ echo "Records imported: " . number_format($totalProcessed) . "\n";
 echo "Time: " . round($elapsed / 60, 1) . " minutes\n";
 echo "\nTotal Suraj leads now: " . number_format(DB::table('leads')->where('source', 'SURAJ_BULK')->count()) . "\n";
 echo "===========================================================\n";
+

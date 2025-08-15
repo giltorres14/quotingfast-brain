@@ -44,3 +44,4 @@ return new class extends Migration
         Schema::dropIfExists('orphan_call_logs');
     }
 };
+

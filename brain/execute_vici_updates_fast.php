@@ -115,3 +115,4 @@ if ($failCount > 0) {
 echo "📊 Total rows updated: $updatedRows\n";
 echo "⏱️  Total time: " . round($totalTime / 60, 1) . " minutes\n";
 echo "\nAll SQL files have been moved to processed_sql/ directory\n";
+

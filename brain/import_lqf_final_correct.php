@@ -189,3 +189,4 @@ if ($sample) {
         echo "✅ Vehicle data present: " . $vehicles[0]['year'] . " " . $vehicles[0]['make'] . "\n";
     }
 }
+

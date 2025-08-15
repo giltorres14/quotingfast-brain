@@ -330,3 +330,4 @@ GROUP BY list_id;
 
 *This system is production-ready and TCPA compliant*
 *Designed for ViciDial with Brain integration*
+

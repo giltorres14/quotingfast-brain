@@ -34,3 +34,4 @@ echo "Before: $BEFORE"
 echo "After: $AFTER"
 echo "New leads imported: $NEW"
 echo ""
+

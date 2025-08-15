@@ -276,3 +276,4 @@ if ($totalProcessed > 0) {
     echo "🎯 Next step: Run the full 90-day import with:\n";
     echo "   php fetch_vici_90days_fixed.php\n\n";
 }
+

@@ -77,3 +77,4 @@ $result['http_port_80'] = $fp ? 'open' : 'blocked';
 if ($fp) fclose($fp);
 
 echo json_encode($result, JSON_PRETTY_PRINT);
+

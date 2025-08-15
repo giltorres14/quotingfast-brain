@@ -113,3 +113,4 @@ AND DATEDIFF(CURDATE(), entry_date) >= 85;
 ---
 
 **SYSTEM STATUS:** ✅ Automated compliance active | 🔄 Checking every 30 minutes
+

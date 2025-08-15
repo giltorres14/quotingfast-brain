@@ -176,3 +176,4 @@ if ($elapsed > 0) {
     echo "Speed: " . round(($newLeads / $elapsed) * 60) . " leads/minute\n";
 }
 echo "\n";
+

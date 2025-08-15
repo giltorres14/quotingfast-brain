@@ -207,3 +207,4 @@ $actualTime = (time() - $_SERVER['REQUEST_TIME']) / 60;
 
 echo "\nTime saved: " . round($traditionalTime - $actualTime, 1) . " minutes\n";
 echo "This method is " . round($traditionalTime / max($actualTime, 1), 0) . "x faster!\n";
+

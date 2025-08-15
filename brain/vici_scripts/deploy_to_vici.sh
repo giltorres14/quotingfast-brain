@@ -64,3 +64,4 @@ echo "   mysql -u root Q6hdjl67GRigMofv < $REMOTE_PATH/move_101_102.sql"
 echo ""
 echo "To monitor lead flow:"
 echo "   mysql -u root Q6hdjl67GRigMofv -e 'SELECT * FROM lead_flow_dashboard'"
+

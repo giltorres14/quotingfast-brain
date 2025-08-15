@@ -235,3 +235,4 @@ if ($currentLine < 149548) {
     unlink($positionFile);
     unlink($restartFile);
 }
+

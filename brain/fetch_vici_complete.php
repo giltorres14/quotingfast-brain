@@ -300,3 +300,4 @@ echo "\n✅ ALL DONE!\n";
 echo "The incremental sync will now run every 5 minutes to keep data current.\n";
 echo "You can view the comprehensive reports at:\n";
 echo "https://quotingfast-brain-ohio.onrender.com/admin/vici-comprehensive-reports\n";
+

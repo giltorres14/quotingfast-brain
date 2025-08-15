@@ -196,3 +196,4 @@ if ($stillCorrupted > 0) {
 }
 
 echo "\nYou can now view the leads properly in the UI.\n";
+

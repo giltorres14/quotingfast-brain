@@ -87,3 +87,4 @@ echo "   - iptables: iptables -I INPUT -s $ourIP -j ACCEPT\n";
 echo "   - hosts.allow: Add 'sshd: $ourIP' to /etc/hosts.allow\n";
 echo "   - firewalld: firewall-cmd --permanent --add-source=$ourIP\n";
 echo "=====================================\n";
+

@@ -225,3 +225,4 @@ DB_CONNECTION=pgsql php artisan lqf:bulk-import ~/Downloads/LQF/file.csv --skip-
 *Documentation created: August 13, 2025*
 *Ready for user review upon waking*
 
+

@@ -46,3 +46,4 @@ SELECT COUNT(*) as moved_count FROM tcpa_expired_leads;
 DROP TEMPORARY TABLE IF EXISTS tcpa_expired_leads;
 
 COMMIT;
+

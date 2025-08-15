@@ -1,25 +1,6 @@
-@extends('layouts.app-new')
+@extends('layouts.app')
 
-@section('title', 'Import Leads - QuotingFast Brain')
-
-@section('subnav')
-    <a href="/leads" class="sub-nav-item">Overview</a>
-    <a href="/leads/queue" class="sub-nav-item">Queue</a>
-    <a href="/leads/search" class="sub-nav-item">Search</a>
-    <a href="/leads/import" class="sub-nav-item active">Import</a>
-    <a href="/leads/reports" class="sub-nav-item">Reports</a>
-@endsection
-
-@section('page-header')
-    <h1 class="page-title">Import Leads</h1>
-    <div class="breadcrumbs">
-        <span>Home</span>
-        <span class="breadcrumb-separator">›</span>
-        <span>Leads</span>
-        <span class="breadcrumb-separator">›</span>
-        <span>Import</span>
-    </div>
-@endsection
+@section('title', 'Import Leads')
 
 @section('content')
     <div class="card">
@@ -44,3 +25,4 @@
         </div>
     </div>
 @endsection
+

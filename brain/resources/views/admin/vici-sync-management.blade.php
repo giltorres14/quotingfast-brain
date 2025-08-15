@@ -471,3 +471,4 @@ function number_format(num) {
 }
 </script>
 @endsection
+

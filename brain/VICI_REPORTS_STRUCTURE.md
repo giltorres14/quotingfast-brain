@@ -101,3 +101,4 @@ All reports pull from:
 - Data syncs automatically every 5 minutes
 - 90-day historical data is being imported
 - Archive system prevents database bloat
+

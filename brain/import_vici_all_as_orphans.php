@@ -240,3 +240,4 @@ echo "  • https://quotingfast-brain-ohio.onrender.com/admin/vici-reports\n";
 echo "  • https://quotingfast-brain-ohio.onrender.com/admin/vici-comprehensive-reports\n\n";
 
 echo "🎯 The 5-minute automatic sync is now active!\n";
+

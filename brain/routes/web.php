@@ -48,17 +48,11 @@ Route::get('/test-simple', function () {
 
 // LEADS SECTION
 Route::prefix('leads')->group(function () {
-    Route::get('/', function() {
-        return view('leads.dashboard');
-    })->name('leads.dashboard');
+    // The main /leads route is handled elsewhere with pagination and filtering
     
     Route::get('/queue', function() {
         return redirect('/admin/lead-queue-monitor');
     })->name('leads.queue');
-    
-    Route::get('/search', function() {
-        return redirect('/leads');  // Redirect to main leads page for now
-    })->name('leads.search');
     
     Route::get('/import', function() {
         return view('leads.import');

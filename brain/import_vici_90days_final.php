@@ -252,3 +252,4 @@ echo "  • https://quotingfast-brain-ohio.onrender.com/admin/vici-reports\n";
 echo "  • https://quotingfast-brain-ohio.onrender.com/admin/vici-comprehensive-reports\n\n";
 
 echo "🎯 The automatic 5-minute sync is now active and will keep data updated!\n";
+

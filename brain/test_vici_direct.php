@@ -64,3 +64,4 @@ if ($output === null || strpos($output, 'sshpass: command not found') !== false)
 }
 
 echo "=== TEST COMPLETE ===\n";
+

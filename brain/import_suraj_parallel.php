@@ -394,3 +394,4 @@ function extractDateFromFilename($filename) {
     }
     return null;
 }
+

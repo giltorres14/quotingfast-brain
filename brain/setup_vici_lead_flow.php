@@ -228,3 +228,4 @@ echo "   curl -X POST https://quotingfast-brain-ohio.onrender.com/vici-proxy/exe
 echo "     -d '{\"command\":\"mysql -u root Q6hdjl67GRigMofv -e \\\"SELECT * FROM lead_flow_dashboard\\\" 2>&1\"}'\n\n";
 
 $kernel->terminate($request, $response);
+

@@ -1,25 +1,6 @@
-@extends('layouts.app-new')
+@extends('layouts.app')
 
-@section('title', 'Leads Dashboard - QuotingFast Brain')
-
-@section('subnav')
-    <a href="/leads" class="sub-nav-item active">Overview</a>
-    <a href="/leads/queue" class="sub-nav-item">Queue</a>
-    <a href="/leads/search" class="sub-nav-item">Search</a>
-    <a href="/leads/import" class="sub-nav-item">Import</a>
-    <a href="/leads/reports" class="sub-nav-item">Reports</a>
-@endsection
-
-@section('page-header')
-    <h1 class="page-title">Lead Management Dashboard</h1>
-    <div class="breadcrumbs">
-        <span>Home</span>
-        <span class="breadcrumb-separator">›</span>
-        <span>Leads</span>
-        <span class="breadcrumb-separator">›</span>
-        <span>Overview</span>
-    </div>
-@endsection
+@section('title', 'Leads Dashboard')
 
 @section('content')
     @php
@@ -138,3 +119,4 @@
         </div>
     </div>
 @endsection
+

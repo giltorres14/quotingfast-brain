@@ -113,3 +113,4 @@ echo "\n📝 NOTES:\n";
 echo "- Redirected pages are OK (they redirect to existing pages)\n";
 echo "- Failed pages need view files created\n";
 echo "- The new UI structure is accessible at {$baseUrl}/leads\n";
+

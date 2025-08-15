@@ -162,3 +162,4 @@ class ProcessViciCsv extends Command
         ]);
     }
 }
+

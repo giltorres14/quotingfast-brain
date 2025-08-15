@@ -99,3 +99,4 @@ if ($response) {
 echo "\n=== TABLE CREATION COMPLETE ===\n";
 echo "✅ The lead_moves table is ready for tracking lead movements\n";
 echo "📊 Now testing the lead flow scripts again...\n";
+

@@ -239,6 +239,60 @@
                 padding: 8px 12px;
             }
         }
+        
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #4A90E2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #357ABD;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
     </style>
     
     @yield('styles')
@@ -249,7 +303,7 @@
         <div class="top-nav-container">
             <div class="logo">
                 <img src="/quotingfast-logo.png" alt="QuotingFast">
-                <span class="logo-text">LQF</span>
+                <span class="logo-text">The Brain</span>
             </div>
             
             <div class="main-nav">
@@ -267,8 +321,7 @@
     <div class="sub-nav active">
         <div class="sub-nav-container">
             <a href="/leads" class="sub-nav-item {{ request()->is('leads') ? 'active' : '' }}">Dashboard</a>
-            <a href="/leads/queue" class="sub-nav-item {{ request()->is('leads/queue') ? 'active' : '' }}">Lead Queue</a>
-            <a href="/leads/search" class="sub-nav-item {{ request()->is('leads/search') ? 'active' : '' }}">Search</a>
+            <a href="/admin/lead-queue-monitor" class="sub-nav-item {{ request()->is('admin/lead-queue-monitor') ? 'active' : '' }}">Lead Queue</a>
             <a href="/leads/import" class="sub-nav-item {{ request()->is('leads/import') ? 'active' : '' }}">Import</a>
             <a href="/admin/vendor-management" class="sub-nav-item {{ request()->is('admin/vendor-management') ? 'active' : '' }}">Sources/Vendors</a>
             <a href="/campaigns/directory" class="sub-nav-item {{ request()->is('campaigns/directory') ? 'active' : '' }}">Campaigns</a>

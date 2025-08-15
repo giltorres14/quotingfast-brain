@@ -91,3 +91,4 @@ echo "  • View scheduler log: tail -f storage/logs/scheduler.log\n";
 echo "  • Check last sync: php artisan tinker --execute=\"echo Cache::get('vici_last_incremental_sync');\"\n";
 
 echo "\n🎯 Next automatic sync will run in ~5 minutes.\n\n";
+

@@ -51,3 +51,4 @@ FROM tcpa_90day_expired;
 DROP TEMPORARY TABLE IF EXISTS tcpa_90day_expired;
 
 COMMIT;
+

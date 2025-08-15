@@ -28,3 +28,4 @@ echo "\nServer Information:\n";
 echo "Hostname: " . gethostname() . "\n";
 echo "Server Software: " . ($_SERVER['SERVER_SOFTWARE'] ?? 'N/A') . "\n";
 echo "PHP Version: " . phpversion() . "\n";
+

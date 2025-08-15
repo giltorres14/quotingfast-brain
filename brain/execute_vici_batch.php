@@ -109,3 +109,4 @@ echo "\n=== COMPLETE ===\n";
 echo "✅ Processed $successCount files with $totalUpdated update statements\n";
 echo "⏱️  Total time: " . round($totalTime / 60, 1) . " minutes\n";
 echo "\nEstimated updates per minute: " . round($totalUpdated / max(1, $totalTime / 60)) . "\n";
+

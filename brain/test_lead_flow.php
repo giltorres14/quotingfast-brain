@@ -100,3 +100,4 @@ echo "   - Check for leads to move every 15 minutes\n";
 echo "   - Process phase transitions daily at midnight\n";
 echo "   - Enforce TCPA compliance hourly\n\n";
 echo "🎉 Lead flow automation is fully operational!\n";
+

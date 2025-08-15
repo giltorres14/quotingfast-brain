@@ -142,3 +142,4 @@ foreach (glob('vici_chunk_*') as $file) {
 }
 
 echo "\nAll temporary files have been cleaned up.\n";
+

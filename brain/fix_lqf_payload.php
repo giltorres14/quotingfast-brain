@@ -147,3 +147,4 @@ if ($testLead) {
         echo "First driver: " . ($drivers[0]['first_name'] ?? 'N/A') . " " . ($drivers[0]['last_name'] ?? 'N/A') . "\n";
     }
 }
+

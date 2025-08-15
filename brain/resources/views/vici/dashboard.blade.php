@@ -1,25 +1,6 @@
-@extends('layouts.app-new')
+@extends('layouts.app')
 
-@section('title', 'Vici Dashboard - QuotingFast Brain')
-
-@section('subnav')
-    <a href="/vici" class="sub-nav-item active">Dashboard</a>
-    <a href="/vici/reports" class="sub-nav-item">Call Reports</a>
-    <a href="/vici/lead-flow" class="sub-nav-item">Lead Flow</a>
-    <a href="/vici/sync-status" class="sub-nav-item">Sync Status</a>
-    <a href="/vici/settings" class="sub-nav-item">Settings</a>
-@endsection
-
-@section('page-header')
-    <h1 class="page-title">Vici Dialer Dashboard</h1>
-    <div class="breadcrumbs">
-        <span>Home</span>
-        <span class="breadcrumb-separator">›</span>
-        <span>Vici</span>
-        <span class="breadcrumb-separator">›</span>
-        <span>Dashboard</span>
-    </div>
-@endsection
+@section('title', 'Vici Dashboard')
 
 @section('content')
     @php
@@ -190,3 +171,4 @@
         </div>
     </div>
 @endsection
+

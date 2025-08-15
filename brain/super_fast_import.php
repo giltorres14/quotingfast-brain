@@ -376,3 +376,4 @@ if ($surajRemaining > 0 || $lqfRemaining > 0) {
         echo "   LQF: ✅ Complete\n";
     }
 }
+

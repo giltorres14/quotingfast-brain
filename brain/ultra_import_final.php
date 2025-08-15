@@ -117,3 +117,4 @@ echo "Imported: " . number_format($totalImported) . " new records\n";
 echo "Skipped: " . number_format($totalSkipped) . " duplicates\n";
 echo "Time: " . round((time() - $startTime) / 60, 1) . " minutes\n";
 echo "=========================================\n";
+
