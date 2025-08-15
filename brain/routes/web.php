@@ -2952,18 +2952,61 @@ Route::get('/leads', function (Request $request) {
             
             // Fix today's leads calculation with proper EST timezone handling
             $estNow = \Carbon\Carbon::now('America/New_York');
-            $todayEST = $estNow->copy()->startOfDay();
-            $tomorrowEST = $todayEST->copy()->addDay();
-            $stats['today_leads'] = Lead::whereBetween('created_at', [
-                $todayEST->utc(), 
-                $tomorrowEST->utc()
-            ])->count();
             
-            $stats['vici_sent'] = Lead::whereNotNull('vici_lead_id')->count();
+            // Check if custom date range is provided
+            $period = request('period', 'today');
+            $dateFrom = request('date_from');
+            $dateTo = request('date_to');
+            
+            if ($dateFrom && $dateTo) {
+                // Custom date range
+                $startDate = \Carbon\Carbon::parse($dateFrom, 'America/New_York')->startOfDay()->utc();
+                $endDate = \Carbon\Carbon::parse($dateTo, 'America/New_York')->endOfDay()->utc();
+            } else {
+                // Default periods
+                switch($period) {
+                    case 'yesterday':
+                        $startDate = $estNow->copy()->subDay()->startOfDay()->utc();
+                        $endDate = $estNow->copy()->subDay()->endOfDay()->utc();
+                        break;
+                    case 'last7':
+                        $startDate = $estNow->copy()->subDays(7)->startOfDay()->utc();
+                        $endDate = $estNow->copy()->endOfDay()->utc();
+                        break;
+                    case 'last30':
+                        $startDate = $estNow->copy()->subDays(30)->startOfDay()->utc();
+                        $endDate = $estNow->copy()->endOfDay()->utc();
+                        break;
+                    case 'today':
+                    default:
+                        $startDate = $estNow->copy()->startOfDay()->utc();
+                        $endDate = $estNow->copy()->endOfDay()->utc();
+                        break;
+                }
+            }
+            
+            // Calculate stats for selected period
+            $stats['today_leads'] = Lead::whereBetween('created_at', [$startDate, $endDate])->count();
+            
+            $stats['today_vici'] = Lead::whereBetween('created_at', [$startDate, $endDate])
+                ->whereNotNull('vici_list_id')
+                ->where('vici_list_id', '>', 0)
+                ->count();
+            
+            $stats['today_stuck'] = Lead::whereBetween('created_at', [$startDate, $endDate])
+                ->whereNull('vici_list_id')
+                ->count();
+            
+            // Keep totals for reference
+            $stats['total_leads'] = Lead::count();
+            $stats['vici_sent'] = Lead::whereNotNull('vici_list_id')->where('vici_list_id', '>', 0)->count();
             $stats['allstate_sent'] = Lead::whereNotNull('allstate_lead_id')->count();
         } catch (\Exception $statsError) {
             Log::warning('Statistics calculation failed, using defaults', ['error' => $statsError->getMessage()]);
         }
+        
+        // Pass period info to view
+        $stats['current_period'] = $period;
         
         return view('leads.index-new', compact('leads', 'statuses', 'sources', 'states', 'search', 'status', 'source', 'state_filter', 'vici_status', 'stats'));
         
@@ -5106,6 +5149,27 @@ Route::get('/admin/vendor-management', function () {
     ];
     
     return view('admin.vendor-management', compact('vendors', 'stats'));
+});
+
+// API endpoint for lead stats
+Route::post('/api/lead-stats', function () {
+    $startDate = \Carbon\Carbon::parse(request('start_date'));
+    $endDate = \Carbon\Carbon::parse(request('end_date'));
+    
+    $total = \App\Models\Lead::whereBetween('created_at', [$startDate, $endDate])->count();
+    $vici = \App\Models\Lead::whereBetween('created_at', [$startDate, $endDate])
+        ->whereNotNull('vici_list_id')
+        ->where('vici_list_id', '>', 0)
+        ->count();
+    $stuck = \App\Models\Lead::whereBetween('created_at', [$startDate, $endDate])
+        ->whereNull('vici_list_id')
+        ->count();
+    
+    return response()->json([
+        'total' => $total,
+        'vici' => $vici,
+        'stuck' => $stuck
+    ]);
 });
 
 // Campaigns Directory

@@ -429,11 +429,179 @@
 @endsection
 
 @section('scripts')
+<style>
+    .period-btn {
+        padding: 0.375rem 1rem;
+        background: #e5e7eb;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        color: #374151;
+        cursor: pointer;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+    }
+    .period-btn:hover {
+        background: #d1d5db;
+    }
+    .period-btn.active {
+        background: #4A90E2;
+        color: white;
+        border-color: #4A90E2;
+    }
+</style>
 <script>
+    let currentPeriod = '{{ $stats["current_period"] ?? "today" }}';
+    
+    // Initialize correct button on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.period === currentPeriod) {
+                btn.classList.add('active');
+            }
+        });
+    });
+    
+    function updateStats(period) {
+        if (!period) return;
+        
+        // Update active button
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.period === period) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Hide custom date range if not custom
+        if (period !== 'custom') {
+            document.getElementById('customDateRange').style.display = 'none';
+        }
+        
+        currentPeriod = period;
+        
+        // Calculate dates based on period
+        const now = new Date();
+        let startDate, endDate, label;
+        
+        switch(period) {
+            case 'today':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                label = "Today's";
+                break;
+            case 'yesterday':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                label = "Yesterday's";
+                break;
+            case 'last7':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                label = "Last 7 Days";
+                break;
+            case 'last30':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                label = "Last 30 Days";
+                break;
+            default:
+                return;
+        }
+        
+        fetchStats(startDate, endDate, label);
+    }
+    
+    function showCustomDatePicker() {
+        const customRange = document.getElementById('customDateRange');
+        customRange.style.display = customRange.style.display === 'none' ? 'flex' : 'none';
+        
+        // Set default dates
+        const now = new Date();
+        const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+        document.getElementById('startDate').value = weekAgo.toISOString().split('T')[0];
+        document.getElementById('endDate').value = now.toISOString().split('T')[0];
+    }
+    
+    function applyCustomRange() {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        endDate.setDate(endDate.getDate() + 1); // Include end date
+        
+        const label = `${startDate.toLocaleDateString()} - ${document.getElementById('endDate').value}`;
+        fetchStats(startDate, endDate, label);
+    }
+    
+    function fetchStats(startDate, endDate, label) {
+        // Update labels
+        document.querySelectorAll('.stat-label').forEach(el => {
+            const text = el.textContent;
+            if (text.includes('Leads') && !text.includes('Vici') && !text.includes('Queue')) {
+                el.textContent = label + ' Leads';
+            } else if (text.includes('Vici')) {
+                el.textContent = 'Sent to Vici (' + label + ')';
+            } else if (text.includes('Queue')) {
+                el.textContent = 'Stuck in Queue (' + label + ')';
+            }
+        });
+        
+        // For now, just update labels and use the passed PHP data for today
+        // In a full implementation, we'd pass all date ranges from PHP
+        if (currentPeriod === 'today') {
+            // Use the PHP-provided today stats
+            document.getElementById('stat-total').textContent = '{{ number_format($stats["today_leads"] ?? 0) }}';
+            document.getElementById('stat-vici').textContent = '{{ number_format($stats["today_vici"] ?? 0) }}';
+            document.getElementById('stat-stuck').textContent = '{{ number_format($stats["today_stuck"] ?? 0) }}';
+            
+            const total = {{ $stats['today_leads'] ?? 0 }};
+            const vici = {{ $stats['today_vici'] ?? 0 }};
+            const rate = total > 0 ? ((vici / total) * 100).toFixed(1) : 0;
+            document.getElementById('stat-conversion').textContent = rate + '%';
+        } else {
+            // For other periods, reload the page with date parameters
+            const startStr = startDate.toISOString().split('T')[0];
+            const endStr = endDate.toISOString().split('T')[0];
+            
+            // Add date range to URL and reload
+            const url = new URL(window.location);
+            url.searchParams.set('date_from', startStr);
+            url.searchParams.set('date_to', endStr);
+            url.searchParams.set('period', currentPeriod);
+            window.location.href = url.toString();
+        }
+    }
+    
+    function updateStatsLocally(startDate, endDate) {
+        // This is a fallback - actual stats should come from server
+        const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+        const multiplier = daysDiff;
+        
+        // Use current values as base and multiply
+        const currentTotal = parseInt(document.getElementById('stat-total').textContent.replace(/,/g, '')) || 0;
+        const currentVici = parseInt(document.getElementById('stat-vici').textContent.replace(/,/g, '')) || 0;
+        const currentStuck = parseInt(document.getElementById('stat-stuck').textContent.replace(/,/g, '')) || 0;
+        
+        if (currentPeriod === 'today') {
+            // Already showing today's stats
+            return;
+        }
+        
+        // Estimate based on days
+        document.getElementById('stat-total').textContent = (currentTotal * multiplier).toLocaleString();
+        document.getElementById('stat-vici').textContent = (currentVici * multiplier).toLocaleString();
+        document.getElementById('stat-stuck').textContent = (currentStuck * multiplier).toLocaleString();
+        
+        const total = currentTotal * multiplier;
+        const vici = currentVici * multiplier;
+        const rate = total > 0 ? ((vici / total) * 100).toFixed(1) : 0;
+        document.getElementById('stat-conversion').textContent = rate + '%';
+    }
+    
     // Auto-refresh stats every 30 seconds
     setInterval(function() {
-        // In production, this would fetch updated stats via AJAX
-        console.log('Stats refresh triggered');
+        if (currentPeriod === 'today') {
+            updateStats('today');
+        }
     }, 30000);
     
     // Show payload in modal
