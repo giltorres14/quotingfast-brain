@@ -5108,6 +5108,23 @@ Route::get('/admin/vendor-management', function () {
     return view('admin.vendor-management', compact('vendors', 'stats'));
 });
 
+// Lead Queue Monitor
+Route::get('/admin/lead-queue-monitor', function () {
+    $stats = [
+        'total_queue' => \App\Models\Lead::whereNull('sent_to_vici')->count(),
+        'today_queue' => \App\Models\Lead::whereNull('sent_to_vici')->whereDate('created_at', today())->count(),
+        'processing' => 0, // Placeholder
+        'failed' => 0 // Placeholder
+    ];
+    
+    $recentLeads = \App\Models\Lead::whereNull('sent_to_vici')
+        ->orderBy('created_at', 'desc')
+        ->limit(50)
+        ->get();
+    
+    return view('admin.lead-queue', compact('stats', 'recentLeads'));
+});
+
 // Create/Update Vendor
 Route::post('/admin/vendors', function () {
     try {

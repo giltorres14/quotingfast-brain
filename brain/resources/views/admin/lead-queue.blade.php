@@ -1,7 +1,6 @@
-@extends('layouts.management')
+@extends('layouts.app')
 
 @section('title', 'Lead Queue Monitor')
-@section('page-title', '🛡️ Lead Queue Monitor')
 
 @section('styles')
 <style>
@@ -234,12 +233,15 @@
 </style>
 @endsection
 
-@section('nav-actions')
-<button onclick="location.reload()" class="nav-link" title="Refresh">🔄 Refresh</button>
-<a href="/admin/lead-queue/process" class="nav-link">▶️ Process Queue</a>
-@endsection
-
 @section('content')
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h1 style="font-size: 2rem; font-weight: 700; color: #1f2937; margin: 0;">🛡️ Lead Queue Monitor</h1>
+        <div style="display: flex; gap: 0.5rem;">
+            <button onclick="location.reload()" class="btn btn-secondary" title="Refresh">🔄 Refresh</button>
+            <a href="/admin/lead-queue/process" class="btn btn-primary">▶️ Process Queue</a>
+        </div>
+    </div>
+    
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}

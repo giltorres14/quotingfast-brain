@@ -1,7 +1,6 @@
-@extends('layouts.management')
+@extends('layouts.app')
 
 @section('title', 'Vendor Management')
-@section('page-title', '🏢 Vendor Management')
 
 @section('styles')
 <style>
@@ -209,12 +208,15 @@
 </style>
 @endsection
 
-@section('nav-actions')
-<button onclick="location.reload()" class="nav-link" title="Refresh">🔄 Refresh</button>
-<button onclick="showAddVendorModal()" class="nav-link" style="background: #10b981; color: white;">+ Add Vendor</button>
-@endsection
-
 @section('content')
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h1 style="font-size: 2rem; font-weight: 700; color: #1f2937; margin: 0;">🏢 Vendor Management</h1>
+        <div style="display: flex; gap: 0.5rem;">
+            <button onclick="location.reload()" class="btn btn-secondary" title="Refresh">🔄 Refresh</button>
+            <button onclick="showAddVendorModal()" class="btn btn-success">+ Add Vendor</button>
+        </div>
+    </div>
+    
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
