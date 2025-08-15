@@ -760,7 +760,7 @@ Route::get('/debug-allstate', function () {
 
 // Main landing page - redirect to leads dashboard
 Route::get('/', function () {
-    return redirect('/leads');
+    return redirect('/admin/simple-dashboard');
 });
 
 /*
