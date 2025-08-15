@@ -954,6 +954,26 @@
                         </span>
                     </div>
                 @endif
+                
+                <!-- Payload Button in View Mode -->
+                @if(isset($mode) && $mode === 'view')
+                    <div style="margin-top: 12px;">
+                        <button onclick="showPayload()" style="
+                            background: #10b981;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-weight: 600;
+                            font-size: 14px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                            transition: all 0.2s;
+                        " onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+                            📦 View Complete Payload
+                        </button>
+                    </div>
+                @endif
                 <div class="meta" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
                     <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
                     @php
@@ -1665,17 +1685,52 @@
                     <div class="info-value">
                         @php
                             $optInDate = null;
+                            $optInDateCarbon = null;
                             if (isset($lead->opt_in_date) && $lead->opt_in_date) {
                                 try {
-                                    $optInDate = \Carbon\Carbon::parse($lead->opt_in_date)->format('m/d/Y g:i A');
+                                    $optInDateCarbon = \Carbon\Carbon::parse($lead->opt_in_date);
+                                    $optInDate = $optInDateCarbon->format('m/d/Y g:i A');
                                 } catch (\Exception $e) {
                                     $optInDate = $lead->opt_in_date;
                                 }
                             } elseif ($lead->created_at) {
-                                $optInDate = \Carbon\Carbon::parse($lead->created_at)->format('m/d/Y g:i A');
+                                $optInDateCarbon = \Carbon\Carbon::parse($lead->created_at);
+                                $optInDate = $optInDateCarbon->format('m/d/Y g:i A');
                             }
                         @endphp
                         {{ $optInDate ?: 'Not provided' }}
+                    </div>
+                </div>
+                
+                <!-- TCPA Age / Days Remaining -->
+                <div class="info-item">
+                    <div class="info-label">TCPA Status</div>
+                    <div class="info-value">
+                        @php
+                            if ($optInDateCarbon) {
+                                $daysOld = $optInDateCarbon->diffInDays(\Carbon\Carbon::now());
+                                $daysRemaining = 90 - $daysOld;
+                                
+                                if ($daysRemaining <= 0) {
+                                    $tcpaStatus = '<span style="color: #dc3545; font-weight: bold;">🚨 EXPIRED - DO NOT CALL</span>';
+                                } elseif ($daysRemaining == 1) {
+                                    $tcpaStatus = '<span style="color: #dc3545; font-weight: bold;">🔴 LAST DAY - Archive Today!</span>';
+                                } elseif ($daysRemaining <= 3) {
+                                    $tcpaStatus = '<span style="color: #ff6b6b; font-weight: bold;">🟠 ' . $daysRemaining . ' days remaining</span>';
+                                } elseif ($daysRemaining <= 7) {
+                                    $tcpaStatus = '<span style="color: #f59e0b; font-weight: bold;">🟡 ' . $daysRemaining . ' days remaining</span>';
+                                } elseif ($daysRemaining <= 30) {
+                                    $tcpaStatus = '<span style="color: #10b981;">⚠️ ' . $daysRemaining . ' days remaining</span>';
+                                } else {
+                                    $tcpaStatus = '<span style="color: #28a745;">✅ ' . $daysRemaining . ' days remaining</span>';
+                                }
+                                
+                                $tcpaStatus .= ' <small style="color: #6b7280;">(' . $daysOld . ' days old)</small>';
+                            } else {
+                                $tcpaStatus = '<span style="color: #6b7280;">Unable to calculate</span>';
+                            }
+                        @endphp
+                        {!! $tcpaStatus !!}
                     </div>
                 </div>
                 
@@ -1708,6 +1763,16 @@
                     <div class="info-value">
                         <a href="{{ $lead->landing_page_url }}" target="_blank" style="color: #3b82f6; text-decoration: none;">{{ parse_url($lead->landing_page_url, PHP_URL_HOST) ?: $lead->landing_page_url }}</a>
                         <button class="copy-btn" onclick="copyToClipboard('{{ $lead->landing_page_url }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                    </div>
+                </div>
+                @endif
+                
+                <!-- TCPA Consent Text -->
+                @if($lead->tcpa_consent_text)
+                <div class="info-item" style="grid-column: span 2;">
+                    <div class="info-label">TCPA Consent Text</div>
+                    <div class="info-value" style="font-size: 0.875rem; line-height: 1.5; padding: 10px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb;">
+                        {{ $lead->tcpa_consent_text }}
                     </div>
                 </div>
                 @endif
@@ -2481,6 +2546,73 @@
         // Global data for JavaScript functions
         const leadDriversData = @json($lead->drivers ?? []);
         const leadVehiclesData = @json($lead->vehicles ?? []);
+        
+        // Show Payload function for View mode
+        function showPayload() {
+            // Prepare comprehensive payload data
+            const leadData = {
+                lead_info: {
+                    id: {{ $lead->id ?? 'null' }},
+                    external_lead_id: "{{ $lead->external_lead_id ?? '' }}",
+                    leadid_code: "{{ $lead->leadid_code ?? '' }}",
+                    jangle_lead_id: "{{ $lead->jangle_lead_id ?? '' }}",
+                    name: "{{ $lead->name ?? '' }}",
+                    first_name: "{{ $lead->first_name ?? '' }}",
+                    last_name: "{{ $lead->last_name ?? '' }}",
+                    phone: "{{ $lead->phone ?? '' }}",
+                    email: "{{ $lead->email ?? '' }}",
+                    source: "{{ $lead->source ?? '' }}",
+                    vendor_name: "{{ $lead->vendor_name ?? '' }}",
+                    buyer_name: "{{ $lead->buyer_name ?? '' }}",
+                    type: "{{ $lead->type ?? '' }}",
+                    created_at: "{{ $lead->created_at ?? '' }}",
+                    opt_in_date: "{{ $lead->opt_in_date ?? '' }}"
+                },
+                location: {
+                    address: "{{ $lead->address ?? '' }}",
+                    city: "{{ $lead->city ?? '' }}",
+                    state: "{{ $lead->state ?? '' }}",
+                    zip_code: "{{ $lead->zip_code ?? '' }}"
+                },
+                tracking: {
+                    ip_address: "{{ $lead->ip_address ?? '' }}",
+                    user_agent: "{{ $lead->user_agent ?? '' }}",
+                    landing_page_url: "{{ $lead->landing_page_url ?? '' }}",
+                    tcpa_compliant: {{ json_encode($lead->tcpa_compliant ?? false) }},
+                    tcpa_consent_text: "{{ addslashes($lead->tcpa_consent_text ?? '') }}",
+                    trusted_form_cert: "{{ $lead->trusted_form_cert ?? '' }}"
+                },
+                vici_info: {
+                    vici_list_id: {{ $lead->vici_list_id ?? 'null' }},
+                    vici_lead_id: "{{ $lead->vici_lead_id ?? '' }}",
+                    sent_to_vici: {{ $lead->vici_list_id ? 'true' : 'false' }}
+                },
+                original_payload: {!! json_encode($lead->payload ?? null) !!},
+                drivers: leadDriversData,
+                vehicles: leadVehiclesData,
+                current_policy: {!! json_encode($lead->current_policy ?? null) !!},
+                requested_policy: {!! json_encode($lead->requested_policy ?? null) !!},
+                meta: {!! json_encode($lead->meta ?? null) !!}
+            };
+            
+            const formatted = JSON.stringify(leadData, null, 2);
+            
+            // Create modal
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:99999';
+            modal.innerHTML = `
+                <div style="background:white;padding:2rem;border-radius:12px;max-width:900px;width:90%;max-height:80vh;overflow:auto;position:relative;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1),0 10px 10px -5px rgba(0,0,0,0.04)">
+                    <h2 style="margin-bottom:1rem;color:#1f2937;font-size:1.5rem;font-weight:700">Complete Lead Data & Payload</h2>
+                    <button onclick="this.closest('div').parentElement.remove()" style="position:absolute;top:1rem;right:1rem;background:#ef4444;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer;font-weight:600">✕ Close</button>
+                    <div style="margin-bottom:1rem">
+                        <button onclick="navigator.clipboard.writeText(this.getAttribute('data-content')); this.textContent='✓ Copied!'; setTimeout(()=>this.textContent='📋 Copy All',2000)" data-content="${formatted.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" style="background:#10b981;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer;font-weight:600">📋 Copy All</button>
+                    </div>
+                    <pre style="background:#f3f4f6;padding:1rem;border-radius:8px;overflow:auto;font-size:12px;line-height:1.5;font-family:monospace">${formatted.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.onclick = function(e) { if(e.target === modal) modal.remove(); };
+        }
         
         
         // Auto-refresh disabled for agent view - no call metrics displayed
