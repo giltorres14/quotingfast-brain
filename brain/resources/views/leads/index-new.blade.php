@@ -193,23 +193,43 @@
     <p style="color: #6b7280; margin-top: 0.5rem;">Manage and track your auto insurance leads</p>
 </div>
 
-<!-- Statistics Cards -->
+<!-- Date Range Selector -->
+<div style="background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+        <label style="font-weight: 600; color: #374151;">Stats Period:</label>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button onclick="updateStats('today')" class="period-btn active" data-period="today">Today</button>
+            <button onclick="updateStats('yesterday')" class="period-btn" data-period="yesterday">Yesterday</button>
+            <button onclick="updateStats('last7')" class="period-btn" data-period="last7">Last 7 Days</button>
+            <button onclick="updateStats('last30')" class="period-btn" data-period="last30">Last 30 Days</button>
+            <button onclick="showCustomDatePicker()" class="period-btn" data-period="custom">Custom Range</button>
+        </div>
+        <div id="customDateRange" style="display: none; gap: 0.5rem; align-items: center;">
+            <input type="date" id="startDate" class="form-input" style="padding: 0.375rem; border: 1px solid #d1d5db; border-radius: 6px;">
+            <span>to</span>
+            <input type="date" id="endDate" class="form-input" style="padding: 0.375rem; border: 1px solid #d1d5db; border-radius: 6px;">
+            <button onclick="applyCustomRange()" class="btn btn-primary" style="padding: 0.375rem 1rem;">Apply</button>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards (Default to Today) -->
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-number" style="color: #4A90E2;">{{ number_format($stats['total_leads'] ?? 0) }}</div>
-        <div class="stat-label">Total Leads</div>
+        <div class="stat-number" id="stat-total" style="color: #4A90E2;">{{ number_format($stats['today_leads'] ?? 0) }}</div>
+        <div class="stat-label">New Leads</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="color: #10b981;">{{ number_format($stats['today_leads'] ?? 0) }}</div>
-        <div class="stat-label">Today's Leads</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-number" style="color: #f59e0b;">{{ number_format($stats['vici_sent'] ?? 0) }}</div>
+        <div class="stat-number" id="stat-vici" style="color: #10b981;">{{ number_format($stats['today_vici'] ?? 0) }}</div>
         <div class="stat-label">Sent to Vici</div>
     </div>
     <div class="stat-card">
-        <div class="stat-number" style="color: #8b5cf6;">{{ number_format($stats['allstate_sent'] ?? 0) }}</div>
-        <div class="stat-label">Sent to Allstate</div>
+        <div class="stat-number" id="stat-stuck" style="color: #f59e0b;">{{ number_format($stats['today_stuck'] ?? 0) }}</div>
+        <div class="stat-label">Stuck in Queue</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" id="stat-conversion" style="color: #8b5cf6;">0%</div>
+        <div class="stat-label">Conversion Rate</div>
     </div>
 </div>
 
@@ -386,10 +406,10 @@
             </div>
             
             <div class="lead-actions">
-                <a href="/agent/lead/{{ $lead->id }}" class="btn btn-primary">👁️ View</a>
+                <a href="/agent/lead/{{ $lead->id }}?mode=view" class="btn btn-primary">👁️ View</a>
                 <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-secondary">✏️ Edit</a>
                 @if(isset($lead->payload) && $lead->payload)
-                    <button class="btn btn-secondary" onclick='showPayload({{ json_encode($lead->payload) }})'>💾 Payload</button>
+                    <button class="btn btn-secondary" onclick='showPayload(@json($lead))'>💾 Payload</button>
                 @endif
             </div>
         </div>
@@ -417,15 +437,62 @@
     }, 30000);
     
     // Show payload in modal
-    function showPayload(payload) {
-        const formatted = JSON.stringify(payload, null, 2);
+    function showPayload(lead) {
+        // Create comprehensive payload object
+        const fullData = {
+            lead_info: {
+                id: lead.id,
+                external_lead_id: lead.external_lead_id,
+                leadid_code: lead.leadid_code,
+                jangle_lead_id: lead.jangle_lead_id,
+                name: lead.name,
+                first_name: lead.first_name,
+                last_name: lead.last_name,
+                phone: lead.phone,
+                email: lead.email,
+                source: lead.source,
+                vendor_name: lead.vendor_name,
+                buyer_name: lead.buyer_name,
+                created_at: lead.created_at,
+                opt_in_date: lead.opt_in_date
+            },
+            location: {
+                address: lead.address,
+                city: lead.city,
+                state: lead.state,
+                zip_code: lead.zip_code
+            },
+            tracking: {
+                ip_address: lead.ip_address,
+                user_agent: lead.user_agent,
+                landing_page_url: lead.landing_page_url,
+                tcpa_compliant: lead.tcpa_compliant,
+                tcpa_consent_text: lead.tcpa_consent_text,
+                trusted_form_cert: lead.trusted_form_cert
+            },
+            vici_info: {
+                vici_list_id: lead.vici_list_id,
+                sent_to_vici: lead.vici_list_id ? true : false
+            },
+            original_payload: lead.payload ? (typeof lead.payload === 'string' ? JSON.parse(lead.payload) : lead.payload) : null,
+            drivers: lead.drivers,
+            vehicles: lead.vehicles,
+            current_policy: lead.current_policy,
+            requested_policy: lead.requested_policy,
+            meta: lead.meta
+        };
+        
+        const formatted = JSON.stringify(fullData, null, 2);
         const modal = document.createElement('div');
         modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999';
         modal.innerHTML = `
-            <div style="background:white;padding:2rem;border-radius:8px;max-width:800px;max-height:80vh;overflow:auto;position:relative">
-                <h2 style="margin-bottom:1rem">Lead Payload</h2>
+            <div style="background:white;padding:2rem;border-radius:8px;max-width:900px;width:90%;max-height:80vh;overflow:auto;position:relative">
+                <h2 style="margin-bottom:1rem">Complete Lead Data & Payload</h2>
                 <button onclick="this.closest('div').parentElement.remove()" style="position:absolute;top:1rem;right:1rem;background:#ef4444;color:white;border:none;padding:0.5rem 1rem;border-radius:4px;cursor:pointer">✕ Close</button>
-                <pre style="background:#f3f4f6;padding:1rem;border-radius:4px;overflow:auto">${formatted}</pre>
+                <div style="margin-bottom:1rem">
+                    <button onclick="navigator.clipboard.writeText(${JSON.stringify(formatted).replace(/"/g, '&quot;')}); this.textContent='✓ Copied!'; setTimeout(()=>this.textContent='📋 Copy All',2000)" style="background:#10b981;color:white;border:none;padding:0.5rem 1rem;border-radius:4px;cursor:pointer">📋 Copy All</button>
+                </div>
+                <pre style="background:#f3f4f6;padding:1rem;border-radius:4px;overflow:auto;font-size:12px">${formatted}</pre>
             </div>
         `;
         document.body.appendChild(modal);
