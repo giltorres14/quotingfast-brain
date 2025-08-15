@@ -3553,7 +3553,8 @@ Route::get('/server-egress-ip', function () {
 });
 
 // DISABLED: Test route - use /admin/allstate-testing instead
-// Route::get('/test/allstate/connection', function () {
+/*
+Route::get('/test/allstate/connection', function () {
     try {
         // Allstate API configuration based on environment
         $environment = env('ALLSTATE_API_ENV', 'testing');
@@ -3637,6 +3638,7 @@ Route::get('/server-egress-ip', function () {
         ], 500);
     }
 });
+*/
 
 // CSV Lead Upload Portal - Admin only
 Route::get('/lead-upload', function () {
@@ -6214,7 +6216,8 @@ Route::get('/admin/lead/{leadId}/update-type/{type}', function ($leadId, $type) 
 });
 
 // DISABLED: Test route - use /admin/allstate-testing instead
-// Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
+/*
+Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
     try {
         // Try to get lead from database, fallback to mock data
         $lead = null;
@@ -6300,6 +6303,7 @@ Route::get('/admin/lead/{leadId}/update-type/{type}', function ($leadId, $type) 
         ], 500);
     }
 });
+*/
 
 // Dashboard routes (requires authentication)
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -6485,7 +6489,8 @@ if (!function_exists('generateLeadId')) {
 
 // Home Insurance Webhook Endpoint
 // DISABLED: Duplicate webhook - use /api-webhook instead
-// Route::post('/webhook/home', function (Request $request) {
+/*
+Route::post('/webhook/home', function (Request $request) {
     $data = $request->all();
     
     Log::info('🏠 Home Insurance Lead Received', [
@@ -6686,10 +6691,12 @@ if (!function_exists('generateLeadId')) {
         ], 500);
     }
 });
+*/
 
 // Auto Insurance Webhook Endpoint (new dedicated endpoint)
 // DISABLED: Duplicate webhook - use /api-webhook instead
-// Route::post('/webhook/auto', function (Request $request) {
+/*
+Route::post('/webhook/auto', function (Request $request) {
     $data = $request->all();
     
     Log::info('🚗 Auto Insurance Lead Received', [
@@ -6890,6 +6897,7 @@ if (!function_exists('generateLeadId')) {
         ], 500);
     }
 });
+*/
 
 // Generate unique 9-digit lead ID starting with 100000001
 // Helper function to detect lead type from payload
@@ -8491,7 +8499,8 @@ function updateViciLead($leadId, $leadData, $changedFields) {
 
 // Test Vici lead update endpoint
 // DISABLED: Test route - use /admin/vici-reports instead
-// Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI') {
+/*
+Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI') {
     try {
         // Find the lead first to make sure it exists
         $lead = \App\Models\Lead::where('id', $leadId)->first();
@@ -8551,6 +8560,7 @@ function updateViciLead($leadId, $leadData, $changedFields) {
         ], 500);
     }
 });
+*/
  # Deployment trigger Wed Aug  6 23:01:36 EDT 2025
 
 // DEPLOYMENT FIX 1754536129
