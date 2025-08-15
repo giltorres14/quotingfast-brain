@@ -533,6 +533,12 @@
     }
     
     function fetchStats(startDate, endDate, label) {
+        // Show loading state immediately
+        document.getElementById('stat-total').innerHTML = '<span style="color: #6b7280;">Loading...</span>';
+        document.getElementById('stat-vici').innerHTML = '<span style="color: #6b7280;">Loading...</span>';
+        document.getElementById('stat-stuck').innerHTML = '<span style="color: #6b7280;">Loading...</span>';
+        document.getElementById('stat-conversion').innerHTML = '<span style="color: #6b7280;">Loading...</span>';
+        
         // Update labels
         document.querySelectorAll('.stat-label').forEach(el => {
             const text = el.textContent;
@@ -548,26 +554,36 @@
         // For now, just update labels and use the passed PHP data for today
         // In a full implementation, we'd pass all date ranges from PHP
         if (currentPeriod === 'today') {
-            // Use the PHP-provided today stats
-            document.getElementById('stat-total').textContent = '{{ number_format($stats["today_leads"] ?? 0) }}';
-            document.getElementById('stat-vici').textContent = '{{ number_format($stats["today_vici"] ?? 0) }}';
-            document.getElementById('stat-stuck').textContent = '{{ number_format($stats["today_stuck"] ?? 0) }}';
-            
-            const total = {{ $stats['today_leads'] ?? 0 }};
-            const vici = {{ $stats['today_vici'] ?? 0 }};
-            const rate = total > 0 ? ((vici / total) * 100).toFixed(1) : 0;
-            document.getElementById('stat-conversion').textContent = rate + '%';
+            // Use the PHP-provided today stats with a slight delay to show loading
+            setTimeout(() => {
+                document.getElementById('stat-total').textContent = '{{ number_format($stats["today_leads"] ?? 0) }}';
+                document.getElementById('stat-vici').textContent = '{{ number_format($stats["today_vici"] ?? 0) }}';
+                document.getElementById('stat-stuck').textContent = '{{ number_format($stats["today_stuck"] ?? 0) }}';
+                
+                const total = {{ $stats['today_leads'] ?? 0 }};
+                const vici = {{ $stats['today_vici'] ?? 0 }};
+                const rate = total > 0 ? ((vici / total) * 100).toFixed(1) : 0;
+                document.getElementById('stat-conversion').textContent = rate + '%';
+            }, 300);
         } else {
-            // For other periods, reload the page with date parameters
-            const startStr = startDate.toISOString().split('T')[0];
-            const endStr = endDate.toISOString().split('T')[0];
+            // For other periods, show loading overlay then reload
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;z-index:9999';
+            overlay.innerHTML = '<div style="text-align:center"><div style="font-size:24px;color:#4A90E2;margin-bottom:10px">Loading Stats...</div><div style="color:#6b7280">Fetching ' + label + ' data</div></div>';
+            document.body.appendChild(overlay);
             
-            // Add date range to URL and reload
-            const url = new URL(window.location);
-            url.searchParams.set('date_from', startStr);
-            url.searchParams.set('date_to', endStr);
-            url.searchParams.set('period', currentPeriod);
-            window.location.href = url.toString();
+            // Small delay for visual feedback
+            setTimeout(() => {
+                const startStr = startDate.toISOString().split('T')[0];
+                const endStr = endDate.toISOString().split('T')[0];
+                
+                // Add date range to URL and reload
+                const url = new URL(window.location);
+                url.searchParams.set('date_from', startStr);
+                url.searchParams.set('date_to', endStr);
+                url.searchParams.set('period', currentPeriod);
+                window.location.href = url.toString();
+            }, 100);
         }
     }
     
