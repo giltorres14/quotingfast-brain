@@ -793,16 +793,7 @@
     </div>
     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" style="font-size: 0.9rem;">Per Page</label>
-                        <select name="per_page" class="form-select" style="font-size: 0.9rem;">
-                            <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20</option>
-                            <option value="50" {{ request('per_page', 50) == 50 ? 'selected' : '' }}>50</option>
-                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
-                            <option value="200" {{ request('per_page') == 200 ? 'selected' : '' }}>200</option>
-                            <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>All</option>
-                        </select>
-    </div>
+
 
                     <button type="submit" class="btn btn-primary">Filter</button>
                     <a href="/leads" class="btn btn-secondary">Clear</a>
@@ -841,8 +832,8 @@
                                         @if($lead->source)
                                             @php
                                                 $sourceColors = [
-                                                    'SURAJ_BULK' => ['bg' => '#8b5cf6', 'label' => 'Suraj Bulk'],
-                                                    'LQF_BULK' => ['bg' => '#ec4899', 'label' => 'LQF Bulk'],
+                                                    'SURAJ_BULK' => ['bg' => '#8b5cf6', 'label' => 'Suraj'],
+                                                    'LQF_BULK' => ['bg' => '#06b6d4', 'label' => 'LQF'],
                                                     'LQF' => ['bg' => '#06b6d4', 'label' => 'LQF'],
                                                     'SURAJ' => ['bg' => '#10b981', 'label' => 'Suraj'],
                                                     'API' => ['bg' => '#f59e0b', 'label' => 'API'],

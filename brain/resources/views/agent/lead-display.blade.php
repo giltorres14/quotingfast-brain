@@ -937,6 +937,23 @@
                         <span style="font-size: 14px; opacity: 0.8;">(Edit Mode)</span>
                     @endif
                 </h1>
+                @if($lead->vendor_name)
+                    <div style="margin-top: 8px;">
+                        <span style="
+                            background: #6b7280;
+                            color: white;
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            display: inline-block;
+                        ">
+                            {{ $lead->vendor_name === 'LeadsQuotingFast' || $lead->vendor_name === 'LEADSQUOTINGFAST' ? 'LQF' : $lead->vendor_name }}
+                        </span>
+                    </div>
+                @endif
                 <div class="meta" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
                     <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
                     @php

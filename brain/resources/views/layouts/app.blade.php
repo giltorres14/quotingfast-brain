@@ -6,6 +6,9 @@
     <title>@yield('title', 'QuotingFast Brain')</title>
     <link rel="icon" type="image/png" href="/favicon.png">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <style>
         * {
@@ -246,7 +249,7 @@
         <div class="top-nav-container">
             <div class="logo">
                 <img src="/quotingfast-logo.png" alt="QuotingFast">
-                <span class="logo-text">The Brain</span>
+                <span class="logo-text">LQF</span>
             </div>
             
             <div class="main-nav">
@@ -310,13 +313,15 @@
     @endif
     
     <!-- Sub Navigation for Admin -->
-    @if(request()->is('admin*'))
+    @if(request()->is('admin*') || request()->is('campaigns*'))
     <div class="sub-nav active">
         <div class="sub-nav-container">
             <a href="/admin" class="sub-nav-item {{ request()->is('admin') ? 'active' : '' }}">Dashboard</a>
             <a href="/admin/simple-dashboard" class="sub-nav-item {{ request()->is('admin/simple-dashboard') ? 'active' : '' }}">Simple Dashboard</a>
             <a href="/admin/control-center" class="sub-nav-item {{ request()->is('admin/control-center') ? 'active' : '' }}">Control Center</a>
             <a href="/admin/lead-queue-monitor" class="sub-nav-item {{ request()->is('admin/lead-queue-monitor') ? 'active' : '' }}">Lead Queue Monitor</a>
+            <a href="/admin/vendor-management" class="sub-nav-item {{ request()->is('admin/vendor-management') ? 'active' : '' }}">Vendors</a>
+            <a href="/admin/buyer-management" class="sub-nav-item {{ request()->is('admin/buyer-management') ? 'active' : '' }}">Buyers</a>
             <a href="/campaigns/directory" class="sub-nav-item {{ request()->is('campaigns/directory') ? 'active' : '' }}">Campaigns</a>
         </div>
     </div>
