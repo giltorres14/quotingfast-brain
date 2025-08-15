@@ -119,7 +119,7 @@ class SyncViciCallLogsIncremental extends Command
             'skipped' => 0
         ];
         
-        // Build SQL query for Vici
+        // Build SQL query for Vici - JOIN with vicidial_list to get vendor_lead_code
         $sql = "
             SELECT 
                 vl.call_date,
@@ -131,9 +131,10 @@ class SyncViciCallLogsIncremental extends Command
                 vl.length_in_sec,
                 vl.user,
                 vl.term_reason,
-                vl.vendor_lead_code,
+                vlist.vendor_lead_code,
                 vl.uniqueid
             FROM vicidial_log vl
+            LEFT JOIN vicidial_list vlist ON vl.lead_id = vlist.lead_id
             WHERE vl.call_date BETWEEN '{$fromTime->format('Y-m-d H:i:s')}' 
                 AND '{$toTime->format('Y-m-d H:i:s')}'
             AND vl.campaign_id IS NOT NULL 

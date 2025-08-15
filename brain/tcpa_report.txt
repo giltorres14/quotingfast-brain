@@ -1,0 +1,107 @@
+=== TCPA AGING REPORT - LEADS APPROACHING 90-DAY LIMIT ===
+Generated: 2025-08-15 16:59:34 EST
+======================================================================
+
+📊 SUMMARY BY AGE GROUPS
+--------------------------------------------------
+
+Could not create directory '/var/www/.ssh' (Permission denied).
+Failed to add the host to the list of known hosts (/var/www/.ssh/known_hosts).
+age_group	total_leads	unique_lists
+🟠 88 DAYS (2 days left)	524	1
+🟡 87 DAYS (3 days left)	688	3
+🟡 86 DAYS (4 days left)	187299	2
+🟡 85 DAYS (5 days left)	22659	4
+
+
+📋 BREAKDOWN BY LIST (85-89 DAYS OLD)
+--------------------------------------------------
+
+Could not create directory '/var/www/.ssh' (Permission denied).
+Failed to add the host to the list of known hosts (/var/www/.ssh/known_hosts).
+list_id	lead_count	oldest_entry	newest_entry	oldest_days	newest_days
+9002	187151	2025-05-21 11:28:31	2025-05-21 14:46:02	86	86
+9003	16916	2025-05-22 08:54:43	2025-05-22 08:54:53	85	85
+10010	5168	2025-05-20 11:03:06	2025-05-22 09:13:46	87	85
+6013	1110	2025-05-19 09:17:43	2025-05-22 08:48:53	88	85
+10007	825	2025-05-20 11:05:23	2025-05-22 09:18:27	87	85
+
+
+🎯 BREAKDOWN BY CAMPAIGN (85-89 DAYS OLD)
+--------------------------------------------------
+
+Could not create directory '/var/www/.ssh' (Permission denied).
+Failed to add the host to the list of known hosts (/var/www/.ssh/known_hosts).
+--------------
+SELECT 
+        vl.campaign_id,
+        COUNT(*) as lead_count,
+        GROUP_CONCAT(DISTINCT vl.list_id ORDER BY vl.list_id) as lists,
+        MIN(vl.entry_date) as oldest_lead,
+        MAX(vl.entry_date) as newest_lead
+    FROM vicidial_list vl
+    WHERE vl.list_id NOT IN (199, 998, 999)
+    AND vl.entry_date IS NOT NULL
+    AND DATEDIFF(CURDATE(), vl.entry_date) BETWEEN 85 AND 89
+    GROUP BY vl.campaign_id
+    ORDER BY lead_count DESC
+--------------
+
+ERROR 1054 (42S22) at line 2: Unknown column 'vl.campaign_id' in 'SELECT'
+
+
+🚨 CRITICAL: SAMPLE LEADS AT 89 DAYS (MUST ARCHIVE TODAY!)
+--------------------------------------------------
+
+Could not create directory '/var/www/.ssh' (Permission denied).
+Failed to add the host to the list of known hosts (/var/www/.ssh/known_hosts).
+--------------
+SELECT 
+        lead_id,
+        phone_number,
+        list_id,
+        campaign_id,
+        vendor_lead_code as brain_id,
+        entry_date,
+        CONCAT(DATEDIFF(CURDATE(), entry_date), ' days old') as age
+    FROM vicidial_list
+    WHERE list_id NOT IN (199, 998, 999)
+    AND entry_date IS NOT NULL
+    AND DATEDIFF(CURDATE(), entry_date) = 89
+    LIMIT 20
+--------------
+
+ERROR 1054 (42S22) at line 2: Unknown column 'campaign_id' in 'SELECT'
+
+
+⚡ IMMEDIATE ACTIONS REQUIRED
+--------------------------------------------------
+
+Could not create directory '/var/www/.ssh' (Permission denied).
+Failed to add the host to the list of known hosts (/var/www/.ssh/known_hosts).
+days_old	lead_count	action_required
+88	524	Archive within 24 hours
+87	688	Archive within 48 hours
+
+
+🔄 RUNNING TCPA COMPLIANCE CHECK...
+--------------------------------------------------
+
+✅ TCPA compliance script executed successfully
+
+======================================================================
+📊 REPORT SUMMARY
+======================================================================
+
+⚠️  TCPA COMPLIANCE REMINDER:
+   - Leads CANNOT be called after 90 days from opt-in
+   - System automatically archives at 89 days
+   - Cron job runs every 30 minutes to enforce
+   - All 90+ day leads go to List 199 (DNC)
+
+✅ AUTOMATION STATUS:
+   - Lead flow scripts: ACTIVE
+   - TCPA compliance: ENFORCED
+   - Archive process: RUNNING
+
+Report generated: 2025-08-15 16:59:56 EST

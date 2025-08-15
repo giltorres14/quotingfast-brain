@@ -31,6 +31,12 @@ class Kernel extends ConsoleKernel
         $schedule->command('vici:match-orphans')
             ->everyTenMinutes()
             ->withoutOverlapping();
+            
+        // Archive old Vici leads daily at 2 AM
+        $schedule->command('vici:archive-old-leads')
+            ->dailyAt('02:00')
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/vici_archive.log'));
     }
 
     /**

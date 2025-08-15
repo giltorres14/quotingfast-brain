@@ -1,0 +1,55 @@
+# Vici Lead Flow Automation - Cron Schedule
+# Add these entries to Vici server crontab
+# Run: crontab -e (as root or vicidial user)
+
+# ============================================
+# EVERY 15 MINUTES - Fast movements
+# ============================================
+
+# Move from 101 to 102 after first call
+*/15 * * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_101_102.sql 2>&1 | logger -t vici_flow
+
+# Move CALLBK leads from 101 to 103
+*/15 * * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_101_103_callbk.sql 2>&1 | logger -t vici_flow
+
+# Move from 103 to 104 after voicemail left
+*/15 * * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_103_104_lvm.sql 2>&1 | logger -t vici_flow
+
+# Move from 105 to 106 after second voicemail
+*/15 * * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_105_106_lvm.sql 2>&1 | logger -t vici_flow
+
+# ============================================
+# DAILY AT 12:01 AM - Workday-based movements
+# ============================================
+
+# Move from 102 to 103 after 3 workdays
+1 0 * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_102_103_workdays.sql 2>&1 | logger -t vici_flow
+
+# Move from 104 to 105 after 5 days (Phase 1 complete)
+1 0 * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_104_105_phase1.sql 2>&1 | logger -t vici_flow
+
+# Move from 106 to 107 after 10 days (to Cool Down)
+1 0 * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_106_107_phase2.sql 2>&1 | logger -t vici_flow
+
+# Move from 107 to 108 after 7 days rest
+1 0 * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_107_108_cooldown.sql 2>&1 | logger -t vici_flow
+
+# Move from 108 to 110 after 30 days or TCPA expiry
+1 0 * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_108_110_archive.sql 2>&1 | logger -t vici_flow
+
+# ============================================
+# HOURLY - TCPA Compliance Check
+# ============================================
+
+# Emergency TCPA compliance - archive any expired leads
+0 * * * * mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/tcpa_compliance_check.sql 2>&1 | logger -t vici_tcpa
+
+# ============================================
+# MONITORING (Optional)
+# ============================================
+
+# Daily report of lead distribution (8 AM)
+0 8 * * * mysql -u root Q6hdjl67GRigMofv -e "SELECT * FROM lead_flow_dashboard" 2>&1 | mail -s "Daily Lead Flow Report" admin@example.com
+
+# Check for stuck leads (every 6 hours)
+0 */6 * * * mysql -u root Q6hdjl67GRigMofv -e "SELECT list_id, COUNT(*) as stuck_count FROM vicidial_list WHERE list_id BETWEEN 101 AND 109 AND DATEDIFF(NOW(), entry_date) > 35 GROUP BY list_id" 2>&1 | logger -t vici_stuck

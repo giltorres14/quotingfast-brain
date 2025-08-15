@@ -42,6 +42,101 @@ Route::get('/test-simple', function () {
     return response()->json(['status' => 'ok', 'time' => now()]);
 })->withoutMiddleware('*');
 
+// ============================================
+// NEW UI STRUCTURE - ORGANIZED BY SECTION
+// ============================================
+
+// LEADS SECTION
+Route::prefix('leads')->group(function () {
+    Route::get('/', function() {
+        return view('leads.dashboard');
+    })->name('leads.dashboard');
+    
+    Route::get('/queue', function() {
+        return redirect('/admin/lead-queue-monitor');
+    })->name('leads.queue');
+    
+    Route::get('/search', function() {
+        return redirect('/leads');  // Redirect to main leads page for now
+    })->name('leads.search');
+    
+    Route::get('/import', function() {
+        return view('leads.import');
+    })->name('leads.import');
+    
+    Route::get('/reports', function() {
+        return view('leads.reports');
+    })->name('leads.reports');
+});
+
+// VICI SECTION
+Route::prefix('vici')->group(function () {
+    Route::get('/', function() {
+        return view('vici.dashboard');
+    })->name('vici.dashboard');
+    
+    Route::get('/reports', function() {
+        return redirect('/admin/vici-comprehensive-reports');
+    })->name('vici.reports');
+    
+    Route::get('/lead-flow', function() {
+        return redirect('/admin/vici-lead-flow');
+    })->name('vici.lead-flow');
+    
+    Route::get('/sync-status', function() {
+        return redirect('/admin/vici-sync-management');
+    })->name('vici.sync-status');
+    
+    Route::get('/settings', function() {
+        return view('vici.settings');
+    })->name('vici.settings');
+});
+
+// SMS SECTION
+Route::prefix('sms')->group(function () {
+    Route::get('/', function() {
+        return view('sms.dashboard');
+    })->name('sms.dashboard');
+    
+    Route::get('/campaigns', function() {
+        return view('sms.campaigns');
+    })->name('sms.campaigns');
+    
+    Route::get('/templates', function() {
+        return view('sms.templates');
+    })->name('sms.templates');
+    
+    Route::get('/analytics', function() {
+        return view('sms.analytics');
+    })->name('sms.analytics');
+});
+
+// BUYER PORTAL SECTION
+Route::prefix('buyers')->group(function () {
+    Route::get('/', function() {
+        return view('buyers.dashboard');
+    })->name('buyers.dashboard');
+    
+    Route::get('/directory', function() {
+        return view('buyers.directory');
+    })->name('buyers.directory');
+    
+    Route::get('/transfers', function() {
+        return view('buyers.transfers');
+    })->name('buyers.transfers');
+    
+    Route::get('/revenue', function() {
+        return view('buyers.revenue');
+    })->name('buyers.revenue');
+});
+
+// ADMIN SECTION
+Route::prefix('admin')->group(function () {
+    Route::get('/', function() {
+        return redirect('/admin/simple-dashboard');
+    })->name('admin.dashboard');
+});
+
 // Ultra simple check - just get last lead name and ID
 Route::get('/last-lead', function () {
     try {
@@ -759,7 +854,8 @@ Route::get('/test', function () {
 });
 
 // Test Vici connection and update capability
-Route::match(['get', 'post'], '/test-vici-connection', function(\Illuminate\Http\Request $request) {
+// DISABLED: Test route - use /admin/vici-reports instead
+/* Route::match(['get', 'post'], '/test-vici-connection', function(\Illuminate\Http\Request $request) {
     $result = [
         'timestamp' => now()->toISOString(),
         'tests' => []
@@ -950,7 +1046,7 @@ Route::match(['get', 'post'], '/test-vici-connection', function(\Illuminate\Http
     }
     
     return response()->json($result, 200, [], JSON_PRETTY_PRINT);
-});
+}); */
 
 // ViciDial firewall whitelisting endpoint
 Route::get('/vici/whitelist', function () {
@@ -1731,6 +1827,8 @@ Route::any('/webhook-failsafe.php', function (Request $request) {
     }
 });
 
+// DISABLED: Duplicate webhook - use /api-webhook instead
+/*
 Route::post('/webhook/debug', function (Request $request) {
     $data = $request->all();
     $headers = $request->headers->all();
@@ -1762,8 +1860,11 @@ Route::post('/webhook/debug', function (Request $request) {
         ]
     ], 200, [], JSON_PRETTY_PRINT);
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+*/
 
 // LeadsQuotingFast webhook endpoint (bypasses CSRF for external API calls)
+// TODO: Consolidate with /api-webhook - Currently kept for backward compatibility
+// This is a duplicate of /api-webhook but with slightly different logic
 Route::post('/webhook.php', function (Request $request) {
     // SUPER HEAVY DEBUG - Mark that we entered this route
     try {
@@ -2686,7 +2787,8 @@ Route::get('/webhook/status', function () {
 });
 
 // Vici database connection test endpoint
-Route::get('/test/vici-db', function () {
+// DISABLED: Test route - use /admin/vici-reports instead
+// Route::get('/test/vici-db', function () {
     try {
         $host = '37.27.138.222';
         $db = 'asterisk';
@@ -3303,7 +3405,8 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
 });
 
 // Test Vici lead push endpoint (using same function as webhook)
-Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
+// DISABLED: Test route - use /admin/vici-reports instead
+// Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
     try {
         $lead = App\Models\Lead::find($leadId);
 
@@ -3382,7 +3485,8 @@ Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
 });
 
 // Lightweight login probe to Vici (server-side) using version function
-Route::get('/test/vici-login', function (Request $request) {
+// DISABLED: Test route - use /admin/vici-reports instead
+// Route::get('/test/vici-login', function (Request $request) {
     try {
         $server = $request->query('server', env('VICI_SERVER', 'philli.callix.ai'));
         $endpoint = $request->query('endpoint', env('VICI_API_ENDPOINT', '/vicidial/non_agent_api.php'));
@@ -3442,8 +3546,8 @@ Route::get('/server-egress-ip', function () {
     }
 });
 
-// Test Allstate API connection with multiple auth methods
-Route::get('/test/allstate/connection', function () {
+// DISABLED: Test route - use /admin/allstate-testing instead
+// Route::get('/test/allstate/connection', function () {
     try {
         // Allstate API configuration based on environment
         $environment = env('ALLSTATE_API_ENV', 'testing');
@@ -5809,6 +5913,11 @@ Route::get('/admin/vici-reports/real-time', 'App\Http\Controllers\ViciReportsCon
 Route::get('/admin/vici-reports/lead-journey/{leadId}', 'App\Http\Controllers\ViciReportsController@leadJourney')
     ->name('admin.vici.lead-journey');
 
+// Vici Lead Flow Monitor
+Route::get('/admin/vici-lead-flow', function() {
+    return view('admin.vici-lead-flow');
+})->name('admin.vici.lead-flow');
+
 // Process orphan calls endpoint
 Route::post('/admin/vici/process-orphans', function () {
     try {
@@ -5860,45 +5969,9 @@ Route::post('/admin/vici/orphan/{id}/match', function ($id) {
 })->name('admin.vici.orphan.match');
 
 // Vici Call Logs Dashboard (keep existing for backward compatibility)
+// Redirect old vici-call-logs route to the new unified reports page
 Route::get('/admin/vici-call-logs', function () {
-    $callsToday = \App\Models\ViciCallMetrics::whereDate('created_at', today())->count();
-    $connectedCalls = \App\Models\ViciCallMetrics::where('connected', true)->count();
-    $totalCalls = \App\Models\ViciCallMetrics::count();
-    
-    // Calculate average talk time
-    $avgTalkTime = \App\Models\ViciCallMetrics::where('talk_time', '>', 0)
-        ->avg('talk_time') ?: 0;
-    $avgTalkTime = round($avgTalkTime);
-    
-    // Connection rate
-    $connectionRate = $totalCalls > 0 
-        ? round(($connectedCalls / $totalCalls) * 100, 1)
-        : 0;
-    
-    // Campaign performance
-    $campaigns = \App\Models\ViciCallMetrics::select('campaign_id')
-        ->selectRaw('COUNT(*) as total_calls')
-        ->selectRaw('SUM(CASE WHEN connected = true THEN 1 ELSE 0 END) as connected_calls')
-        ->selectRaw('SUM(talk_time) as total_talk_time')
-        ->groupBy('campaign_id')
-        ->get()
-        ->map(function ($campaign) {
-            $campaign->connection_rate = $campaign->total_calls > 0
-                ? round(($campaign->connected_calls / $campaign->total_calls) * 100, 1)
-                : 0;
-            return $campaign;
-        });
-    
-    // Recent calls
-    $recentCalls = \App\Models\ViciCallMetrics::with('lead')
-        ->latest()
-        ->limit(50)
-        ->get();
-    
-    return view('admin.vici-call-logs', compact(
-        'callsToday', 'connectedCalls', 'avgTalkTime', 'connectionRate',
-        'campaigns', 'recentCalls'
-    ));
+    return redirect('/admin/vici-reports');
 })->name('admin.vici-call-logs');
 
 // Sync Vici Call Logs
@@ -6134,8 +6207,8 @@ Route::get('/admin/lead/{leadId}/update-type/{type}', function ($leadId, $type) 
     ]);
 });
 
-// Test Allstate transfer endpoint
-Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
+// DISABLED: Test route - use /admin/allstate-testing instead
+// Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
     try {
         // Try to get lead from database, fallback to mock data
         $lead = null;
@@ -6405,7 +6478,8 @@ if (!function_exists('generateLeadId')) {
 }
 
 // Home Insurance Webhook Endpoint
-Route::post('/webhook/home', function (Request $request) {
+// DISABLED: Duplicate webhook - use /api-webhook instead
+// Route::post('/webhook/home', function (Request $request) {
     $data = $request->all();
     
     Log::info('🏠 Home Insurance Lead Received', [
@@ -6608,7 +6682,8 @@ Route::post('/webhook/home', function (Request $request) {
 });
 
 // Auto Insurance Webhook Endpoint (new dedicated endpoint)
-Route::post('/webhook/auto', function (Request $request) {
+// DISABLED: Duplicate webhook - use /api-webhook instead
+// Route::post('/webhook/auto', function (Request $request) {
     $data = $request->all();
     
     Log::info('🚗 Auto Insurance Lead Received', [
@@ -8409,7 +8484,8 @@ function updateViciLead($leadId, $leadData, $changedFields) {
 }
 
 // Test Vici lead update endpoint
-Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI') {
+// DISABLED: Test route - use /admin/vici-reports instead
+// Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI') {
     try {
         // Find the lead first to make sure it exists
         $lead = \App\Models\Lead::where('id', $leadId)->first();

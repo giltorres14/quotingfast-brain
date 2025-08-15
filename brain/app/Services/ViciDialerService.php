@@ -400,6 +400,10 @@ class ViciDialerService
             $lead->save();
         }
         
+        // CRITICAL: Use the actual opt-in date from the lead, not current time!
+        // This is essential for TCPA compliance (90-day limit)
+        $optInDate = $lead->opt_in_date ?? $lead->created_at;
+        
         return [
             'lead_id' => null, // Auto-increment
             'phone_number' => $lead->phone,
@@ -411,11 +415,11 @@ class ViciDialerService
             'postal_code' => $lead->zip_code ?? '',
             'list_id' => $this->targetListId, // FIXED: Use hard-coded list 101
             'status' => 'NEW',
-            'entry_date' => now()->format('Y-m-d H:i:s'),
+            'entry_date' => $optInDate->format('Y-m-d H:i:s'), // USE OPT-IN DATE FOR TCPA!
             'modify_date' => now()->format('Y-m-d H:i:s'),
             'vendor_lead_code' => $brainLeadId, // Use 13-digit Brain Lead ID
             'source_id' => 'BRAIN_' . $brainLeadId, // Include Brain ID in source for clarity
-            'comments' => "Brain Lead ID: {$brainLeadId} | Internal ID: {$lead->id} | Source: {$lead->source}"
+            'comments' => "Brain Lead ID: {$brainLeadId} | Internal ID: {$lead->id} | Source: {$lead->source} | Opt-in: {$optInDate->format('Y-m-d H:i:s')}"
         ];
     }
 
