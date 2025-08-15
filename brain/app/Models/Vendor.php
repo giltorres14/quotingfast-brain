@@ -53,7 +53,7 @@ class Vendor extends Model
     public function updateStats()
     {
         $this->total_leads = $this->leads()->count();
-        $this->total_cost = $this->leads()->sum('cost');
+        $this->total_cost = 0; // Cost field doesn't exist in leads table yet
         $this->save();
     }
 }

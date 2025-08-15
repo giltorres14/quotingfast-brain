@@ -5102,7 +5102,7 @@ Route::get('/admin/vendor-management', function () {
         'total_vendors' => \App\Models\Vendor::count(),
         'active_vendors' => \App\Models\Vendor::where('active', true)->count(),
         'total_leads' => \App\Models\Lead::whereNotNull('vendor_name')->count(),
-        'total_spent' => \App\Models\Lead::sum('cost') ?? 0
+        'total_spent' => 0 // Cost tracking not implemented yet
     ];
     
     return view('admin.vendor-management', compact('vendors', 'stats'));
