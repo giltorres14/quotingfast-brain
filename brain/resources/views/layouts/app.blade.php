@@ -263,13 +263,15 @@
     </nav>
     
     <!-- Sub Navigation for Leads -->
-    @if(request()->is('leads*'))
+    @if(request()->is('leads*') || request()->is('admin/vendor-management*') || request()->is('campaigns/directory*'))
     <div class="sub-nav active">
         <div class="sub-nav-container">
             <a href="/leads" class="sub-nav-item {{ request()->is('leads') ? 'active' : '' }}">Dashboard</a>
             <a href="/leads/queue" class="sub-nav-item {{ request()->is('leads/queue') ? 'active' : '' }}">Lead Queue</a>
             <a href="/leads/search" class="sub-nav-item {{ request()->is('leads/search') ? 'active' : '' }}">Search</a>
             <a href="/leads/import" class="sub-nav-item {{ request()->is('leads/import') ? 'active' : '' }}">Import</a>
+            <a href="/admin/vendor-management" class="sub-nav-item {{ request()->is('admin/vendor-management') ? 'active' : '' }}">Sources/Vendors</a>
+            <a href="/campaigns/directory" class="sub-nav-item {{ request()->is('campaigns/directory') ? 'active' : '' }}">Campaigns</a>
             <a href="/leads/reports" class="sub-nav-item {{ request()->is('leads/reports') ? 'active' : '' }}">Reports</a>
         </div>
     </div>
@@ -313,16 +315,14 @@
     @endif
     
     <!-- Sub Navigation for Admin -->
-    @if(request()->is('admin*') || request()->is('campaigns*'))
+    @if(request()->is('admin*') && !request()->is('admin/vendor-management*'))
     <div class="sub-nav active">
         <div class="sub-nav-container">
             <a href="/admin" class="sub-nav-item {{ request()->is('admin') ? 'active' : '' }}">Dashboard</a>
             <a href="/admin/simple-dashboard" class="sub-nav-item {{ request()->is('admin/simple-dashboard') ? 'active' : '' }}">Simple Dashboard</a>
             <a href="/admin/control-center" class="sub-nav-item {{ request()->is('admin/control-center') ? 'active' : '' }}">Control Center</a>
             <a href="/admin/lead-queue-monitor" class="sub-nav-item {{ request()->is('admin/lead-queue-monitor') ? 'active' : '' }}">Lead Queue Monitor</a>
-            <a href="/admin/vendor-management" class="sub-nav-item {{ request()->is('admin/vendor-management') ? 'active' : '' }}">Vendors</a>
-            <a href="/admin/buyer-management" class="sub-nav-item {{ request()->is('admin/buyer-management') ? 'active' : '' }}">Buyers</a>
-            <a href="/campaigns/directory" class="sub-nav-item {{ request()->is('campaigns/directory') ? 'active' : '' }}">Campaigns</a>
+            <a href="/admin/buyer-management" class="sub-nav-item {{ request()->is('admin/buyer-management') ? 'active' : '' }}">Buyer Management</a>
         </div>
     </div>
     @endif
