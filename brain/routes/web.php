@@ -2971,7 +2971,7 @@ Route::get('/leads', function (Request $request) {
             Log::warning('Statistics calculation failed, using defaults', ['error' => $statsError->getMessage()]);
         }
         
-        return view('leads.index', compact('leads', 'statuses', 'sources', 'states', 'search', 'status', 'source', 'state_filter', 'vici_status', 'stats'));
+        return view('leads.index-new', compact('leads', 'statuses', 'sources', 'states', 'search', 'status', 'source', 'state_filter', 'vici_status', 'stats'));
         
     } catch (\Exception $e) {
         Log::error('Leads listing error', [
@@ -3097,7 +3097,7 @@ Route::get('/leads', function (Request $request) {
             });
         }
         
-        return view('leads.index', [
+        return view('leads.index-new', [
             'leads' => $filteredLeads,
             'statuses' => collect(['New', 'Contacted', 'Qualified', 'Converted']),
             'sources' => collect(['Manual', 'Web', 'Campaign']),
