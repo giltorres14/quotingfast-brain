@@ -122,6 +122,9 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo 'php artisan config:clear || true' >> /usr/local/bin/startup.sh && \
     echo 'php artisan cache:clear || true' >> /usr/local/bin/startup.sh && \
     echo 'php artisan migrate --force || true' >> /usr/local/bin/startup.sh && \
+    echo '# Start the Laravel scheduler in background' >> /usr/local/bin/startup.sh && \
+    echo 'while true; do php artisan schedule:run --no-interaction >> /var/www/html/storage/logs/scheduler.log 2>&1; sleep 60; done &' >> /usr/local/bin/startup.sh && \
+    echo 'echo "Scheduler started in background"' >> /usr/local/bin/startup.sh && \
     echo 'apache2-foreground' >> /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
 
