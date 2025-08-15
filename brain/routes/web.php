@@ -2788,7 +2788,8 @@ Route::get('/webhook/status', function () {
 
 // Vici database connection test endpoint
 // DISABLED: Test route - use /admin/vici-reports instead
-// Route::get('/test/vici-db', function () {
+/*
+Route::get('/test/vici-db', function () {
     try {
         $host = '37.27.138.222';
         $db = 'asterisk';
@@ -2824,6 +2825,7 @@ Route::get('/webhook/status', function () {
         ], 500);
     }
 });
+*/
 
 // Database connection test endpoint
 Route::get('/test/db', function () {
@@ -3406,7 +3408,8 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
 
 // Test Vici lead push endpoint (using same function as webhook)
 // DISABLED: Test route - use /admin/vici-reports instead
-// Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
+/*
+Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
     try {
         $lead = App\Models\Lead::find($leadId);
 
@@ -3483,10 +3486,12 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
         ], 500);
     }
 });
+*/
 
 // Lightweight login probe to Vici (server-side) using version function
 // DISABLED: Test route - use /admin/vici-reports instead
-// Route::get('/test/vici-login', function (Request $request) {
+/*
+Route::get('/test/vici-login', function (Request $request) {
     try {
         $server = $request->query('server', env('VICI_SERVER', 'philli.callix.ai'));
         $endpoint = $request->query('endpoint', env('VICI_API_ENDPOINT', '/vicidial/non_agent_api.php'));
@@ -3535,6 +3540,7 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
         ], 500);
     }
 });
+*/
 
 // Reveal server egress IP (for Vici whitelisting)
 Route::get('/server-egress-ip', function () {
