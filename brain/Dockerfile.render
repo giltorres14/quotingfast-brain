@@ -6,7 +6,7 @@ FROM php:8.3-apache
 
 # LESSON 1: Always have cache bust mechanism for Render cache issues
 # Increment when cache corrupts (happens frequently)
-ARG CACHE_BUST=15
+ARG CACHE_BUST=16
 RUN echo "Build version: ${CACHE_BUST} - $(date +%s)"
 
 # LESSON 2: Combine operations to reduce layers (fewer layers = less cache corruption)
@@ -121,6 +121,11 @@ RUN echo '#!/bin/bash' > /usr/local/bin/startup.sh && \
     echo '# Skip all artisan commands - they try database connection' >> /usr/local/bin/startup.sh && \
     echo 'php artisan config:clear || true' >> /usr/local/bin/startup.sh && \
     echo 'php artisan cache:clear || true' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan route:clear || true' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan view:clear || true' >> /usr/local/bin/startup.sh && \
+    echo 'php artisan optimize:clear || true' >> /usr/local/bin/startup.sh && \
+    echo 'rm -rf storage/framework/cache/data/* || true' >> /usr/local/bin/startup.sh && \
+    echo 'rm -rf storage/framework/views/* || true' >> /usr/local/bin/startup.sh && \
     echo 'php artisan migrate --force || true' >> /usr/local/bin/startup.sh && \
     echo '# Start the Laravel scheduler in background' >> /usr/local/bin/startup.sh && \
     echo 'while true; do php artisan schedule:run --no-interaction >> /var/www/html/storage/logs/scheduler.log 2>&1; sleep 60; done &' >> /usr/local/bin/startup.sh && \
