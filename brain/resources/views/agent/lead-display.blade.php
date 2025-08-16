@@ -1777,39 +1777,6 @@
                 </div>
                 @endif
             </div>
-            
-            <!-- TCPA Compliance Rules & Enforcement -->
-            <div style="margin-top: 20px; padding: 15px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;">
-                <div style="display: flex; align-items: start; gap: 10px;">
-                    <span style="font-size: 20px;">⚖️</span>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600; color: #991b1b; margin-bottom: 8px;">TCPA Compliance Requirements</div>
-                        <ul style="margin: 0; padding-left: 20px; color: #7f1d1d; font-size: 0.875rem; line-height: 1.6;">
-                            <li><strong>90-Day Rule:</strong> Leads CANNOT be called after 90 days from opt-in date</li>
-                            <li><strong>Automatic Archiving:</strong> System archives leads at 89 days to prevent violations</li>
-                            <li><strong>Enforcement:</strong> Automated compliance checks run every 30 minutes</li>
-                            <li><strong>Penalties:</strong> Up to $1,500 per violation for non-compliance</li>
-                            <li><strong>Archive List:</strong> Expired leads move to List 199 (DNC/Archive)</li>
-                        </ul>
-                        @php
-                            if ($optInDateCarbon) {
-                                $daysOld = $optInDateCarbon->diffInDays(\Carbon\Carbon::now());
-                                $daysRemaining = 90 - $daysOld;
-                                
-                                if ($daysRemaining <= 7 && $daysRemaining > 0) {
-                                    echo '<div style="margin-top: 10px; padding: 8px; background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; color: #92400e; font-weight: 600;">';
-                                    echo '⚠️ WARNING: This lead will expire in ' . $daysRemaining . ' day' . ($daysRemaining != 1 ? 's' : '') . ' and must be archived';
-                                    echo '</div>';
-                                } elseif ($daysRemaining <= 0) {
-                                    echo '<div style="margin-top: 10px; padding: 8px; background: #fee2e2; border: 1px solid #fecaca; border-radius: 6px; color: #991b1b; font-weight: 600;">';
-                                    echo '🚨 CRITICAL: This lead is expired and MUST NOT be called - Move to archive immediately!';
-                                    echo '</div>';
-                                }
-                            }
-                        @endphp
-                    </div>
-                </div>
-            </div>
         </div>
         @endif
 
