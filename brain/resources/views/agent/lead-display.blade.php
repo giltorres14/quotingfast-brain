@@ -937,7 +937,14 @@
                         <span style="font-size: 14px; opacity: 0.8;">(Edit Mode)</span>
                     @endif
                 </h1>
-                @if($lead->vendor_name)
+                @php
+                    $vendorName = $lead->vendor_name;
+                    if (!$vendorName && $lead->payload) {
+                        $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                        $vendorName = $payload['vendor_name'] ?? $payload['meta']['vendor_name'] ?? $payload['source'] ?? null;
+                    }
+                @endphp
+                @if($vendorName)
                     <div style="margin-top: 8px;">
                         <span style="
                             background: #6b7280;
@@ -950,7 +957,7 @@
                             letter-spacing: 0.5px;
                             display: inline-block;
                         ">
-                            {{ $lead->vendor_name === 'LeadsQuotingFast' || $lead->vendor_name === 'LEADSQUOTINGFAST' ? 'LQF' : $lead->vendor_name }}
+                            {{ $vendorName === 'LeadsQuotingFast' || $vendorName === 'LEADSQUOTINGFAST' ? 'LQF' : $vendorName }}
                         </span>
                     </div>
                 @endif
@@ -1135,19 +1142,18 @@
                 <div class="question-group">
                     <label class="question-label">3. Do you own or rent your home?</label>
                     <select class="question-select" id="home_status">
-                        <option value="">Select...</option>
                         @php
-                            $residenceType = null;
-                            if (isset($lead->payload) && is_string($lead->payload)) {
-                                $payload = json_decode($lead->payload, true);
-                                if (isset($payload['data']['drivers'][0]['residence_type'])) {
-                                    $residenceType = strtolower($payload['data']['drivers'][0]['residence_type']);
-                                }
+                            $homeStatus = null;
+                            if (isset($lead->payload)) {
+                                $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                $homeStatus = $payload['data']['drivers'][0]['residence_status'] ?? 
+                                             $payload['data']['drivers'][0]['home_ownership'] ?? null;
                             }
                         @endphp
-                        <option value="own" {{ $residenceType === 'own' ? 'selected' : '' }}>Own</option>
-                        <option value="rent" {{ $residenceType === 'rent' ? 'selected' : '' }}>Rent</option>
-                        <option value="other" {{ $residenceType && !in_array($residenceType, ['own', 'rent']) ? 'selected' : '' }}>Other</option>
+                        <option value="">Select...</option>
+                        <option value="own" {{ $homeStatus === 'own' || $homeStatus === 'home' ? 'selected' : '' }}>Own</option>
+                        <option value="rent" {{ $homeStatus === 'rent' ? 'selected' : '' }}>Rent</option>
+                        <option value="other" {{ $homeStatus === 'other' ? 'selected' : '' }}>Other</option>
                     </select>
                 </div>
 
@@ -1677,20 +1683,38 @@
                     <div class="info-label">Opt-In Date</div>
                     <div class="info-value">
                         @php
-                            $optInDate = null;
-                            $optInDateCarbon = null;
-                            if (isset($lead->opt_in_date) && $lead->opt_in_date) {
-                                try {
-                                    $optInDateCarbon = \Carbon\Carbon::parse($lead->opt_in_date);
-                                    $optInDate = $optInDateCarbon->format('m/d/Y g:i A');
-                                } catch (\Exception $e) {
-                                    $optInDate = $lead->opt_in_date;
+                                $optInDate = null;
+                                $optInDateCarbon = null;
+                                if (isset($lead->opt_in_date) && $lead->opt_in_date) {
+                                    try {
+                                        $optInDateCarbon = \Carbon\Carbon::parse($lead->opt_in_date);
+                                        $optInDate = $optInDateCarbon->format('m/d/Y g:i A');
+                                    } catch (\Exception $e) {
+                                        $optInDate = $lead->opt_in_date;
+                                    }
+                                } else {
+                                    // Check payload for opt_in_date
+                                    if ($lead->payload) {
+                                        $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                        $optInFromPayload = $payload['meta']['opt_in_date'] ?? 
+                                                           $payload['opt_in_date'] ?? 
+                                                           $payload['contact']['opt_in_date'] ?? null;
+                                        if ($optInFromPayload) {
+                                            try {
+                                                $optInDateCarbon = \Carbon\Carbon::parse($optInFromPayload);
+                                                $optInDate = $optInDateCarbon->format('m/d/Y g:i A');
+                                            } catch (\Exception $e) {
+                                                $optInDate = $optInFromPayload;
+                                            }
+                                        }
+                                    }
+                                    // Fall back to created_at if no opt_in_date found
+                                    if (!$optInDate && $lead->created_at) {
+                                        $optInDateCarbon = \Carbon\Carbon::parse($lead->created_at);
+                                        $optInDate = $optInDateCarbon->format('m/d/Y g:i A');
+                                    }
                                 }
-                            } elseif ($lead->created_at) {
-                                $optInDateCarbon = \Carbon\Carbon::parse($lead->created_at);
-                                $optInDate = $optInDateCarbon->format('m/d/Y g:i A');
-                            }
-                        @endphp
+                            @endphp
                         {{ $optInDate ?: 'Not provided' }}
                         @if($optInDate && $optInDate !== 'Not provided')
                             <button class="copy-btn" onclick="copyToClipboard('{{ $optInDate }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
@@ -1887,8 +1911,11 @@
                     <div class="info-item">
                         <div class="info-label">Date of Birth</div>
                         <div class="info-value">
-                            @if(isset($driver['birth_date']))
-                                {{ \Carbon\Carbon::parse($driver['birth_date'])->format('m-d-Y') }}
+                            @php
+                                $birthDate = $driver['birth_date'] ?? $driver['dob'] ?? $driver['date_of_birth'] ?? null;
+                            @endphp
+                            @if($birthDate)
+                                {{ \Carbon\Carbon::parse($birthDate)->format('m-d-Y') }}
                             @else
                                 Not provided
                             @endif
@@ -1897,19 +1924,33 @@
                     <div class="info-item">
                         <div class="info-label">Gender</div>
                         <div class="info-value">
-                            {{ $driver['gender'] ?? 'Not provided' }}
-                            @if(isset($driver['gender']) && !in_array($driver['gender'], ['M', 'F', 'Male', 'Female']))
-                                <span style="font-size: 10px; color: #6c757d; margin-left: 8px;">(imported data)</span>
-                            @endif
+                            @php
+                                $gender = $driver['gender'] ?? null;
+                                // Normalize gender display
+                                if ($gender) {
+                                    $gender = strtolower($gender);
+                                    if (in_array($gender, ['m', 'male'])) {
+                                        $gender = 'Male';
+                                    } elseif (in_array($gender, ['f', 'female'])) {
+                                        $gender = 'Female';
+                                    } else {
+                                        $gender = ucfirst($gender);
+                                    }
+                                }
+                            @endphp
+                            {{ $gender ?: 'Not provided' }}
                         </div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Marital Status</div>
                         <div class="info-value">
-                            {{ $driver['marital_status'] ?? 'Not provided' }}
-                            @if(isset($driver['marital_status']) && !in_array($driver['marital_status'], ['Single', 'Married', 'Divorced', 'Widowed', 'Separated']))
-                                <span style="font-size: 10px; color: #6c757d; margin-left: 8px;">(imported data)</span>
-                            @endif
+                            @php
+                                $maritalStatus = $driver['marital_status'] ?? null;
+                                if ($maritalStatus) {
+                                    $maritalStatus = ucfirst(strtolower($maritalStatus));
+                                }
+                            @endphp
+                            {{ $maritalStatus ?: 'Not provided' }}
                         </div>
                     </div>
                     <div class="info-item">
@@ -2014,7 +2055,21 @@
                     </div>
                     <div class="info-item">
                         <div class="info-label">Years Licensed</div>
-                        <div class="info-value">{{ $driver['years_licensed'] ?? 'Not provided' }}</div>
+                        <div class="info-value">
+                            @php
+                                $yearsLicensed = $driver['years_licensed'] ?? $driver['license_age'] ?? null;
+                                if (!$yearsLicensed && isset($driver['first_licensed_at'])) {
+                                    // Calculate from first licensed date
+                                    try {
+                                        $firstLicensed = \Carbon\Carbon::parse($driver['first_licensed_at']);
+                                        $yearsLicensed = $firstLicensed->diffInYears(\Carbon\Carbon::now());
+                                    } catch (\Exception $e) {
+                                        // Ignore
+                                    }
+                                }
+                            @endphp
+                            {{ $yearsLicensed ? $yearsLicensed . ' years' : 'Not provided' }}
+                        </div>
                     </div>
                 </div>
                 
