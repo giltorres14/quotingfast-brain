@@ -7003,7 +7003,6 @@ Route::post('/webhook/auto', function (Request $request) {
         ], 500);
     }
 });
-*/
 
 // Generate unique 9-digit lead ID starting with 100000001
 // Helper function to detect lead type from payload

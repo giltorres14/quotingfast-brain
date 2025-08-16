@@ -231,6 +231,53 @@
         border: 1px solid #fca5a5;
     }
 </style>
+
+<!-- Lead Details Modal -->
+<div class="modal fade" id="leadDetailsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Lead Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="leadDetailsContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="processLead()">Process Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewLeadDetails(id, name, phone, email, source, createdAt) {
+    const content = `
+        <div class="lead-details">
+            <p><strong>Lead ID:</strong> ${id}</p>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Email:</strong> ${email || 'Not provided'}</p>
+            <p><strong>Source:</strong> ${source}</p>
+            <p><strong>Created:</strong> ${createdAt}</p>
+            <p><strong>Status:</strong> <span class="badge badge-warning">Pending in Queue</span></p>
+            <hr>
+            <p><em>This lead is waiting to be sent to Vici dialer.</em></p>
+        </div>
+    `;
+    
+    document.getElementById('leadDetailsContent').innerHTML = content;
+    $('#leadDetailsModal').modal('show');
+}
+
+function processLead() {
+    alert('Processing lead... (This feature will send the lead to Vici)');
+    $('#leadDetailsModal').modal('hide');
+}
+</script>
 @endsection
 
 @section('content')
@@ -372,6 +419,54 @@
             </tbody>
         </table>
     </div>
+    </div>
+
+<!-- Lead Details Modal -->
+<div class="modal fade" id="leadDetailsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Lead Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="leadDetailsContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="processLead()">Process Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewLeadDetails(id, name, phone, email, source, createdAt) {
+    const content = `
+        <div class="lead-details">
+            <p><strong>Lead ID:</strong> ${id}</p>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Email:</strong> ${email || 'Not provided'}</p>
+            <p><strong>Source:</strong> ${source}</p>
+            <p><strong>Created:</strong> ${createdAt}</p>
+            <p><strong>Status:</strong> <span class="badge badge-warning">Pending in Queue</span></p>
+            <hr>
+            <p><em>This lead is waiting to be sent to Vici dialer.</em></p>
+        </div>
+    `;
+    
+    document.getElementById('leadDetailsContent').innerHTML = content;
+    $('#leadDetailsModal').modal('show');
+}
+
+function processLead() {
+    alert('Processing lead... (This feature will send the lead to Vici)');
+    $('#leadDetailsModal').modal('hide');
+}
+</script>
 @endsection
 
 @section('scripts')
@@ -526,5 +621,52 @@
         // For now, just alert. You can implement a modal later
         alert('Lead details modal coming soon. Lead ID: ' + id);
     }
+</script>
+
+<!-- Lead Details Modal -->
+<div class="modal fade" id="leadDetailsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Lead Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="leadDetailsContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="processLead()">Process Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewLeadDetails(id, name, phone, email, source, createdAt) {
+    const content = `
+        <div class="lead-details">
+            <p><strong>Lead ID:</strong> ${id}</p>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Email:</strong> ${email || 'Not provided'}</p>
+            <p><strong>Source:</strong> ${source}</p>
+            <p><strong>Created:</strong> ${createdAt}</p>
+            <p><strong>Status:</strong> <span class="badge badge-warning">Pending in Queue</span></p>
+            <hr>
+            <p><em>This lead is waiting to be sent to Vici dialer.</em></p>
+        </div>
+    `;
+    
+    document.getElementById('leadDetailsContent').innerHTML = content;
+    $('#leadDetailsModal').modal('show');
+}
+
+function processLead() {
+    alert('Processing lead... (This feature will send the lead to Vici)');
+    $('#leadDetailsModal').modal('hide');
+}
 </script>
 @endsection
