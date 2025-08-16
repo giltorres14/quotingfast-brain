@@ -8,7 +8,7 @@
         $totalCalls = \App\Models\ViciCallMetrics::count();
         $todayCalls = \App\Models\ViciCallMetrics::whereDate('created_at', today())->count();
         $connectedCalls = \App\Models\ViciCallMetrics::where('call_status', 'XFER')->count();
-        $orphanCalls = \App\Models\OrphanCallLog::where('matched', false)->count();
+        $orphanCalls = \App\Models\OrphanCallLog::unmatched()->count();
         
         // Get list distribution (simulated for now)
         $listDistribution = [

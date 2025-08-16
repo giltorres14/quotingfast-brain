@@ -60,7 +60,7 @@ class OrphanCallLog extends Model
      */
     public function scopeUnmatched($query)
     {
-        return $query->where('matched', false);
+        return $query->whereNull('matched_at');
     }
 
     /**
@@ -68,6 +68,6 @@ class OrphanCallLog extends Model
      */
     public function scopeMatched($query)
     {
-        return $query->where('matched', true);
+        return $query->whereNotNull('matched_at');
     }
 }

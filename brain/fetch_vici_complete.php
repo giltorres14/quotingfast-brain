@@ -288,7 +288,7 @@ foreach (array_slice($totalStats['by_date'], 0, 10, true) as $date => $count) {
 
 // Now try to match orphaned calls
 echo "\n🔄 ATTEMPTING TO MATCH ORPHANED CALLS...\n";
-$orphanCount = OrphanCallLog::where('matched', false)->count();
+$orphanCount = OrphanCallLog::unmatched()->count();
 
 if ($orphanCount > 0) {
     echo "Found $orphanCount unmatched orphan calls. Running match process...\n";
