@@ -954,26 +954,6 @@
                         </span>
                     </div>
                 @endif
-                
-                <!-- Payload Button in View Mode -->
-                @if(isset($mode) && $mode === 'view')
-                    <div style="margin-top: 12px;">
-                        <button onclick="showPayload()" style="
-                            background: #10b981;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 8px;
-                            cursor: pointer;
-                            font-weight: 600;
-                            font-size: 14px;
-                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                            transition: all 0.2s;
-                        " onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
-                            📦 View Complete Payload
-                        </button>
-                    </div>
-                @endif
                 <div class="meta" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
                     <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
                     @php
@@ -1565,9 +1545,22 @@
                 <div class="info-item">
                     <div class="info-label">LeadID Code</div>
                     <div class="info-value">
-                        @if($lead->leadid_code)
-                            <span style="font-family: monospace; font-size: 12px;">{{ $lead->leadid_code }}</span>
-                            <button class="copy-btn" onclick="copyToClipboard('{{ $lead->leadid_code }}', this)" style="margin-left: 10px; padding: 2px 8px; background: #22c55e; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        @php
+                            $leadIdCode = $lead->leadid_code;
+                            // Check meta field
+                            if (!$leadIdCode && $lead->meta) {
+                                $meta = is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta;
+                                $leadIdCode = $meta['lead_id_code'] ?? $meta['leadid_code'] ?? null;
+                            }
+                            // Check payload
+                            if (!$leadIdCode && $lead->payload) {
+                                $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                $leadIdCode = $payload['meta']['lead_id_code'] ?? $payload['leadid_code'] ?? null;
+                            }
+                        @endphp
+                        @if($leadIdCode)
+                            <span style="font-family: monospace; font-size: 12px;">{{ $leadIdCode }}</span>
+                            <button class="copy-btn" onclick="copyToClipboard('{{ $leadIdCode }}', this)" style="margin-left: 10px; padding: 2px 8px; background: #22c55e; color: white; border: none; border-radius: 4px; cursor: pointer;">
                                 📋 Copy
                             </button>
                         @else
@@ -1741,47 +1734,107 @@
                 <div class="info-item">
                     <div class="info-label">IP Address</div>
                     <div class="info-value">
-                        {{ $lead->ip_address ?: 'Not provided' }}
-                        @if($lead->ip_address)
-                            <button class="copy-btn" onclick="copyToClipboard('{{ $lead->ip_address }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                        @php
+                            $ipAddress = $lead->ip_address;
+                            // Check meta field
+                            if (!$ipAddress && $lead->meta) {
+                                $meta = is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta;
+                                $ipAddress = $meta['ip_address'] ?? null;
+                            }
+                            // Check payload
+                            if (!$ipAddress && $lead->payload) {
+                                $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                $ipAddress = $payload['contact']['ip_address'] ?? $payload['meta']['ip_address'] ?? null;
+                            }
+                        @endphp
+                        {{ $ipAddress ?: 'Not provided' }}
+                        @if($ipAddress)
+                            <button class="copy-btn" onclick="copyToClipboard('{{ $ipAddress }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
                         @endif
                     </div>
                 </div>
                 
                 <!-- TrustedForm Certificate -->
-                @if($lead->trusted_form_cert)
                 <div class="info-item">
                     <div class="info-label">TrustedForm Certificate</div>
                     <div class="info-value">
-                        <span style="color: #28a745;">✓ Certificate available</span>
-                        <button class="copy-btn" onclick="copyToClipboard('{{ $lead->trusted_form_cert }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                        @php
+                            $trustedFormCert = $lead->trusted_form_cert;
+                            // Check meta field
+                            if (!$trustedFormCert && $lead->meta) {
+                                $meta = is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta;
+                                $trustedFormCert = $meta['trusted_form_cert_url'] ?? $meta['trusted_form_cert'] ?? null;
+                            }
+                            // Check payload
+                            if (!$trustedFormCert && $lead->payload) {
+                                $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                $trustedFormCert = $payload['meta']['trusted_form_cert_url'] ?? $payload['meta']['trusted_form_cert'] ?? null;
+                            }
+                        @endphp
+                        @if($trustedFormCert)
+                            <span style="color: #28a745;">✓ Certificate available</span>
+                            <button class="copy-btn" onclick="copyToClipboard('{{ $trustedFormCert }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                        @else
+                            <span style="color: #6b7280;">Not provided</span>
+                        @endif
                     </div>
                 </div>
-                @endif
                 
                 <!-- Landing Page URL -->
-                @if($lead->landing_page_url)
                 <div class="info-item">
                     <div class="info-label">Landing Page URL</div>
                     <div class="info-value">
-                        <a href="{{ $lead->landing_page_url }}" target="_blank" style="color: #3b82f6; text-decoration: none;">{{ parse_url($lead->landing_page_url, PHP_URL_HOST) ?: $lead->landing_page_url }}</a>
-                        <button class="copy-btn" onclick="copyToClipboard('{{ $lead->landing_page_url }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                        @php
+                            $landingPageUrl = $lead->landing_page_url;
+                            // Check meta field
+                            if (!$landingPageUrl && $lead->meta) {
+                                $meta = is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta;
+                                $landingPageUrl = $meta['landing_page_url'] ?? null;
+                            }
+                            // Check payload
+                            if (!$landingPageUrl && $lead->payload) {
+                                $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                $landingPageUrl = $payload['meta']['landing_page_url'] ?? null;
+                            }
+                        @endphp
+                        @if($landingPageUrl)
+                            <a href="{{ $landingPageUrl }}" target="_blank" style="color: #3b82f6; text-decoration: none;">{{ parse_url($landingPageUrl, PHP_URL_HOST) ?: $landingPageUrl }}</a>
+                            <button class="copy-btn" onclick="copyToClipboard('{{ $landingPageUrl }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                        @else
+                            <span style="color: #6b7280;">Not provided</span>
+                        @endif
                     </div>
                 </div>
-                @endif
                 
                 <!-- TCPA Consent Text -->
-                @if($lead->tcpa_consent_text)
                 <div class="info-item" style="grid-column: span 2;">
                     <div class="info-label">
                         TCPA Consent Text
-                        <button class="copy-btn" onclick="copyToClipboard('{{ addslashes($lead->tcpa_consent_text) }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-size: 12px;">📋 Copy</button>
+                        @php
+                            $tcpaConsentText = $lead->tcpa_consent_text;
+                            // Check meta field
+                            if (!$tcpaConsentText && $lead->meta) {
+                                $meta = is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta;
+                                $tcpaConsentText = $meta['tcpa_consent_text'] ?? null;
+                            }
+                            // Check payload
+                            if (!$tcpaConsentText && $lead->payload) {
+                                $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                $tcpaConsentText = $payload['meta']['tcpa_consent_text'] ?? null;
+                            }
+                        @endphp
+                        @if($tcpaConsentText)
+                            <button class="copy-btn" onclick="copyToClipboard('{{ addslashes($tcpaConsentText) }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-size: 12px;">📋 Copy</button>
+                        @endif
                     </div>
                     <div class="info-value" style="font-size: 0.875rem; line-height: 1.5; padding: 10px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb;">
-                        {{ $lead->tcpa_consent_text }}
+                        @if($tcpaConsentText)
+                            {{ $tcpaConsentText }}
+                        @else
+                            <span style="color: #6b7280;">Not provided</span>
+                        @endif
                     </div>
                 </div>
-                @endif
             </div>
         </div>
         @endif
