@@ -1808,65 +1808,6 @@
             }
         @endphp
         
-        <!-- Combined Vendor, Buyer & Cost Information Section - Hidden in Edit Mode -->
-        <div class="section vendor-buyer-section" style="background: linear-gradient(135deg, #f3e7fc 0%, #e9d5ff 100%); border: 2px solid #c084fc; border-radius: 12px; padding: 20px;">
-            <div class="section-title" style="background: #9333ea; color: white; padding: 12px 20px; margin: -20px -20px 20px -20px; border-radius: 10px 10px 0 0; font-size: 18px;">
-                🏢 Vendor, Buyer & Cost Information
-            </div>
-            <div class="info-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                @php
-                    // Handle double-encoded JSON for vendor/buyer info
-                    $vendorPayload = $lead->payload;
-                    if (is_string($vendorPayload)) {
-                        $vendorPayload = json_decode($vendorPayload, true);
-                    }
-                    if (is_string($vendorPayload)) {
-                        $vendorPayload = json_decode($vendorPayload, true);
-                    }
-                    
-                    // Get campaign info
-                    $campaignId = $lead->campaign_id;
-                    if (!$campaignId && isset($lead->payload) && is_string($lead->payload)) {
-                        $payload = json_decode($lead->payload, true);
-                        $campaignId = $payload['campaign_id'] ?? null;
-                    }
-                    
-                    // Remove .0 from numeric IDs
-                    if ($campaignId && is_numeric($campaignId)) {
-                        $campaignId = rtrim(rtrim(number_format($campaignId, 10, '.', ''), '0'), '.');
-                    }
-                @endphp
-                
-                <!-- Lead IDs Section -->
-                <div class="info-item">
-                    <div class="info-label">Jangle Lead ID</div>
-                    <div class="info-value">
-                        @php
-                            // First check the jangle_lead_id field
-                            $jangleId = $lead->jangle_lead_id;
-                            
-                            // If not found, check the payload for the "id" field (which is the Jangle ID)
-                            if (!$jangleId && isset($lead->payload)) {
-                                $payloadData = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
-                                $jangleId = $payloadData['id'] ?? ($payloadData['lead_id'] ?? ($payloadData['jangle_lead_id'] ?? null));
-                            }
-                            
-                            // Also check vendor payload
-                            if (!$jangleId) {
-                                $jangleId = $vendorPayload['id'] ?? ($vendorPayload['lead_id'] ?? ($vendorPayload['jangle_lead_id'] ?? null));
-                            }
-                            
-                            // Clean numeric ID
-                            if ($jangleId && is_numeric($jangleId)) {
-                                $jangleId = rtrim(rtrim(number_format($jangleId, 10, '.', ''), '0'), '.');
-                            }
-                        @endphp
-                        <strong style="color: #9333ea;">{{ $jangleId ?: 'Not provided' }}</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
         <!-- Drivers Section (Auto Insurance Only) -->
         @if($lead->type === 'auto' && $drivers && count($drivers) > 0)
         <div class="section">
