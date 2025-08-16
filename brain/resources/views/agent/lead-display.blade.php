@@ -74,14 +74,15 @@
             margin: 0 auto;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
-            padding: 16px;
+            padding: 10px 16px; /* Reduced vertical padding */
             border-radius: 8px;
             margin-bottom: 16px;
             text-align: center;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000; /* Increased z-index */
             box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .header-logo {
@@ -886,6 +887,9 @@
     </script>
 </head>
 <body>
+@php
+    $isIframe = request()->has('iframe') || (isset($mode) && $mode === 'agent');
+@endphp
     <!-- Save button moved inside lead details section -->
     
     <!-- REMOVED: Allstate validation progress indicator per user request -->
@@ -962,7 +966,7 @@
                     </div>
                 @endif
                 <div class="meta" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
+                    
                     @php
                         $formattedPhone = $lead->phone;
                         if (strlen($formattedPhone) == 10) {
@@ -975,6 +979,9 @@
                             {{ $lead->address }}{{ $lead->address && ($lead->city || $lead->state || $lead->zip_code) ? ', ' : '' }}{{ $lead->city }}{{ $lead->city && ($lead->state || $lead->zip_code) ? ', ' : '' }}{{ $lead->state }} {{ $lead->zip_code }}
                         </span>
                     @endif
+                    <div style="margin-top: 5px;">
+                        <span style="font-size: 0.9em; color: rgba(255,255,255,0.9);">Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1373,7 +1380,14 @@
             @if(!isset($mode) || $mode !== 'view')
             <div class="edit-form" id="contact-edit" style="display: none;">
                 <label>First Name:</label>
-                <input type="text" id="edit-first-name" value="{{ $lead->first_name ?? '' }}" placeholder="First name">
+                @php
+                $firstName = $lead->first_name;
+                if (!$firstName && $lead->payload) {
+                    $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                    $firstName = $payload['contact']['first_name'] ?? $payload['first_name'] ?? '';
+                }
+            @endphp
+            <input type="text" id="edit-first-name" value="{{ $firstName }}" placeholder="First name">
                 
                 <label>Last Name:</label>
                 <input type="text" id="edit-last-name" value="{{ $lead->last_name ?? '' }}" placeholder="Last name">
@@ -1848,10 +1862,13 @@
                             }
                         @endphp
                         @if($tcpaConsentText)
-                            <button class="copy-btn" onclick="copyToClipboard('{{ addslashes($tcpaConsentText) }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-size: 12px;">📋 Copy</button>
+                            <button class="btn btn-sm" onclick="toggleTcpaText()" style="background: #3b82f6; color: white; border: none; padding: 4px 12px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-size: 12px;">
+                                <span id="tcpa-toggle-text">👁️ Show Text</span>
+                            </button>
+                            <button class="copy-btn" onclick="copyToClipboard('{{ addslashes($tcpaConsentText) }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 4px; font-size: 12px;">📋 Copy</button>
                         @endif
                     </div>
-                    <div class="info-value" style="font-size: 0.875rem; line-height: 1.5; padding: 10px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb;">
+                    <div class="info-value" id="tcpa-consent-text" style="display: none; font-size: 0.875rem; line-height: 1.5; padding: 10px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; margin-top: 10px;">
                         @if($tcpaConsentText)
                             {{ $tcpaConsentText }}
                         @else
@@ -2058,13 +2075,17 @@
                         <div class="info-value">
                             @php
                                 $yearsLicensed = $driver['years_licensed'] ?? $driver['license_age'] ?? null;
-                                if (!$yearsLicensed && isset($driver['first_licensed_at'])) {
-                                    // Calculate from first licensed date
-                                    try {
-                                        $firstLicensed = \Carbon\Carbon::parse($driver['first_licensed_at']);
-                                        $yearsLicensed = $firstLicensed->diffInYears(\Carbon\Carbon::now());
-                                    } catch (\Exception $e) {
-                                        // Ignore
+                                
+                                // If not provided, calculate using Age - 17 formula
+                                if (!$yearsLicensed) {
+                                    if (isset($driver['birth_date']) || isset($driver['dob']) || isset($driver['date_of_birth'])) {
+                                        $birthDate = $driver['birth_date'] ?? $driver['dob'] ?? $driver['date_of_birth'];
+                                        try {
+                                            $age = \Carbon\Carbon::parse($birthDate)->age;
+                                            $yearsLicensed = max(1, $age - 17); // Assume licensed at 17, minimum 1 year
+                                        } catch (\Exception $e) {
+                                            // Ignore
+                                        }
                                     }
                                 }
                             @endphp
