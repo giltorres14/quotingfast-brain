@@ -566,29 +566,70 @@
         overlay.innerHTML = '<div style="text-align:center"><div style="font-size:24px;color:#4A90E2;margin-bottom:10px">Loading Stats...</div><div style="color:#6b7280">Fetching ' + label + ' data</div></div>';
         document.body.appendChild(overlay);
         
-        // Small delay for visual feedback
-        setTimeout(() => {
-            const startStr = startDate.toISOString().split('T')[0];
-            const endStr = endDate.toISOString().split('T')[0];
-            
-            // Build URL with all necessary parameters
-            const url = new URL(window.location);
-            
-            // Clear old date params
-            url.searchParams.delete('date_from');
-            url.searchParams.delete('date_to');
-            url.searchParams.delete('period');
-            
-            // Set new params based on period
-            if (currentPeriod === 'custom') {
-                url.searchParams.set('date_from', startStr);
-                url.searchParams.set('date_to', endStr);
+        // Update URL without reloading
+        const startStr = startDate.toISOString().split('T')[0];
+        const endStr = endDate.toISOString().split('T')[0];
+        
+        // Build URL with all necessary parameters
+        const url = new URL(window.location);
+        
+        // Clear old date params
+        url.searchParams.delete('date_from');
+        url.searchParams.delete('date_to');
+        url.searchParams.delete('period');
+        
+        // Set new params based on period
+        if (currentPeriod === 'custom') {
+            url.searchParams.set('date_from', startStr);
+            url.searchParams.set('date_to', endStr);
+        }
+        url.searchParams.set('period', currentPeriod);
+        
+        // Update URL without reload
+        window.history.pushState({}, '', url.toString());
+        
+        // Fetch data via AJAX instead of page reload
+        fetch(url.toString(), {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
             }
-            url.searchParams.set('period', currentPeriod);
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Parse the response and update stats
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
             
-            // Preserve other params (search, filters, etc)
-            window.location.href = url.toString();
-        }, 100);
+            // Update stat numbers
+            const newTotal = doc.getElementById('stat-total');
+            const newVici = doc.getElementById('stat-vici');
+            const newStuck = doc.getElementById('stat-stuck');
+            const newConversion = doc.getElementById('stat-conversion');
+            
+            if (newTotal) document.getElementById('stat-total').textContent = newTotal.textContent;
+            if (newVici) document.getElementById('stat-vici').textContent = newVici.textContent;
+            if (newStuck) document.getElementById('stat-stuck').textContent = newStuck.textContent;
+            if (newConversion) document.getElementById('stat-conversion').textContent = newConversion.textContent;
+            
+            // Update lead cards
+            const leadGrid = doc.querySelector('.lead-grid');
+            if (leadGrid) {
+                document.querySelector('.lead-grid').innerHTML = leadGrid.innerHTML;
+            }
+            
+            // Remove loading overlay
+            const overlay = document.querySelector('div[style*="position:fixed"]');
+            if (overlay) overlay.remove();
+        })
+        .catch(error => {
+            console.error('Error fetching stats:', error);
+            // Remove loading overlay
+            const overlay = document.querySelector('div[style*="position:fixed"]');
+            if (overlay) overlay.remove();
+            
+            // Show error message
+            alert('Error loading stats. Please try again.');
+        });
     }
     
     function updateStatsLocally(startDate, endDate) {
@@ -617,12 +658,21 @@
         document.getElementById('stat-conversion').textContent = rate + '%';
     }
     
-    // Auto-refresh stats every 30 seconds
-    setInterval(function() {
-        if (currentPeriod === 'today') {
-            updateStats('today');
-        }
-    }, 30000);
+    // Auto-refresh disabled - use manual refresh button instead
+    
+    
+    function refreshDashboard() {
+        // Show loading indicator
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;z-index:9999';
+        overlay.innerHTML = '<div style="text-align:center"><div style="font-size:24px;color:#10b981;margin-bottom:10px">🔄 Refreshing Dashboard...</div><div style="color:#6b7280">Loading latest data</div></div>';
+        document.body.appendChild(overlay);
+        
+        // Reload the page to get fresh data
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    }
     
     // Show payload in modal
     function showPayload(lead) {

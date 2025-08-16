@@ -39,7 +39,7 @@ Route::get('/logo.png', function () {
 
 // Simple test endpoint to debug
 Route::get('/test-simple', function () {
-    return response()->json(['status' => 'ok', 'time' => now()]);
+    return response()->json(['status' => 'ok', 'time' => now()->setTimezone('America/New_York')]);
 })->withoutMiddleware('*');
 
 // ============================================
@@ -312,7 +312,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                 'status' => 'ready',
                 'message' => 'Webhook ready to receive leads',
                 'method' => 'POST this URL with lead data',
-                'timestamp' => now()->toIso8601String()
+                'timestamp' => now()->setTimezone('America/New_York')->toIso8601String()
             ], 200);
         }
         
@@ -342,8 +342,8 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     'zip_code' => $contact['zip_code'] ?? null,
                     'source' => 'leadsquotingfast',
                     'type' => 'auto', // Default to auto, can enhance detection later
-                    'received_at' => now(),
-                    'joined_at' => now(),
+                    'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                    'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
                     'tenant_id' => 1, // QuotingFast tenant ID
                     
                     // Lead tracking IDs
@@ -414,7 +414,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     // 🧪 ALLSTATE API TESTING - ULTRA COMPREHENSIVE DEBUG
                     $allstateDebug = [
                         'CHECKPOINT_1' => 'ENTERED_ALLSTATE_BLOCK',
-                        'timestamp' => now()->toIso8601String(),
+                        'timestamp' => now()->setTimezone('America/New_York')->toIso8601String(),
                         'lead_id' => $lead->id ?? 'NO_LEAD',
                         'external_lead_id' => $lead->external_lead_id ?? 'NO_EXT_ID',
                     ];
@@ -422,7 +422,7 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     try {
                         // Save checkpoint 1
                         $currentMeta = json_decode($lead->meta ?? '{}', true);
-                        $currentMeta['ALLSTATE_CHECKPOINTS'] = ['CP1_ENTERED' => now()->toIso8601String()];
+                        $currentMeta['ALLSTATE_CHECKPOINTS'] = ['CP1_ENTERED' => now()->setTimezone('America/New_York')->toIso8601String()];
                         \DB::table('leads')->where('id', $lead->id)->update(['meta' => json_encode($currentMeta)]);
                         
                         // Check if AllstateTestingService exists
@@ -681,7 +681,7 @@ Route::get('/check-allstate-db', function () {
             'record_count' => $count,
             'database_connection' => config('database.default'),
             'migration_output' => $migrationOutput ?? 'Table already existed',
-            'timestamp' => now()->toIso8601String()
+            'timestamp' => now()->setTimezone('America/New_York')->toIso8601String()
         ]);
     } catch (\Exception $e) {
         return response()->json([
@@ -774,7 +774,7 @@ Route::get('/test-deployment', function () {
     return response()->json([
         'success' => true,
         'message' => 'New deployment is working!',
-        'timestamp' => now()->toISOString()
+        'timestamp' => now()->setTimezone('America/New_York')->toISOString()
     ]);
 });
 
@@ -782,7 +782,7 @@ Route::get('/test-deployment', function () {
 Route::get('/healthz', function () {
     return response()->json([
         'status' => 'healthy',
-        'timestamp' => now()->toISOString()
+        'timestamp' => now()->setTimezone('America/New_York')->toISOString()
     ], 200);
 });
 
@@ -796,13 +796,13 @@ Route::get('/emergency-migrate', function () {
             'success' => true,
             'message' => 'Emergency migration completed!',
             'output' => $output,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 });
@@ -843,7 +843,7 @@ Route::get('/test', function () {
     return response()->json([
         'success' => true,
         'message' => 'Laravel is working!',
-        'timestamp' => now()->toISOString()
+        'timestamp' => now()->setTimezone('America/New_York')->toISOString()
     ]);
 });
 
@@ -851,7 +851,7 @@ Route::get('/test', function () {
 // DISABLED: Test route - use /admin/vici-reports instead
 /* Route::match(['get', 'post'], '/test-vici-connection', function(\Illuminate\Http\Request $request) {
     $result = [
-        'timestamp' => now()->toISOString(),
+        'timestamp' => now()->setTimezone('America/New_York')->toISOString(),
         'tests' => []
     ];
     
@@ -922,14 +922,14 @@ Route::get('/test', function () {
                 'action' => 'check_vendor_codes',
                 'leads_checked' => $vendorResults,
                 'statistics' => $stats,
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ]);
             
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ], 500);
         }
     }
@@ -1065,7 +1065,7 @@ Route::get('/vici/whitelist', function () {
             'message' => 'ViciDial firewall whitelist completed',
             'status' => $firewallAuth->status(),
             'response_body' => substr($firewallAuth->body(), 0, 200),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
         
     } catch (Exception $e) {
@@ -1073,7 +1073,7 @@ Route::get('/vici/whitelist', function () {
         return response()->json([
             'success' => false,
             'message' => 'Firewall whitelist failed: ' . $e->getMessage(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 });
@@ -1120,7 +1120,7 @@ Route::get('/debug/vici-config', function () {
         'whitelist_url' => 'https://' . env('VICI_SERVER', 'philli.callix.ai') . ':26793/92RG8UJYTW.php',
         'api_url' => 'https://' . env('VICI_SERVER', 'philli.callix.ai') . env('VICI_API_ENDPOINT', '/vicidial/non_agent_api.php'),
         'last_whitelist' => \Cache::get('vici_last_whitelist', 'never'),
-        'timestamp' => now()->toISOString()
+        'timestamp' => now()->setTimezone('America/New_York')->toISOString()
     ]);
 });
 
@@ -1154,8 +1154,8 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
                 'zip_code' => $contact['zip_code'] ?? null,
                 'source' => 'leadsquotingfast',
                 'type' => $data['data']['requested_policy']['coverage_type'] ?? 'auto',
-                'received_at' => now(),
-                'joined_at' => now(),
+                'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
                 'external_lead_id' => $externalLeadId, // ALWAYS use our generated ID
                 'campaign_id' => $data['campaign_id'] ?? null,
                 'sell_price' => $data['sell_price'] ?? null,
@@ -1185,7 +1185,7 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
                 'name' => $leadData['name'],
                 'method' => $request->method(),
                 'data_received' => !empty($data),
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ], 201);
         }
         
@@ -1194,7 +1194,7 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
             'message' => 'Test webhook is working!',
             'method' => $request->method(),
             'ready_for_leads' => true,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
         
     } catch (Exception $e) {
@@ -1203,7 +1203,7 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
@@ -1368,7 +1368,7 @@ Route::get('/test-lead-data', function () {
                     '3. Then call this endpoint again to see actual lead data'
                 ],
                 'test_allstate_api' => 'https://quotingfast-brain-ohio.onrender.com/test/allstate/connection',
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ]);
         }
         
@@ -1430,7 +1430,7 @@ Route::get('/test-lead-data', function () {
             'message' => "Found {$leads->count()} leads in database",
             'leads' => $leadData,
             'allstate_api_test' => 'https://quotingfast-brain-ohio.onrender.com/test/allstate/connection',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
         
     } catch (\Exception $e) {
@@ -1442,7 +1442,7 @@ Route::get('/test-lead-data', function () {
                 'test_lead_viewer' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/TEST_LEAD_1',
                 'allstate_api_test' => 'https://quotingfast-brain-ohio.onrender.com/test/allstate/connection'
             ],
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 });
@@ -1460,7 +1460,7 @@ Route::post('/test-lead-data', function (Request $request) {
             'success' => true,
             'message' => 'Lead data received successfully!',
             'received_data' => $request->all(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
     } catch (\Exception $e) {
         Log::error('Test lead data failed', [
@@ -1741,14 +1741,14 @@ Route::any('/webhook-emergency', function () {
                 'status' => 'success',
                 'message' => 'Lead received and saved',
                 'lead_id' => $lead->external_lead_id,
-                'timestamp' => now()->toIso8601String()
+                'timestamp' => now()->setTimezone('America/New_York')->toIso8601String()
             ], 200);
         }
         
         return response()->json([
             'status' => 'OK',
             'message' => 'Emergency webhook ready',
-            'timestamp' => now()->toIso8601String()
+            'timestamp' => now()->setTimezone('America/New_York')->toIso8601String()
         ], 200);
         
     } catch (\Exception $e) {
@@ -1803,7 +1803,7 @@ Route::any('/webhook-failsafe.php', function (Request $request) {
         return response()->json([
             'success' => true,
             'message' => 'Lead received and processed',
-            'timestamp' => now()->toIso8601String()
+            'timestamp' => now()->setTimezone('America/New_York')->toIso8601String()
         ], 200);
         
     } catch (\Exception $e) {
@@ -1905,8 +1905,8 @@ Route::post('/webhook.php', function (Request $request) {
             'zip_code' => $contact['zip_code'] ?? null,
             'source' => 'leadsquotingfast',
             'type' => detectLeadType($data),
-            'received_at' => now(),
-            'joined_at' => now(),
+            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             'tenant_id' => 1, // QuotingFast tenant ID
             
             // Vendor Information (from LQF payload)
@@ -2141,14 +2141,14 @@ Route::post('/webhook.php', function (Request $request) {
                     // Update lead with Vici info
                     $lead->update([
                         'vici_lead_id' => $viciResult['vici_lead_id'] ?? null,
-                        'vici_pushed_at' => now(),
+                        'vici_pushed_at' => now()->setTimezone('America/New_York'),
                         'vici_list_id' => $viciResult['list_id'] ?? '101',
                         'meta' => json_encode(array_merge(
                             json_decode($lead->meta ?? '{}', true),
                             [
                                 'vici_push_result' => $viciResult,
                                 'vici_campaign' => $viciCampaign,
-                                'vici_pushed_at' => now()->toIso8601String()
+                                'vici_pushed_at' => now()->setTimezone('America/New_York')->toIso8601String()
                             ]
                         ))
                     ]);
@@ -2186,7 +2186,7 @@ Route::post('/webhook.php', function (Request $request) {
                     'external_lead_id' => $externalLeadId,
                     'lead_name' => $lead->name,
                     'testing_mode' => true,
-                    'timestamp' => now()->toIso8601String(),
+                    'timestamp' => now()->setTimezone('America/New_York')->toIso8601String(),
                     'environment' => app()->environment()
                 ]);
                 
@@ -2288,7 +2288,7 @@ Route::post('/webhook.php', function (Request $request) {
             }
             file_put_contents(
                 "{$cacheDir}/{$cacheId}.json", 
-                json_encode(array_merge($leadData, ['cached_at' => now()->toISOString()]))
+                json_encode(array_merge($leadData, ['cached_at' => now()->setTimezone('America/New_York')->toISOString()]))
             );
             Log::info('Lead stored in file cache', ['cache_id' => $cacheId]);
         }
@@ -2306,7 +2306,7 @@ Route::post('/webhook.php', function (Request $request) {
             'name' => $leadData['name'],
             'vici_list' => 101,
             'iframe_url' => $lead ? url("/agent/lead/{$lead->id}") : null, // Internal routing uses DB ID
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 201);
         
     } catch (Exception $e) {
@@ -2315,7 +2315,7 @@ Route::post('/webhook.php', function (Request $request) {
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 400);
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]); 
@@ -2352,8 +2352,8 @@ Route::post('/webhook/ringba', function (Request $request) {
             'zip_code' => $contact['zip_code'] ?? null,
             'source' => 'ringba',
             'type' => 'call_tracking',
-            'received_at' => now(),
-            'joined_at' => now(),
+            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             // Ringba-specific fields
             'call_duration' => $data['call_duration'] ?? null,
             'caller_id' => $data['caller_id'] ?? null,
@@ -2374,7 +2374,7 @@ Route::post('/webhook/ringba', function (Request $request) {
             'message' => 'Ringba lead received and stored successfully',
             'lead_id' => $lead->id,
             'source' => 'ringba',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 201);
         
     } catch (Exception $e) {
@@ -2384,7 +2384,7 @@ Route::post('/webhook/ringba', function (Request $request) {
             'success' => false,
             'error' => $e->getMessage(),
             'source' => 'ringba',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 400);
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
@@ -2502,8 +2502,8 @@ Route::post('/webhook/vici', function (Request $request) {
             'zip_code' => $contact['zip_code'] ?? null,
             'source' => 'vici',
             'type' => 'dialer_system',
-            'received_at' => now(),
-            'joined_at' => now(),
+            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             // Vici-specific fields
             'agent_id' => $data['agent_id'] ?? null,
             'campaign_id' => $data['campaign_id'] ?? null,
@@ -2526,7 +2526,7 @@ Route::post('/webhook/vici', function (Request $request) {
             'message' => 'Vici lead received and stored successfully',
             'lead_id' => $lead->id,
             'source' => 'vici',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 201);
         
     } catch (Exception $e) {
@@ -2536,7 +2536,7 @@ Route::post('/webhook/vici', function (Request $request) {
             'success' => false,
             'error' => $e->getMessage(),
             'source' => 'vici',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 400);
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
@@ -2569,8 +2569,8 @@ Route::post('/webhook/twilio', function (Request $request) {
             'zip_code' => $contact['zip_code'] ?? null,
             'source' => 'twilio',
             'type' => 'sms_voice',
-            'received_at' => now(),
-            'joined_at' => now(),
+            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             // Twilio-specific fields
             'message_sid' => $data['MessageSid'] ?? $data['CallSid'] ?? null,
             'from_number' => $data['From'] ?? null,
@@ -2593,7 +2593,7 @@ Route::post('/webhook/twilio', function (Request $request) {
             'message' => 'Twilio lead received and stored successfully',
             'lead_id' => $lead->id,
             'source' => 'twilio',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 201);
         
     } catch (Exception $e) {
@@ -2603,7 +2603,7 @@ Route::post('/webhook/twilio', function (Request $request) {
             'success' => false,
             'error' => $e->getMessage(),
             'source' => 'twilio',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 400);
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
@@ -2638,8 +2638,8 @@ Route::post('/webhook/allstate', function (Request $request) {
             'birth_date' => isset($contact['birth_date']) ? $contact['birth_date'] : null,
             'source' => 'allstate_ready',
             'type' => 'call_transfer',
-            'received_at' => now(),
-            'joined_at' => now(),
+            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             // Insurance-specific fields
             'insurance_company' => $contact['current_insurance'] ?? null,
             'coverage_type' => $contact['coverage_type'] ?? 'basic',
@@ -2687,7 +2687,7 @@ Route::post('/webhook/allstate', function (Request $request) {
                 'source' => 'allstate_ready',
                 'transfer_status' => 'transferred',
                 'allstate_response' => $transferResult['allstate_response'] ?? null,
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ], 201);
         } else {
             Log::warning('Lead stored but Allstate transfer failed', [
@@ -2702,7 +2702,7 @@ Route::post('/webhook/allstate', function (Request $request) {
                 'source' => 'allstate_ready',
                 'transfer_status' => 'failed',
                 'transfer_error' => $transferResult['error'] ?? 'Unknown error',
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ], 201);
         }
         
@@ -2713,7 +2713,7 @@ Route::post('/webhook/allstate', function (Request $request) {
             'success' => false,
             'error' => $e->getMessage(),
             'source' => 'allstate_ready',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 400);
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
@@ -2776,7 +2776,7 @@ Route::get('/webhook/status', function () {
         'success' => true,
         'webhooks' => $webhooks,
         'total_webhooks' => count($webhooks),
-        'timestamp' => now()->toISOString()
+        'timestamp' => now()->setTimezone('America/New_York')->toISOString()
     ]);
 });
 
@@ -2808,14 +2808,14 @@ Route::get('/test/vici-db', function () {
             'host' => $host,
             'database' => $db,
             'list_101_leads' => $result['total'],
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
     } catch (Exception $e) {
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
             'host' => $host ?? 'unknown',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 });
@@ -2832,13 +2832,13 @@ Route::get('/test/db', function () {
             'message' => 'Database connection successful',
             'database' => $dbName,
             'driver' => DB::connection()->getDriverName(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
     } catch (Exception $e) {
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 });
@@ -3030,7 +3030,7 @@ Route::get('/leads', function (Request $request) {
                 'state' => 'NV',
                 'source' => 'Manual',
                 'status' => 'New',
-                'created_at' => now()->subHours(2),
+                'created_at' => now()->setTimezone('America/New_York')->subHours(2),
                 'vehicles' => [['year' => 2023, 'make' => 'Audi', 'model' => 'z']],
                 'current_policy' => ['company' => 'V.V.C Embroidery'],
                 'vici_call_metrics' => null,
@@ -3048,7 +3048,7 @@ Route::get('/leads', function (Request $request) {
                 'state' => 'MD',
                 'source' => 'Campaign',
                 'status' => 'Contacted',
-                'created_at' => now()->subHours(4),
+                'created_at' => now()->setTimezone('America/New_York')->subHours(4),
                 'vehicles' => [['year' => 2002, 'make' => 'MAZDA', 'model' => 'B3000 CAB PLUS']],
                 'current_policy' => ['company' => 'Unknown'],
                 'vici_call_metrics' => null,
@@ -3066,7 +3066,7 @@ Route::get('/leads', function (Request $request) {
                 'state' => 'AZ',
                 'source' => 'Web',
                 'status' => 'Qualified',
-                'created_at' => now()->subHours(6),
+                'created_at' => now()->setTimezone('America/New_York')->subHours(6),
                 'vehicles' => [['year' => 2020, 'make' => 'Honda', 'model' => 'Civic']],
                 'current_policy' => ['company' => 'State Farm'],
                 'vici_call_metrics' => null,
@@ -3084,7 +3084,7 @@ Route::get('/leads', function (Request $request) {
                 'state' => 'FL',
                 'source' => 'Manual',
                 'status' => 'Converted',
-                'created_at' => now()->subDays(1),
+                'created_at' => now()->setTimezone('America/New_York')->subDays(1),
                 'vehicles' => [['year' => 2021, 'make' => 'Toyota', 'model' => 'Camry']],
                 'current_policy' => ['company' => 'Geico'],
                 'vici_call_metrics' => null,
@@ -3285,8 +3285,8 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                 'zip_code' => '90210',
                 'source' => 'leadsquotingfast', // CRITICAL: This was missing!
                 'type' => 'auto',
-                'received_at' => now(),
-                'joined_at' => now(),
+                'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
                 'drivers' => [
                     [
                         'first_name' => 'John',
@@ -3337,8 +3337,8 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                         'requested_policy' => ['coverage' => 'Full Coverage']
                     ]
                 ]),
-                'created_at' => now(),
-                'updated_at' => now()
+                'created_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'updated_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York')
             ];
             
             // Mock call metrics with complete structure
@@ -3346,16 +3346,16 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                 'lead_id' => $leadId,
                 'call_attempts' => 3,
                 'talk_time' => 120,
-                'connected_time' => now()->subMinutes(5), // CRITICAL: This was missing!
+                'connected_time' => now()->setTimezone('America/New_York')->subMinutes(5), // CRITICAL: This was missing!
                 'status' => 'connected',
                 'agent_id' => 'AGENT001',
                 'disposition' => 'qualified',
                 'campaign_id' => 'TEST_CAMPAIGN',
                 'phone_number' => '555-TEST-123',
-                'start_time' => now()->subMinutes(10),
-                'end_time' => now()->subMinutes(2),
-                'created_at' => now(),
-                'updated_at' => now()
+                'start_time' => now()->setTimezone('America/New_York')->subMinutes(10),
+                'end_time' => now()->setTimezone('America/New_York')->subMinutes(2),
+                'created_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'updated_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York')
             ];
         }
 
@@ -3426,7 +3426,7 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
             'lead_name' => $leadName,
             'status' => 'transfer_requested',
             'mock_data' => !$lead,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
 
     } catch (Exception $e) {
@@ -3438,7 +3438,7 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
         return response()->json([
             'success' => false,
             'error' => $e->getMessage(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 });
@@ -3495,7 +3495,7 @@ Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
                 'lead_name' => $lead->name,
                 'vici_result' => $viciResult,
                 'webhook_url' => url('/webhook/vici'),
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ]);
         } else {
             return response()->json([
@@ -3505,7 +3505,7 @@ Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
                 'lead_name' => $lead->name,
                 'error' => 'Vici function returned null/false',
                 'vici_result' => $viciResult,
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ], 400);
         }
 
@@ -3519,7 +3519,7 @@ Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
         return response()->json([
             'success' => false,
             'error' => 'Internal Server Error: ' . $e->getMessage(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 });
@@ -3645,7 +3645,7 @@ Route::get('/test/allstate/connection', function () {
                 'auth_method' => 'Bearer Token',
                 'response' => $response->json(),
                 'all_endpoints_tested' => $results,
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ]);
         } else {
             return response()->json([
@@ -3657,7 +3657,7 @@ Route::get('/test/allstate/connection', function () {
                 'all_endpoints_tested' => $results,
                 'last_response_status' => $response->status(),
                 'last_response_body' => $response->body(),
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ], 500);
         }
 
@@ -3671,7 +3671,7 @@ Route::get('/test/allstate/connection', function () {
             'success' => false,
             'message' => 'Allstate API connection test failed',
             'error' => $e->getMessage(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 });
@@ -3744,8 +3744,8 @@ Route::post('/lead-upload/process', function (Request $request) {
                     'source' => 'csv_upload',
                     'type' => $leadType,
                     'campaign_id' => $campaignId,
-                    'received_at' => now(),
-                    'joined_at' => now(),
+                    'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                    'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
                     'payload' => json_encode($leadData),
                 ];
                 
@@ -3949,7 +3949,7 @@ Route::post('/buyer/login', function (Request $request) {
     }
 
     // Update last login
-    $buyer->update(['last_login_at' => now()]);
+    $buyer->update(['last_login_at' => now()->setTimezone('America/New_York')]);
 
     // Create session (simplified)
     session(['buyer_id' => $buyer->id]);
@@ -4329,7 +4329,7 @@ Route::post('/buyer/documents/{documentId}/signature', function ($documentId, Re
         if ($documentId === 'contract') {
             $buyer->update([
                 'contract_signed' => true,
-                'contract_signed_at' => now(),
+                'contract_signed_at' => now()->setTimezone('America/New_York'),
                 'contract_ip' => $request->ip(),
                 'status' => 'active' // Activate account upon contract signing
             ]);
@@ -4338,7 +4338,7 @@ Route::post('/buyer/documents/{documentId}/signature', function ($documentId, Re
             $buyer->contracts()->create([
                 'contract_version' => 'v2.1',
                 'contract_content' => 'QuotingFast Buyer Agreement - Full Terms',
-                'signed_at' => now(),
+                'signed_at' => now()->setTimezone('America/New_York'),
                 'signature_ip' => $request->ip(),
                 'signature_method' => 'digital_canvas',
                 'signature_data' => [
@@ -4347,7 +4347,7 @@ Route::post('/buyer/documents/{documentId}/signature', function ($documentId, Re
                     'signer_title' => $validated['signer_title'],
                     'signature_canvas_data' => $validated['signature_data'],
                     'user_agent' => $request->userAgent(),
-                    'timestamp' => now()->toISOString()
+                    'timestamp' => now()->setTimezone('America/New_York')->toISOString()
                 ],
                 'is_active' => true
             ]);
@@ -4365,14 +4365,14 @@ Route::post('/buyer/documents/{documentId}/signature', function ($documentId, Re
                 $buyer->id,
                 'Contract Signed Successfully',
                 'Your buyer agreement has been signed and your account is now active. Welcome to QuotingFast!',
-                ['contract_version' => 'v2.1', 'signed_at' => now()->toISOString()]
+                ['contract_version' => 'v2.1', 'signed_at' => now()->setTimezone('America/New_York')->toISOString()]
             );
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Document signed successfully',
-            'signed_at' => now()->toISOString(),
+            'signed_at' => now()->setTimezone('America/New_York')->toISOString(),
             'certificate_id' => 'CERT_' . strtoupper(uniqid())
         ]);
 
@@ -4419,7 +4419,7 @@ Route::post('/buyer/documents/upload', function (Request $request) {
             'file_size' => $file->getSize(),
             'mime_type' => $file->getMimeType(),
             'document_type' => $validated['document_type'],
-            'uploaded_at' => now()
+            'uploaded_at' => now()->setTimezone('America/New_York')
         ];
 
         \Illuminate\Support\Facades\Log::info("Document uploaded", $documentData);
@@ -4514,7 +4514,7 @@ Route::get('/api/buyer/notifications/realtime', function () {
 
     return response()->json([
         'notifications' => $realtimeNotifications,
-        'timestamp' => now()->toISOString()
+        'timestamp' => now()->setTimezone('America/New_York')->toISOString()
     ]);
 });
 
@@ -4670,18 +4670,18 @@ Route::post('/api/buyer/lead-outcomes', function (Request $request) {
                 'notes' => $validated['notes'],
                 'contact_attempts' => $validated['contact_attempts'] ?? 0,
                 'reported_via' => 'api',
-                'last_contact_at' => now()
+                'last_contact_at' => now()->setTimezone('America/New_York')
             ]
         );
 
         // Set first contact if not set
         if (!$outcome->first_contact_at && $validated['status'] !== 'new') {
-            $outcome->update(['first_contact_at' => now()]);
+            $outcome->update(['first_contact_at' => now()->setTimezone('America/New_York')]);
         }
 
         // Set closed date for final statuses
         if (in_array($validated['status'], ['closed_won', 'closed_lost', 'not_interested', 'bad_lead'])) {
-            $outcome->update(['closed_at' => now()]);
+            $outcome->update(['closed_at' => now()->setTimezone('America/New_York')]);
         }
 
         // Send notification to QuotingFast about outcome
@@ -4811,7 +4811,7 @@ Route::post('/webhook/crm-outcome/{buyerId}', function (Request $request, $buyer
                 'source_system' => $data['source_system'] ?? 'crm',
                 'reported_via' => 'webhook',
                 'metadata' => $data,
-                'last_contact_at' => now()
+                'last_contact_at' => now()->setTimezone('America/New_York')
             ]
         );
 
@@ -5118,8 +5118,8 @@ Route::post('/api/sources', function () {
         $source = \DB::table('sources')->insert(array_merge($validated, [
             'active' => $validated['active'] ?? true,
             'total_leads' => 0,
-            'created_at' => now(),
-            'updated_at' => now()
+            'created_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'updated_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York')
         ]));
         
         return response()->json([
@@ -5462,7 +5462,7 @@ Route::post('/admin/clear-test-leads', function () {
         
         $backupData = [
             'metadata' => [
-                'timestamp' => now()->toIso8601String(),
+                'timestamp' => now()->setTimezone('America/New_York')->toIso8601String(),
                 'verification_code' => $verificationCode,
                 'counts' => $counts,
                 'user_ip' => request()->ip()
@@ -5526,7 +5526,7 @@ Route::post('/admin/clear-test-leads', function () {
                 'verification_code' => $verificationCode,
                 'deleted_counts' => $deletedCounts,
                 'backup_file' => $backupFile,
-                'timestamp' => now(),
+                'timestamp' => now()->setTimezone('America/New_York'),
                 'user_ip' => request()->ip()
             ]);
             
@@ -6214,7 +6214,7 @@ if (!function_exists('generateSampleLeads')) {
             'age' => rand(25, 65),
             'campaign_id' => 'DEMO_CAMPAIGN_' . rand(1, 5),
             'is_sample_data' => true,
-            'created_at' => now()->subDays(rand(0, 30))
+            'created_at' => now()->setTimezone('America/New_York')->subDays(rand(0, 30))
         ]));
     }
 }
@@ -6232,8 +6232,8 @@ function generateSamplePayments($buyerId, $accountType = 'demo') {
             'payment_method' => ['quickbooks', 'credit_card', 'bank_transfer'][rand(0, 2)],
             'payment_processor' => 'demo',
             'description' => 'Sample payment transaction',
-            'processed_at' => now()->subDays(rand(1, 60)),
-            'created_at' => now()->subDays(rand(1, 60))
+            'processed_at' => now()->setTimezone('America/New_York')->subDays(rand(1, 60)),
+            'created_at' => now()->setTimezone('America/New_York')->subDays(rand(1, 60))
         ]);
     }
 }
@@ -6244,7 +6244,7 @@ function generateSampleDocuments($buyerId) {
         'contract_type' => 'buyer_agreement',
         'contract_version' => 'v2.1',
         'status' => 'signed',
-        'signed_at' => now()->subDays(rand(1, 30)),
+        'signed_at' => now()->setTimezone('America/New_York')->subDays(rand(1, 30)),
         'signer_name' => 'Demo Signer',
         'signer_email' => 'demo@example.com',
         'signature_data' => 'data:image/png;base64,sample_signature_data',
@@ -6271,7 +6271,7 @@ function generateSampleCRMConfig($buyerId) {
             'successful_deliveries' => rand(8, 45),
             'failed_deliveries' => rand(0, 5),
             'success_rate' => rand(85, 98),
-            'last_attempt' => now()->subHours(rand(1, 24))->toISOString()
+            'last_attempt' => now()->setTimezone('America/New_York')->subHours(rand(1, 24))->toISOString()
         ]
     ]);
 }
@@ -6295,8 +6295,8 @@ function generateSampleOutcomes($buyerId) {
             'sale_amount' => $outcome === 'sold' ? rand(500, 5000) : null,
             'quality_rating' => rand(1, 5),
             'contact_attempts' => rand(1, 8),
-            'first_contact_at' => now()->subDays(rand(1, 10)),
-            'last_contact_at' => now()->subDays(rand(0, 5)),
+            'first_contact_at' => now()->setTimezone('America/New_York')->subDays(rand(1, 10)),
+            'last_contact_at' => now()->setTimezone('America/New_York')->subDays(rand(0, 5)),
             'closed_at' => in_array($status, ['closed_won', 'closed_lost', 'bad_lead']) ? now()->subDays(rand(0, 3)) : null,
             'notes' => 'Sample outcome data for demonstration',
             'reported_via' => 'api'
@@ -6384,7 +6384,7 @@ Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
                 'lead_id' => $lead->id,
                 'lead_name' => $lead->name,
                 'transfer_result' => $transferResult,
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ]);
         } else {
             return response()->json([
@@ -6394,7 +6394,7 @@ Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
                 'lead_name' => $lead->name,
                 'error' => $transferResult['error'] ?? 'Unknown error',
                 'transfer_result' => $transferResult,
-                'timestamp' => now()->toISOString()
+                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
             ], 400);
         }
         
@@ -6408,7 +6408,7 @@ Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
         return response()->json([
             'success' => false,
             'error' => 'Internal Server Error: ' . $e->getMessage(),
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ], 500);
     }
 });
@@ -6439,8 +6439,8 @@ Route::post('/api/leads', function (Request $request) {
         $lead->phone = $validated['phone'];
         $lead->source = $validated['source'];
         $lead->notes = $validated['notes'] ?? '';
-        $lead->created_at = now();
-        $lead->updated_at = now();
+        $lead->created_at = now()->setTimezone('America/New_York');
+        $lead->updated_at = now()->setTimezone('America/New_York');
         
         // Save the lead
         $lead->save();
@@ -6457,7 +6457,7 @@ Route::post('/api/leads', function (Request $request) {
             'success' => true,
             'message' => 'Lead captured successfully!',
             'lead_id' => $lead->id,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
 
     } catch (\Illuminate\Validation\ValidationException $e) {
@@ -6604,7 +6604,7 @@ Route::post('/webhook/home', function (Request $request) {
     Log::info('🏠 Home Insurance Lead Received', [
         'source' => 'leadsquotingfast',
         'type' => 'home',
-        'timestamp' => now()->toIso8601String(),
+        'timestamp' => now()->setTimezone('America/New_York')->toIso8601String(),
         'phone' => $data['contact']['phone'] ?? 'unknown'
     ]);
     
@@ -6635,8 +6635,8 @@ Route::post('/webhook/home', function (Request $request) {
         'zip_code' => $contact['zip_code'] ?? null,
         'source' => 'leadsquotingfast',
         'type' => 'home', // Explicitly set as home insurance
-        'received_at' => now(),
-        'joined_at' => now(),
+        'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+        'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
         'tenant_id' => 1, // QuotingFast tenant ID
         
         // Capture additional fields
@@ -6761,7 +6761,7 @@ Route::post('/webhook/home', function (Request $request) {
                 if ($viciResult['success']) {
                     $lead->update([
                         'vici_lead_id' => $viciResult['vici_lead_id'] ?? null,
-                        'vici_pushed_at' => now(),
+                        'vici_pushed_at' => now()->setTimezone('America/New_York'),
                         'vici_list_id' => $viciResult['list_id'] ?? '101',
                         'meta' => json_encode(array_merge(
                             json_decode($lead->meta ?? '{}', true),
@@ -6808,7 +6808,7 @@ Route::post('/webhook/auto', function (Request $request) {
     Log::info('🚗 Auto Insurance Lead Received', [
         'source' => 'leadsquotingfast',
         'type' => 'auto',
-        'timestamp' => now()->toIso8601String(),
+        'timestamp' => now()->setTimezone('America/New_York')->toIso8601String(),
         'phone' => $data['contact']['phone'] ?? 'unknown'
     ]);
     
@@ -6839,8 +6839,8 @@ Route::post('/webhook/auto', function (Request $request) {
         'zip_code' => $contact['zip_code'] ?? null,
         'source' => 'leadsquotingfast',
         'type' => 'auto', // Explicitly set as auto insurance
-        'received_at' => now(),
-        'joined_at' => now(),
+        'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+        'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
         'tenant_id' => 1, // QuotingFast tenant ID
         
         // Capture additional fields
@@ -6965,7 +6965,7 @@ Route::post('/webhook/auto', function (Request $request) {
                 if ($viciResult['success']) {
                     $lead->update([
                         'vici_lead_id' => $viciResult['vici_lead_id'] ?? null,
-                        'vici_pushed_at' => now(),
+                        'vici_pushed_at' => now()->setTimezone('America/New_York'),
                         'vici_list_id' => $viciResult['list_id'] ?? '101',
                         'meta' => json_encode(array_merge(
                             json_decode($lead->meta ?? '{}', true),
@@ -7225,7 +7225,7 @@ Route::post('/agent/lead/{leadId}/qualification', function (Request $request, $l
         $qualificationData['lead_id'] = $leadId;
         
         // Set enriched_at timestamp
-        $qualificationData['enriched_at'] = now();
+        $qualificationData['enriched_at'] = now()->setTimezone('America/New_York');
         
         // Create or update qualification record
         $qualification = \App\Models\LeadQualification::updateOrCreate(
@@ -7645,7 +7645,7 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
         if ($request->has('qualification')) {
             $qualificationData = $request->qualification;
             $qualificationData['lead_id'] = $leadId;
-            $qualificationData['enriched_at'] = now();
+            $qualificationData['enriched_at'] = now()->setTimezone('America/New_York');
             
             \App\Models\LeadQualification::updateOrCreate(
                 ['lead_id' => $leadId],
@@ -7730,7 +7730,7 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
             'success' => true,
             'message' => 'All lead data saved successfully',
             'vici_sync' => $viciSyncResult ? 'success' : 'skipped_or_failed',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
     } catch (\Exception $e) {
         \Log::error('Failed to save all lead data', [
@@ -7818,7 +7818,7 @@ Route::post('/webhook/ringba-decision', function (Request $request) {
                 $lead->update([
                     'status' => 'transferred_to_allstate',
                     'allstate_transfer_id' => $transferResult['transfer_id'] ?? null,
-                    'allstate_transferred_at' => now(),
+                    'allstate_transferred_at' => now()->setTimezone('America/New_York'),
                     'allstate_response' => $transferResult['allstate_response'] ?? null,
                     'notes' => ($lead->notes ?? '') . "\n" . 'Auto-transferred to Allstate via Ringba decision at ' . now()->toDateTimeString()
                 ]);
@@ -7837,7 +7837,7 @@ Route::post('/webhook/ringba-decision', function (Request $request) {
                     'transfer_result' => [
                         'transfer_id' => $transferResult['transfer_id'] ?? null,
                         'status' => 'transferred_to_allstate',
-                        'transferred_at' => now()->toISOString()
+                        'transferred_at' => now()->setTimezone('America/New_York')->toISOString()
                     ]
                 ]);
                 
@@ -7907,7 +7907,7 @@ Route::get('/api/test-quick/{period}', function ($period) {
         'success' => true,
         'message' => 'Route working correctly',
         'period' => $period,
-        'timestamp' => now()->toISOString()
+        'timestamp' => now()->setTimezone('America/New_York')->toISOString()
     ]);
 });
 
@@ -7935,7 +7935,7 @@ Route::get('/api/analytics/quick/{period}', function (Request $request, $period)
             'period' => $period,
             'period_label' => $range['label'],
             'data' => $analytics,
-            'generated_at' => now()->toISOString()
+            'generated_at' => now()->setTimezone('America/New_York')->toISOString()
         ]);
         
     } catch (\Exception $e) {
@@ -8219,7 +8219,7 @@ Route::get('/api/analytics/{startDate}/{endDate}', function (Request $request, $
         return response()->json([
             'success' => true,
             'data' => $analytics,
-            'generated_at' => now()->toISOString()
+            'generated_at' => now()->setTimezone('America/New_York')->toISOString()
         ]);
         
     } catch (\Exception $e) {
@@ -8353,7 +8353,7 @@ Route::post('/webhook/ringba-conversion', function (Request $request) {
             'lead_id' => $leadId,
             'converted' => $conversion->converted,
             'buyer' => $conversion->buyer_name,
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
         ]);
         
     } catch (\Exception $e) {
@@ -8492,7 +8492,7 @@ Route::get('/test/ringba-decision/{leadId?}/{decision?}', function ($leadId = 'B
             'decision' => $decision,
             'ringba_data' => [
                 'campaign_id' => '2674154334576444838',
-                'processed_at' => now()->toISOString(),
+                'processed_at' => now()->setTimezone('America/New_York')->toISOString(),
                 'score' => 85,
                 'qualification_results' => [
                     'currently_insured' => 'yes',
