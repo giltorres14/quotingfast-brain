@@ -1699,6 +1699,9 @@
                             }
                         @endphp
                         {{ $optInDate ?: 'Not provided' }}
+                        @if($optInDate && $optInDate !== 'Not provided')
+                            <button class="copy-btn" onclick="copyToClipboard('{{ $optInDate }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                        @endif
                     </div>
                 </div>
                 
@@ -1770,7 +1773,10 @@
                 <!-- TCPA Consent Text -->
                 @if($lead->tcpa_consent_text)
                 <div class="info-item" style="grid-column: span 2;">
-                    <div class="info-label">TCPA Consent Text</div>
+                    <div class="info-label">
+                        TCPA Consent Text
+                        <button class="copy-btn" onclick="copyToClipboard('{{ addslashes($lead->tcpa_consent_text) }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px; font-size: 12px;">📋 Copy</button>
+                    </div>
                     <div class="info-value" style="font-size: 0.875rem; line-height: 1.5; padding: 10px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb;">
                         {{ $lead->tcpa_consent_text }}
                     </div>
