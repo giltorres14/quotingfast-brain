@@ -179,3 +179,4 @@ echo "Total skipped: " . number_format($totalSkipped) . " (duplicates)\n\n";
 $surajTotal = DB::table('leads')->where('source', 'SURAJ_BULK')->count();
 echo "Total Suraj leads in system: " . number_format($surajTotal) . "\n";
 
+

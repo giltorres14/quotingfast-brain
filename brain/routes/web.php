@@ -1,5 +1,8 @@
 <?php
 
+use App\Helpers	imezone;
+
+
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -342,8 +345,8 @@ Route::match(['GET', 'POST'], '/api-webhook', function () {
                     'zip_code' => $contact['zip_code'] ?? null,
                     'source' => 'leadsquotingfast',
                     'type' => 'auto', // Default to auto, can enhance detection later
-                    'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-                    'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                    'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                    'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
                     'tenant_id' => 1, // QuotingFast tenant ID
                     
                     // Lead tracking IDs
@@ -1154,8 +1157,8 @@ Route::match(['GET', 'POST'], '/test-webhook', function (Request $request) {
                 'zip_code' => $contact['zip_code'] ?? null,
                 'source' => 'leadsquotingfast',
                 'type' => $data['data']['requested_policy']['coverage_type'] ?? 'auto',
-                'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-                'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
                 'external_lead_id' => $externalLeadId, // ALWAYS use our generated ID
                 'campaign_id' => $data['campaign_id'] ?? null,
                 'sell_price' => $data['sell_price'] ?? null,
@@ -1905,8 +1908,8 @@ Route::post('/webhook.php', function (Request $request) {
             'zip_code' => $contact['zip_code'] ?? null,
             'source' => 'leadsquotingfast',
             'type' => detectLeadType($data),
-            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             'tenant_id' => 1, // QuotingFast tenant ID
             
             // Vendor Information (from LQF payload)
@@ -2352,8 +2355,8 @@ Route::post('/webhook/ringba', function (Request $request) {
             'zip_code' => $contact['zip_code'] ?? null,
             'source' => 'ringba',
             'type' => 'call_tracking',
-            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             // Ringba-specific fields
             'call_duration' => $data['call_duration'] ?? null,
             'caller_id' => $data['caller_id'] ?? null,
@@ -2502,8 +2505,8 @@ Route::post('/webhook/vici', function (Request $request) {
             'zip_code' => $contact['zip_code'] ?? null,
             'source' => 'vici',
             'type' => 'dialer_system',
-            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             // Vici-specific fields
             'agent_id' => $data['agent_id'] ?? null,
             'campaign_id' => $data['campaign_id'] ?? null,
@@ -2569,8 +2572,8 @@ Route::post('/webhook/twilio', function (Request $request) {
             'zip_code' => $contact['zip_code'] ?? null,
             'source' => 'twilio',
             'type' => 'sms_voice',
-            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             // Twilio-specific fields
             'message_sid' => $data['MessageSid'] ?? $data['CallSid'] ?? null,
             'from_number' => $data['From'] ?? null,
@@ -2638,8 +2641,8 @@ Route::post('/webhook/allstate', function (Request $request) {
             'birth_date' => isset($contact['birth_date']) ? $contact['birth_date'] : null,
             'source' => 'allstate_ready',
             'type' => 'call_transfer',
-            'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-            'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
             // Insurance-specific fields
             'insurance_company' => $contact['current_insurance'] ?? null,
             'coverage_type' => $contact['coverage_type'] ?? 'basic',
@@ -3030,7 +3033,7 @@ Route::get('/leads', function (Request $request) {
                 'state' => 'NV',
                 'source' => 'Manual',
                 'status' => 'New',
-                'created_at' => now()->setTimezone('America/New_York')->subHours(2),
+                'created_at' => estNow()->setTimezone('America/New_York')->subHours(2),
                 'vehicles' => [['year' => 2023, 'make' => 'Audi', 'model' => 'z']],
                 'current_policy' => ['company' => 'V.V.C Embroidery'],
                 'vici_call_metrics' => null,
@@ -3048,7 +3051,7 @@ Route::get('/leads', function (Request $request) {
                 'state' => 'MD',
                 'source' => 'Campaign',
                 'status' => 'Contacted',
-                'created_at' => now()->setTimezone('America/New_York')->subHours(4),
+                'created_at' => estNow()->setTimezone('America/New_York')->subHours(4),
                 'vehicles' => [['year' => 2002, 'make' => 'MAZDA', 'model' => 'B3000 CAB PLUS']],
                 'current_policy' => ['company' => 'Unknown'],
                 'vici_call_metrics' => null,
@@ -3066,7 +3069,7 @@ Route::get('/leads', function (Request $request) {
                 'state' => 'AZ',
                 'source' => 'Web',
                 'status' => 'Qualified',
-                'created_at' => now()->setTimezone('America/New_York')->subHours(6),
+                'created_at' => estNow()->setTimezone('America/New_York')->subHours(6),
                 'vehicles' => [['year' => 2020, 'make' => 'Honda', 'model' => 'Civic']],
                 'current_policy' => ['company' => 'State Farm'],
                 'vici_call_metrics' => null,
@@ -3084,7 +3087,7 @@ Route::get('/leads', function (Request $request) {
                 'state' => 'FL',
                 'source' => 'Manual',
                 'status' => 'Converted',
-                'created_at' => now()->setTimezone('America/New_York')->subDays(1),
+                'created_at' => estNow()->setTimezone('America/New_York')->subDays(1),
                 'vehicles' => [['year' => 2021, 'make' => 'Toyota', 'model' => 'Camry']],
                 'current_policy' => ['company' => 'Geico'],
                 'vici_call_metrics' => null,
@@ -3285,8 +3288,8 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                 'zip_code' => '90210',
                 'source' => 'leadsquotingfast', // CRITICAL: This was missing!
                 'type' => 'auto',
-                'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-                'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
                 'drivers' => [
                     [
                         'first_name' => 'John',
@@ -3337,8 +3340,8 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                         'requested_policy' => ['coverage' => 'Full Coverage']
                     ]
                 ]),
-                'created_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-                'updated_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York')
+                'created_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'updated_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York')
             ];
             
             // Mock call metrics with complete structure
@@ -3354,8 +3357,8 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                 'phone_number' => '555-TEST-123',
                 'start_time' => now()->setTimezone('America/New_York')->subMinutes(10),
                 'end_time' => now()->setTimezone('America/New_York')->subMinutes(2),
-                'created_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-                'updated_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York')
+                'created_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                'updated_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York')
             ];
         }
 
@@ -3744,8 +3747,8 @@ Route::post('/lead-upload/process', function (Request $request) {
                     'source' => 'csv_upload',
                     'type' => $leadType,
                     'campaign_id' => $campaignId,
-                    'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-                    'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                    'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+                    'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
                     'payload' => json_encode($leadData),
                 ];
                 
@@ -5118,8 +5121,8 @@ Route::post('/api/sources', function () {
         $source = \DB::table('sources')->insert(array_merge($validated, [
             'active' => $validated['active'] ?? true,
             'total_leads' => 0,
-            'created_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-            'updated_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York')
+            'created_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+            'updated_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York')
         ]));
         
         return response()->json([
@@ -6214,7 +6217,7 @@ if (!function_exists('generateSampleLeads')) {
             'age' => rand(25, 65),
             'campaign_id' => 'DEMO_CAMPAIGN_' . rand(1, 5),
             'is_sample_data' => true,
-            'created_at' => now()->setTimezone('America/New_York')->subDays(rand(0, 30))
+            'created_at' => estNow()->setTimezone('America/New_York')->subDays(rand(0, 30))
         ]));
     }
 }
@@ -6233,7 +6236,7 @@ function generateSamplePayments($buyerId, $accountType = 'demo') {
             'payment_processor' => 'demo',
             'description' => 'Sample payment transaction',
             'processed_at' => now()->setTimezone('America/New_York')->subDays(rand(1, 60)),
-            'created_at' => now()->setTimezone('America/New_York')->subDays(rand(1, 60))
+            'created_at' => estNow()->setTimezone('America/New_York')->subDays(rand(1, 60))
         ]);
     }
 }
@@ -6635,8 +6638,8 @@ Route::post('/webhook/home', function (Request $request) {
         'zip_code' => $contact['zip_code'] ?? null,
         'source' => 'leadsquotingfast',
         'type' => 'home', // Explicitly set as home insurance
-        'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-        'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+        'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+        'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
         'tenant_id' => 1, // QuotingFast tenant ID
         
         // Capture additional fields
@@ -6839,8 +6842,8 @@ Route::post('/webhook/auto', function (Request $request) {
         'zip_code' => $contact['zip_code'] ?? null,
         'source' => 'leadsquotingfast',
         'type' => 'auto', // Explicitly set as auto insurance
-        'received_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
-        'joined_at' => now()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+        'received_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
+        'joined_at' => estNow()->setTimezone('America/New_York')->setTimezone('America/New_York'),
         'tenant_id' => 1, // QuotingFast tenant ID
         
         // Capture additional fields
@@ -8694,7 +8697,7 @@ Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI')
         ], 500);
     }
 });
-*/
+
  # Deployment trigger Wed Aug  6 23:01:36 EDT 2025
 
 // DEPLOYMENT FIX 1754536129

@@ -277,3 +277,4 @@ if ($totalProcessed > 0) {
     echo "   php fetch_vici_90days_fixed.php\n\n";
 }
 
+

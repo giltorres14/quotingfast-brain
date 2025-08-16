@@ -213,3 +213,4 @@ function insertBatch($pdo, $batch) {
     }
 }
 
+

@@ -179,3 +179,4 @@ echo "  - Back button only hidden for iframe users (visible in edit mode)\n";
 echo "  - Save Lead button moved to top header section\n";
 echo "  - Added Edit/View toggle buttons in header\n";
 echo "  - Cleaned up duplicate buttons\n";
+

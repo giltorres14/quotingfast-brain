@@ -472,14 +472,22 @@
     });
     
     function updateStats(period) {
-        if (!period) return;
-        
         // Update active button
         document.querySelectorAll('.period-btn').forEach(btn => {
             btn.classList.remove('active');
             if (btn.dataset.period === period) {
                 btn.classList.add('active');
             }
+        });
+        
+        // Show loading state
+        document.querySelectorAll('.stat-value').forEach(el => {
+            el.textContent = 'Loading...';
+        });
+        
+        // Reload page with new period
+        window.location.href = '/leads?period=' + period;
+    }
         });
         
         // Hide custom date range if not custom

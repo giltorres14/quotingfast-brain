@@ -277,7 +277,51 @@ function processLead() {
     alert('Processing lead... (This feature will send the lead to Vici)');
     $('#leadDetailsModal').modal('hide');
 }
-</script>
+
+    function showLeadDetail(leadId) {
+        // Create modal
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+        
+        const content = document.createElement('div');
+        content.style.cssText = 'background: white; padding: 20px; border-radius: 8px; max-width: 800px; max-height: 80vh; overflow-y: auto;';
+        content.innerHTML = '<h2>Loading lead details...</h2>';
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        // Fetch lead details
+        fetch('/api/leads/' + leadId)
+            .then(response => response.json())
+            .then(data => {
+                content.innerHTML = `
+                    <h2>Lead Details</h2>
+                    <p><strong>Name:</strong> ${data.name || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${data.address || 'N/A'}</p>
+                    <p><strong>City:</strong> ${data.city || 'N/A'}</p>
+                    <p><strong>State:</strong> ${data.state || 'N/A'}</p>
+                    <p><strong>Zip:</strong> ${data.zip_code || 'N/A'}</p>
+                    <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                `;
+            })
+            .catch(error => {
+                content.innerHTML = `
+                    <h2>Error Loading Lead</h2>
+                    <p>Could not load lead details.</p>
+                    <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                `;
+            });
+        
+        // Close on background click
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        };
+    }
+    </script>
 @endsection
 
 @section('content')
@@ -350,6 +394,7 @@ function processLead() {
             </button>
         </div>
         
+        <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
@@ -357,6 +402,7 @@ function processLead() {
                         <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                     </th>
                     <th>ID</th>
+                    <th>Date</th>
                     <th>Lead Name</th>
                     <th>Phone</th>
                     <th>Status</th>
@@ -374,6 +420,7 @@ function processLead() {
                             <input type="checkbox" class="queue-checkbox" value="{{ $item->id }}" onchange="updateSelection()">
                         </td>
                         <td>#{{ $item->id }}</td>
+                        <td>{{ \Carbon\Carbon::parse($item->created_at)->format('m/d/Y H:i') }}</td>
                         <td>{{ $item->lead_name ?? 'Unknown' }}</td>
                         <td>{{ $item->phone ?? 'N/A' }}</td>
                         <td>
@@ -418,6 +465,7 @@ function processLead() {
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
     </div>
 
@@ -466,7 +514,51 @@ function processLead() {
     alert('Processing lead... (This feature will send the lead to Vici)');
     $('#leadDetailsModal').modal('hide');
 }
-</script>
+
+    function showLeadDetail(leadId) {
+        // Create modal
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+        
+        const content = document.createElement('div');
+        content.style.cssText = 'background: white; padding: 20px; border-radius: 8px; max-width: 800px; max-height: 80vh; overflow-y: auto;';
+        content.innerHTML = '<h2>Loading lead details...</h2>';
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        // Fetch lead details
+        fetch('/api/leads/' + leadId)
+            .then(response => response.json())
+            .then(data => {
+                content.innerHTML = `
+                    <h2>Lead Details</h2>
+                    <p><strong>Name:</strong> ${data.name || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${data.address || 'N/A'}</p>
+                    <p><strong>City:</strong> ${data.city || 'N/A'}</p>
+                    <p><strong>State:</strong> ${data.state || 'N/A'}</p>
+                    <p><strong>Zip:</strong> ${data.zip_code || 'N/A'}</p>
+                    <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                `;
+            })
+            .catch(error => {
+                content.innerHTML = `
+                    <h2>Error Loading Lead</h2>
+                    <p>Could not load lead details.</p>
+                    <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                `;
+            });
+        
+        // Close on background click
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        };
+    }
+    </script>
 @endsection
 
 @section('scripts')
@@ -621,7 +713,51 @@ function processLead() {
         // For now, just alert. You can implement a modal later
         alert('Lead details modal coming soon. Lead ID: ' + id);
     }
-</script>
+
+    function showLeadDetail(leadId) {
+        // Create modal
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+        
+        const content = document.createElement('div');
+        content.style.cssText = 'background: white; padding: 20px; border-radius: 8px; max-width: 800px; max-height: 80vh; overflow-y: auto;';
+        content.innerHTML = '<h2>Loading lead details...</h2>';
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        // Fetch lead details
+        fetch('/api/leads/' + leadId)
+            .then(response => response.json())
+            .then(data => {
+                content.innerHTML = `
+                    <h2>Lead Details</h2>
+                    <p><strong>Name:</strong> ${data.name || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${data.address || 'N/A'}</p>
+                    <p><strong>City:</strong> ${data.city || 'N/A'}</p>
+                    <p><strong>State:</strong> ${data.state || 'N/A'}</p>
+                    <p><strong>Zip:</strong> ${data.zip_code || 'N/A'}</p>
+                    <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                `;
+            })
+            .catch(error => {
+                content.innerHTML = `
+                    <h2>Error Loading Lead</h2>
+                    <p>Could not load lead details.</p>
+                    <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                `;
+            });
+        
+        // Close on background click
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        };
+    }
+    </script>
 
 <!-- Lead Details Modal -->
 <div class="modal fade" id="leadDetailsModal" tabindex="-1" role="dialog">
@@ -668,5 +804,49 @@ function processLead() {
     alert('Processing lead... (This feature will send the lead to Vici)');
     $('#leadDetailsModal').modal('hide');
 }
-</script>
+
+    function showLeadDetail(leadId) {
+        // Create modal
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+        
+        const content = document.createElement('div');
+        content.style.cssText = 'background: white; padding: 20px; border-radius: 8px; max-width: 800px; max-height: 80vh; overflow-y: auto;';
+        content.innerHTML = '<h2>Loading lead details...</h2>';
+        
+        modal.appendChild(content);
+        document.body.appendChild(modal);
+        
+        // Fetch lead details
+        fetch('/api/leads/' + leadId)
+            .then(response => response.json())
+            .then(data => {
+                content.innerHTML = `
+                    <h2>Lead Details</h2>
+                    <p><strong>Name:</strong> ${data.name || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+                    <p><strong>Email:</strong> ${data.email || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${data.address || 'N/A'}</p>
+                    <p><strong>City:</strong> ${data.city || 'N/A'}</p>
+                    <p><strong>State:</strong> ${data.state || 'N/A'}</p>
+                    <p><strong>Zip:</strong> ${data.zip_code || 'N/A'}</p>
+                    <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                `;
+            })
+            .catch(error => {
+                content.innerHTML = `
+                    <h2>Error Loading Lead</h2>
+                    <p>Could not load lead details.</p>
+                    <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+                `;
+            });
+        
+        // Close on background click
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        };
+    }
+    </script>
 @endsection

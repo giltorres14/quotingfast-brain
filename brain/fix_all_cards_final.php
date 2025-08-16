@@ -239,3 +239,4 @@ echo "  - View Payload button on top in header\n";
 echo "  - Save Lead button below Payload button\n";
 echo "  - Email above Lead ID in header\n";
 echo "  - Back button only hidden for iframe users\n";
+

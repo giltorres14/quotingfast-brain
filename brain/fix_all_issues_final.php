@@ -320,3 +320,4 @@ if ($returnCode === 0) {
 } else {
     echo "⚠️ Migration output: " . implode("\n", $output) . "\n";
 }
+

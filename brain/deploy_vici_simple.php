@@ -85,3 +85,4 @@ echo "3. Add entries from vici_scripts/crontab_entries.txt\n";
 echo "\nTest command:\n";
 echo "mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_101_102.sql\n";
 
+

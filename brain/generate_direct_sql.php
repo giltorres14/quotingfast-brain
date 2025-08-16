@@ -128,3 +128,4 @@ echo "Total update statements: $totalUpdates\n";
 echo "\nThese files update Vici leads directly without temp tables.\n";
 echo "Each file can be executed independently.\n";
 
+

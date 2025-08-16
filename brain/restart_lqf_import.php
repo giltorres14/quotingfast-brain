@@ -83,3 +83,4 @@ echo "- Store all data correctly\n\n";
 echo "You can run it in the background with:\n";
 echo "nohup php artisan lqf:bulk-import $csvFile > lqf_import.log 2>&1 &\n";
 
+

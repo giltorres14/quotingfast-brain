@@ -913,7 +913,7 @@
         <!-- Header - Agent View (No Admin Data) -->
         <div class="header" style="position: relative;">
             <!-- Back button shows when NOT in edit mode -->
-            <a href="/leads" class="back-button" style="position: absolute; top: 15px; left: 170px; z-index: 100;">← Back to Leads</a>
+            <a href="/leads" class="back-button" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: white; text-decoration: none; font-weight: 600; font-size: 14px; display: {{ $isIframe ? 'none' : 'block' }};">← Back to Leads</a>
             
             <!-- Lead Type Avatar Circle - Smaller and Well-positioned -->
             <div style="position: absolute; left: 30px; top: 50%; transform: translateY(-50%); z-index: 50;">
@@ -969,30 +969,24 @@
                         </span>
                     </div>
                 @endif
-                <div class="meta" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    
-                    @php
-                        $formattedPhone = $lead->phone;
-                        if (strlen($formattedPhone) == 10) {
-                            $formattedPhone = '(' . substr($formattedPhone, 0, 3) . ')' . substr($formattedPhone, 3, 3) . '-' . substr($formattedPhone, 6);
-                        }
-                    @endphp
-                    <span style="font-size: 16px; font-weight: 600;">{{ $formattedPhone }}</span>
-                    @if($lead->address || $lead->city || $lead->state || $lead->zip_code)
-                        <span style="font-size: 14px; opacity: 0.9;">
-                            {{ $lead->address }}{{ $lead->address && ($lead->city || $lead->state || $lead->zip_code) ? ', ' : '' }}{{ $lead->city }}{{ $lead->city && ($lead->state || $lead->zip_code) ? ', ' : '' }}{{ $lead->state }} {{ $lead->zip_code }}
-                        </span>
+                <div class="meta" style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
+            <span>{{ $lead->address }}, {{ $lead->city }}, {{ $lead->state }} {{ $lead->zip_code }}</span><br>
+            <span>{{ $lead->email ?: 'No email' }}</span><br>
+            <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
+        </div>
                     @endif
-                    @if($lead->email)
-                    <div style="margin-top: 5px;">
-                        <span style="font-size: 0.9em; color: rgba(255,255,255,0.9);">✉️ {{ $lead->email }}</span>
-                    </div>
-                    @endif
-                    <div style="margin-top: 5px;">
-                        <span style="font-size: 0.9em; color: rgba(255,255,255,0.9);">Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
-                    </div>
-                    
                 </div>
+            </div>
+            
+            <!-- Action Buttons in Header -->
+            <div style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; gap: 8px;">
+                @if(isset($mode) && $mode === 'view')
+                    <button onclick="showPayload()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">📦 View Payload</button>
+                    <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-secondary" style="background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none;">✏️ Edit Lead</a>
+                @elseif(isset($mode) && $mode === 'edit')
+                    <button onclick="showPayload()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">📦 View Payload</button>
+                    <button onclick="saveAllLeadData()" class="btn btn-primary" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">💾 Save Lead</button>
+                @endif
             </div>
         </div>
         
@@ -1698,7 +1692,7 @@
                         @php
                             if ($optInDateCarbon) {
                                 $daysOld = $optInDateCarbon->diffInDays(\Carbon\Carbon::now());
-                                $daysRemaining = 90 - $daysOld;
+                                $daysRemaining = floor(90 - $daysOld);
                                 
                                 if ($daysRemaining <= 0) {
                                     $tcpaStatus = '<span style="color: #dc3545; font-weight: bold;">🚨 EXPIRED - DO NOT CALL</span>';

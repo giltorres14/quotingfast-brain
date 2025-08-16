@@ -59,3 +59,4 @@ class ViciUpdateController extends Controller
     }
 }
 
+

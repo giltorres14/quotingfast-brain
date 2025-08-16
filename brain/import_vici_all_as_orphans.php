@@ -241,3 +241,4 @@ echo "  • https://quotingfast-brain-ohio.onrender.com/admin/vici-comprehensive
 
 echo "🎯 The 5-minute automatic sync is now active!\n";
 
+

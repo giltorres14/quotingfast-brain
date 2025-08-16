@@ -73,3 +73,4 @@ echo "✓ Will save leads to the database\n";
 echo "✓ Will show leads in the dashboard immediately\n";
 echo "✓ Will put them in 'Stuck in Queue' if Vici fails\n";
 echo "✓ Will log all attempts for debugging\n";
+

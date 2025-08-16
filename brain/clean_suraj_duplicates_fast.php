@@ -75,3 +75,4 @@ if ($totalDuplicates > 0) {
 echo "\nFinal Suraj lead count: " . number_format(DB::table('leads')->where('source', 'SURAJ_BULK')->count()) . "\n";
 echo "================================\n";
 
+

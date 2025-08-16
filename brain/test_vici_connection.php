@@ -88,3 +88,4 @@ echo "   - hosts.allow: Add 'sshd: $ourIP' to /etc/hosts.allow\n";
 echo "   - firewalld: firewall-cmd --permanent --add-source=$ourIP\n";
 echo "=====================================\n";
 
+

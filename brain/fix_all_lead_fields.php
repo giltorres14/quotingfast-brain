@@ -339,3 +339,4 @@ echo "  - Direct lead fields (e.g., \$lead->field)\n";
 echo "  - Meta JSON field (e.g., \$lead->meta['field'])\n";
 echo "  - Payload JSON field (e.g., \$lead->payload['data']['field'])\n";
 echo "  - Nested payload structures (contact, meta, data sections)\n";
+

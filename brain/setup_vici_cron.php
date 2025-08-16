@@ -158,3 +158,4 @@ echo "   - View logs: grep vici_flow /var/log/syslog\n";
 echo "   - Check dashboard: /admin/vici-lead-flow\n";
 echo "   - Test manually: mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_101_102.sql\n";
 
+

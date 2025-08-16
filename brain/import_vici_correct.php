@@ -279,3 +279,4 @@ echo "  • https://quotingfast-brain-ohio.onrender.com/admin/vici-comprehensive
 echo "🎯 IMPORTANT: The automatic 5-minute sync needs to be updated with the same JOIN logic!\n";
 echo "   Update file: app/Console/Commands/SyncViciCallLogsIncremental.php\n";
 
+

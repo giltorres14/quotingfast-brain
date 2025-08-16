@@ -29,3 +29,4 @@ The logo is referenced in:
 - Logo URL needs to be updated from local file to the official CDN URL
 
 Last Updated: August 15, 2025
+

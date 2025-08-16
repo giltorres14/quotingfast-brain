@@ -205,3 +205,4 @@ echo "  - Duplicate Lead Details section removed\n";
 echo "  - Save Lead button moved to header\n";
 echo "  - All 13 questions visible in edit mode\n";
 echo "  - Form properly labeled as 'Top 13 Questions'\n";
+
