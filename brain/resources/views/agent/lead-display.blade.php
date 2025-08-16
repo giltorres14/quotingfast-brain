@@ -74,15 +74,22 @@
             margin: 0 auto;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
-            padding: 10px 16px; /* Reduced vertical padding */
+            padding: 8px 12px; /* Even more reduced padding for less height */
             border-radius: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             text-align: center;
-            position: sticky;
+            position: fixed; /* Changed to fixed for better sticky behavior */
             top: 0;
-            z-index: 1000; /* Increased z-index */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
             box-sizing: border-box;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        /* Add padding to body to account for fixed header */
+        body {
+            padding-top: 180px; /* Adjust based on header height */
         }
         
         .header-logo {
@@ -96,9 +103,8 @@
         
         .back-button {
             position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
+            left: 8px; /* Moved more to the left */
+            top: 8px; /* Fixed position from top */
             background: rgba(255,255,255,0.2);
             color: white;
             text-decoration: none;
@@ -1536,32 +1542,7 @@
                     </div>
                 </div>
                 
-                <div class="info-item">
-                    <div class="info-label">LeadID Code</div>
-                    <div class="info-value">
-                        @php
-                            $leadIdCode = $lead->leadid_code;
-                            // Check meta field
-                            if (!$leadIdCode && $lead->meta) {
-                                $meta = is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta;
-                                $leadIdCode = $meta['lead_id_code'] ?? $meta['leadid_code'] ?? null;
-                            }
-                            // Check payload
-                            if (!$leadIdCode && $lead->payload) {
-                                $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
-                                $leadIdCode = $payload['meta']['lead_id_code'] ?? $payload['leadid_code'] ?? null;
-                            }
-                        @endphp
-                        @if($leadIdCode)
-                            <span style="font-family: monospace; font-size: 12px;">{{ $leadIdCode }}</span>
-                            <button class="copy-btn" onclick="copyToClipboard('{{ $leadIdCode }}', this)" style="margin-left: 10px; padding: 2px 8px; background: #22c55e; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                📋 Copy
-                            </button>
-                        @else
-                            Not provided
-                        @endif
-                    </div>
-                </div>
+                
                 
                 <!-- Vendor Information -->
                 <div class="info-item">
@@ -1762,6 +1743,30 @@
                         {{ $ipAddress ?: 'Not provided' }}
                         @if($ipAddress)
                             <button class="copy-btn" onclick="copyToClipboard('{{ $ipAddress }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                        @endif
+                    </div>
+                </div>
+                
+                <!-- LeadID Code -->
+                <div class="info-item">
+                    <div class="info-label">LeadID Code</div>
+                    <div class="info-value">
+                        @php
+                            $leadIdCode = $lead->leadid_code;
+                            if (!$leadIdCode && $lead->meta) {
+                                $meta = is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta;
+                                $leadIdCode = $meta['lead_id_code'] ?? $meta['leadid_code'] ?? null;
+                            }
+                            if (!$leadIdCode && $lead->payload) {
+                                $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                $leadIdCode = $payload['meta']['lead_id_code'] ?? $payload['leadid_code'] ?? null;
+                            }
+                        @endphp
+                        @if($leadIdCode)
+                            <span style="font-family: monospace; font-size: 12px;">{{ $leadIdCode }}</span>
+                            <button class="copy-btn" onclick="copyToClipboard('{{ $leadIdCode }}', this)" style="background: #10b981; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; margin-left: 8px;">📋</button>
+                        @else
+                            <span style="color: #6b7280;">Not provided</span>
                         @endif
                     </div>
                 </div>

@@ -6597,8 +6597,7 @@ if (!function_exists('generateLeadId')) {
 }
 
 // Home Insurance Webhook Endpoint
-// DISABLED: Duplicate webhook - use /api-webhook instead
-/*
+// Home Insurance Webhook Endpoint
 Route::post('/webhook/home', function (Request $request) {
     $data = $request->all();
     
@@ -6800,11 +6799,9 @@ Route::post('/webhook/home', function (Request $request) {
         ], 500);
     }
 });
-*/
 
 // Auto Insurance Webhook Endpoint (new dedicated endpoint)
-// DISABLED: Duplicate webhook - use /api-webhook instead
-/*
+// Auto Insurance Webhook Endpoint
 Route::post('/webhook/auto', function (Request $request) {
     $data = $request->all();
     
