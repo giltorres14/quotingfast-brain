@@ -9,6 +9,399 @@
   "nxJsonPlugins": [],
   "fileMap": {
     "projectFileMap": {
+      "twenty-emails": [
+        {
+          "file": "packages/twenty-emails/.eslintrc.cjs",
+          "hash": "14798201009766836283"
+        },
+        {
+          "file": "packages/twenty-emails/.gitignore",
+          "hash": "16253752684800486913"
+        },
+        {
+          "file": "packages/twenty-emails/.swcrc",
+          "hash": "9069112013715357088"
+        },
+        {
+          "file": "packages/twenty-emails/README.md",
+          "hash": "7644741481140366559"
+        },
+        {
+          "file": "packages/twenty-emails/lingui.config.ts",
+          "hash": "9179446593889570818"
+        },
+        {
+          "file": "packages/twenty-emails/package.json",
+          "hash": "8464235295382716106",
+          "deps": [
+            "twenty-shared"
+          ]
+        },
+        {
+          "file": "packages/twenty-emails/project.json",
+          "hash": "14157036562044703810"
+        },
+        {
+          "file": "packages/twenty-emails/src/common-style.ts",
+          "hash": "14556810606077891310"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/BaseEmail.tsx",
+          "hash": "9726691445138742396"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/BaseHead.tsx",
+          "hash": "2519921208065617228"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/CallToAction.tsx",
+          "hash": "16635960474749718266"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/Footer.tsx",
+          "hash": "11913593985919683437"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/HighlightedContainer.tsx",
+          "hash": "6374826003482432918"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/HighlightedText.tsx",
+          "hash": "16682817581094251149"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/Link.tsx",
+          "hash": "1796150101345331189"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/Logo.tsx",
+          "hash": "13126952445730314750"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/MainText.tsx",
+          "hash": "4935562814371633010"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/ShadowText.tsx",
+          "hash": "18288732617900085689"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/SubTitle.tsx",
+          "hash": "11841760991647051876"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/Title.tsx",
+          "hash": "17638744591202450169"
+        },
+        {
+          "file": "packages/twenty-emails/src/components/WhatIsTwenty.tsx",
+          "hash": "15416531024680874889"
+        },
+        {
+          "file": "packages/twenty-emails/src/emails/clean-suspended-workspace.email.tsx",
+          "hash": "12445026316205678157"
+        },
+        {
+          "file": "packages/twenty-emails/src/emails/password-reset-link.email.tsx",
+          "hash": "13117050920223535828"
+        },
+        {
+          "file": "packages/twenty-emails/src/emails/password-update-notify.email.tsx",
+          "hash": "5895128835927932611"
+        },
+        {
+          "file": "packages/twenty-emails/src/emails/send-email-verification-link.email.tsx",
+          "hash": "10089808979858923718"
+        },
+        {
+          "file": "packages/twenty-emails/src/emails/send-invite-link.email.tsx",
+          "hash": "16824386042918507461"
+        },
+        {
+          "file": "packages/twenty-emails/src/emails/test.email.tsx",
+          "hash": "13833761354036074796"
+        },
+        {
+          "file": "packages/twenty-emails/src/emails/validate-approved-access-domain.email.tsx",
+          "hash": "17865960507662392647"
+        },
+        {
+          "file": "packages/twenty-emails/src/emails/warn-suspended-workspace.email.tsx",
+          "hash": "10228967190959630647"
+        },
+        {
+          "file": "packages/twenty-emails/src/index.ts",
+          "hash": "10185530392318300639"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/aa-ER.po",
+          "hash": "4929801287996160446"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/af-ZA.po",
+          "hash": "7345286905057890375"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/ar-SA.po",
+          "hash": "12593385823594886499"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/ca-ES.po",
+          "hash": "10700061556397268196"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/cs-CZ.po",
+          "hash": "2610048989034767544"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/da-DK.po",
+          "hash": "16357738298784549819"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/de-DE.po",
+          "hash": "14469724608889628805"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/el-GR.po",
+          "hash": "5187493932355262413"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/en.po",
+          "hash": "15206621217935379416"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/es-ES.po",
+          "hash": "16765117667157011636"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/fi-FI.po",
+          "hash": "16455518077309126800"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/fr-FR.po",
+          "hash": "10934099178683148903"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/af-ZA.ts",
+          "hash": "11400412482350206688"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/ar-SA.ts",
+          "hash": "17244027645665290485"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/ca-ES.ts",
+          "hash": "3032584610726516345"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/cs-CZ.ts",
+          "hash": "1979156604263492853"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/da-DK.ts",
+          "hash": "8657123621817258642"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/de-DE.ts",
+          "hash": "3564938482936480052"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/el-GR.ts",
+          "hash": "6326042141252527681"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/en.ts",
+          "hash": "15382523102048238966"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/es-ES.ts",
+          "hash": "4903107485392867007"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/fi-FI.ts",
+          "hash": "7953224144021751146"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/fr-FR.ts",
+          "hash": "10848936997368455101"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/he-IL.ts",
+          "hash": "16395709898751088496"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/hu-HU.ts",
+          "hash": "17623488086315637265"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/it-IT.ts",
+          "hash": "15610152845936227953"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/ja-JP.ts",
+          "hash": "9349787062576313070"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/ko-KR.ts",
+          "hash": "8256076111699081526"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/nl-NL.ts",
+          "hash": "4994291211005963933"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/no-NO.ts",
+          "hash": "9278905831424990031"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/pl-PL.ts",
+          "hash": "14110692948882776282"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/pseudo-en.ts",
+          "hash": "1999825674891848570"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/pt-BR.ts",
+          "hash": "1263687034017473175"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/pt-PT.ts",
+          "hash": "285207416659026737"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/ro-RO.ts",
+          "hash": "9052202019174820875"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/ru-RU.ts",
+          "hash": "1647639815138456079"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/sr-Cyrl.ts",
+          "hash": "3613485389293081761"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/sv-SE.ts",
+          "hash": "11314453548960678261"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/tr-TR.ts",
+          "hash": "7457940499413576033"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/uk-UA.ts",
+          "hash": "11919852740137685727"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/vi-VN.ts",
+          "hash": "13648968281287722096"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/zh-CN.ts",
+          "hash": "89414097580134964"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/generated/zh-TW.ts",
+          "hash": "1722137241235393457"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/he-IL.po",
+          "hash": "9268280685201310354"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/hu-HU.po",
+          "hash": "8026811993608114801"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/it-IT.po",
+          "hash": "3831025241219038647"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/ja-JP.po",
+          "hash": "11297142479797367224"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/ko-KR.po",
+          "hash": "2542447995631847792"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/nl-NL.po",
+          "hash": "9358714147739330090"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/no-NO.po",
+          "hash": "8460929656729075703"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/pl-PL.po",
+          "hash": "15985898751384503401"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/pseudo-en.po",
+          "hash": "8530465032656330936"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/pt-BR.po",
+          "hash": "11499731766455611518"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/pt-PT.po",
+          "hash": "5408733001457671849"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/ro-RO.po",
+          "hash": "11644199703036820701"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/ru-RU.po",
+          "hash": "14011840168320949898"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/sr-Cyrl.po",
+          "hash": "2456691948698264888"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/sv-SE.po",
+          "hash": "1841292929692452497"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/tr-TR.po",
+          "hash": "3136152805098169379"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/uk-UA.po",
+          "hash": "15720651974103437002"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/vi-VN.po",
+          "hash": "9918348864874906592"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/zh-CN.po",
+          "hash": "10133216036258576828"
+        },
+        {
+          "file": "packages/twenty-emails/src/locales/zh-TW.po",
+          "hash": "7422986695612565600"
+        },
+        {
+          "file": "packages/twenty-emails/src/utils/capitalize.ts",
+          "hash": "10084523247428859068"
+        },
+        {
+          "file": "packages/twenty-emails/tsconfig.json",
+          "hash": "4455177828092809486"
+        },
+        {
+          "file": "packages/twenty-emails/tsconfig.lib.json",
+          "hash": "13920168121265126459"
+        },
+        {
+          "file": "packages/twenty-emails/vite.config.ts",
+          "hash": "10786338859489544668"
+        }
+      ],
       "@parcelvoy/platform": [
         {
           "file": "apps/platform/.dockerignore",
@@ -1348,415 +1741,2136 @@
           "hash": "5408904663391430192"
         }
       ],
-      "twenty-utils": [
+      "twenty-e2e-testing": [
         {
-          "file": "packages/twenty-utils/congratulate-dangerfile.ts",
-          "hash": "237188017620150601"
+          "file": "packages/twenty-e2e-testing/.env.example",
+          "hash": "2291900813912157445"
         },
         {
-          "file": "packages/twenty-utils/dangerfile.ts",
-          "hash": "2457765456855726170"
+          "file": "packages/twenty-e2e-testing/.gitignore",
+          "hash": "5611836203731237285"
         },
         {
-          "file": "packages/twenty-utils/graphql-introspection-query.graphql",
-          "hash": "13629533058250975150"
+          "file": "packages/twenty-e2e-testing/README.md",
+          "hash": "2680151165809142603"
         },
         {
-          "file": "packages/twenty-utils/package.json",
-          "hash": "9761884963138191191"
+          "file": "packages/twenty-e2e-testing/lib/fixtures/blank-workflow.ts",
+          "hash": "5389656388914959872"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/fixtures/screenshot.ts",
+          "hash": "10657350039113886368"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/helper/confirmationModal.ts",
+          "hash": "3035761212215697155"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/helper/formatDate.function.ts",
+          "hash": "17313152599850152894"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/helper/googleLogin.ts",
+          "hash": "8018045028940432295"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/helper/iconSelect.ts",
+          "hash": "8055303220931360208"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/helper/insertFieldData.ts",
+          "hash": "8754845155981480340"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/helper/stripePage.ts",
+          "hash": "4779261901580548328"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/helper/uploadImage.ts",
+          "hash": "236721473912405307"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/leftMenu.ts",
+          "hash": "15769724989235789428"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/loginPage.ts",
+          "hash": "14218903523810539413"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/mainPage.ts",
+          "hash": "13417784204811610886"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/recordDetails.ts",
+          "hash": "16144295801332721274"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/accountsSection.ts",
+          "hash": "10981616620584630314"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/apisSection.ts",
+          "hash": "7830206246053548057"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/calendarSection.ts",
+          "hash": "7684971447374658333"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/dataModelSection.ts",
+          "hash": "7406187582769288613"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/emailsSection.ts",
+          "hash": "2026255767095439292"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/experienceSection.ts",
+          "hash": "10761575795455941913"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/generalSection.ts",
+          "hash": "11442659311737006417"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/membersSection.ts",
+          "hash": "7635896938191793418"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/newFieldSection.ts",
+          "hash": "5532358552933887150"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/profileSection.ts",
+          "hash": "4625096657933711137"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/rolesSection.ts",
+          "hash": "12383296848956387385"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/securitySection.ts",
+          "hash": "7480129779320688620"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settings/webhooksSection.ts",
+          "hash": "14565153830238473808"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/pom/settingsPage.ts",
+          "hash": "625287144921366467"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/requests/backend.ts",
+          "hash": "9740248868635740629"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/requests/create-workflow.ts",
+          "hash": "3618703815930400636"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/requests/delete-workflow.ts",
+          "hash": "14297389173964051909"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/requests/destroy-workflow.ts",
+          "hash": "13666033189534576266"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/types/workflows.ts",
+          "hash": "11461988506808045972"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/utils/getAuthToken.ts",
+          "hash": "15386351720990935566"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/utils/keyboardShortcuts.ts",
+          "hash": "493405604376345718"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/utils/pasteCodeToCodeEditor.ts",
+          "hash": "4993111767497824884"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/lib/utils/uploadFile.ts",
+          "hash": "2294998871383722225"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/package.json",
+          "hash": "9916699967384951703"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/playwright.config.ts",
+          "hash": "7487808049646152899"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/project.json",
+          "hash": "6294073622763319726"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/tests/authentication/fixture.ts",
+          "hash": "15384828867026982615"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/tests/authentication/signup_invite_email.spec.ts",
+          "hash": "3058103320920363852"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/tests/login.setup.ts",
+          "hash": "2072313156535174807"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/tests/workflow-creation.spec.ts",
+          "hash": "15357271137275078571"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/tests/workflow-run.spec.ts",
+          "hash": "12289022716994510179"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/tests/workflow-use-as-draft.spec.ts",
+          "hash": "14592037630598508442"
+        },
+        {
+          "file": "packages/twenty-e2e-testing/tests/workflow-visualizer.spec.ts",
+          "hash": "51423820848755663"
         }
       ],
-      "twenty-emails": [
+      "twenty-zapier": [
         {
-          "file": "packages/twenty-emails/.eslintrc.cjs",
-          "hash": "14798201009766836283"
+          "file": "packages/twenty-zapier/.env.example",
+          "hash": "17243092765658959474"
         },
         {
-          "file": "packages/twenty-emails/.gitignore",
-          "hash": "16253752684800486913"
+          "file": "packages/twenty-zapier/.gitignore",
+          "hash": "16330651608347611853"
         },
         {
-          "file": "packages/twenty-emails/.swcrc",
-          "hash": "9069112013715357088"
+          "file": "packages/twenty-zapier/.prettierrc",
+          "hash": "9555875142989992828"
         },
         {
-          "file": "packages/twenty-emails/README.md",
-          "hash": "7644741481140366559"
+          "file": "packages/twenty-zapier/.zapierapprc",
+          "hash": "7445937793882481030"
         },
         {
-          "file": "packages/twenty-emails/lingui.config.ts",
-          "hash": "9179446593889570818"
+          "file": "packages/twenty-zapier/index.js",
+          "hash": "12847444345539079998"
         },
         {
-          "file": "packages/twenty-emails/package.json",
-          "hash": "8464235295382716106",
+          "file": "packages/twenty-zapier/jest.config.ts",
+          "hash": "14118453924933452401"
+        },
+        {
+          "file": "packages/twenty-zapier/package.json",
+          "hash": "14361646846090515402",
+          "deps": [
+            "npm:dotenv",
+            "npm:libphonenumber-js",
+            "npm:jest"
+          ]
+        },
+        {
+          "file": "packages/twenty-zapier/project.json",
+          "hash": "17702314380270429833"
+        },
+        {
+          "file": "packages/twenty-zapier/src/authentication.ts",
+          "hash": "13606452379977268582"
+        },
+        {
+          "file": "packages/twenty-zapier/src/creates/crud_record.ts",
+          "hash": "2332024123060010319"
+        },
+        {
+          "file": "packages/twenty-zapier/src/index.ts",
+          "hash": "17427391452985470147"
+        },
+        {
+          "file": "packages/twenty-zapier/src/test/authentication.test.ts",
+          "hash": "14101766125170485849"
+        },
+        {
+          "file": "packages/twenty-zapier/src/test/creates/crud_record.test.ts",
+          "hash": "10530524551481529589"
+        },
+        {
+          "file": "packages/twenty-zapier/src/test/triggers/find_object_names_singular.test.ts",
+          "hash": "9552838071732331505"
+        },
+        {
+          "file": "packages/twenty-zapier/src/test/triggers/list_record_ids.test.ts",
+          "hash": "15853358978045782805"
+        },
+        {
+          "file": "packages/twenty-zapier/src/test/triggers/trigger_record.test.ts",
+          "hash": "9025658718593492791"
+        },
+        {
+          "file": "packages/twenty-zapier/src/test/utils/computeInputFields.test.ts",
+          "hash": "1170606791553136635"
+        },
+        {
+          "file": "packages/twenty-zapier/src/test/utils/handleQueryParams.test.ts",
+          "hash": "13140101186125521958"
+        },
+        {
+          "file": "packages/twenty-zapier/src/triggers/find_object_names_singular.ts",
+          "hash": "5746722580812286789"
+        },
+        {
+          "file": "packages/twenty-zapier/src/triggers/list_record_ids.ts",
+          "hash": "13914122436501014327"
+        },
+        {
+          "file": "packages/twenty-zapier/src/triggers/trigger_record.ts",
+          "hash": "12463651998150441725"
+        },
+        {
+          "file": "packages/twenty-zapier/src/utils/computeInputFields.ts",
+          "hash": "8043139866175361480"
+        },
+        {
+          "file": "packages/twenty-zapier/src/utils/data.types.ts",
+          "hash": "16659787137426943938"
+        },
+        {
+          "file": "packages/twenty-zapier/src/utils/getBundle.ts",
+          "hash": "15979117724847189593"
+        },
+        {
+          "file": "packages/twenty-zapier/src/utils/handleQueryParams.ts",
+          "hash": "7976786146755262995"
+        },
+        {
+          "file": "packages/twenty-zapier/src/utils/requestDb.ts",
+          "hash": "15456437295464385268"
+        },
+        {
+          "file": "packages/twenty-zapier/src/utils/triggers/triggers.utils.ts",
+          "hash": "13806620617514846531"
+        },
+        {
+          "file": "packages/twenty-zapier/tsconfig.json",
+          "hash": "2519672579662178366"
+        }
+      ],
+      "@parcelvoy/ui": [
+        {
+          "file": "apps/ui/.dockerignore",
+          "hash": "6127199621835416052"
+        },
+        {
+          "file": "apps/ui/.env.example",
+          "hash": "18120484445762406721"
+        },
+        {
+          "file": "apps/ui/.eslintrc.js",
+          "hash": "11063641256847058435"
+        },
+        {
+          "file": "apps/ui/.gitignore",
+          "hash": "12600820600888054333"
+        },
+        {
+          "file": "apps/ui/Dockerfile",
+          "hash": "8347398449546816659"
+        },
+        {
+          "file": "apps/ui/README.md",
+          "hash": "17911282315018038361"
+        },
+        {
+          "file": "apps/ui/config-overrides.js",
+          "hash": "13387346053727228948"
+        },
+        {
+          "file": "apps/ui/docker/nginx/conf.d/default.conf",
+          "hash": "16700382933621986454"
+        },
+        {
+          "file": "apps/ui/package-lock.json",
+          "hash": "9620981145506782759"
+        },
+        {
+          "file": "apps/ui/package.json",
+          "hash": "5170258031573912248",
+          "deps": [
+            "npm:@types/node",
+            "npm:date-fns",
+            "npm:date-fns-tz",
+            "npm:rrule",
+            "npm:uuid",
+            "npm:@typescript-eslint/eslint-plugin",
+            "npm:eslint",
+            "npm:eslint-plugin-import",
+            "npm:eslint-plugin-n",
+            "npm:eslint-plugin-promise",
+            "npm:typescript"
+          ]
+        },
+        {
+          "file": "apps/ui/postcss.config.js",
+          "hash": "11920505472939284841"
+        },
+        {
+          "file": "apps/ui/public/config.js",
+          "hash": "17218073659439451893"
+        },
+        {
+          "file": "apps/ui/public/favicon-32x32.png",
+          "hash": "15709406056192655327"
+        },
+        {
+          "file": "apps/ui/public/favicon.ico",
+          "hash": "3863849336789365154"
+        },
+        {
+          "file": "apps/ui/public/index.html",
+          "hash": "7394875561087829493"
+        },
+        {
+          "file": "apps/ui/public/locales/en.json",
+          "hash": "9360381067584214773"
+        },
+        {
+          "file": "apps/ui/public/locales/es.json",
+          "hash": "5839693056303067562"
+        },
+        {
+          "file": "apps/ui/public/locales/zh.json",
+          "hash": "9775466709497990485"
+        },
+        {
+          "file": "apps/ui/public/manifest.json",
+          "hash": "5845995032536518520"
+        },
+        {
+          "file": "apps/ui/public/robots.txt",
+          "hash": "18408339794625317453"
+        },
+        {
+          "file": "apps/ui/public/safari.svg",
+          "hash": "3279300474829744392"
+        },
+        {
+          "file": "apps/ui/scripts/env.sh",
+          "hash": "10206256150501176866"
+        },
+        {
+          "file": "apps/ui/src/App.tsx",
+          "hash": "17000579323432728885"
+        },
+        {
+          "file": "apps/ui/src/api.ts",
+          "hash": "7899289646629840879"
+        },
+        {
+          "file": "apps/ui/src/assets/logo-icon.svg",
+          "hash": "1073566595614761565"
+        },
+        {
+          "file": "apps/ui/src/assets/logo.svg",
+          "hash": "5667666162719121122"
+        },
+        {
+          "file": "apps/ui/src/assets/parcelvoy.svg",
+          "hash": "18207912551091190056"
+        },
+        {
+          "file": "apps/ui/src/assets/parcelvoylogo.png",
+          "hash": "3672114424423949538"
+        },
+        {
+          "file": "apps/ui/src/config/env.ts",
+          "hash": "17497435929437133321"
+        },
+        {
+          "file": "apps/ui/src/contexts.ts",
+          "hash": "8501412980513932159"
+        },
+        {
+          "file": "apps/ui/src/hooks.ts",
+          "hash": "5906000042266595759"
+        },
+        {
+          "file": "apps/ui/src/i18n.ts",
+          "hash": "9755659498126646673"
+        },
+        {
+          "file": "apps/ui/src/index.css",
+          "hash": "6413024532867838186"
+        },
+        {
+          "file": "apps/ui/src/index.tsx",
+          "hash": "14406235653996976748"
+        },
+        {
+          "file": "apps/ui/src/mod.ts",
+          "hash": "13355762491329719977"
+        },
+        {
+          "file": "apps/ui/src/react-app-env.d.ts",
+          "hash": "3195158367843515590"
+        },
+        {
+          "file": "apps/ui/src/reportWebVitals.ts",
+          "hash": "9830843590326072870"
+        },
+        {
+          "file": "apps/ui/src/setupProxy.js",
+          "hash": "18043402997798895799"
+        },
+        {
+          "file": "apps/ui/src/setupTests.ts",
+          "hash": "17068284439919389423"
+        },
+        {
+          "file": "apps/ui/src/types.ts",
+          "hash": "17568961314193458530"
+        },
+        {
+          "file": "apps/ui/src/ui/Alert.css",
+          "hash": "1934151256065073700"
+        },
+        {
+          "file": "apps/ui/src/ui/Alert.tsx",
+          "hash": "8405067884967447907"
+        },
+        {
+          "file": "apps/ui/src/ui/Button.css",
+          "hash": "11774670338653224398"
+        },
+        {
+          "file": "apps/ui/src/ui/Button.tsx",
+          "hash": "5941615131172820724"
+        },
+        {
+          "file": "apps/ui/src/ui/ButtonGroup.css",
+          "hash": "13448902630932494786"
+        },
+        {
+          "file": "apps/ui/src/ui/ButtonGroup.tsx",
+          "hash": "17553475147034464773"
+        },
+        {
+          "file": "apps/ui/src/ui/CodeExample.css",
+          "hash": "3503334573853856312"
+        },
+        {
+          "file": "apps/ui/src/ui/CodeExample.tsx",
+          "hash": "4573100485608096301"
+        },
+        {
+          "file": "apps/ui/src/ui/Columns.css",
+          "hash": "12664188352699204729"
+        },
+        {
+          "file": "apps/ui/src/ui/Columns.tsx",
+          "hash": "15230100329468805140"
+        },
+        {
+          "file": "apps/ui/src/ui/DataTable.css",
+          "hash": "16006961007298383675"
+        },
+        {
+          "file": "apps/ui/src/ui/DataTable.tsx",
+          "hash": "660906653365931745"
+        },
+        {
+          "file": "apps/ui/src/ui/Dialog.tsx",
+          "hash": "4853569347291958273"
+        },
+        {
+          "file": "apps/ui/src/ui/Heading.css",
+          "hash": "2814277925448889314"
+        },
+        {
+          "file": "apps/ui/src/ui/Heading.tsx",
+          "hash": "7968176897674119065"
+        },
+        {
+          "file": "apps/ui/src/ui/Iframe.tsx",
+          "hash": "12220483336370780696"
+        },
+        {
+          "file": "apps/ui/src/ui/InfoTable.css",
+          "hash": "15365331168549373320"
+        },
+        {
+          "file": "apps/ui/src/ui/InfoTable.tsx",
+          "hash": "278434051057503786"
+        },
+        {
+          "file": "apps/ui/src/ui/JsonPreview.css",
+          "hash": "11952409801358231941"
+        },
+        {
+          "file": "apps/ui/src/ui/JsonPreview.tsx",
+          "hash": "6702830434295295999"
+        },
+        {
+          "file": "apps/ui/src/ui/Menu.css",
+          "hash": "481248372123446301"
+        },
+        {
+          "file": "apps/ui/src/ui/Menu.tsx",
+          "hash": "1582998573724152016"
+        },
+        {
+          "file": "apps/ui/src/ui/Modal.css",
+          "hash": "4090995230543190432"
+        },
+        {
+          "file": "apps/ui/src/ui/Modal.tsx",
+          "hash": "478483858480833574"
+        },
+        {
+          "file": "apps/ui/src/ui/NavLink.tsx",
+          "hash": "6002882417714249903"
+        },
+        {
+          "file": "apps/ui/src/ui/PageContent.tsx",
+          "hash": "1076743291935234488"
+        },
+        {
+          "file": "apps/ui/src/ui/Pagination.css",
+          "hash": "11699083395025511931"
+        },
+        {
+          "file": "apps/ui/src/ui/Pagination.tsx",
+          "hash": "5179005100308832234"
+        },
+        {
+          "file": "apps/ui/src/ui/PreferencesContext.tsx",
+          "hash": "16261059090035660604"
+        },
+        {
+          "file": "apps/ui/src/ui/Preview.css",
+          "hash": "17211849973317219579"
+        },
+        {
+          "file": "apps/ui/src/ui/Preview.tsx",
+          "hash": "16314125903695635989"
+        },
+        {
+          "file": "apps/ui/src/ui/PreviewImage.css",
+          "hash": "7851890310969106283"
+        },
+        {
+          "file": "apps/ui/src/ui/PreviewImage.tsx",
+          "hash": "15701182069444563192"
+        },
+        {
+          "file": "apps/ui/src/ui/RRuleEditor.tsx",
+          "hash": "16689506717083784391"
+        },
+        {
+          "file": "apps/ui/src/ui/SearchTable.tsx",
+          "hash": "16406326206646652974"
+        },
+        {
+          "file": "apps/ui/src/ui/Sidebar.css",
+          "hash": "14515349539500515061"
+        },
+        {
+          "file": "apps/ui/src/ui/Sidebar.tsx",
+          "hash": "16258093827129161285"
+        },
+        {
+          "file": "apps/ui/src/ui/SourceEditor.css",
+          "hash": "7196407432615709174"
+        },
+        {
+          "file": "apps/ui/src/ui/SourceEditor.tsx",
+          "hash": "13353006168930206967"
+        },
+        {
+          "file": "apps/ui/src/ui/Stack.css",
+          "hash": "8543503110117002865"
+        },
+        {
+          "file": "apps/ui/src/ui/Stack.tsx",
+          "hash": "13191580432733177727"
+        },
+        {
+          "file": "apps/ui/src/ui/Tabs.css",
+          "hash": "14965370595782641085"
+        },
+        {
+          "file": "apps/ui/src/ui/Tabs.tsx",
+          "hash": "811738546462519945"
+        },
+        {
+          "file": "apps/ui/src/ui/Tag.css",
+          "hash": "9108980646598959736"
+        },
+        {
+          "file": "apps/ui/src/ui/Tag.tsx",
+          "hash": "11637987441838332047"
+        },
+        {
+          "file": "apps/ui/src/ui/Text.tsx",
+          "hash": "503174522112998569"
+        },
+        {
+          "file": "apps/ui/src/ui/Tile.css",
+          "hash": "2847109056629412003"
+        },
+        {
+          "file": "apps/ui/src/ui/Tile.tsx",
+          "hash": "3445820037388993908"
+        },
+        {
+          "file": "apps/ui/src/ui/Toast.css",
+          "hash": "16940213735322953854"
+        },
+        {
+          "file": "apps/ui/src/ui/Toast.tsx",
+          "hash": "15810352446707445805"
+        },
+        {
+          "file": "apps/ui/src/ui/ToastBar.tsx",
+          "hash": "7972908806550891337"
+        },
+        {
+          "file": "apps/ui/src/ui/ToastIcon.tsx",
+          "hash": "13787553496936985194"
+        },
+        {
+          "file": "apps/ui/src/ui/form/EntityIdPicker.tsx",
+          "hash": "17720001265992567822"
+        },
+        {
+          "file": "apps/ui/src/ui/form/Field.ts",
+          "hash": "11559296950218699489"
+        },
+        {
+          "file": "apps/ui/src/ui/form/FormWrapper.tsx",
+          "hash": "11661882773187374352"
+        },
+        {
+          "file": "apps/ui/src/ui/form/JsonField.tsx",
+          "hash": "1171587399011038664"
+        },
+        {
+          "file": "apps/ui/src/ui/form/MultiOptionField.tsx",
+          "hash": "8147643058873802229"
+        },
+        {
+          "file": "apps/ui/src/ui/form/MultiSelect.tsx",
+          "hash": "9679184297788717704"
+        },
+        {
+          "file": "apps/ui/src/ui/form/RadioInput.css",
+          "hash": "5470879311553559247"
+        },
+        {
+          "file": "apps/ui/src/ui/form/RadioInput.tsx",
+          "hash": "3524346664978309604"
+        },
+        {
+          "file": "apps/ui/src/ui/form/SchemaFields.css",
+          "hash": "6923944589375120649"
+        },
+        {
+          "file": "apps/ui/src/ui/form/SchemaFields.tsx",
+          "hash": "14000575920527241451"
+        },
+        {
+          "file": "apps/ui/src/ui/form/Select.css",
+          "hash": "13027817877328745008"
+        },
+        {
+          "file": "apps/ui/src/ui/form/SingleSelect.tsx",
+          "hash": "6448114022944113132"
+        },
+        {
+          "file": "apps/ui/src/ui/form/SwitchField.tsx",
+          "hash": "18166999882896638437"
+        },
+        {
+          "file": "apps/ui/src/ui/form/TextInput.css",
+          "hash": "12616048788875528405"
+        },
+        {
+          "file": "apps/ui/src/ui/form/TextInput.tsx",
+          "hash": "16948281535991714243"
+        },
+        {
+          "file": "apps/ui/src/ui/form/UploadField.css",
+          "hash": "16420713830697440097"
+        },
+        {
+          "file": "apps/ui/src/ui/form/UploadField.tsx",
+          "hash": "4988380459948203636"
+        },
+        {
+          "file": "apps/ui/src/ui/icons.tsx",
+          "hash": "1063287758012288820"
+        },
+        {
+          "file": "apps/ui/src/ui/index.ts",
+          "hash": "6920561605699196066"
+        },
+        {
+          "file": "apps/ui/src/ui/utils.tsx",
+          "hash": "12877973724161938456"
+        },
+        {
+          "file": "apps/ui/src/utils.ts",
+          "hash": "11833450989034454549"
+        },
+        {
+          "file": "apps/ui/src/variables.css",
+          "hash": "17325741806010832876"
+        },
+        {
+          "file": "apps/ui/src/views/Auth.tsx",
+          "hash": "6809563601041768356"
+        },
+        {
+          "file": "apps/ui/src/views/ErrorPage.css",
+          "hash": "10880778225851650322"
+        },
+        {
+          "file": "apps/ui/src/views/ErrorPage.tsx",
+          "hash": "16270559157064402408"
+        },
+        {
+          "file": "apps/ui/src/views/LoaderContextProvider.tsx",
+          "hash": "12422626146879173225"
+        },
+        {
+          "file": "apps/ui/src/views/auth/Auth.css",
+          "hash": "12646899852544897681"
+        },
+        {
+          "file": "apps/ui/src/views/auth/Login.tsx",
+          "hash": "2936048598223273968"
+        },
+        {
+          "file": "apps/ui/src/views/auth/Onboarding.tsx",
+          "hash": "16094649156969493129"
+        },
+        {
+          "file": "apps/ui/src/views/auth/OnboardingProject.tsx",
+          "hash": "6536846424470853857"
+        },
+        {
+          "file": "apps/ui/src/views/auth/OnboardingStart.tsx",
+          "hash": "815752054889028375"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/CampaignDelivery.tsx",
+          "hash": "12690028130176855566"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/CampaignDesign.tsx",
+          "hash": "8138944932186718249"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/CampaignDetail.tsx",
+          "hash": "2510042268698583217"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/CampaignForm.tsx",
+          "hash": "10461771759270326488"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/CampaignOverview.tsx",
+          "hash": "4774234313269869956"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/CampaignPreview.css",
+          "hash": "12192387608244496943"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/CampaignPreview.tsx",
+          "hash": "1844680510118868339"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/Campaigns.tsx",
+          "hash": "984707305399946417"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/ChannelTag.tsx",
+          "hash": "15438597287199432814"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/ImageGalleryModal.css",
+          "hash": "10308680228752965734"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/ImageGalleryModal.tsx",
+          "hash": "8622991790746180212"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/LaunchCampaign.tsx",
+          "hash": "11519226402010398288"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/LocaleEditModal.tsx",
+          "hash": "3807380765605166051"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/LocaleSelector.tsx",
+          "hash": "14533482832160334759"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/ResourceFontModal.tsx",
+          "hash": "1467809862352462700"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/ResourceModal.tsx",
+          "hash": "8145077203370636417"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/TemplateCreateModal.tsx",
+          "hash": "5565995829661171951"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/TemplateDetail.tsx",
+          "hash": "8563469614288232093"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/editor/EmailEditor.css",
+          "hash": "13218387344239567128"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/editor/EmailEditor.tsx",
+          "hash": "15307963177873929869"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/editor/HtmlEditor.tsx",
+          "hash": "11330706510794393909"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/editor/VisualEditor.css",
+          "hash": "9645134172397906273"
+        },
+        {
+          "file": "apps/ui/src/views/campaign/editor/VisualEditor.tsx",
+          "hash": "7879866976242498531"
+        },
+        {
+          "file": "apps/ui/src/views/createStatefulRoute.tsx",
+          "hash": "3368937020402433943"
+        },
+        {
+          "file": "apps/ui/src/views/journey/EntranceDetails.tsx",
+          "hash": "11519087572522118004"
+        },
+        {
+          "file": "apps/ui/src/views/journey/JourneyDetail.tsx",
+          "hash": "15997305520841695068"
+        },
+        {
+          "file": "apps/ui/src/views/journey/JourneyEditor.css",
+          "hash": "6806386932201967441"
+        },
+        {
+          "file": "apps/ui/src/views/journey/JourneyEditor.tsx",
+          "hash": "2663639117315320443"
+        },
+        {
+          "file": "apps/ui/src/views/journey/JourneyForm.tsx",
+          "hash": "13588475534228884908"
+        },
+        {
+          "file": "apps/ui/src/views/journey/JourneyUserEntrances.tsx",
+          "hash": "2039092661685787320"
+        },
+        {
+          "file": "apps/ui/src/views/journey/Journeys.tsx",
+          "hash": "18001147322327809632"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/Action.tsx",
+          "hash": "12052704628021114646"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/Balancer.tsx",
+          "hash": "9945560884373361035"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/Delay.tsx",
+          "hash": "4220283990149696330"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/Entrance.tsx",
+          "hash": "15400227431697653454"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/Event.tsx",
+          "hash": "15841364673202517808"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/Exit.tsx",
+          "hash": "3858309462155690933"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/Experiment.tsx",
+          "hash": "3067999830874770898"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/Gate.tsx",
+          "hash": "14956377962051857415"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/JourneyLink.tsx",
+          "hash": "8390705481230636470"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/Update.tsx",
+          "hash": "12873521931980220307"
+        },
+        {
+          "file": "apps/ui/src/views/journey/steps/index.ts",
+          "hash": "699428891746839368"
+        },
+        {
+          "file": "apps/ui/src/views/organization/Admins.tsx",
+          "hash": "10699173426031025025"
+        },
+        {
+          "file": "apps/ui/src/views/organization/Organization.tsx",
+          "hash": "3026505345018782612"
+        },
+        {
+          "file": "apps/ui/src/views/organization/Performance.css",
+          "hash": "5650030655453715297"
+        },
+        {
+          "file": "apps/ui/src/views/organization/Performance.tsx",
+          "hash": "2582654806122126226"
+        },
+        {
+          "file": "apps/ui/src/views/organization/Settings.tsx",
+          "hash": "15476117657487833485"
+        },
+        {
+          "file": "apps/ui/src/views/project/ProjectForm.tsx",
+          "hash": "11024817714536972770"
+        },
+        {
+          "file": "apps/ui/src/views/project/ProjectRoleRequired.tsx",
+          "hash": "14274643157694602466"
+        },
+        {
+          "file": "apps/ui/src/views/project/ProjectSidebar.tsx",
+          "hash": "12680926015550172085"
+        },
+        {
+          "file": "apps/ui/src/views/project/Projects.tsx",
+          "hash": "15057982371296418286"
+        },
+        {
+          "file": "apps/ui/src/views/router.tsx",
+          "hash": "3639437383218820207"
+        },
+        {
+          "file": "apps/ui/src/views/settings/ApiKeys.tsx",
+          "hash": "8167949750429122874"
+        },
+        {
+          "file": "apps/ui/src/views/settings/IntegrationModal.css",
+          "hash": "10892604055696750290"
+        },
+        {
+          "file": "apps/ui/src/views/settings/IntegrationModal.tsx",
+          "hash": "11102613891700328711"
+        },
+        {
+          "file": "apps/ui/src/views/settings/Integrations.tsx",
+          "hash": "10542346400302292558"
+        },
+        {
+          "file": "apps/ui/src/views/settings/Locales.tsx",
+          "hash": "10667392483583309626"
+        },
+        {
+          "file": "apps/ui/src/views/settings/ProjectSettings.tsx",
+          "hash": "13308219343497480919"
+        },
+        {
+          "file": "apps/ui/src/views/settings/Settings.tsx",
+          "hash": "7757687212083111210"
+        },
+        {
+          "file": "apps/ui/src/views/settings/Subscriptions.tsx",
+          "hash": "5904964457614196150"
+        },
+        {
+          "file": "apps/ui/src/views/settings/TagPicker.tsx",
+          "hash": "4177160172648612075"
+        },
+        {
+          "file": "apps/ui/src/views/settings/Tags.tsx",
+          "hash": "6994439060560296816"
+        },
+        {
+          "file": "apps/ui/src/views/settings/TeamInvite.tsx",
+          "hash": "16628574362192174527"
+        },
+        {
+          "file": "apps/ui/src/views/settings/Teams.tsx",
+          "hash": "13522525725273515111"
+        },
+        {
+          "file": "apps/ui/src/views/users/ListCreateForm.tsx",
+          "hash": "4377790618192459758"
+        },
+        {
+          "file": "apps/ui/src/views/users/ListDetail.tsx",
+          "hash": "10471160490087813646"
+        },
+        {
+          "file": "apps/ui/src/views/users/ListTable.tsx",
+          "hash": "809253099910382483"
+        },
+        {
+          "file": "apps/ui/src/views/users/Lists.tsx",
+          "hash": "1929116200845451932"
+        },
+        {
+          "file": "apps/ui/src/views/users/RuleBuilder.css",
+          "hash": "14610350240913626725"
+        },
+        {
+          "file": "apps/ui/src/views/users/RuleBuilder.tsx",
+          "hash": "16286216756654758067"
+        },
+        {
+          "file": "apps/ui/src/views/users/UserDetail.tsx",
+          "hash": "8076080737104334996"
+        },
+        {
+          "file": "apps/ui/src/views/users/UserDetailAttrs.tsx",
+          "hash": "5042109093295132815"
+        },
+        {
+          "file": "apps/ui/src/views/users/UserDetailEvents.tsx",
+          "hash": "14277716975455680475"
+        },
+        {
+          "file": "apps/ui/src/views/users/UserDetailJourneys.tsx",
+          "hash": "7044393045336088210"
+        },
+        {
+          "file": "apps/ui/src/views/users/UserDetailLists.tsx",
+          "hash": "3044470425827218168"
+        },
+        {
+          "file": "apps/ui/src/views/users/UserDetailSubscriptions.tsx",
+          "hash": "14888437355007751321"
+        },
+        {
+          "file": "apps/ui/src/views/users/Users.tsx",
+          "hash": "5932836066098167403"
+        },
+        {
+          "file": "apps/ui/tsconfig.json",
+          "hash": "2095829322977884463"
+        },
+        {
+          "file": "apps/ui/tsconfig.lib-module.json",
+          "hash": "6732503534567008699"
+        },
+        {
+          "file": "apps/ui/tsconfig.lib.json",
+          "hash": "361113603574303259"
+        }
+      ],
+      "twenty-shared": [
+        {
+          "file": "packages/twenty-shared/.babelrc",
+          "hash": "8951623758155741224"
+        },
+        {
+          "file": "packages/twenty-shared/.eslintrc.cjs",
+          "hash": "9859331586530692732"
+        },
+        {
+          "file": "packages/twenty-shared/.gitignore",
+          "hash": "6478667235016243744"
+        },
+        {
+          "file": "packages/twenty-shared/constants/package.json",
+          "hash": "7364973991531091799"
+        },
+        {
+          "file": "packages/twenty-shared/jest.config.ts",
+          "hash": "11158626708374708019"
+        },
+        {
+          "file": "packages/twenty-shared/package.json",
+          "hash": "13103101419430421035",
+          "deps": [
+            "npm:libphonenumber-js"
+          ]
+        },
+        {
+          "file": "packages/twenty-shared/project.json",
+          "hash": "8518535157637034852"
+        },
+        {
+          "file": "packages/twenty-shared/scripts/generateBarrels.ts",
+          "hash": "13819217673796488879"
+        },
+        {
+          "file": "packages/twenty-shared/scripts/migrateFromSingleToMultiBarrelImport.ts",
+          "hash": "6441820220086118009"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/FieldForTotalCountAggregateOperation.ts",
+          "hash": "14013367894610072933"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/FieldMetadataMaxOptionsToDisplay.ts",
+          "hash": "17990779201811327281"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/FieldRestrictedAdditionalPermissionsRequired.ts",
+          "hash": "1868765921367843838"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/LabelIdentifierFieldMetadataTypes.ts",
+          "hash": "15596420350916403683"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/PermissionsOnAllObjectRecords.ts",
+          "hash": "14562385491083619770"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/QueryMaxRecords.ts",
+          "hash": "14902678684245052791"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/StandardObjectRecordsUnderObjectRecordsPermissions.ts",
+          "hash": "14148791830586106069"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/TwentyCompaniesBaseUrl.ts",
+          "hash": "9603894269210160063"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/TwentyIconsBaseUrl.ts",
+          "hash": "4854017709998165642"
+        },
+        {
+          "file": "packages/twenty-shared/src/constants/index.ts",
+          "hash": "7911863167514286128"
+        },
+        {
+          "file": "packages/twenty-shared/src/index.ts",
+          "hash": "962117557721720371"
+        },
+        {
+          "file": "packages/twenty-shared/src/testing/EachTestingContextFilter.ts",
+          "hash": "3896571725610444000"
+        },
+        {
+          "file": "packages/twenty-shared/src/testing/index.ts",
+          "hash": "7269147979153459864"
+        },
+        {
+          "file": "packages/twenty-shared/src/testing/types/EachTestingContext.type.ts",
+          "hash": "5411094057221977560"
+        },
+        {
+          "file": "packages/twenty-shared/src/testing/types/SuccessfulAndFailingTestCases.ts",
+          "hash": "1673233525310457319"
+        },
+        {
+          "file": "packages/twenty-shared/src/translations/constants/AppLocales.ts",
+          "hash": "3398120122254607146"
+        },
+        {
+          "file": "packages/twenty-shared/src/translations/constants/SourceLocale.ts",
+          "hash": "15525026474053347548"
+        },
+        {
+          "file": "packages/twenty-shared/src/translations/index.ts",
+          "hash": "17054101646641043864"
+        },
+        {
+          "file": "packages/twenty-shared/src/types/ConfigVariableValue.ts",
+          "hash": "3552383921824571285"
+        },
+        {
+          "file": "packages/twenty-shared/src/types/ConnectedAccountProvider.ts",
+          "hash": "10202799851716077825"
+        },
+        {
+          "file": "packages/twenty-shared/src/types/FieldMetadataType.ts",
+          "hash": "65877302085446953"
+        },
+        {
+          "file": "packages/twenty-shared/src/types/IsExactly.ts",
+          "hash": "18399996774704275002"
+        },
+        {
+          "file": "packages/twenty-shared/src/types/ObjectRecordsPermissions.ts",
+          "hash": "6875313674443078845"
+        },
+        {
+          "file": "packages/twenty-shared/src/types/ObjectRecordsPermissionsByRoleId.ts",
+          "hash": "13253612841586768923"
+        },
+        {
+          "file": "packages/twenty-shared/src/types/StepFilters.ts",
+          "hash": "11782594061784794471"
+        },
+        {
+          "file": "packages/twenty-shared/src/types/ViewFilterOperand.ts",
+          "hash": "311649951601234909"
+        },
+        {
+          "file": "packages/twenty-shared/src/types/index.ts",
+          "hash": "6240500357149721551"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/__tests__/removeUndefinedFields.test.ts",
+          "hash": "10019978876769214553"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/assertUnreachable.ts",
+          "hash": "414442800031143467"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/fieldMetadata/index.ts",
+          "hash": "13386180533913870076"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/fieldMetadata/isFieldMetadataDateKind.ts",
+          "hash": "2617295612152696367"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/getURLSafely.ts",
+          "hash": "17476265796523227048"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/image/__tests__/getImageAbsoluteURI.test.ts",
+          "hash": "491652604991522524"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/image/__tests__/getLogoUrlFromDomainName.test.ts",
+          "hash": "5243405644128377276"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/image/getImageAbsoluteURI.ts",
+          "hash": "1193767311717581078"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/image/getLogoUrlFromDomainName.ts",
+          "hash": "7666420595336696033"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/image/index.ts",
+          "hash": "5096265885392494925"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/index.ts",
+          "hash": "621334835006333024"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/parseJson.ts",
+          "hash": "2818692671605798430"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/removeUndefinedFields.ts",
+          "hash": "7145640984085546700"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/sentry/getGenericOperationName.ts",
+          "hash": "9569229397017484475"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/sentry/getHumanReadableNameFromCode.ts",
+          "hash": "333120796980667793"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/strings/__tests__/capitalize.test.ts",
+          "hash": "4161418775676993101"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/strings/capitalize.ts",
+          "hash": "10084523247428859068"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/strings/index.ts",
+          "hash": "7429280229637531937"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/__tests__/absoluteUrlSchema.test.ts",
+          "hash": "5333993886522671410"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/__tests__/buildSignedPath.test.ts",
+          "hash": "8244259875099377097"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/__tests__/getAbsoluteUrlOrThrow.test.ts",
+          "hash": "3926192654282086161"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/__tests__/getUrlHostnameOrThrow.test.ts",
+          "hash": "9322352426044291678"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/__tests__/isValidHostname.test.ts",
+          "hash": "12045769576500537396"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/__tests__/isValidUrl.test.ts",
+          "hash": "6679358352476427196"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/__tests__/lowercaseUrlOriginAndRemoveTrailingSlash.test.ts",
+          "hash": "15830095946127022983"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/absoluteUrlSchema.ts",
+          "hash": "17838109430160585765"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/buildSignedPath.ts",
+          "hash": "1828290563948604520"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/getAbsoluteUrl.ts",
+          "hash": "7792288997469999600"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/getAbsoluteUrlOrThrow.ts",
+          "hash": "14839636324390198137"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/getUrlHostnameOrThrow.ts",
+          "hash": "11204031699942106992"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/index.ts",
+          "hash": "837087799769883266"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/isValidHostname.ts",
+          "hash": "9536932294155323667"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/isValidUrl.ts",
+          "hash": "15847244836224458608"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/url/lowercaseUrlOriginAndRemoveTrailingSlash.ts",
+          "hash": "9714752437194001382"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/__tests__/isDefined.test.ts",
+          "hash": "17296645503222391511"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/__tests__/isValidLocale.test.ts",
+          "hash": "12257081069763650725"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/__tests__/isValidUuid.test.ts",
+          "hash": "4829730854705722358"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/__tests__/normalizeLocale.test.ts",
+          "hash": "11285231947505457969"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/index.ts",
+          "hash": "15103201152227047079"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/isDefined.ts",
+          "hash": "16018628784054326877"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/isLabelIdentifierFieldMetadataTypes.ts",
+          "hash": "12359405774757605164"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/isValidLocale.ts",
+          "hash": "1027188665068522265"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/isValidUuid.ts",
+          "hash": "7729941450106908345"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/isValidVariable.ts",
+          "hash": "7333165572169082302"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/normalizeLocale.ts",
+          "hash": "13364393682951483305"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/phones-value/getCountryCodesForCallingCode.ts",
+          "hash": "18428611749387400256"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/phones-value/index.ts",
+          "hash": "7320522262523399862"
+        },
+        {
+          "file": "packages/twenty-shared/src/utils/validation/phones-value/isValidCountryCode.ts",
+          "hash": "13759870662377923460"
+        },
+        {
+          "file": "packages/twenty-shared/src/workflow/index.ts",
+          "hash": "14758495267245956644"
+        },
+        {
+          "file": "packages/twenty-shared/src/workflow/types/WorkflowRunStateStepInfos.ts",
+          "hash": "16145385074441130716"
+        },
+        {
+          "file": "packages/twenty-shared/src/workflow/utils/__tests__/getWorkflowRunContext.test.ts",
+          "hash": "1263801725051473870"
+        },
+        {
+          "file": "packages/twenty-shared/src/workflow/utils/getWorkflowRunContext.ts",
+          "hash": "16127033736769094389"
+        },
+        {
+          "file": "packages/twenty-shared/src/workspace/index.ts",
+          "hash": "5479157112223272099"
+        },
+        {
+          "file": "packages/twenty-shared/src/workspace/types/WorkspaceActivationStatus.ts",
+          "hash": "1223003877937694990"
+        },
+        {
+          "file": "packages/twenty-shared/src/workspace/types/index.ts",
+          "hash": "11026192477967574393"
+        },
+        {
+          "file": "packages/twenty-shared/src/workspace/utils/__tests__/isWorkspaceActiveOrSuspended.test.ts",
+          "hash": "14751910800615384127"
+        },
+        {
+          "file": "packages/twenty-shared/src/workspace/utils/index.ts",
+          "hash": "7591431750473226731"
+        },
+        {
+          "file": "packages/twenty-shared/src/workspace/utils/isWorkspaceActiveOrSuspended.ts",
+          "hash": "4871459507142205285"
+        },
+        {
+          "file": "packages/twenty-shared/testing/package.json",
+          "hash": "15325725666232892563"
+        },
+        {
+          "file": "packages/twenty-shared/translations/package.json",
+          "hash": "1208674659534583430"
+        },
+        {
+          "file": "packages/twenty-shared/tsconfig.json",
+          "hash": "1986684168413441188"
+        },
+        {
+          "file": "packages/twenty-shared/tsconfig.lib.json",
+          "hash": "2124074304783593233"
+        },
+        {
+          "file": "packages/twenty-shared/tsconfig.spec.json",
+          "hash": "3934678492151333188"
+        },
+        {
+          "file": "packages/twenty-shared/types/package.json",
+          "hash": "11535940770085652590"
+        },
+        {
+          "file": "packages/twenty-shared/utils/package.json",
+          "hash": "6670889890155534203"
+        },
+        {
+          "file": "packages/twenty-shared/workflow/package.json",
+          "hash": "16708792381306016550"
+        },
+        {
+          "file": "packages/twenty-shared/workspace/package.json",
+          "hash": "10463431910608451335"
+        }
+      ],
+      "twenty-chrome-extension": [
+        {
+          "file": "packages/twenty-chrome-extension/.env.example",
+          "hash": "1940606467962297942"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/.eslintrc-ci.cjs",
+          "hash": "11609936037949140432"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/.eslintrc.cjs",
+          "hash": "6739379300159541968"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/.gitignore",
+          "hash": "13046175384202504187"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/.prettierignore",
+          "hash": "8753183222953459250"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/README.md",
+          "hash": "8027539927771301854"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/codegen.ts",
+          "hash": "3084696512942255699"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/loading.html",
+          "hash": "16653793385827206843"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/package.json",
+          "hash": "9489637576179052302",
           "deps": [
             "twenty-shared"
           ]
         },
         {
-          "file": "packages/twenty-emails/project.json",
-          "hash": "14157036562044703810"
+          "file": "packages/twenty-chrome-extension/page-inaccessible.html",
+          "hash": "1715256710957462903"
         },
         {
-          "file": "packages/twenty-emails/src/common-style.ts",
-          "hash": "14556810606077891310"
+          "file": "packages/twenty-chrome-extension/project.json",
+          "hash": "184750266387758985"
         },
         {
-          "file": "packages/twenty-emails/src/components/BaseEmail.tsx",
-          "hash": "9726691445138742396"
+          "file": "packages/twenty-chrome-extension/public/light-noise.png",
+          "hash": "15569283993812492186"
         },
         {
-          "file": "packages/twenty-emails/src/components/BaseHead.tsx",
-          "hash": "2519921208065617228"
+          "file": "packages/twenty-chrome-extension/public/logo/32-32.png",
+          "hash": "5404868447881824911"
         },
         {
-          "file": "packages/twenty-emails/src/components/CallToAction.tsx",
-          "hash": "16635960474749718266"
+          "file": "packages/twenty-chrome-extension/public/logo/32-32.svg",
+          "hash": "15804011412003524951"
         },
         {
-          "file": "packages/twenty-emails/src/components/Footer.tsx",
-          "hash": "11913593985919683437"
+          "file": "packages/twenty-chrome-extension/public/readme-images/01-img-one.png",
+          "hash": "11431929400016183268"
         },
         {
-          "file": "packages/twenty-emails/src/components/HighlightedContainer.tsx",
-          "hash": "6374826003482432918"
+          "file": "packages/twenty-chrome-extension/public/readme-images/02-img-two.png",
+          "hash": "10433934012817348732"
         },
         {
-          "file": "packages/twenty-emails/src/components/HighlightedText.tsx",
-          "hash": "16682817581094251149"
+          "file": "packages/twenty-chrome-extension/public/readme-images/03-img-three.png",
+          "hash": "6944153226884512978"
         },
         {
-          "file": "packages/twenty-emails/src/components/Link.tsx",
-          "hash": "1796150101345331189"
+          "file": "packages/twenty-chrome-extension/public/readme-images/04-img-four.png",
+          "hash": "18316032460748070284"
         },
         {
-          "file": "packages/twenty-emails/src/components/Logo.tsx",
-          "hash": "13126952445730314750"
+          "file": "packages/twenty-chrome-extension/public/readme-images/05-img-five.png",
+          "hash": "12697890624409473716"
         },
         {
-          "file": "packages/twenty-emails/src/components/MainText.tsx",
-          "hash": "4935562814371633010"
+          "file": "packages/twenty-chrome-extension/public/vite.svg",
+          "hash": "16046085400642193116"
         },
         {
-          "file": "packages/twenty-emails/src/components/ShadowText.tsx",
-          "hash": "18288732617900085689"
+          "file": "packages/twenty-chrome-extension/sidepanel.html",
+          "hash": "9696701364794275292"
         },
         {
-          "file": "packages/twenty-emails/src/components/SubTitle.tsx",
-          "hash": "11841760991647051876"
+          "file": "packages/twenty-chrome-extension/src/background/index.ts",
+          "hash": "14876333475650521647"
         },
         {
-          "file": "packages/twenty-emails/src/components/Title.tsx",
-          "hash": "17638744591202450169"
+          "file": "packages/twenty-chrome-extension/src/contentScript/createButton.ts",
+          "hash": "17993658988460760608"
         },
         {
-          "file": "packages/twenty-emails/src/components/WhatIsTwenty.tsx",
-          "hash": "15416531024680874889"
+          "file": "packages/twenty-chrome-extension/src/contentScript/extractCompanyProfile.ts",
+          "hash": "6163140023381274639"
         },
         {
-          "file": "packages/twenty-emails/src/emails/clean-suspended-workspace.email.tsx",
-          "hash": "12445026316205678157"
+          "file": "packages/twenty-chrome-extension/src/contentScript/extractPersonProfile.ts",
+          "hash": "9952308941713943527"
         },
         {
-          "file": "packages/twenty-emails/src/emails/password-reset-link.email.tsx",
-          "hash": "13117050920223535828"
+          "file": "packages/twenty-chrome-extension/src/contentScript/index.ts",
+          "hash": "17594371349130563848"
         },
         {
-          "file": "packages/twenty-emails/src/emails/password-update-notify.email.tsx",
-          "hash": "5895128835927932611"
+          "file": "packages/twenty-chrome-extension/src/contentScript/insertSettingsButton.ts",
+          "hash": "6529580171129417879"
         },
         {
-          "file": "packages/twenty-emails/src/emails/send-email-verification-link.email.tsx",
-          "hash": "10089808979858923718"
+          "file": "packages/twenty-chrome-extension/src/contentScript/utils/changeSidepanelUrl.ts",
+          "hash": "13455673082319883905"
         },
         {
-          "file": "packages/twenty-emails/src/emails/send-invite-link.email.tsx",
-          "hash": "16824386042918507461"
+          "file": "packages/twenty-chrome-extension/src/contentScript/utils/extractCompanyLinkedinLink.ts",
+          "hash": "5878214052130150764"
         },
         {
-          "file": "packages/twenty-emails/src/emails/test.email.tsx",
-          "hash": "13833761354036074796"
+          "file": "packages/twenty-chrome-extension/src/contentScript/utils/extractDomain.ts",
+          "hash": "13707470812171431996"
         },
         {
-          "file": "packages/twenty-emails/src/emails/validate-approved-access-domain.email.tsx",
-          "hash": "17865960507662392647"
+          "file": "packages/twenty-chrome-extension/src/contentScript/utils/extractFirstAndLastName.ts",
+          "hash": "17599114104434409013"
         },
         {
-          "file": "packages/twenty-emails/src/emails/warn-suspended-workspace.email.tsx",
-          "hash": "10228967190959630647"
+          "file": "packages/twenty-chrome-extension/src/db/auth.db.ts",
+          "hash": "14275704283331026420"
         },
         {
-          "file": "packages/twenty-emails/src/index.ts",
-          "hash": "10185530392318300639"
+          "file": "packages/twenty-chrome-extension/src/db/company.db.ts",
+          "hash": "7714339957235756342"
         },
         {
-          "file": "packages/twenty-emails/src/locales/aa-ER.po",
-          "hash": "4929801287996160446"
+          "file": "packages/twenty-chrome-extension/src/db/person.db.ts",
+          "hash": "9409303473855530303"
         },
         {
-          "file": "packages/twenty-emails/src/locales/af-ZA.po",
-          "hash": "7345286905057890375"
+          "file": "packages/twenty-chrome-extension/src/db/token.db.ts",
+          "hash": "993091943322819819"
         },
         {
-          "file": "packages/twenty-emails/src/locales/ar-SA.po",
-          "hash": "12593385823594886499"
+          "file": "packages/twenty-chrome-extension/src/db/types/auth.types.ts",
+          "hash": "17346136770707377218"
         },
         {
-          "file": "packages/twenty-emails/src/locales/ca-ES.po",
-          "hash": "10700061556397268196"
+          "file": "packages/twenty-chrome-extension/src/db/types/company.types.ts",
+          "hash": "1387820327245120222"
         },
         {
-          "file": "packages/twenty-emails/src/locales/cs-CZ.po",
-          "hash": "2610048989034767544"
+          "file": "packages/twenty-chrome-extension/src/db/types/person.types.ts",
+          "hash": "14110944699331605484"
         },
         {
-          "file": "packages/twenty-emails/src/locales/da-DK.po",
-          "hash": "16357738298784549819"
+          "file": "packages/twenty-chrome-extension/src/generated/graphql.tsx",
+          "hash": "12780588746735800132"
         },
         {
-          "file": "packages/twenty-emails/src/locales/de-DE.po",
-          "hash": "14469724608889628805"
+          "file": "packages/twenty-chrome-extension/src/global.d.ts",
+          "hash": "6473772402460189028"
         },
         {
-          "file": "packages/twenty-emails/src/locales/el-GR.po",
-          "hash": "5187493932355262413"
+          "file": "packages/twenty-chrome-extension/src/graphql/auth/mutations.ts",
+          "hash": "676506839464177077"
         },
         {
-          "file": "packages/twenty-emails/src/locales/en.po",
-          "hash": "15206621217935379416"
+          "file": "packages/twenty-chrome-extension/src/graphql/company/mutations.ts",
+          "hash": "11079383663187585088"
         },
         {
-          "file": "packages/twenty-emails/src/locales/es-ES.po",
-          "hash": "16765117667157011636"
+          "file": "packages/twenty-chrome-extension/src/graphql/company/queries.ts",
+          "hash": "2580939499544084598"
         },
         {
-          "file": "packages/twenty-emails/src/locales/fi-FI.po",
-          "hash": "16455518077309126800"
+          "file": "packages/twenty-chrome-extension/src/graphql/person/mutations.ts",
+          "hash": "12884755219942989800"
         },
         {
-          "file": "packages/twenty-emails/src/locales/fr-FR.po",
-          "hash": "10934099178683148903"
+          "file": "packages/twenty-chrome-extension/src/graphql/person/queries.ts",
+          "hash": "7027368506417008921"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/af-ZA.ts",
-          "hash": "11400412482350206688"
+          "file": "packages/twenty-chrome-extension/src/index.css",
+          "hash": "5056015507725558964"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/ar-SA.ts",
-          "hash": "17244027645665290485"
+          "file": "packages/twenty-chrome-extension/src/manifest.ts",
+          "hash": "2389253096714138087"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/ca-ES.ts",
-          "hash": "3032584610726516345"
+          "file": "packages/twenty-chrome-extension/src/options/App.tsx",
+          "hash": "2712798664951392869"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/cs-CZ.ts",
-          "hash": "1979156604263492853"
+          "file": "packages/twenty-chrome-extension/src/options/Loading.tsx",
+          "hash": "2484949512609242667"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/da-DK.ts",
-          "hash": "8657123621817258642"
+          "file": "packages/twenty-chrome-extension/src/options/PageInaccessible.tsx",
+          "hash": "7386949327582591354"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/de-DE.ts",
-          "hash": "3564938482936480052"
+          "file": "packages/twenty-chrome-extension/src/options/Settings.tsx",
+          "hash": "15150620269635407017"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/el-GR.ts",
-          "hash": "6326042141252527681"
+          "file": "packages/twenty-chrome-extension/src/options/Sidepanel.tsx",
+          "hash": "2690841968106171780"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/en.ts",
-          "hash": "15382523102048238966"
+          "file": "packages/twenty-chrome-extension/src/options/index.tsx",
+          "hash": "10720820909541820734"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/es-ES.ts",
-          "hash": "4903107485392867007"
+          "file": "packages/twenty-chrome-extension/src/options/loading-index.tsx",
+          "hash": "13036721340067537537"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/fi-FI.ts",
-          "hash": "7953224144021751146"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/display/loader/components/Loader.tsx",
+          "hash": "3369274703130702360"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/fr-FR.ts",
-          "hash": "10848936997368455101"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/display/typography/components/H2Title.tsx",
+          "hash": "8768577306543559702"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/he-IL.ts",
-          "hash": "16395709898751088496"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/input/button/Button.tsx",
+          "hash": "3859430075150275971"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/hu-HU.ts",
-          "hash": "17623488086315637265"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/input/button/MainButton.tsx",
+          "hash": "12719178853723931628"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/it-IT.ts",
-          "hash": "15610152845936227953"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/input/components/TextInput.tsx",
+          "hash": "14000389886055442984"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/ja-JP.ts",
-          "hash": "9349787062576313070"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/input/components/Toggle.tsx",
+          "hash": "5828653447863122998"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/ko-KR.ts",
-          "hash": "8256076111699081526"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/assets/dark-noise.jpg",
+          "hash": "13562216116736003129"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/nl-NL.ts",
-          "hash": "4994291211005963933"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/assets/light-noise.png",
+          "hash": "15569283993812492186"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/no-NO.ts",
-          "hash": "9278905831424990031"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/components/AppThemeProvider.tsx",
+          "hash": "5569189250894039270"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/pl-PL.ts",
-          "hash": "14110692948882776282"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/AccentDark.ts",
+          "hash": "16660604688581541084"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/pseudo-en.ts",
-          "hash": "1999825674891848570"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/AccentLight.ts",
+          "hash": "2646364126386590468"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/pt-BR.ts",
-          "hash": "1263687034017473175"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Animation.ts",
+          "hash": "14501130804895981211"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/pt-PT.ts",
-          "hash": "285207416659026737"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BackgroundDark.ts",
+          "hash": "7679850363153819111"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/ro-RO.ts",
-          "hash": "9052202019174820875"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BackgroundLight.ts",
+          "hash": "2327305780613902159"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/ru-RU.ts",
-          "hash": "1647639815138456079"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Blur.ts",
+          "hash": "16974405916521575236"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/sr-Cyrl.ts",
-          "hash": "3613485389293081761"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BorderCommon.ts",
+          "hash": "2134202536448999051"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/sv-SE.ts",
-          "hash": "11314453548960678261"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BorderDark.ts",
+          "hash": "15709796978707376130"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/tr-TR.ts",
-          "hash": "7457940499413576033"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BorderLight.ts",
+          "hash": "2329905653233985435"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/uk-UA.ts",
-          "hash": "11919852740137685727"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BoxShadowDark.ts",
+          "hash": "10136082220005508898"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/vi-VN.ts",
-          "hash": "13648968281287722096"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BoxShadowLight.ts",
+          "hash": "2572528347323429217"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/zh-CN.ts",
-          "hash": "89414097580134964"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Colors.ts",
+          "hash": "5739506375640625259"
         },
         {
-          "file": "packages/twenty-emails/src/locales/generated/zh-TW.ts",
-          "hash": "1722137241235393457"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/FontCommon.ts",
+          "hash": "6451782564917160276"
         },
         {
-          "file": "packages/twenty-emails/src/locales/he-IL.po",
-          "hash": "9268280685201310354"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/FontDark.ts",
+          "hash": "12287516311491826907"
         },
         {
-          "file": "packages/twenty-emails/src/locales/hu-HU.po",
-          "hash": "8026811993608114801"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/FontLight.ts",
+          "hash": "11012189904674905923"
         },
         {
-          "file": "packages/twenty-emails/src/locales/it-IT.po",
-          "hash": "3831025241219038647"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/GrayScale.ts",
+          "hash": "14960484305771587769"
         },
         {
-          "file": "packages/twenty-emails/src/locales/ja-JP.po",
-          "hash": "11297142479797367224"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/HoverBackground.ts",
+          "hash": "1990000373349045166"
         },
         {
-          "file": "packages/twenty-emails/src/locales/ko-KR.po",
-          "hash": "2542447995631847792"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Icon.ts",
+          "hash": "5247653481507797162"
         },
         {
-          "file": "packages/twenty-emails/src/locales/nl-NL.po",
-          "hash": "9358714147739330090"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/MainColorNames.ts",
+          "hash": "13344593943523563528"
         },
         {
-          "file": "packages/twenty-emails/src/locales/no-NO.po",
-          "hash": "8460929656729075703"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/MainColors.ts",
+          "hash": "16451063561288783722"
         },
         {
-          "file": "packages/twenty-emails/src/locales/pl-PL.po",
-          "hash": "15985898751384503401"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/MobileViewport.ts",
+          "hash": "13370362257821977193"
         },
         {
-          "file": "packages/twenty-emails/src/locales/pseudo-en.po",
-          "hash": "8530465032656330936"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Modal.ts",
+          "hash": "2658969005240941523"
         },
         {
-          "file": "packages/twenty-emails/src/locales/pt-BR.po",
-          "hash": "11499731766455611518"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/OverlayBackground.ts",
+          "hash": "18207308163497847993"
         },
         {
-          "file": "packages/twenty-emails/src/locales/pt-PT.po",
-          "hash": "5408733001457671849"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Rgba.ts",
+          "hash": "9961164877025795856"
         },
         {
-          "file": "packages/twenty-emails/src/locales/ro-RO.po",
-          "hash": "11644199703036820701"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/SecondaryColors.ts",
+          "hash": "13305646717782752108"
         },
         {
-          "file": "packages/twenty-emails/src/locales/ru-RU.po",
-          "hash": "14011840168320949898"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/TagDark.ts",
+          "hash": "16640803258830915443"
         },
         {
-          "file": "packages/twenty-emails/src/locales/sr-Cyrl.po",
-          "hash": "2456691948698264888"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/TagLight.ts",
+          "hash": "4953701441724417372"
         },
         {
-          "file": "packages/twenty-emails/src/locales/sv-SE.po",
-          "hash": "1841292929692452497"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Text.ts",
+          "hash": "548110161977141323"
         },
         {
-          "file": "packages/twenty-emails/src/locales/tr-TR.po",
-          "hash": "3136152805098169379"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/TextInputStyle.ts",
+          "hash": "17404377029830851423"
         },
         {
-          "file": "packages/twenty-emails/src/locales/uk-UA.po",
-          "hash": "15720651974103437002"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/ThemeCommon.ts",
+          "hash": "4880425723799122580"
         },
         {
-          "file": "packages/twenty-emails/src/locales/vi-VN.po",
-          "hash": "9918348864874906592"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/ThemeDark.ts",
+          "hash": "12035111875160048623"
         },
         {
-          "file": "packages/twenty-emails/src/locales/zh-CN.po",
-          "hash": "10133216036258576828"
+          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/ThemeLight.ts",
+          "hash": "13031136487294992489"
         },
         {
-          "file": "packages/twenty-emails/src/locales/zh-TW.po",
-          "hash": "7422986695612565600"
+          "file": "packages/twenty-chrome-extension/src/options/page-inaccessible-index.tsx",
+          "hash": "9538759394515812600"
         },
         {
-          "file": "packages/twenty-emails/src/utils/capitalize.ts",
-          "hash": "10084523247428859068"
+          "file": "packages/twenty-chrome-extension/src/utils/apolloClient.ts",
+          "hash": "1918936041309564085"
         },
         {
-          "file": "packages/twenty-emails/tsconfig.json",
-          "hash": "4455177828092809486"
+          "file": "packages/twenty-chrome-extension/src/utils/handleQueryParams.ts",
+          "hash": "4275585596397437011"
         },
         {
-          "file": "packages/twenty-emails/tsconfig.lib.json",
-          "hash": "13920168121265126459"
+          "file": "packages/twenty-chrome-extension/src/utils/requestDb.ts",
+          "hash": "10633701915199584797"
         },
         {
-          "file": "packages/twenty-emails/vite.config.ts",
-          "hash": "10786338859489544668"
+          "file": "packages/twenty-chrome-extension/src/vite-env.d.ts",
+          "hash": "262964610190226297"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/tsconfig.app.json",
+          "hash": "7427644309364463714"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/tsconfig.json",
+          "hash": "12363933828046800995"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/tsconfig.spec.json",
+          "hash": "18200824212063823820"
+        },
+        {
+          "file": "packages/twenty-chrome-extension/vite.config.ts",
+          "hash": "12014451264045114401"
+        }
+      ],
+      "eslint-rules": [
+        {
+          "file": "tools/eslint-rules/index.ts",
+          "hash": "984883891454730241"
+        },
+        {
+          "file": "tools/eslint-rules/jest.config.ts",
+          "hash": "8499295068245291062"
+        },
+        {
+          "file": "tools/eslint-rules/project.json",
+          "hash": "14423913145173455728"
+        },
+        {
+          "file": "tools/eslint-rules/rules/component-props-naming.spec.ts",
+          "hash": "13436621686871408575"
+        },
+        {
+          "file": "tools/eslint-rules/rules/component-props-naming.ts",
+          "hash": "2952081383565702749"
+        },
+        {
+          "file": "tools/eslint-rules/rules/effect-components.spec.ts",
+          "hash": "16514204166994159199"
+        },
+        {
+          "file": "tools/eslint-rules/rules/effect-components.ts",
+          "hash": "15380844272599426174"
+        },
+        {
+          "file": "tools/eslint-rules/rules/explicit-boolean-predicates-in-if.ts",
+          "hash": "7160971506208514744"
+        },
+        {
+          "file": "tools/eslint-rules/rules/graphql-resolvers-should-be-guarded.spec.ts",
+          "hash": "4125382721234081886"
+        },
+        {
+          "file": "tools/eslint-rules/rules/graphql-resolvers-should-be-guarded.ts",
+          "hash": "16184506899122082447"
+        },
+        {
+          "file": "tools/eslint-rules/rules/inject-workspace-repository.spec.ts",
+          "hash": "989955602078990992"
+        },
+        {
+          "file": "tools/eslint-rules/rules/inject-workspace-repository.ts",
+          "hash": "14376779842059722363"
+        },
+        {
+          "file": "tools/eslint-rules/rules/matching-state-variable.spec.ts",
+          "hash": "2145310122344374627"
+        },
+        {
+          "file": "tools/eslint-rules/rules/matching-state-variable.ts",
+          "hash": "6385168685627595155"
+        },
+        {
+          "file": "tools/eslint-rules/rules/max-consts-per-file.spec.ts",
+          "hash": "16259183508456240093"
+        },
+        {
+          "file": "tools/eslint-rules/rules/max-consts-per-file.ts",
+          "hash": "2337916809420857018"
+        },
+        {
+          "file": "tools/eslint-rules/rules/no-hardcoded-colors.spec.ts",
+          "hash": "8903775518528913175"
+        },
+        {
+          "file": "tools/eslint-rules/rules/no-hardcoded-colors.ts",
+          "hash": "14893660876290126616"
+        },
+        {
+          "file": "tools/eslint-rules/rules/no-navigate-prefer-link.spec.ts",
+          "hash": "13749288976664333453"
+        },
+        {
+          "file": "tools/eslint-rules/rules/no-navigate-prefer-link.ts",
+          "hash": "15410228651076972604"
+        },
+        {
+          "file": "tools/eslint-rules/rules/no-state-useref.spec.ts",
+          "hash": "17833042442311734833"
+        },
+        {
+          "file": "tools/eslint-rules/rules/no-state-useref.ts",
+          "hash": "14121359912525411341"
+        },
+        {
+          "file": "tools/eslint-rules/rules/rest-api-methods-should-be-guarded.spec.ts",
+          "hash": "12945885252788987422"
+        },
+        {
+          "file": "tools/eslint-rules/rules/rest-api-methods-should-be-guarded.ts",
+          "hash": "7439958564655981364"
+        },
+        {
+          "file": "tools/eslint-rules/rules/sort-css-properties-alphabetically.spec.ts",
+          "hash": "15216693528112013599"
+        },
+        {
+          "file": "tools/eslint-rules/rules/sort-css-properties-alphabetically.ts",
+          "hash": "8881194489597714743"
+        },
+        {
+          "file": "tools/eslint-rules/rules/styled-components-prefixed-with-styled.spec.ts",
+          "hash": "2690603868082672441"
+        },
+        {
+          "file": "tools/eslint-rules/rules/styled-components-prefixed-with-styled.ts",
+          "hash": "14279215682144077914"
+        },
+        {
+          "file": "tools/eslint-rules/rules/use-getLoadable-and-getValue-to-get-atoms.spec.ts",
+          "hash": "1076223847130699286"
+        },
+        {
+          "file": "tools/eslint-rules/rules/use-getLoadable-and-getValue-to-get-atoms.ts",
+          "hash": "18379481100192594129"
+        },
+        {
+          "file": "tools/eslint-rules/rules/useRecoilCallback-has-dependency-array.spec.ts",
+          "hash": "2472361528282310930"
+        },
+        {
+          "file": "tools/eslint-rules/rules/useRecoilCallback-has-dependency-array.ts",
+          "hash": "7240536579202408848"
+        },
+        {
+          "file": "tools/eslint-rules/tsconfig.json",
+          "hash": "14420779524418715674"
+        },
+        {
+          "file": "tools/eslint-rules/tsconfig.lint.json",
+          "hash": "7365860896967470932"
+        },
+        {
+          "file": "tools/eslint-rules/tsconfig.spec.json",
+          "hash": "11922365422002424490"
+        },
+        {
+          "file": "tools/eslint-rules/utils/createRule.ts",
+          "hash": "9500584773489002105"
+        },
+        {
+          "file": "tools/eslint-rules/utils/typedTokenHelpers.ts",
+          "hash": "16229961983634340222"
         }
       ],
       "twenty-website": [
@@ -3430,204 +5544,6 @@
         {
           "file": "packages/twenty-website/tsconfig.json",
           "hash": "17945000928452586498"
-        }
-      ],
-      "twenty-e2e-testing": [
-        {
-          "file": "packages/twenty-e2e-testing/.env.example",
-          "hash": "2291900813912157445"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/.gitignore",
-          "hash": "5611836203731237285"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/README.md",
-          "hash": "2680151165809142603"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/fixtures/blank-workflow.ts",
-          "hash": "5389656388914959872"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/fixtures/screenshot.ts",
-          "hash": "10657350039113886368"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/helper/confirmationModal.ts",
-          "hash": "3035761212215697155"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/helper/formatDate.function.ts",
-          "hash": "17313152599850152894"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/helper/googleLogin.ts",
-          "hash": "8018045028940432295"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/helper/iconSelect.ts",
-          "hash": "8055303220931360208"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/helper/insertFieldData.ts",
-          "hash": "8754845155981480340"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/helper/stripePage.ts",
-          "hash": "4779261901580548328"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/helper/uploadImage.ts",
-          "hash": "236721473912405307"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/leftMenu.ts",
-          "hash": "15769724989235789428"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/loginPage.ts",
-          "hash": "14218903523810539413"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/mainPage.ts",
-          "hash": "13417784204811610886"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/recordDetails.ts",
-          "hash": "16144295801332721274"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/accountsSection.ts",
-          "hash": "10981616620584630314"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/apisSection.ts",
-          "hash": "7830206246053548057"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/calendarSection.ts",
-          "hash": "7684971447374658333"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/dataModelSection.ts",
-          "hash": "7406187582769288613"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/emailsSection.ts",
-          "hash": "2026255767095439292"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/experienceSection.ts",
-          "hash": "10761575795455941913"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/generalSection.ts",
-          "hash": "11442659311737006417"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/membersSection.ts",
-          "hash": "7635896938191793418"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/newFieldSection.ts",
-          "hash": "5532358552933887150"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/profileSection.ts",
-          "hash": "4625096657933711137"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/rolesSection.ts",
-          "hash": "12383296848956387385"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/securitySection.ts",
-          "hash": "7480129779320688620"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settings/webhooksSection.ts",
-          "hash": "14565153830238473808"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/pom/settingsPage.ts",
-          "hash": "625287144921366467"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/requests/backend.ts",
-          "hash": "9740248868635740629"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/requests/create-workflow.ts",
-          "hash": "3618703815930400636"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/requests/delete-workflow.ts",
-          "hash": "14297389173964051909"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/requests/destroy-workflow.ts",
-          "hash": "13666033189534576266"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/types/workflows.ts",
-          "hash": "11461988506808045972"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/utils/getAuthToken.ts",
-          "hash": "15386351720990935566"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/utils/keyboardShortcuts.ts",
-          "hash": "493405604376345718"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/utils/pasteCodeToCodeEditor.ts",
-          "hash": "4993111767497824884"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/lib/utils/uploadFile.ts",
-          "hash": "2294998871383722225"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/package.json",
-          "hash": "9916699967384951703"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/playwright.config.ts",
-          "hash": "7487808049646152899"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/project.json",
-          "hash": "6294073622763319726"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/tests/authentication/fixture.ts",
-          "hash": "15384828867026982615"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/tests/authentication/signup_invite_email.spec.ts",
-          "hash": "3058103320920363852"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/tests/login.setup.ts",
-          "hash": "2072313156535174807"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/tests/workflow-creation.spec.ts",
-          "hash": "15357271137275078571"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/tests/workflow-run.spec.ts",
-          "hash": "12289022716994510179"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/tests/workflow-use-as-draft.spec.ts",
-          "hash": "14592037630598508442"
-        },
-        {
-          "file": "packages/twenty-e2e-testing/tests/workflow-visualizer.spec.ts",
-          "hash": "51423820848755663"
         }
       ],
       "twenty-server": [
@@ -15401,6 +17317,24 @@
         {
           "file": "packages/twenty-server/tsconfig.scripts.json",
           "hash": "13106295645429258195"
+        }
+      ],
+      "twenty-utils": [
+        {
+          "file": "packages/twenty-utils/congratulate-dangerfile.ts",
+          "hash": "237188017620150601"
+        },
+        {
+          "file": "packages/twenty-utils/dangerfile.ts",
+          "hash": "2457765456855726170"
+        },
+        {
+          "file": "packages/twenty-utils/graphql-introspection-query.graphql",
+          "hash": "13629533058250975150"
+        },
+        {
+          "file": "packages/twenty-utils/package.json",
+          "hash": "9761884963138191191"
         }
       ],
       "twenty-front": [
@@ -36180,1940 +38114,6 @@
         {
           "file": "packages/twenty-ui/vite.config.ts",
           "hash": "6047629433028567038"
-        }
-      ],
-      "twenty-chrome-extension": [
-        {
-          "file": "packages/twenty-chrome-extension/.env.example",
-          "hash": "1940606467962297942"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/.eslintrc-ci.cjs",
-          "hash": "11609936037949140432"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/.eslintrc.cjs",
-          "hash": "6739379300159541968"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/.gitignore",
-          "hash": "13046175384202504187"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/.prettierignore",
-          "hash": "8753183222953459250"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/README.md",
-          "hash": "8027539927771301854"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/codegen.ts",
-          "hash": "3084696512942255699"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/loading.html",
-          "hash": "16653793385827206843"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/package.json",
-          "hash": "9489637576179052302",
-          "deps": [
-            "twenty-shared"
-          ]
-        },
-        {
-          "file": "packages/twenty-chrome-extension/page-inaccessible.html",
-          "hash": "1715256710957462903"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/project.json",
-          "hash": "184750266387758985"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/public/light-noise.png",
-          "hash": "15569283993812492186"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/public/logo/32-32.png",
-          "hash": "5404868447881824911"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/public/logo/32-32.svg",
-          "hash": "15804011412003524951"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/public/readme-images/01-img-one.png",
-          "hash": "11431929400016183268"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/public/readme-images/02-img-two.png",
-          "hash": "10433934012817348732"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/public/readme-images/03-img-three.png",
-          "hash": "6944153226884512978"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/public/readme-images/04-img-four.png",
-          "hash": "18316032460748070284"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/public/readme-images/05-img-five.png",
-          "hash": "12697890624409473716"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/public/vite.svg",
-          "hash": "16046085400642193116"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/sidepanel.html",
-          "hash": "9696701364794275292"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/background/index.ts",
-          "hash": "14876333475650521647"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/contentScript/createButton.ts",
-          "hash": "17993658988460760608"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/contentScript/extractCompanyProfile.ts",
-          "hash": "6163140023381274639"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/contentScript/extractPersonProfile.ts",
-          "hash": "9952308941713943527"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/contentScript/index.ts",
-          "hash": "17594371349130563848"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/contentScript/insertSettingsButton.ts",
-          "hash": "6529580171129417879"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/contentScript/utils/changeSidepanelUrl.ts",
-          "hash": "13455673082319883905"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/contentScript/utils/extractCompanyLinkedinLink.ts",
-          "hash": "5878214052130150764"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/contentScript/utils/extractDomain.ts",
-          "hash": "13707470812171431996"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/contentScript/utils/extractFirstAndLastName.ts",
-          "hash": "17599114104434409013"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/db/auth.db.ts",
-          "hash": "14275704283331026420"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/db/company.db.ts",
-          "hash": "7714339957235756342"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/db/person.db.ts",
-          "hash": "9409303473855530303"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/db/token.db.ts",
-          "hash": "993091943322819819"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/db/types/auth.types.ts",
-          "hash": "17346136770707377218"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/db/types/company.types.ts",
-          "hash": "1387820327245120222"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/db/types/person.types.ts",
-          "hash": "14110944699331605484"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/generated/graphql.tsx",
-          "hash": "12780588746735800132"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/global.d.ts",
-          "hash": "6473772402460189028"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/graphql/auth/mutations.ts",
-          "hash": "676506839464177077"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/graphql/company/mutations.ts",
-          "hash": "11079383663187585088"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/graphql/company/queries.ts",
-          "hash": "2580939499544084598"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/graphql/person/mutations.ts",
-          "hash": "12884755219942989800"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/graphql/person/queries.ts",
-          "hash": "7027368506417008921"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/index.css",
-          "hash": "5056015507725558964"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/manifest.ts",
-          "hash": "2389253096714138087"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/App.tsx",
-          "hash": "2712798664951392869"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/Loading.tsx",
-          "hash": "2484949512609242667"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/PageInaccessible.tsx",
-          "hash": "7386949327582591354"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/Settings.tsx",
-          "hash": "15150620269635407017"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/Sidepanel.tsx",
-          "hash": "2690841968106171780"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/index.tsx",
-          "hash": "10720820909541820734"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/loading-index.tsx",
-          "hash": "13036721340067537537"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/display/loader/components/Loader.tsx",
-          "hash": "3369274703130702360"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/display/typography/components/H2Title.tsx",
-          "hash": "8768577306543559702"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/input/button/Button.tsx",
-          "hash": "3859430075150275971"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/input/button/MainButton.tsx",
-          "hash": "12719178853723931628"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/input/components/TextInput.tsx",
-          "hash": "14000389886055442984"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/input/components/Toggle.tsx",
-          "hash": "5828653447863122998"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/assets/dark-noise.jpg",
-          "hash": "13562216116736003129"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/assets/light-noise.png",
-          "hash": "15569283993812492186"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/components/AppThemeProvider.tsx",
-          "hash": "5569189250894039270"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/AccentDark.ts",
-          "hash": "16660604688581541084"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/AccentLight.ts",
-          "hash": "2646364126386590468"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Animation.ts",
-          "hash": "14501130804895981211"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BackgroundDark.ts",
-          "hash": "7679850363153819111"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BackgroundLight.ts",
-          "hash": "2327305780613902159"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Blur.ts",
-          "hash": "16974405916521575236"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BorderCommon.ts",
-          "hash": "2134202536448999051"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BorderDark.ts",
-          "hash": "15709796978707376130"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BorderLight.ts",
-          "hash": "2329905653233985435"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BoxShadowDark.ts",
-          "hash": "10136082220005508898"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/BoxShadowLight.ts",
-          "hash": "2572528347323429217"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Colors.ts",
-          "hash": "5739506375640625259"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/FontCommon.ts",
-          "hash": "6451782564917160276"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/FontDark.ts",
-          "hash": "12287516311491826907"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/FontLight.ts",
-          "hash": "11012189904674905923"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/GrayScale.ts",
-          "hash": "14960484305771587769"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/HoverBackground.ts",
-          "hash": "1990000373349045166"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Icon.ts",
-          "hash": "5247653481507797162"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/MainColorNames.ts",
-          "hash": "13344593943523563528"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/MainColors.ts",
-          "hash": "16451063561288783722"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/MobileViewport.ts",
-          "hash": "13370362257821977193"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Modal.ts",
-          "hash": "2658969005240941523"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/OverlayBackground.ts",
-          "hash": "18207308163497847993"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Rgba.ts",
-          "hash": "9961164877025795856"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/SecondaryColors.ts",
-          "hash": "13305646717782752108"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/TagDark.ts",
-          "hash": "16640803258830915443"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/TagLight.ts",
-          "hash": "4953701441724417372"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/Text.ts",
-          "hash": "548110161977141323"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/TextInputStyle.ts",
-          "hash": "17404377029830851423"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/ThemeCommon.ts",
-          "hash": "4880425723799122580"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/ThemeDark.ts",
-          "hash": "12035111875160048623"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/modules/ui/theme/constants/ThemeLight.ts",
-          "hash": "13031136487294992489"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/options/page-inaccessible-index.tsx",
-          "hash": "9538759394515812600"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/utils/apolloClient.ts",
-          "hash": "1918936041309564085"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/utils/handleQueryParams.ts",
-          "hash": "4275585596397437011"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/utils/requestDb.ts",
-          "hash": "10633701915199584797"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/src/vite-env.d.ts",
-          "hash": "262964610190226297"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/tsconfig.app.json",
-          "hash": "7427644309364463714"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/tsconfig.json",
-          "hash": "12363933828046800995"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/tsconfig.spec.json",
-          "hash": "18200824212063823820"
-        },
-        {
-          "file": "packages/twenty-chrome-extension/vite.config.ts",
-          "hash": "12014451264045114401"
-        }
-      ],
-      "twenty-zapier": [
-        {
-          "file": "packages/twenty-zapier/.env.example",
-          "hash": "17243092765658959474"
-        },
-        {
-          "file": "packages/twenty-zapier/.gitignore",
-          "hash": "16330651608347611853"
-        },
-        {
-          "file": "packages/twenty-zapier/.prettierrc",
-          "hash": "9555875142989992828"
-        },
-        {
-          "file": "packages/twenty-zapier/.zapierapprc",
-          "hash": "7445937793882481030"
-        },
-        {
-          "file": "packages/twenty-zapier/index.js",
-          "hash": "12847444345539079998"
-        },
-        {
-          "file": "packages/twenty-zapier/jest.config.ts",
-          "hash": "14118453924933452401"
-        },
-        {
-          "file": "packages/twenty-zapier/package.json",
-          "hash": "14361646846090515402",
-          "deps": [
-            "npm:dotenv",
-            "npm:libphonenumber-js",
-            "npm:jest"
-          ]
-        },
-        {
-          "file": "packages/twenty-zapier/project.json",
-          "hash": "17702314380270429833"
-        },
-        {
-          "file": "packages/twenty-zapier/src/authentication.ts",
-          "hash": "13606452379977268582"
-        },
-        {
-          "file": "packages/twenty-zapier/src/creates/crud_record.ts",
-          "hash": "2332024123060010319"
-        },
-        {
-          "file": "packages/twenty-zapier/src/index.ts",
-          "hash": "17427391452985470147"
-        },
-        {
-          "file": "packages/twenty-zapier/src/test/authentication.test.ts",
-          "hash": "14101766125170485849"
-        },
-        {
-          "file": "packages/twenty-zapier/src/test/creates/crud_record.test.ts",
-          "hash": "10530524551481529589"
-        },
-        {
-          "file": "packages/twenty-zapier/src/test/triggers/find_object_names_singular.test.ts",
-          "hash": "9552838071732331505"
-        },
-        {
-          "file": "packages/twenty-zapier/src/test/triggers/list_record_ids.test.ts",
-          "hash": "15853358978045782805"
-        },
-        {
-          "file": "packages/twenty-zapier/src/test/triggers/trigger_record.test.ts",
-          "hash": "9025658718593492791"
-        },
-        {
-          "file": "packages/twenty-zapier/src/test/utils/computeInputFields.test.ts",
-          "hash": "1170606791553136635"
-        },
-        {
-          "file": "packages/twenty-zapier/src/test/utils/handleQueryParams.test.ts",
-          "hash": "13140101186125521958"
-        },
-        {
-          "file": "packages/twenty-zapier/src/triggers/find_object_names_singular.ts",
-          "hash": "5746722580812286789"
-        },
-        {
-          "file": "packages/twenty-zapier/src/triggers/list_record_ids.ts",
-          "hash": "13914122436501014327"
-        },
-        {
-          "file": "packages/twenty-zapier/src/triggers/trigger_record.ts",
-          "hash": "12463651998150441725"
-        },
-        {
-          "file": "packages/twenty-zapier/src/utils/computeInputFields.ts",
-          "hash": "8043139866175361480"
-        },
-        {
-          "file": "packages/twenty-zapier/src/utils/data.types.ts",
-          "hash": "16659787137426943938"
-        },
-        {
-          "file": "packages/twenty-zapier/src/utils/getBundle.ts",
-          "hash": "15979117724847189593"
-        },
-        {
-          "file": "packages/twenty-zapier/src/utils/handleQueryParams.ts",
-          "hash": "7976786146755262995"
-        },
-        {
-          "file": "packages/twenty-zapier/src/utils/requestDb.ts",
-          "hash": "15456437295464385268"
-        },
-        {
-          "file": "packages/twenty-zapier/src/utils/triggers/triggers.utils.ts",
-          "hash": "13806620617514846531"
-        },
-        {
-          "file": "packages/twenty-zapier/tsconfig.json",
-          "hash": "2519672579662178366"
-        }
-      ],
-      "eslint-rules": [
-        {
-          "file": "tools/eslint-rules/index.ts",
-          "hash": "984883891454730241"
-        },
-        {
-          "file": "tools/eslint-rules/jest.config.ts",
-          "hash": "8499295068245291062"
-        },
-        {
-          "file": "tools/eslint-rules/project.json",
-          "hash": "14423913145173455728"
-        },
-        {
-          "file": "tools/eslint-rules/rules/component-props-naming.spec.ts",
-          "hash": "13436621686871408575"
-        },
-        {
-          "file": "tools/eslint-rules/rules/component-props-naming.ts",
-          "hash": "2952081383565702749"
-        },
-        {
-          "file": "tools/eslint-rules/rules/effect-components.spec.ts",
-          "hash": "16514204166994159199"
-        },
-        {
-          "file": "tools/eslint-rules/rules/effect-components.ts",
-          "hash": "15380844272599426174"
-        },
-        {
-          "file": "tools/eslint-rules/rules/explicit-boolean-predicates-in-if.ts",
-          "hash": "7160971506208514744"
-        },
-        {
-          "file": "tools/eslint-rules/rules/graphql-resolvers-should-be-guarded.spec.ts",
-          "hash": "4125382721234081886"
-        },
-        {
-          "file": "tools/eslint-rules/rules/graphql-resolvers-should-be-guarded.ts",
-          "hash": "16184506899122082447"
-        },
-        {
-          "file": "tools/eslint-rules/rules/inject-workspace-repository.spec.ts",
-          "hash": "989955602078990992"
-        },
-        {
-          "file": "tools/eslint-rules/rules/inject-workspace-repository.ts",
-          "hash": "14376779842059722363"
-        },
-        {
-          "file": "tools/eslint-rules/rules/matching-state-variable.spec.ts",
-          "hash": "2145310122344374627"
-        },
-        {
-          "file": "tools/eslint-rules/rules/matching-state-variable.ts",
-          "hash": "6385168685627595155"
-        },
-        {
-          "file": "tools/eslint-rules/rules/max-consts-per-file.spec.ts",
-          "hash": "16259183508456240093"
-        },
-        {
-          "file": "tools/eslint-rules/rules/max-consts-per-file.ts",
-          "hash": "2337916809420857018"
-        },
-        {
-          "file": "tools/eslint-rules/rules/no-hardcoded-colors.spec.ts",
-          "hash": "8903775518528913175"
-        },
-        {
-          "file": "tools/eslint-rules/rules/no-hardcoded-colors.ts",
-          "hash": "14893660876290126616"
-        },
-        {
-          "file": "tools/eslint-rules/rules/no-navigate-prefer-link.spec.ts",
-          "hash": "13749288976664333453"
-        },
-        {
-          "file": "tools/eslint-rules/rules/no-navigate-prefer-link.ts",
-          "hash": "15410228651076972604"
-        },
-        {
-          "file": "tools/eslint-rules/rules/no-state-useref.spec.ts",
-          "hash": "17833042442311734833"
-        },
-        {
-          "file": "tools/eslint-rules/rules/no-state-useref.ts",
-          "hash": "14121359912525411341"
-        },
-        {
-          "file": "tools/eslint-rules/rules/rest-api-methods-should-be-guarded.spec.ts",
-          "hash": "12945885252788987422"
-        },
-        {
-          "file": "tools/eslint-rules/rules/rest-api-methods-should-be-guarded.ts",
-          "hash": "7439958564655981364"
-        },
-        {
-          "file": "tools/eslint-rules/rules/sort-css-properties-alphabetically.spec.ts",
-          "hash": "15216693528112013599"
-        },
-        {
-          "file": "tools/eslint-rules/rules/sort-css-properties-alphabetically.ts",
-          "hash": "8881194489597714743"
-        },
-        {
-          "file": "tools/eslint-rules/rules/styled-components-prefixed-with-styled.spec.ts",
-          "hash": "2690603868082672441"
-        },
-        {
-          "file": "tools/eslint-rules/rules/styled-components-prefixed-with-styled.ts",
-          "hash": "14279215682144077914"
-        },
-        {
-          "file": "tools/eslint-rules/rules/use-getLoadable-and-getValue-to-get-atoms.spec.ts",
-          "hash": "1076223847130699286"
-        },
-        {
-          "file": "tools/eslint-rules/rules/use-getLoadable-and-getValue-to-get-atoms.ts",
-          "hash": "18379481100192594129"
-        },
-        {
-          "file": "tools/eslint-rules/rules/useRecoilCallback-has-dependency-array.spec.ts",
-          "hash": "2472361528282310930"
-        },
-        {
-          "file": "tools/eslint-rules/rules/useRecoilCallback-has-dependency-array.ts",
-          "hash": "7240536579202408848"
-        },
-        {
-          "file": "tools/eslint-rules/tsconfig.json",
-          "hash": "14420779524418715674"
-        },
-        {
-          "file": "tools/eslint-rules/tsconfig.lint.json",
-          "hash": "7365860896967470932"
-        },
-        {
-          "file": "tools/eslint-rules/tsconfig.spec.json",
-          "hash": "11922365422002424490"
-        },
-        {
-          "file": "tools/eslint-rules/utils/createRule.ts",
-          "hash": "9500584773489002105"
-        },
-        {
-          "file": "tools/eslint-rules/utils/typedTokenHelpers.ts",
-          "hash": "16229961983634340222"
-        }
-      ],
-      "@parcelvoy/ui": [
-        {
-          "file": "apps/ui/.dockerignore",
-          "hash": "6127199621835416052"
-        },
-        {
-          "file": "apps/ui/.env.example",
-          "hash": "18120484445762406721"
-        },
-        {
-          "file": "apps/ui/.eslintrc.js",
-          "hash": "11063641256847058435"
-        },
-        {
-          "file": "apps/ui/.gitignore",
-          "hash": "12600820600888054333"
-        },
-        {
-          "file": "apps/ui/Dockerfile",
-          "hash": "8347398449546816659"
-        },
-        {
-          "file": "apps/ui/README.md",
-          "hash": "17911282315018038361"
-        },
-        {
-          "file": "apps/ui/config-overrides.js",
-          "hash": "13387346053727228948"
-        },
-        {
-          "file": "apps/ui/docker/nginx/conf.d/default.conf",
-          "hash": "16700382933621986454"
-        },
-        {
-          "file": "apps/ui/package-lock.json",
-          "hash": "9620981145506782759"
-        },
-        {
-          "file": "apps/ui/package.json",
-          "hash": "5170258031573912248",
-          "deps": [
-            "npm:@types/node",
-            "npm:date-fns",
-            "npm:date-fns-tz",
-            "npm:rrule",
-            "npm:uuid",
-            "npm:@typescript-eslint/eslint-plugin",
-            "npm:eslint",
-            "npm:eslint-plugin-import",
-            "npm:eslint-plugin-n",
-            "npm:eslint-plugin-promise",
-            "npm:typescript"
-          ]
-        },
-        {
-          "file": "apps/ui/postcss.config.js",
-          "hash": "11920505472939284841"
-        },
-        {
-          "file": "apps/ui/public/config.js",
-          "hash": "17218073659439451893"
-        },
-        {
-          "file": "apps/ui/public/favicon-32x32.png",
-          "hash": "15709406056192655327"
-        },
-        {
-          "file": "apps/ui/public/favicon.ico",
-          "hash": "3863849336789365154"
-        },
-        {
-          "file": "apps/ui/public/index.html",
-          "hash": "7394875561087829493"
-        },
-        {
-          "file": "apps/ui/public/locales/en.json",
-          "hash": "9360381067584214773"
-        },
-        {
-          "file": "apps/ui/public/locales/es.json",
-          "hash": "5839693056303067562"
-        },
-        {
-          "file": "apps/ui/public/locales/zh.json",
-          "hash": "9775466709497990485"
-        },
-        {
-          "file": "apps/ui/public/manifest.json",
-          "hash": "5845995032536518520"
-        },
-        {
-          "file": "apps/ui/public/robots.txt",
-          "hash": "18408339794625317453"
-        },
-        {
-          "file": "apps/ui/public/safari.svg",
-          "hash": "3279300474829744392"
-        },
-        {
-          "file": "apps/ui/scripts/env.sh",
-          "hash": "10206256150501176866"
-        },
-        {
-          "file": "apps/ui/src/App.tsx",
-          "hash": "17000579323432728885"
-        },
-        {
-          "file": "apps/ui/src/api.ts",
-          "hash": "7899289646629840879"
-        },
-        {
-          "file": "apps/ui/src/assets/logo-icon.svg",
-          "hash": "1073566595614761565"
-        },
-        {
-          "file": "apps/ui/src/assets/logo.svg",
-          "hash": "5667666162719121122"
-        },
-        {
-          "file": "apps/ui/src/assets/parcelvoy.svg",
-          "hash": "18207912551091190056"
-        },
-        {
-          "file": "apps/ui/src/assets/parcelvoylogo.png",
-          "hash": "3672114424423949538"
-        },
-        {
-          "file": "apps/ui/src/config/env.ts",
-          "hash": "17497435929437133321"
-        },
-        {
-          "file": "apps/ui/src/contexts.ts",
-          "hash": "8501412980513932159"
-        },
-        {
-          "file": "apps/ui/src/hooks.ts",
-          "hash": "5906000042266595759"
-        },
-        {
-          "file": "apps/ui/src/i18n.ts",
-          "hash": "9755659498126646673"
-        },
-        {
-          "file": "apps/ui/src/index.css",
-          "hash": "6413024532867838186"
-        },
-        {
-          "file": "apps/ui/src/index.tsx",
-          "hash": "14406235653996976748"
-        },
-        {
-          "file": "apps/ui/src/mod.ts",
-          "hash": "13355762491329719977"
-        },
-        {
-          "file": "apps/ui/src/react-app-env.d.ts",
-          "hash": "3195158367843515590"
-        },
-        {
-          "file": "apps/ui/src/reportWebVitals.ts",
-          "hash": "9830843590326072870"
-        },
-        {
-          "file": "apps/ui/src/setupProxy.js",
-          "hash": "18043402997798895799"
-        },
-        {
-          "file": "apps/ui/src/setupTests.ts",
-          "hash": "17068284439919389423"
-        },
-        {
-          "file": "apps/ui/src/types.ts",
-          "hash": "17568961314193458530"
-        },
-        {
-          "file": "apps/ui/src/ui/Alert.css",
-          "hash": "1934151256065073700"
-        },
-        {
-          "file": "apps/ui/src/ui/Alert.tsx",
-          "hash": "8405067884967447907"
-        },
-        {
-          "file": "apps/ui/src/ui/Button.css",
-          "hash": "11774670338653224398"
-        },
-        {
-          "file": "apps/ui/src/ui/Button.tsx",
-          "hash": "5941615131172820724"
-        },
-        {
-          "file": "apps/ui/src/ui/ButtonGroup.css",
-          "hash": "13448902630932494786"
-        },
-        {
-          "file": "apps/ui/src/ui/ButtonGroup.tsx",
-          "hash": "17553475147034464773"
-        },
-        {
-          "file": "apps/ui/src/ui/CodeExample.css",
-          "hash": "3503334573853856312"
-        },
-        {
-          "file": "apps/ui/src/ui/CodeExample.tsx",
-          "hash": "4573100485608096301"
-        },
-        {
-          "file": "apps/ui/src/ui/Columns.css",
-          "hash": "12664188352699204729"
-        },
-        {
-          "file": "apps/ui/src/ui/Columns.tsx",
-          "hash": "15230100329468805140"
-        },
-        {
-          "file": "apps/ui/src/ui/DataTable.css",
-          "hash": "16006961007298383675"
-        },
-        {
-          "file": "apps/ui/src/ui/DataTable.tsx",
-          "hash": "660906653365931745"
-        },
-        {
-          "file": "apps/ui/src/ui/Dialog.tsx",
-          "hash": "4853569347291958273"
-        },
-        {
-          "file": "apps/ui/src/ui/Heading.css",
-          "hash": "2814277925448889314"
-        },
-        {
-          "file": "apps/ui/src/ui/Heading.tsx",
-          "hash": "7968176897674119065"
-        },
-        {
-          "file": "apps/ui/src/ui/Iframe.tsx",
-          "hash": "12220483336370780696"
-        },
-        {
-          "file": "apps/ui/src/ui/InfoTable.css",
-          "hash": "15365331168549373320"
-        },
-        {
-          "file": "apps/ui/src/ui/InfoTable.tsx",
-          "hash": "278434051057503786"
-        },
-        {
-          "file": "apps/ui/src/ui/JsonPreview.css",
-          "hash": "11952409801358231941"
-        },
-        {
-          "file": "apps/ui/src/ui/JsonPreview.tsx",
-          "hash": "6702830434295295999"
-        },
-        {
-          "file": "apps/ui/src/ui/Menu.css",
-          "hash": "481248372123446301"
-        },
-        {
-          "file": "apps/ui/src/ui/Menu.tsx",
-          "hash": "1582998573724152016"
-        },
-        {
-          "file": "apps/ui/src/ui/Modal.css",
-          "hash": "4090995230543190432"
-        },
-        {
-          "file": "apps/ui/src/ui/Modal.tsx",
-          "hash": "478483858480833574"
-        },
-        {
-          "file": "apps/ui/src/ui/NavLink.tsx",
-          "hash": "6002882417714249903"
-        },
-        {
-          "file": "apps/ui/src/ui/PageContent.tsx",
-          "hash": "1076743291935234488"
-        },
-        {
-          "file": "apps/ui/src/ui/Pagination.css",
-          "hash": "11699083395025511931"
-        },
-        {
-          "file": "apps/ui/src/ui/Pagination.tsx",
-          "hash": "5179005100308832234"
-        },
-        {
-          "file": "apps/ui/src/ui/PreferencesContext.tsx",
-          "hash": "16261059090035660604"
-        },
-        {
-          "file": "apps/ui/src/ui/Preview.css",
-          "hash": "17211849973317219579"
-        },
-        {
-          "file": "apps/ui/src/ui/Preview.tsx",
-          "hash": "16314125903695635989"
-        },
-        {
-          "file": "apps/ui/src/ui/PreviewImage.css",
-          "hash": "7851890310969106283"
-        },
-        {
-          "file": "apps/ui/src/ui/PreviewImage.tsx",
-          "hash": "15701182069444563192"
-        },
-        {
-          "file": "apps/ui/src/ui/RRuleEditor.tsx",
-          "hash": "16689506717083784391"
-        },
-        {
-          "file": "apps/ui/src/ui/SearchTable.tsx",
-          "hash": "16406326206646652974"
-        },
-        {
-          "file": "apps/ui/src/ui/Sidebar.css",
-          "hash": "14515349539500515061"
-        },
-        {
-          "file": "apps/ui/src/ui/Sidebar.tsx",
-          "hash": "16258093827129161285"
-        },
-        {
-          "file": "apps/ui/src/ui/SourceEditor.css",
-          "hash": "7196407432615709174"
-        },
-        {
-          "file": "apps/ui/src/ui/SourceEditor.tsx",
-          "hash": "13353006168930206967"
-        },
-        {
-          "file": "apps/ui/src/ui/Stack.css",
-          "hash": "8543503110117002865"
-        },
-        {
-          "file": "apps/ui/src/ui/Stack.tsx",
-          "hash": "13191580432733177727"
-        },
-        {
-          "file": "apps/ui/src/ui/Tabs.css",
-          "hash": "14965370595782641085"
-        },
-        {
-          "file": "apps/ui/src/ui/Tabs.tsx",
-          "hash": "811738546462519945"
-        },
-        {
-          "file": "apps/ui/src/ui/Tag.css",
-          "hash": "9108980646598959736"
-        },
-        {
-          "file": "apps/ui/src/ui/Tag.tsx",
-          "hash": "11637987441838332047"
-        },
-        {
-          "file": "apps/ui/src/ui/Text.tsx",
-          "hash": "503174522112998569"
-        },
-        {
-          "file": "apps/ui/src/ui/Tile.css",
-          "hash": "2847109056629412003"
-        },
-        {
-          "file": "apps/ui/src/ui/Tile.tsx",
-          "hash": "3445820037388993908"
-        },
-        {
-          "file": "apps/ui/src/ui/Toast.css",
-          "hash": "16940213735322953854"
-        },
-        {
-          "file": "apps/ui/src/ui/Toast.tsx",
-          "hash": "15810352446707445805"
-        },
-        {
-          "file": "apps/ui/src/ui/ToastBar.tsx",
-          "hash": "7972908806550891337"
-        },
-        {
-          "file": "apps/ui/src/ui/ToastIcon.tsx",
-          "hash": "13787553496936985194"
-        },
-        {
-          "file": "apps/ui/src/ui/form/EntityIdPicker.tsx",
-          "hash": "17720001265992567822"
-        },
-        {
-          "file": "apps/ui/src/ui/form/Field.ts",
-          "hash": "11559296950218699489"
-        },
-        {
-          "file": "apps/ui/src/ui/form/FormWrapper.tsx",
-          "hash": "11661882773187374352"
-        },
-        {
-          "file": "apps/ui/src/ui/form/JsonField.tsx",
-          "hash": "1171587399011038664"
-        },
-        {
-          "file": "apps/ui/src/ui/form/MultiOptionField.tsx",
-          "hash": "8147643058873802229"
-        },
-        {
-          "file": "apps/ui/src/ui/form/MultiSelect.tsx",
-          "hash": "9679184297788717704"
-        },
-        {
-          "file": "apps/ui/src/ui/form/RadioInput.css",
-          "hash": "5470879311553559247"
-        },
-        {
-          "file": "apps/ui/src/ui/form/RadioInput.tsx",
-          "hash": "3524346664978309604"
-        },
-        {
-          "file": "apps/ui/src/ui/form/SchemaFields.css",
-          "hash": "6923944589375120649"
-        },
-        {
-          "file": "apps/ui/src/ui/form/SchemaFields.tsx",
-          "hash": "14000575920527241451"
-        },
-        {
-          "file": "apps/ui/src/ui/form/Select.css",
-          "hash": "13027817877328745008"
-        },
-        {
-          "file": "apps/ui/src/ui/form/SingleSelect.tsx",
-          "hash": "6448114022944113132"
-        },
-        {
-          "file": "apps/ui/src/ui/form/SwitchField.tsx",
-          "hash": "18166999882896638437"
-        },
-        {
-          "file": "apps/ui/src/ui/form/TextInput.css",
-          "hash": "12616048788875528405"
-        },
-        {
-          "file": "apps/ui/src/ui/form/TextInput.tsx",
-          "hash": "16948281535991714243"
-        },
-        {
-          "file": "apps/ui/src/ui/form/UploadField.css",
-          "hash": "16420713830697440097"
-        },
-        {
-          "file": "apps/ui/src/ui/form/UploadField.tsx",
-          "hash": "4988380459948203636"
-        },
-        {
-          "file": "apps/ui/src/ui/icons.tsx",
-          "hash": "1063287758012288820"
-        },
-        {
-          "file": "apps/ui/src/ui/index.ts",
-          "hash": "6920561605699196066"
-        },
-        {
-          "file": "apps/ui/src/ui/utils.tsx",
-          "hash": "12877973724161938456"
-        },
-        {
-          "file": "apps/ui/src/utils.ts",
-          "hash": "11833450989034454549"
-        },
-        {
-          "file": "apps/ui/src/variables.css",
-          "hash": "17325741806010832876"
-        },
-        {
-          "file": "apps/ui/src/views/Auth.tsx",
-          "hash": "6809563601041768356"
-        },
-        {
-          "file": "apps/ui/src/views/ErrorPage.css",
-          "hash": "10880778225851650322"
-        },
-        {
-          "file": "apps/ui/src/views/ErrorPage.tsx",
-          "hash": "16270559157064402408"
-        },
-        {
-          "file": "apps/ui/src/views/LoaderContextProvider.tsx",
-          "hash": "12422626146879173225"
-        },
-        {
-          "file": "apps/ui/src/views/auth/Auth.css",
-          "hash": "12646899852544897681"
-        },
-        {
-          "file": "apps/ui/src/views/auth/Login.tsx",
-          "hash": "2936048598223273968"
-        },
-        {
-          "file": "apps/ui/src/views/auth/Onboarding.tsx",
-          "hash": "16094649156969493129"
-        },
-        {
-          "file": "apps/ui/src/views/auth/OnboardingProject.tsx",
-          "hash": "6536846424470853857"
-        },
-        {
-          "file": "apps/ui/src/views/auth/OnboardingStart.tsx",
-          "hash": "815752054889028375"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/CampaignDelivery.tsx",
-          "hash": "12690028130176855566"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/CampaignDesign.tsx",
-          "hash": "8138944932186718249"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/CampaignDetail.tsx",
-          "hash": "2510042268698583217"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/CampaignForm.tsx",
-          "hash": "10461771759270326488"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/CampaignOverview.tsx",
-          "hash": "4774234313269869956"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/CampaignPreview.css",
-          "hash": "12192387608244496943"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/CampaignPreview.tsx",
-          "hash": "1844680510118868339"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/Campaigns.tsx",
-          "hash": "984707305399946417"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/ChannelTag.tsx",
-          "hash": "15438597287199432814"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/ImageGalleryModal.css",
-          "hash": "10308680228752965734"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/ImageGalleryModal.tsx",
-          "hash": "8622991790746180212"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/LaunchCampaign.tsx",
-          "hash": "11519226402010398288"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/LocaleEditModal.tsx",
-          "hash": "3807380765605166051"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/LocaleSelector.tsx",
-          "hash": "14533482832160334759"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/ResourceFontModal.tsx",
-          "hash": "1467809862352462700"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/ResourceModal.tsx",
-          "hash": "8145077203370636417"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/TemplateCreateModal.tsx",
-          "hash": "5565995829661171951"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/TemplateDetail.tsx",
-          "hash": "8563469614288232093"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/editor/EmailEditor.css",
-          "hash": "13218387344239567128"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/editor/EmailEditor.tsx",
-          "hash": "15307963177873929869"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/editor/HtmlEditor.tsx",
-          "hash": "11330706510794393909"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/editor/VisualEditor.css",
-          "hash": "9645134172397906273"
-        },
-        {
-          "file": "apps/ui/src/views/campaign/editor/VisualEditor.tsx",
-          "hash": "7879866976242498531"
-        },
-        {
-          "file": "apps/ui/src/views/createStatefulRoute.tsx",
-          "hash": "3368937020402433943"
-        },
-        {
-          "file": "apps/ui/src/views/journey/EntranceDetails.tsx",
-          "hash": "11519087572522118004"
-        },
-        {
-          "file": "apps/ui/src/views/journey/JourneyDetail.tsx",
-          "hash": "15997305520841695068"
-        },
-        {
-          "file": "apps/ui/src/views/journey/JourneyEditor.css",
-          "hash": "6806386932201967441"
-        },
-        {
-          "file": "apps/ui/src/views/journey/JourneyEditor.tsx",
-          "hash": "2663639117315320443"
-        },
-        {
-          "file": "apps/ui/src/views/journey/JourneyForm.tsx",
-          "hash": "13588475534228884908"
-        },
-        {
-          "file": "apps/ui/src/views/journey/JourneyUserEntrances.tsx",
-          "hash": "2039092661685787320"
-        },
-        {
-          "file": "apps/ui/src/views/journey/Journeys.tsx",
-          "hash": "18001147322327809632"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/Action.tsx",
-          "hash": "12052704628021114646"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/Balancer.tsx",
-          "hash": "9945560884373361035"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/Delay.tsx",
-          "hash": "4220283990149696330"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/Entrance.tsx",
-          "hash": "15400227431697653454"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/Event.tsx",
-          "hash": "15841364673202517808"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/Exit.tsx",
-          "hash": "3858309462155690933"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/Experiment.tsx",
-          "hash": "3067999830874770898"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/Gate.tsx",
-          "hash": "14956377962051857415"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/JourneyLink.tsx",
-          "hash": "8390705481230636470"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/Update.tsx",
-          "hash": "12873521931980220307"
-        },
-        {
-          "file": "apps/ui/src/views/journey/steps/index.ts",
-          "hash": "699428891746839368"
-        },
-        {
-          "file": "apps/ui/src/views/organization/Admins.tsx",
-          "hash": "10699173426031025025"
-        },
-        {
-          "file": "apps/ui/src/views/organization/Organization.tsx",
-          "hash": "3026505345018782612"
-        },
-        {
-          "file": "apps/ui/src/views/organization/Performance.css",
-          "hash": "5650030655453715297"
-        },
-        {
-          "file": "apps/ui/src/views/organization/Performance.tsx",
-          "hash": "2582654806122126226"
-        },
-        {
-          "file": "apps/ui/src/views/organization/Settings.tsx",
-          "hash": "15476117657487833485"
-        },
-        {
-          "file": "apps/ui/src/views/project/ProjectForm.tsx",
-          "hash": "11024817714536972770"
-        },
-        {
-          "file": "apps/ui/src/views/project/ProjectRoleRequired.tsx",
-          "hash": "14274643157694602466"
-        },
-        {
-          "file": "apps/ui/src/views/project/ProjectSidebar.tsx",
-          "hash": "12680926015550172085"
-        },
-        {
-          "file": "apps/ui/src/views/project/Projects.tsx",
-          "hash": "15057982371296418286"
-        },
-        {
-          "file": "apps/ui/src/views/router.tsx",
-          "hash": "3639437383218820207"
-        },
-        {
-          "file": "apps/ui/src/views/settings/ApiKeys.tsx",
-          "hash": "8167949750429122874"
-        },
-        {
-          "file": "apps/ui/src/views/settings/IntegrationModal.css",
-          "hash": "10892604055696750290"
-        },
-        {
-          "file": "apps/ui/src/views/settings/IntegrationModal.tsx",
-          "hash": "11102613891700328711"
-        },
-        {
-          "file": "apps/ui/src/views/settings/Integrations.tsx",
-          "hash": "10542346400302292558"
-        },
-        {
-          "file": "apps/ui/src/views/settings/Locales.tsx",
-          "hash": "10667392483583309626"
-        },
-        {
-          "file": "apps/ui/src/views/settings/ProjectSettings.tsx",
-          "hash": "13308219343497480919"
-        },
-        {
-          "file": "apps/ui/src/views/settings/Settings.tsx",
-          "hash": "7757687212083111210"
-        },
-        {
-          "file": "apps/ui/src/views/settings/Subscriptions.tsx",
-          "hash": "5904964457614196150"
-        },
-        {
-          "file": "apps/ui/src/views/settings/TagPicker.tsx",
-          "hash": "4177160172648612075"
-        },
-        {
-          "file": "apps/ui/src/views/settings/Tags.tsx",
-          "hash": "6994439060560296816"
-        },
-        {
-          "file": "apps/ui/src/views/settings/TeamInvite.tsx",
-          "hash": "16628574362192174527"
-        },
-        {
-          "file": "apps/ui/src/views/settings/Teams.tsx",
-          "hash": "13522525725273515111"
-        },
-        {
-          "file": "apps/ui/src/views/users/ListCreateForm.tsx",
-          "hash": "4377790618192459758"
-        },
-        {
-          "file": "apps/ui/src/views/users/ListDetail.tsx",
-          "hash": "10471160490087813646"
-        },
-        {
-          "file": "apps/ui/src/views/users/ListTable.tsx",
-          "hash": "809253099910382483"
-        },
-        {
-          "file": "apps/ui/src/views/users/Lists.tsx",
-          "hash": "1929116200845451932"
-        },
-        {
-          "file": "apps/ui/src/views/users/RuleBuilder.css",
-          "hash": "14610350240913626725"
-        },
-        {
-          "file": "apps/ui/src/views/users/RuleBuilder.tsx",
-          "hash": "16286216756654758067"
-        },
-        {
-          "file": "apps/ui/src/views/users/UserDetail.tsx",
-          "hash": "8076080737104334996"
-        },
-        {
-          "file": "apps/ui/src/views/users/UserDetailAttrs.tsx",
-          "hash": "5042109093295132815"
-        },
-        {
-          "file": "apps/ui/src/views/users/UserDetailEvents.tsx",
-          "hash": "14277716975455680475"
-        },
-        {
-          "file": "apps/ui/src/views/users/UserDetailJourneys.tsx",
-          "hash": "7044393045336088210"
-        },
-        {
-          "file": "apps/ui/src/views/users/UserDetailLists.tsx",
-          "hash": "3044470425827218168"
-        },
-        {
-          "file": "apps/ui/src/views/users/UserDetailSubscriptions.tsx",
-          "hash": "14888437355007751321"
-        },
-        {
-          "file": "apps/ui/src/views/users/Users.tsx",
-          "hash": "5932836066098167403"
-        },
-        {
-          "file": "apps/ui/tsconfig.json",
-          "hash": "2095829322977884463"
-        },
-        {
-          "file": "apps/ui/tsconfig.lib-module.json",
-          "hash": "6732503534567008699"
-        },
-        {
-          "file": "apps/ui/tsconfig.lib.json",
-          "hash": "361113603574303259"
-        }
-      ],
-      "twenty-shared": [
-        {
-          "file": "packages/twenty-shared/.babelrc",
-          "hash": "8951623758155741224"
-        },
-        {
-          "file": "packages/twenty-shared/.eslintrc.cjs",
-          "hash": "9859331586530692732"
-        },
-        {
-          "file": "packages/twenty-shared/.gitignore",
-          "hash": "6478667235016243744"
-        },
-        {
-          "file": "packages/twenty-shared/constants/package.json",
-          "hash": "7364973991531091799"
-        },
-        {
-          "file": "packages/twenty-shared/jest.config.ts",
-          "hash": "11158626708374708019"
-        },
-        {
-          "file": "packages/twenty-shared/package.json",
-          "hash": "13103101419430421035",
-          "deps": [
-            "npm:libphonenumber-js"
-          ]
-        },
-        {
-          "file": "packages/twenty-shared/project.json",
-          "hash": "8518535157637034852"
-        },
-        {
-          "file": "packages/twenty-shared/scripts/generateBarrels.ts",
-          "hash": "13819217673796488879"
-        },
-        {
-          "file": "packages/twenty-shared/scripts/migrateFromSingleToMultiBarrelImport.ts",
-          "hash": "6441820220086118009"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/FieldForTotalCountAggregateOperation.ts",
-          "hash": "14013367894610072933"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/FieldMetadataMaxOptionsToDisplay.ts",
-          "hash": "17990779201811327281"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/FieldRestrictedAdditionalPermissionsRequired.ts",
-          "hash": "1868765921367843838"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/LabelIdentifierFieldMetadataTypes.ts",
-          "hash": "15596420350916403683"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/PermissionsOnAllObjectRecords.ts",
-          "hash": "14562385491083619770"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/QueryMaxRecords.ts",
-          "hash": "14902678684245052791"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/StandardObjectRecordsUnderObjectRecordsPermissions.ts",
-          "hash": "14148791830586106069"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/TwentyCompaniesBaseUrl.ts",
-          "hash": "9603894269210160063"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/TwentyIconsBaseUrl.ts",
-          "hash": "4854017709998165642"
-        },
-        {
-          "file": "packages/twenty-shared/src/constants/index.ts",
-          "hash": "7911863167514286128"
-        },
-        {
-          "file": "packages/twenty-shared/src/index.ts",
-          "hash": "962117557721720371"
-        },
-        {
-          "file": "packages/twenty-shared/src/testing/EachTestingContextFilter.ts",
-          "hash": "3896571725610444000"
-        },
-        {
-          "file": "packages/twenty-shared/src/testing/index.ts",
-          "hash": "7269147979153459864"
-        },
-        {
-          "file": "packages/twenty-shared/src/testing/types/EachTestingContext.type.ts",
-          "hash": "5411094057221977560"
-        },
-        {
-          "file": "packages/twenty-shared/src/testing/types/SuccessfulAndFailingTestCases.ts",
-          "hash": "1673233525310457319"
-        },
-        {
-          "file": "packages/twenty-shared/src/translations/constants/AppLocales.ts",
-          "hash": "3398120122254607146"
-        },
-        {
-          "file": "packages/twenty-shared/src/translations/constants/SourceLocale.ts",
-          "hash": "15525026474053347548"
-        },
-        {
-          "file": "packages/twenty-shared/src/translations/index.ts",
-          "hash": "17054101646641043864"
-        },
-        {
-          "file": "packages/twenty-shared/src/types/ConfigVariableValue.ts",
-          "hash": "3552383921824571285"
-        },
-        {
-          "file": "packages/twenty-shared/src/types/ConnectedAccountProvider.ts",
-          "hash": "10202799851716077825"
-        },
-        {
-          "file": "packages/twenty-shared/src/types/FieldMetadataType.ts",
-          "hash": "65877302085446953"
-        },
-        {
-          "file": "packages/twenty-shared/src/types/IsExactly.ts",
-          "hash": "18399996774704275002"
-        },
-        {
-          "file": "packages/twenty-shared/src/types/ObjectRecordsPermissions.ts",
-          "hash": "6875313674443078845"
-        },
-        {
-          "file": "packages/twenty-shared/src/types/ObjectRecordsPermissionsByRoleId.ts",
-          "hash": "13253612841586768923"
-        },
-        {
-          "file": "packages/twenty-shared/src/types/StepFilters.ts",
-          "hash": "11782594061784794471"
-        },
-        {
-          "file": "packages/twenty-shared/src/types/ViewFilterOperand.ts",
-          "hash": "311649951601234909"
-        },
-        {
-          "file": "packages/twenty-shared/src/types/index.ts",
-          "hash": "6240500357149721551"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/__tests__/removeUndefinedFields.test.ts",
-          "hash": "10019978876769214553"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/assertUnreachable.ts",
-          "hash": "414442800031143467"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/fieldMetadata/index.ts",
-          "hash": "13386180533913870076"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/fieldMetadata/isFieldMetadataDateKind.ts",
-          "hash": "2617295612152696367"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/getURLSafely.ts",
-          "hash": "17476265796523227048"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/image/__tests__/getImageAbsoluteURI.test.ts",
-          "hash": "491652604991522524"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/image/__tests__/getLogoUrlFromDomainName.test.ts",
-          "hash": "5243405644128377276"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/image/getImageAbsoluteURI.ts",
-          "hash": "1193767311717581078"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/image/getLogoUrlFromDomainName.ts",
-          "hash": "7666420595336696033"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/image/index.ts",
-          "hash": "5096265885392494925"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/index.ts",
-          "hash": "621334835006333024"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/parseJson.ts",
-          "hash": "2818692671605798430"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/removeUndefinedFields.ts",
-          "hash": "7145640984085546700"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/sentry/getGenericOperationName.ts",
-          "hash": "9569229397017484475"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/sentry/getHumanReadableNameFromCode.ts",
-          "hash": "333120796980667793"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/strings/__tests__/capitalize.test.ts",
-          "hash": "4161418775676993101"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/strings/capitalize.ts",
-          "hash": "10084523247428859068"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/strings/index.ts",
-          "hash": "7429280229637531937"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/__tests__/absoluteUrlSchema.test.ts",
-          "hash": "5333993886522671410"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/__tests__/buildSignedPath.test.ts",
-          "hash": "8244259875099377097"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/__tests__/getAbsoluteUrlOrThrow.test.ts",
-          "hash": "3926192654282086161"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/__tests__/getUrlHostnameOrThrow.test.ts",
-          "hash": "9322352426044291678"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/__tests__/isValidHostname.test.ts",
-          "hash": "12045769576500537396"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/__tests__/isValidUrl.test.ts",
-          "hash": "6679358352476427196"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/__tests__/lowercaseUrlOriginAndRemoveTrailingSlash.test.ts",
-          "hash": "15830095946127022983"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/absoluteUrlSchema.ts",
-          "hash": "17838109430160585765"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/buildSignedPath.ts",
-          "hash": "1828290563948604520"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/getAbsoluteUrl.ts",
-          "hash": "7792288997469999600"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/getAbsoluteUrlOrThrow.ts",
-          "hash": "14839636324390198137"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/getUrlHostnameOrThrow.ts",
-          "hash": "11204031699942106992"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/index.ts",
-          "hash": "837087799769883266"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/isValidHostname.ts",
-          "hash": "9536932294155323667"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/isValidUrl.ts",
-          "hash": "15847244836224458608"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/url/lowercaseUrlOriginAndRemoveTrailingSlash.ts",
-          "hash": "9714752437194001382"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/__tests__/isDefined.test.ts",
-          "hash": "17296645503222391511"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/__tests__/isValidLocale.test.ts",
-          "hash": "12257081069763650725"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/__tests__/isValidUuid.test.ts",
-          "hash": "4829730854705722358"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/__tests__/normalizeLocale.test.ts",
-          "hash": "11285231947505457969"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/index.ts",
-          "hash": "15103201152227047079"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/isDefined.ts",
-          "hash": "16018628784054326877"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/isLabelIdentifierFieldMetadataTypes.ts",
-          "hash": "12359405774757605164"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/isValidLocale.ts",
-          "hash": "1027188665068522265"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/isValidUuid.ts",
-          "hash": "7729941450106908345"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/isValidVariable.ts",
-          "hash": "7333165572169082302"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/normalizeLocale.ts",
-          "hash": "13364393682951483305"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/phones-value/getCountryCodesForCallingCode.ts",
-          "hash": "18428611749387400256"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/phones-value/index.ts",
-          "hash": "7320522262523399862"
-        },
-        {
-          "file": "packages/twenty-shared/src/utils/validation/phones-value/isValidCountryCode.ts",
-          "hash": "13759870662377923460"
-        },
-        {
-          "file": "packages/twenty-shared/src/workflow/index.ts",
-          "hash": "14758495267245956644"
-        },
-        {
-          "file": "packages/twenty-shared/src/workflow/types/WorkflowRunStateStepInfos.ts",
-          "hash": "16145385074441130716"
-        },
-        {
-          "file": "packages/twenty-shared/src/workflow/utils/__tests__/getWorkflowRunContext.test.ts",
-          "hash": "1263801725051473870"
-        },
-        {
-          "file": "packages/twenty-shared/src/workflow/utils/getWorkflowRunContext.ts",
-          "hash": "16127033736769094389"
-        },
-        {
-          "file": "packages/twenty-shared/src/workspace/index.ts",
-          "hash": "5479157112223272099"
-        },
-        {
-          "file": "packages/twenty-shared/src/workspace/types/WorkspaceActivationStatus.ts",
-          "hash": "1223003877937694990"
-        },
-        {
-          "file": "packages/twenty-shared/src/workspace/types/index.ts",
-          "hash": "11026192477967574393"
-        },
-        {
-          "file": "packages/twenty-shared/src/workspace/utils/__tests__/isWorkspaceActiveOrSuspended.test.ts",
-          "hash": "14751910800615384127"
-        },
-        {
-          "file": "packages/twenty-shared/src/workspace/utils/index.ts",
-          "hash": "7591431750473226731"
-        },
-        {
-          "file": "packages/twenty-shared/src/workspace/utils/isWorkspaceActiveOrSuspended.ts",
-          "hash": "4871459507142205285"
-        },
-        {
-          "file": "packages/twenty-shared/testing/package.json",
-          "hash": "15325725666232892563"
-        },
-        {
-          "file": "packages/twenty-shared/translations/package.json",
-          "hash": "1208674659534583430"
-        },
-        {
-          "file": "packages/twenty-shared/tsconfig.json",
-          "hash": "1986684168413441188"
-        },
-        {
-          "file": "packages/twenty-shared/tsconfig.lib.json",
-          "hash": "2124074304783593233"
-        },
-        {
-          "file": "packages/twenty-shared/tsconfig.spec.json",
-          "hash": "3934678492151333188"
-        },
-        {
-          "file": "packages/twenty-shared/types/package.json",
-          "hash": "11535940770085652590"
-        },
-        {
-          "file": "packages/twenty-shared/utils/package.json",
-          "hash": "6670889890155534203"
-        },
-        {
-          "file": "packages/twenty-shared/workflow/package.json",
-          "hash": "16708792381306016550"
-        },
-        {
-          "file": "packages/twenty-shared/workspace/package.json",
-          "hash": "10463431910608451335"
         }
       ]
     },

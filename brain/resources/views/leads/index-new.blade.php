@@ -450,16 +450,25 @@
     }
 </style>
 <script>
-    let currentPeriod = '{{ $stats["current_period"] ?? "today" }}';
+    // Get current period from URL or default to today
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentPeriod = urlParams.get('period') || '{{ $stats["current_period"] ?? "today" }}';
     
     // Initialize correct button on page load
     document.addEventListener('DOMContentLoaded', function() {
+        // Get period from URL or use current
+        const urlParams = new URLSearchParams(window.location.search);
+        const activePeriod = urlParams.get('period') || currentPeriod;
+        
         document.querySelectorAll('.period-btn').forEach(btn => {
             btn.classList.remove('active');
-            if (btn.dataset.period === currentPeriod) {
+            if (btn.dataset.period === activePeriod) {
                 btn.classList.add('active');
             }
         });
+        
+        // Update currentPeriod to match URL
+        currentPeriod = activePeriod;
     });
     
     function updateStats(period) {
@@ -551,40 +560,35 @@
             }
         });
         
-        // For now, just update labels and use the passed PHP data for today
-        // In a full implementation, we'd pass all date ranges from PHP
-        if (currentPeriod === 'today') {
-            // Use the PHP-provided today stats with a slight delay to show loading
-            setTimeout(() => {
-                document.getElementById('stat-total').textContent = '{{ number_format($stats["today_leads"] ?? 0) }}';
-                document.getElementById('stat-vici').textContent = '{{ number_format($stats["today_vici"] ?? 0) }}';
-                document.getElementById('stat-stuck').textContent = '{{ number_format($stats["today_stuck"] ?? 0) }}';
-                
-                const total = {{ $stats['today_leads'] ?? 0 }};
-                const vici = {{ $stats['today_vici'] ?? 0 }};
-                const rate = total > 0 ? ((vici / total) * 100).toFixed(1) : 0;
-                document.getElementById('stat-conversion').textContent = rate + '%';
-            }, 300);
-        } else {
-            // For other periods, show loading overlay then reload
-            const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;z-index:9999';
-            overlay.innerHTML = '<div style="text-align:center"><div style="font-size:24px;color:#4A90E2;margin-bottom:10px">Loading Stats...</div><div style="color:#6b7280">Fetching ' + label + ' data</div></div>';
-            document.body.appendChild(overlay);
+        // Always reload page with new parameters to get fresh data
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;z-index:9999';
+        overlay.innerHTML = '<div style="text-align:center"><div style="font-size:24px;color:#4A90E2;margin-bottom:10px">Loading Stats...</div><div style="color:#6b7280">Fetching ' + label + ' data</div></div>';
+        document.body.appendChild(overlay);
+        
+        // Small delay for visual feedback
+        setTimeout(() => {
+            const startStr = startDate.toISOString().split('T')[0];
+            const endStr = endDate.toISOString().split('T')[0];
             
-            // Small delay for visual feedback
-            setTimeout(() => {
-                const startStr = startDate.toISOString().split('T')[0];
-                const endStr = endDate.toISOString().split('T')[0];
-                
-                // Add date range to URL and reload
-                const url = new URL(window.location);
+            // Build URL with all necessary parameters
+            const url = new URL(window.location);
+            
+            // Clear old date params
+            url.searchParams.delete('date_from');
+            url.searchParams.delete('date_to');
+            url.searchParams.delete('period');
+            
+            // Set new params based on period
+            if (currentPeriod === 'custom') {
                 url.searchParams.set('date_from', startStr);
                 url.searchParams.set('date_to', endStr);
-                url.searchParams.set('period', currentPeriod);
-                window.location.href = url.toString();
-            }, 100);
-        }
+            }
+            url.searchParams.set('period', currentPeriod);
+            
+            // Preserve other params (search, filters, etc)
+            window.location.href = url.toString();
+        }, 100);
     }
     
     function updateStatsLocally(startDate, endDate) {
