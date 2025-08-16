@@ -870,7 +870,7 @@
             }
             
             // Add edit mode class if in edit mode
-            @if(isset($mode) && $mode === 'edit')
+            @if(isset($mode) && ($mode === 'edit' || $mode === 'agent'))
                 document.body.classList.add('edit-mode');
             @endif
             
@@ -887,9 +887,7 @@
     </script>
 </head>
 <body>
-@php
-    $isIframe = request()->has('iframe') || (isset($mode) && $mode === 'agent');
-@endphp
+
     <!-- Save button moved inside lead details section -->
     
     <!-- REMOVED: Allstate validation progress indicator per user request -->
@@ -979,9 +977,15 @@
                             {{ $lead->address }}{{ $lead->address && ($lead->city || $lead->state || $lead->zip_code) ? ', ' : '' }}{{ $lead->city }}{{ $lead->city && ($lead->state || $lead->zip_code) ? ', ' : '' }}{{ $lead->state }} {{ $lead->zip_code }}
                         </span>
                     @endif
+                    @if($lead->email)
+                    <div style="margin-top: 5px;">
+                        <span style="font-size: 0.9em; color: rgba(255,255,255,0.9);">✉️ {{ $lead->email }}</span>
+                    </div>
+                    @endif
                     <div style="margin-top: 5px;">
                         <span style="font-size: 0.9em; color: rgba(255,255,255,0.9);">Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
                     </div>
+                    
                 </div>
             </div>
         </div>
@@ -1002,10 +1006,10 @@
         <!-- Ringba Qualification Form -->
         @if(!isset($mode) || $mode === 'agent' || $mode === 'edit')
         <!-- Lead Qualification section removed per request -->
-        @if(false)
+        @if(isset($mode) && ($mode === 'edit' || $mode === 'agent'))
         <div class="qualification-form">
             <div class="qualification-header section-title qualification">
-                🎯 Lead Qualification & Ringba Enrichment (Enhanced)
+                🎯 Lead Qualification - Top 13 Questions
             </div>
             
             <!-- Sticky Lead Info Bubble (Centered) -->
@@ -1024,7 +1028,21 @@
             </div>
 
             <!-- Qualification Questions -->
-            <form id="qualificationForm">
+            
+                    @php
+                        // Populate from payload if direct fields are empty
+                        if ($lead->payload) {
+                            $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                            
+                            // Get data from payload for questions
+                            $payloadFirstName = $payload['contact']['first_name'] ?? $payload['first_name'] ?? null;
+                            $payloadLastName = $payload['contact']['last_name'] ?? $payload['last_name'] ?? null;
+                            $payloadGender = $payload['contact']['gender'] ?? $payload['data']['drivers'][0]['gender'] ?? null;
+                            $payloadDob = $payload['contact']['date_of_birth'] ?? $payload['data']['drivers'][0]['dob'] ?? null;
+                            $payloadMaritalStatus = $payload['contact']['marital_status'] ?? $payload['data']['drivers'][0]['marital_status'] ?? null;
+                        }
+                    @endphp
+<form id="qualificationForm">
                 <!-- 1. Insurance Questions -->
                 <div class="question-group">
                     <label class="question-label">1. Are you currently insured?</label>
@@ -1296,51 +1314,7 @@
         @endif {{-- End outer condition that excludes view mode --}}
 
         <!-- Contact Information with Save Button -->
-        <div class="section" style="position: relative;">
-            <div class="section-title contact">📞 Lead Details 
-                @if(!isset($mode) || $mode !== 'view')
-                    <button class="edit-btn" onclick="toggleEdit('contact')">✏️ Edit</button>
-                    <button class="save-btn" onclick="saveAllLeadData()" style="
-                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                        color: white;
-                        padding: 8px 16px;
-                        border-radius: 6px;
-                        font-size: 14px;
-                        font-weight: 600;
-                        border: none;
-                        cursor: pointer;
-                        margin-left: 10px;
-                        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-                    ">💾 Save Lead</button>
-                @endif
-            </div>
-            
-            <!-- Payload Button - Only in View Mode -->
-            @if(isset($mode) && $mode === 'view')
-            <button onclick="viewPayload()" style="
-                position: absolute;
-                bottom: 15px;
-                right: 15px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                border-radius: 8px;
-                font-weight: 600;
-                cursor: pointer;
-                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-                transition: all 0.3s ease;
-                z-index: 10;
-            " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.5)';" 
-               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)';">
-                📦 View Payload
-            </button>
-            @endif
-            <div class="contact-layout" id="contact-display">
-                                <div class="contact-left">
-                    <div class="info-item" id="contact-phone">
-                    <div class="info-label">Phone</div>
-                    <div class="info-value">
+        <div class="info-value">
                         @php
                             if ($lead->phone) {
                                 $phone = preg_replace('/[^0-9]/', '', $lead->phone);
@@ -2071,27 +2045,29 @@
                         <div class="info-value">{{ $driver['license_status'] ?? 'Not provided' }}</div>
                     </div>
                     <div class="info-item">
-                        <div class="info-label">Years Licensed</div>
+                        <div class="info-label">Age First Licensed</div>
                         <div class="info-value">
                             @php
-                                $yearsLicensed = $driver['years_licensed'] ?? $driver['license_age'] ?? null;
+                                $ageFirstLicensed = $driver['license_age'] ?? $driver['age_first_licensed'] ?? null;
                                 
-                                // If not provided, calculate using Age - 17 formula
-                                if (!$yearsLicensed) {
-                                    if (isset($driver['birth_date']) || isset($driver['dob']) || isset($driver['date_of_birth'])) {
-                                        $birthDate = $driver['birth_date'] ?? $driver['dob'] ?? $driver['date_of_birth'];
-                                        try {
-                                            $age = \Carbon\Carbon::parse($birthDate)->age;
-                                            $yearsLicensed = max(1, $age - 17); // Assume licensed at 17, minimum 1 year
-                                        } catch (\Exception $e) {
-                                            // Ignore
-                                        }
+                                // Check payload if not in driver data
+                                if (!$ageFirstLicensed && isset($lead->payload)) {
+                                    $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                                    if (isset($payload['data']['drivers'][$index])) {
+                                        $ageFirstLicensed = $payload['data']['drivers'][$index]['license_age'] ?? 
+                                                           $payload['data']['drivers'][$index]['age_first_licensed'] ?? null;
                                     }
                                 }
+                                
+                                // Default to 16 if not found
+                                if (!$ageFirstLicensed) {
+                                    $ageFirstLicensed = 16;
+                                }
                             @endphp
-                            {{ $yearsLicensed ? $yearsLicensed . ' years' : 'Not provided' }}
+                            {{ $ageFirstLicensed }} years old
                         </div>
                     </div>
+                </div>
                 </div>
                 
                 <!-- View More Details Section for Drivers -->
