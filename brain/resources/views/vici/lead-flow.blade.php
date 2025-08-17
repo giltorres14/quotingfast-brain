@@ -345,9 +345,14 @@
                 <span class="editable" contenteditable="false" data-field="reset_times" data-list="103" style="font-family: monospace;">2:00 PM</span>
             </div>
             
+            <div style="margin-top: 15px; padding: 10px; background: #fee2e2; border-radius: 8px; border: 2px solid #ef4444;">
+                <strong>🔔 Agent Alert:</strong> 
+                <span class="editable" contenteditable="false" data-field="agent_alert" data-list="103" style="color: #dc2626; font-weight: bold;">LEAVE VOICEMAIL - Set status to LVM after leaving message</span>
+            </div>
+            
             <div style="margin-top: 15px; padding: 10px; background: #f9fafb; border-radius: 8px;">
                 <strong>Description:</strong> 
-                <span class="editable" contenteditable="false" data-field="description" data-list="103">Leave voicemail message</span>
+                <span class="editable" contenteditable="false" data-field="description" data-list="103">First voicemail attempt - Leave message and set LVM status</span>
             </div>
         </div>
         
@@ -405,7 +410,7 @@
             <div class="list-header">
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div class="list-number">105</div>
-                    <div class="list-name">Standard Follow-up</div>
+                    <div class="list-name">VM Follow-up 2</div>
                 </div>
                 <button class="btn-edit" onclick="toggleEdit(105)">✏️ Edit</button>
             </div>
@@ -413,15 +418,15 @@
             <div class="list-stats">
                 <div class="stat-item">
                     <div class="stat-label">Days in List</div>
-                    <div class="stat-value editable" contenteditable="false" data-field="days" data-list="105">5</div>
+                    <div class="stat-value editable" contenteditable="false" data-field="days" data-list="105">1</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">List Resets/Day</div>
-                    <div class="stat-value editable" contenteditable="false" data-field="calls_per_day" data-list="105">2</div>
+                    <div class="stat-value editable" contenteditable="false" data-field="calls_per_day" data-list="105">1</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">Total Calls</div>
-                    <div class="stat-value" id="total-calls-105">10</div>
+                    <div class="stat-value" id="total-calls-105">1</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-label">Call Range</div>
@@ -436,7 +441,12 @@
             
             <div style="margin-top: 15px; padding: 10px; background: #e5f3ff; border-radius: 8px;">
                 <strong>Reset Times:</strong> 
-                <span class="editable" contenteditable="false" data-field="reset_times" data-list="105" style="font-family: monospace;">10:00 AM, 3:00 PM</span>
+                <span class="editable" contenteditable="false" data-field="reset_times" data-list="105" style="font-family: monospace;">10:00 AM</span>
+            </div>
+            
+            <div style="margin-top: 15px; padding: 10px; background: #fee2e2; border-radius: 8px; border: 2px solid #ef4444;">
+                <strong>🔔 Agent Alert:</strong> 
+                <span class="editable" contenteditable="false" data-field="agent_alert" data-list="105" style="color: #dc2626; font-weight: bold;">LEAVE VOICEMAIL #2 - Second attempt, set status to LVM</span>
             </div>
             
             <div style="margin-top: 15px; padding: 10px; background: #f9fafb; border-radius: 8px;">

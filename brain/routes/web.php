@@ -77,8 +77,12 @@ Route::prefix('vici')->group(function () {
     })->name('vici.reports');
     
     Route::get('/lead-flow', function() {
-        return view('vici.lead-flow');
+        return view('vici.lead-flow-compact');
     })->name('vici.lead-flow');
+    
+    Route::get('/lead-flow-visual', function() {
+        return view('vici.lead-flow');
+    })->name('vici.lead-flow-visual');
     
     Route::get('/sync-status', function() {
         return redirect('/admin/vici-sync-management');
