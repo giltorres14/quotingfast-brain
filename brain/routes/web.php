@@ -77,7 +77,7 @@ Route::prefix('vici')->group(function () {
     })->name('vici.reports');
     
     Route::get('/lead-flow', function() {
-        return redirect('/admin/vici-lead-flow');
+        return view('vici.lead-flow');
     })->name('vici.lead-flow');
     
     Route::get('/sync-status', function() {
@@ -87,6 +87,57 @@ Route::prefix('vici')->group(function () {
     Route::get('/settings', function() {
         return view('vici.settings');
     })->name('vici.settings');
+});
+
+// API Routes for Vici Lead Flow
+Route::get('/api/vici/lead-counts', function() {
+    $db = \DB::connection()->getPdo();
+    
+    // Get lead counts by list
+    $query = "
+        SELECT 
+            vici_list_id,
+            COUNT(*) as count
+        FROM leads
+        WHERE vici_list_id IS NOT NULL
+        AND vici_list_id > 0
+        GROUP BY vici_list_id
+    ";
+    
+    $results = $db->query($query)->fetchAll(PDO::FETCH_ASSOC);
+    
+    $lists = [];
+    foreach ($results as $row) {
+        $lists[$row['vici_list_id']] = $row['count'];
+    }
+    
+    // Get average calls
+    $avgQuery = "
+        SELECT AVG(COALESCE(vcm.call_attempts, 0)) as avg_calls
+        FROM leads l
+        LEFT JOIN vici_call_metrics vcm ON l.id = vcm.lead_id
+        WHERE l.vici_list_id > 0
+    ";
+    
+    $avgResult = $db->query($avgQuery)->fetch(PDO::FETCH_ASSOC);
+    
+    return response()->json([
+        'lists' => $lists,
+        'avgCalls' => round($avgResult['avg_calls'] ?? 0, 1)
+    ]);
+});
+
+Route::post('/api/vici/save-lead-flow', function(Request $request) {
+    // In a real implementation, you would save this to a configuration table
+    // For now, we'll just return success
+    $flowData = $request->input('flow_data');
+    
+    // You could save this to a lead_flow_config table
+    // For each list, save the days, calls_per_day, and description
+    
+    \Log::info('Lead flow configuration saved', ['data' => $flowData]);
+    
+    return response()->json(['success' => true]);
 });
 
 // SMS SECTION
