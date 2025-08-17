@@ -630,6 +630,9 @@
     
     <!-- Action Buttons -->
     <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+        <button id="lockButton" class="btn-save" onclick="toggleGlobalEdit()" style="padding: 12px 30px; font-size: 1.1rem; background: #dc2626;">
+            🔒 Lock Configuration
+        </button>
         <button class="btn-save" onclick="saveAllChanges()" style="padding: 12px 30px; font-size: 1.1rem;">
             💾 Save All Changes
         </button>
@@ -645,21 +648,116 @@
 <script>
 let editMode = {};
 let listData = {};
+let globalEditMode = true; // Start in edit mode
+
+// Toggle global edit mode (lock/unlock all)
+function toggleGlobalEdit() {
+    globalEditMode = !globalEditMode;
+    const lockButton = document.getElementById('lockButton');
+    const lists = [101, 102, 103, 104, 105, 106, 107, 108, 110];
+    
+    if (globalEditMode) {
+        // Unlock all for editing
+        lockButton.textContent = '🔒 Lock Configuration';
+        lockButton.style.background = '#dc2626';
+        
+        lists.forEach(listId => {
+            editMode[listId] = true;
+            const editables = document.querySelectorAll(`[data-list="${listId}"][contenteditable]`);
+            editables.forEach(el => {
+                el.contentEditable = true;
+                el.style.background = '#fef3c7';
+                el.style.border = '2px solid #f59e0b';
+                el.style.padding = '4px 8px';
+                el.style.borderRadius = '4px';
+                el.style.cursor = 'text';
+            });
+            
+            const btn = document.querySelector(`[onclick="toggleEdit(${listId})"]`);
+            if (btn) {
+                btn.textContent = '✅ Done';
+                btn.style.background = '#10b981';
+                btn.style.display = 'inline-block';
+            }
+        });
+    } else {
+        // Lock all - read-only mode
+        lockButton.textContent = '🔓 Unlock for Editing';
+        lockButton.style.background = '#10b981';
+        
+        lists.forEach(listId => {
+            editMode[listId] = false;
+            const editables = document.querySelectorAll(`[data-list="${listId}"][contenteditable]`);
+            editables.forEach(el => {
+                el.contentEditable = false;
+                el.style.background = 'transparent';
+                el.style.border = 'none';
+                el.style.padding = '0';
+                el.style.borderRadius = '0';
+                el.style.cursor = 'default';
+            });
+            
+            const btn = document.querySelector(`[onclick="toggleEdit(${listId})"]`);
+            if (btn) {
+                btn.style.display = 'none'; // Hide individual edit buttons when locked
+            }
+        });
+        
+        // Save configuration when locking
+        saveAllChanges();
+    }
+}
 
 // Initialize data
 function initializeData() {
     // Load saved data or use defaults
     const lists = [101, 102, 103, 104, 105, 106, 107, 108, 110];
+    
+    // Start in edit mode for all lists
     lists.forEach(listId => {
+        editMode[listId] = true;
+        
         const days = document.querySelector(`[data-field="days"][data-list="${listId}"]`)?.textContent || '0';
         const callsPerDay = document.querySelector(`[data-field="calls_per_day"][data-list="${listId}"]`)?.textContent || '0';
         const description = document.querySelector(`[data-field="description"][data-list="${listId}"]`)?.textContent || '';
+        const resetTimes = document.querySelector(`[data-field="reset_times"][data-list="${listId}"]`)?.textContent || '';
         
         listData[listId] = {
             days: parseFloat(days),
             calls_per_day: parseFloat(callsPerDay),
-            description: description
+            description: description,
+            reset_times: resetTimes
         };
+        
+        // Make all fields editable
+        const editables = document.querySelectorAll(`[data-list="${listId}"][contenteditable]`);
+        editables.forEach(el => {
+            el.contentEditable = true;
+            el.style.background = '#fef3c7';
+            el.style.border = '2px solid #f59e0b';
+            el.style.padding = '4px 8px';
+            el.style.borderRadius = '4px';
+            el.style.cursor = 'text';
+            
+            // Add input listener for real-time recalculation
+            el.addEventListener('input', function() {
+                const field = el.dataset.field;
+                const value = el.textContent;
+                if (field === 'days' || field === 'calls_per_day') {
+                    listData[listId][field] = parseFloat(value) || 0;
+                    recalculateRanges();
+                } else {
+                    listData[listId][field] = value;
+                }
+            });
+        });
+        
+        // Update button to show "Done"
+        const btn = document.querySelector(`[onclick="toggleEdit(${listId})"]`);
+        if (btn) {
+            btn.textContent = '✅ Done';
+            btn.style.background = '#10b981';
+        }
     });
     
     recalculateRanges();
@@ -820,11 +918,13 @@ async function saveAllChanges() {
         const days = document.querySelector(`[data-field="days"][data-list="${listId}"]`)?.textContent || '0';
         const callsPerDay = document.querySelector(`[data-field="calls_per_day"][data-list="${listId}"]`)?.textContent || '0';
         const description = document.querySelector(`[data-field="description"][data-list="${listId}"]`)?.textContent || '';
+        const resetTimes = document.querySelector(`[data-field="reset_times"][data-list="${listId}"]`)?.textContent || '';
         
         flowData[listId] = {
             list_id: listId,
             days: parseFloat(days),
             calls_per_day: parseFloat(callsPerDay),
+            reset_times: resetTimes,
             description: description,
             total_calls: parseFloat(days) * parseFloat(callsPerDay)
         };
