@@ -34,15 +34,9 @@
                 <!-- List 101 - Initial Contact -->
                 <tr style="background: #f0fdf4;">
                     <td style="padding: 10px; font-weight: bold;">101</td>
-                    <td style="padding: 10px; text-align: center;">
-                        <span class="editable" data-field="name" data-list="101">Initial Contact</span>
-                    </td>
-                    <td style="padding: 10px; text-align: center;">
-                        <span class="editable" data-field="days" data-list="101">0</span>
-                    </td>
-                    <td style="padding: 10px; text-align: center;">
-                        <span class="editable" data-field="calls_per_day" data-list="101">1</span>
-                    </td>
+                    <td style="padding: 10px; text-align: center;">Initial Contact</td>
+                    <td style="padding: 10px; text-align: center;">0</td>
+                    <td style="padding: 10px; text-align: center;">1</td>
                     <td style="padding: 10px; text-align: center;" id="total-101">1</td>
                     <td style="padding: 10px; text-align: center;" id="range-101">1</td>
                     <td style="padding: 10px;">
@@ -262,170 +256,39 @@
         </table>
     </div>
 
-    <!-- Action Buttons -->
-    <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
-        <button id="lockButton" onclick="toggleGlobalEdit()" style="padding: 12px 30px; font-size: 1.1rem; background: #dc2626; color: white; border: none; border-radius: 8px; cursor: pointer;">
-            🔒 Lock Configuration
-        </button>
-        <button onclick="saveAllChanges()" style="padding: 12px 30px; font-size: 1.1rem; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;">
-            💾 Save All Changes
-        </button>
-        <button onclick="recalculateRanges()" style="padding: 12px 30px; font-size: 1.1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer;">
-            🔄 Recalculate
-        </button>
+    <!-- Summary Box -->
+    <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px; flex-wrap: wrap;">
+        <div style="background: #f0f9ff; padding: 15px 30px; border-radius: 10px; border: 2px solid #3b82f6;">
+            <strong>Total Attempts:</strong> 61 calls
+        </div>
+        <div style="background: #f0fdf4; padding: 15px 30px; border-radius: 10px; border: 2px solid #10b981;">
+            <strong>Campaign Duration:</strong> 30 workdays + 7 rest
+        </div>
+        <div style="background: #fef3c7; padding: 15px 30px; border-radius: 10px; border: 2px solid #f59e0b;">
+            <strong>Speed to Lead:</strong> 3 calls in first hour
+        </div>
     </div>
 </div>
 
 <style>
-.editable {
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
-
-.editable[contenteditable="true"] {
-    background: #fef3c7;
-    border: 2px solid #f59e0b;
-    cursor: text;
-}
-
-.editable[contenteditable="false"] {
-    cursor: default;
-}
-
 table {
     font-size: 14px;
+    border-collapse: collapse;
 }
 
 th {
     position: sticky;
     top: 0;
     z-index: 10;
+    background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
 tr:hover {
     filter: brightness(0.95);
 }
+
+td, th {
+    border: 1px solid #e5e7eb;
+}
 </style>
-
-<script>
-let globalEditMode = true;
-
-// Initialize on page load
-window.addEventListener('DOMContentLoaded', function() {
-    // Make all fields editable by default
-    document.querySelectorAll('.editable').forEach(el => {
-        el.contentEditable = true;
-        el.addEventListener('input', recalculateRanges);
-    });
-    
-    recalculateRanges();
-});
-
-// Toggle global edit mode
-function toggleGlobalEdit() {
-    globalEditMode = !globalEditMode;
-    const lockButton = document.getElementById('lockButton');
-    
-    document.querySelectorAll('.editable').forEach(el => {
-        el.contentEditable = globalEditMode;
-    });
-    
-    if (globalEditMode) {
-        lockButton.textContent = '🔒 Lock Configuration';
-        lockButton.style.background = '#dc2626';
-    } else {
-        lockButton.textContent = '🔓 Unlock for Editing';
-        lockButton.style.background = '#10b981';
-        saveAllChanges();
-    }
-}
-
-// Recalculate ranges
-function recalculateRanges() {
-    let cumulativeCalls = 0;
-    let totalDays = 0;
-    const lists = [101, 102, 103, 104, 105, 106, 107, 108, 109];
-    
-    lists.forEach(listId => {
-        const daysEl = document.querySelector(`[data-field="days"][data-list="${listId}"]`);
-        const resetsEl = document.querySelector(`[data-field="calls_per_day"][data-list="${listId}"]`);
-        
-        const days = parseFloat(daysEl?.textContent) || 0;
-        const resets = parseFloat(resetsEl?.textContent) || 0;
-        const totalCalls = days * resets;
-        
-        // Don't add rest period (108) to total days since it's a cool-down
-        if (listId !== 108) {
-            totalDays += days;
-        }
-        
-        // Update total calls
-        const totalEl = document.getElementById(`total-${listId}`);
-        if (totalEl) {
-            totalEl.textContent = totalCalls > 0 ? totalCalls.toFixed(1).replace('.0', '') : '0';
-        }
-        
-        // Update range
-        const rangeEl = document.getElementById(`range-${listId}`);
-        if (rangeEl) {
-            if (listId === 101) {
-                rangeEl.textContent = '1';
-            } else if (listId === 108 || totalCalls === 0) {
-                rangeEl.textContent = '-';
-            } else {
-                const start = cumulativeCalls + 1;
-                const end = cumulativeCalls + totalCalls;
-                rangeEl.textContent = totalCalls === 1 ? start.toString() : `${start}-${Math.floor(end)}`;
-                cumulativeCalls += totalCalls;
-            }
-        }
-    });
-    
-    // Update archive range
-    const archiveRange = document.getElementById('range-110');
-    if (archiveRange) {
-        archiveRange.textContent = `${Math.floor(cumulativeCalls) + 1}+`;
-    }
-    
-    // Update summary with total attempts
-    document.getElementById('totalCallRange').textContent = `1-${Math.floor(cumulativeCalls)} attempts`;
-    document.getElementById('campaignDuration').textContent = `${totalDays} workdays + 7 rest`;
-}
-
-// Save configuration
-async function saveAllChanges() {
-    const flowData = {};
-    const lists = [101, 102, 103, 104, 105, 106, 107, 108, 109, 110];
-    
-    lists.forEach(listId => {
-        const data = {};
-        document.querySelectorAll(`[data-list="${listId}"]`).forEach(el => {
-            const field = el.dataset.field;
-            if (field) {
-                data[field] = el.textContent.trim();
-            }
-        });
-        flowData[listId] = data;
-    });
-    
-    try {
-        const response = await fetch('/api/vici/save-lead-flow', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
-            },
-            body: JSON.stringify({ flow_data: flowData })
-        });
-        
-        if (response.ok) {
-            alert('✅ Configuration saved successfully!');
-        }
-    } catch (error) {
-        console.error('Error saving:', error);
-        alert('❌ Error saving configuration');
-    }
-}
-</script>
 @endsection

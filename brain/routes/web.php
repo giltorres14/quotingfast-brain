@@ -77,7 +77,7 @@ Route::prefix('vici')->group(function () {
     })->name('vici.reports');
     
     Route::get('/lead-flow', function() {
-        return view('vici.lead-flow-compact');
+        return view('vici.lead-flow-static');
     })->name('vici.lead-flow');
     
     Route::get('/lead-flow-visual', function() {
