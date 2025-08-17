@@ -25,11 +25,12 @@
   - Lock/unlock feature for configuration
   - Real-time calculation of call ranges
 
-### 🚀 VICI LEAD FLOW SYSTEM - DEPLOYED!
-**Completed:** January 15, 2025 - 12:45 AM EST
-- **Achievement:** Complete lead flow automation system deployed to Vici
-- **Scripts Created:** 10 SQL scripts for automated lead movement
-- **Flow:** 101 (New) → 102 (Aggressive) → 103 (VM1) → 104 (Phase1) → 105 (VM2) → 106 (Phase2) → 107 (CoolDown) → 108 (Phase3) → 110 (Archive)
+### 🚀 VICI LEAD FLOW SYSTEM - OPTIMIZED & DOCUMENTED!
+**Updated:** January 15, 2025 - 3:00 PM EST
+- **Achievement:** Optimized lead flow with 46 calls (vs 61) for better ROI
+- **Scripts Required:** 11 SQL scripts for automated lead movement
+- **Flow:** 101 (Immediate) → 102 (20-min) → 103 (VM#1) → 104 (Hot 3 days) → 105 (VM#2) → 106 (Extended 5 days) → 107 (Cool 5 days) → 108 (REST 7 days) → 109 (Final 5 days) → 110 (Archive)
+- **Key Features:** 2 strategic voicemails, 7-day rest period, workday-only logic
 - **Location:** /opt/vici_scripts/ on Vici server
 - **Features:**
   - Automatic lead progression based on call outcomes
@@ -241,7 +242,13 @@ tail -f storage/logs/vici_sync.log
 
 ### UI Files
 - `resources/views/agent/lead-display.blade.php` - Lead view/edit page
-- `resources/views/campaigns/directory.blade.php` - Campaign list (needs JS for delete)
+- `resources/views/campaigns/directory.blade.php` - Campaign list
+- `resources/views/vici/lead-flow-static.blade.php` - Lead flow configuration page
+
+### Documentation Files
+- `VICI_COMPLETE_LEAD_FLOW_SYSTEM.md` - Complete lead flow documentation with SQL scripts
+- `UI_DOCUMENTATION.md` - All UI specifications and field mappings
+- `VICI_VM_ALERT_SOLUTION.md` - Voicemail alert implementation guide
 
 ## 🎯 VICI LEAD FLOW SYSTEM - READY TO DEPLOY!
 
