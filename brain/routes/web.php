@@ -8758,35 +8758,6 @@ Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI')
 
 // DEPLOYMENT FIX 1754536129
 
-        if (!isset($drivers[$driverIndex])) {
-            return response()->json(['success' => false, 'error' => 'Driver not found'], 404);
-        }
-        
-        $violations = $drivers[$driverIndex]['violations'] ?? [];
-        $violations[] = [
-            'violation_type' => $request->violation_type,
-            'violation_date' => $request->violation_date,
-            'description' => $request->description,
-            'state' => $request->state
-        ];
-        
-        $drivers[$driverIndex]['violations'] = $violations;
-        $lead->update(['drivers' => $drivers]);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Violation added successfully',
-            'violations' => $violations
-        ]);
-        
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'error' => 'Failed to add violation: ' . $e->getMessage()
-        ], 500);
-    }
-});
-
 // Route to add accident to driver
 Route::post('/agent/lead/{leadId}/driver/{driverIndex}/accident', function (Request $request, $leadId, $driverIndex) {
     try {
@@ -9794,98 +9765,6 @@ Route::get('/test/ringba-decision/{leadId?}/{decision?}', function ($leadId = 'B
 });
 
 // Vici lead update function
-function updateViciLead($leadId, $leadData, $changedFields) {
-    // Vici API configuration
-    $viciConfig = [
-        'server' => env('VICI_SERVER', 'your-vici-server.com'),
-        'user' => env('VICI_API_USER', 'api_user'),
-        'pass' => env('VICI_API_PASS', 'api_password'),
-        'list_id' => env('VICI_LIST_ID', '101'),
-        'phone_code' => '1',
-        'source' => 'BRAIN_UPDATE'
-    ];
-    
-    // Check if Vici integration is properly configured
-    if (!$viciConfig['server'] || $viciConfig['server'] === 'your-vici-server.com') {
-        Log::info('Vici integration not configured, skipping sync', ['lead_id' => $leadId]);
-        return ['status' => 'skipped', 'reason' => 'not_configured'];
-    }
-    
-    // Prepare Vici update data - only include changed fields
-    $viciUpdateData = [
-        'user' => $viciConfig['user'],
-        'pass' => $viciConfig['pass'],
-        'function' => 'update_lead',
-        'vendor_lead_code' => $leadId,  // Use Brain lead ID as vendor code
-        'source_id' => $viciConfig['source']
-    ];
-    
-    // Map Brain fields to Vici fields and only include changed ones
-    $fieldMapping = [
-        'first_name' => 'first_name',
-        'last_name' => 'last_name',
-        'phone' => 'phone_number',
-        'email' => 'email',
-        'address' => 'address1',
-        'city' => 'city',
-        'state' => 'state',
-        'zip_code' => 'postal_code'
-    ];
-    
-    foreach ($changedFields as $brainField => $changeInfo) {
-        if (isset($fieldMapping[$brainField])) {
-            $viciField = $fieldMapping[$brainField];
-            $newValue = $changeInfo['new'];
-            
-            // Special handling for phone number
-            if ($brainField === 'phone') {
-                $newValue = preg_replace('/[^0-9]/', '', $newValue);
-            }
-            
-            $viciUpdateData[$viciField] = $newValue;
-        }
-    }
-    
-    // Add comments about the update
-    $viciUpdateData['comments'] = "Updated from Brain agent interface - Fields: " . implode(', ', array_keys($changedFields));
-    
-    Log::info('Sending Vici update request', [
-        'lead_id' => $leadId,
-        'vici_data' => array_merge($viciUpdateData, ['pass' => '[HIDDEN]']) // Hide password in logs
-    ]);
-    
-    // Send to Vici API
-    try {
-        $response = Http::timeout(30)->post("https://{$viciConfig['server']}/vicidial/non_agent_api.php", $viciUpdateData);
-        
-        if ($response->successful()) {
-            $responseBody = $response->body();
-            Log::info('Vici update response', [
-                'lead_id' => $leadId,
-                'response' => $responseBody
-            ]);
-            
-            // Parse Vici response (usually contains SUCCESS or ERROR)
-            if (strpos($responseBody, 'SUCCESS') !== false) {
-                return [
-                    'status' => 'success',
-                    'response' => $responseBody,
-                    'updated_fields' => array_keys($changedFields)
-                ];
-            } else {
-                throw new Exception("Vici API returned: " . $responseBody);
-            }
-        } else {
-            throw new Exception("Vici API HTTP error: " . $response->status() . " - " . $response->body());
-        }
-    } catch (Exception $e) {
-        Log::error('Vici update failed', [
-            'lead_id' => $leadId,
-            'error' => $e->getMessage()
-        ]);
-        throw $e;
-    }
-}
 
 // Test Vici lead update endpoint
 // DISABLED: Test route - use /admin/vici-reports instead
