@@ -4,6 +4,13 @@
 <div class="container-fluid" style="max-width: 1600px; margin: 0 auto; padding: 20px;">
     <h1 style="text-align: center; margin-bottom: 30px;">📊 Vici Lead Flow Configuration - Optimized with Call Counting</h1>
     
+    <!-- A/B Test Comparison Button -->
+    <div style="text-align: center; margin-bottom: 20px;">
+        <a href="/vici/lead-flow-ab-test" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: transform 0.2s;">
+            🔬 View A/B Test Comparison - Compare 48 vs 18 Call Strategies
+        </a>
+    </div>
+    
     <!-- Summary Stats -->
     <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
         <div style="background: #f0f9ff; padding: 15px 30px; border-radius: 10px; border: 2px solid #3b82f6;">
