@@ -513,3 +513,4 @@ class ImportLqfBulkCsvFast extends Command
         return Lead::create($leadData);
     }
 }
+}

@@ -147,3 +147,13 @@ CMD ["/usr/local/bin/startup.sh"]
 # 8. Test locally first if possible
 # 9. Document every issue and solution
 # 10. When in doubt, increment CACHE_BUST and rebuild
+# 1. Render cache corrupts frequently - always have CACHE_BUST ready
+# 2. Database credentials change/get miscopied - double-check hostname (opg0 not bpg0)
+# 3. Dockerfile syntax is fragile - no heredocs, simple echo commands
+# 4. Fewer layers = fewer problems
+# 5. Always clean up in same RUN command
+# 6. Composer can fail - add retry logic
+# 7. Permissions are critical for Laravel
+# 8. Test locally first if possible
+# 9. Document every issue and solution
+# 10. When in doubt, increment CACHE_BUST and rebuild

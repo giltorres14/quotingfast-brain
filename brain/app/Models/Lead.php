@@ -319,3 +319,40 @@ class Lead extends Model
         return $this->external_lead_id ?? $this->id;
     }
 }
+    public function conversions()
+    {
+        return $this->hasMany(LeadConversion::class, 'lead_id', 'id');
+    }
+
+    /**
+     * Get latest conversion
+     */
+    public function latestConversion()
+    {
+        return $this->hasOne(LeadConversion::class, 'lead_id', 'id')->latest();
+    }
+
+    /**
+     * Get lead qualifications relationship
+     */
+    public function qualifications()
+    {
+        return $this->hasMany(LeadQualification::class, 'lead_id', 'id');
+    }
+
+    /**
+     * Check if lead has external ID
+     */
+    public function hasExternalId(): bool
+    {
+        return !is_null($this->external_lead_id);
+    }
+
+    /**
+     * Get display ID (external if available, otherwise database ID)
+     */
+    public function getDisplayIdAttribute(): string
+    {
+        return $this->external_lead_id ?? $this->id;
+    }
+}

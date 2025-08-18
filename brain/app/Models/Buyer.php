@@ -73,3 +73,17 @@ class Buyer extends Model
         $this->save();
     }
 }
+            $this->save();
+        }
+    }
+
+    /**
+     * Update statistics
+     */
+    public function updateStats()
+    {
+        $this->total_leads = $this->leads()->count();
+        $this->total_revenue = $this->leads()->sum('sell_price');
+        $this->save();
+    }
+}

@@ -1028,3 +1028,22 @@
     </script>
 </body>
 </html>
+                if (!e.target.closest('.dropdown')) {
+                    dropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('open');
+                    });
+                }
+            });
+            
+            // Close dropdowns on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    dropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('open');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

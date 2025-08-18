@@ -676,3 +676,118 @@
     </script>
 </body>
 </html>
+                                    ">{{ $source->label }}</span>
+                                    {{ $source->name }}
+                                </div>
+                                <div class="endpoint-path">
+                                    Code: {{ $source->code }} | Type: {{ ucfirst($source->type) }}
+                                </div>
+                                <div class="endpoint-meta">
+                                    <span class="status-badge status-{{ $source->active ? 'active' : 'inactive' }}">
+                                        {{ $source->active ? 'Active' : 'Inactive' }}
+                                    </span>
+                                    <span style="margin-left: 10px; color: #64748b;">
+                                        {{ number_format($source->total_leads) }} leads
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="endpoint-body">
+                                @if($source->endpoint_url)
+                                    <div class="endpoint-description">
+                                        Endpoint: <code>{{ $source->endpoint_url }}</code>
+                                    </div>
+                                @endif
+                                @if($source->notes)
+                                    <div class="endpoint-description">{{ $source->notes }}</div>
+                                @endif
+                                @if($source->last_lead_at)
+                                    <div style="margin-top: 8px; color: #64748b; font-size: 12px;">
+                                        Last lead: {{ \Carbon\Carbon::parse($source->last_lead_at)->diffForHumans() }}
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                
+                <!-- Add New Source Button -->
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button onclick="openAddSourceModal()" class="btn btn-primary" style="background: #10b981; border-color: #10b981;">
+                        ➕ Add New Source
+                    </button>
+                </div>
+            @else
+                <p>No sources configured yet.</p>
+            @endif
+        </div>
+    </div>
+
+    <!-- Add Source Modal -->
+    <div id="addSourceModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto;">
+            <h3 style="margin-bottom: 1.5rem;">Add New Lead Source</h3>
+            <form id="addSourceForm">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Source Code</label>
+                    <input type="text" name="code" required style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px;" placeholder="e.g., PARTNER_API">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Display Name</label>
+                    <input type="text" name="name" required style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px;" placeholder="e.g., Partner API Integration">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Label (Short)</label>
+                    <input type="text" name="label" required style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px;" placeholder="e.g., Partner">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Type</label>
+                    <select name="type" required style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <option value="webhook">Webhook</option>
+                        <option value="api">API</option>
+                        <option value="bulk">Bulk Import</option>
+                        <option value="portal">Upload Portal</option>
+                        <option value="manual">Manual</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Endpoint URL (Optional)</label>
+                    <input type="text" name="endpoint_url" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px;" placeholder="e.g., /webhook/partner">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Color</label>
+                    <input type="color" name="color" value="#6b7280" style="width: 100%; padding: 0.25rem; border: 1px solid #e2e8f0; border-radius: 6px; height: 40px;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Notes (Optional)</label>
+                    <textarea name="notes" style="width: 100%; padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px;" rows="3"></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeAddSourceModal()" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; border-radius: 6px; background: white;">Cancel</button>
+                    <button type="submit" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 6px;">Add Source</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(text, button) {
+            navigator.clipboard.writeText(text).then(function() {
+                const originalText = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                button.textContent = '❌ Failed';
+                setTimeout(() => {
+                    button.textContent = '📋 Copy URL';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

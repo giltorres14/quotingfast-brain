@@ -39,3 +39,43 @@ This is the QuotingFast Brain system - a lead management platform with:
 6. Deploy to Render
 
 
+
+## CRITICAL WORKFLOW
+**ALWAYS** start by reading `brain/CURRENT_STATE.md` to understand:
+- Active work in progress
+- System status
+- Where we left off
+- Configuration details
+- Next immediate tasks
+
+**ALWAYS** update `CURRENT_STATE.md` after:
+- Significant changes
+- Completing tasks
+- End of work session
+- Starting new features
+
+## Project Context
+This is the QuotingFast Brain system - a lead management platform with:
+- PostgreSQL database (NOT SQLite in production)
+- Laravel PHP backend
+- Webhook endpoints for lead capture
+- Vici dialer integration
+- Campaign management
+- Bulk import capabilities
+
+## Key Reminders
+1. Database is PostgreSQL in production (host: dpg-d277kvk9c44c7388opg0-a)
+2. Primary webhook is `/api-webhook`
+3. No iframe agents should access Brain directly
+4. Campaign IDs need .0 suffix removed
+5. Lead IDs are 13-digit timestamps
+
+## Development Workflow
+1. Check CURRENT_STATE.md first
+2. Make changes
+3. Test thoroughly
+4. Update CURRENT_STATE.md
+5. Commit with clear messages
+6. Deploy to Render
+
+

@@ -121,3 +121,33 @@ class Campaign extends Model
         return $query->where('last_lead_received_at', '>=', now()->subDays($days));
     }
 }
+
+            'description' => $description ?? $this->description,
+            'status' => 'active',
+            'is_auto_created' => false
+        ]);
+
+        // Update all leads that were showing Campaign ID to show Campaign Name
+        Lead::where('campaign_id', $oldCampaignId)->update(['updated_at' => now()]);
+        
+        return $this;
+    }
+
+    // Get display name (name or fallback to ID)
+    public function getDisplayNameAttribute()
+    {
+        return $this->is_auto_created ? "Campaign #{$this->campaign_id}" : $this->name;
+    }
+
+    // Check if campaign needs attention (auto-created)
+    public function scopeNeedsAttention($query)
+    {
+        return $query->where('is_auto_created', true)->where('status', 'auto_detected');
+    }
+
+    // Get campaigns with recent activity
+    public function scopeRecentActivity($query, $days = 7)
+    {
+        return $query->where('last_lead_received_at', '>=', now()->subDays($days));
+    }
+}

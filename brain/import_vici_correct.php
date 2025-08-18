@@ -280,3 +280,284 @@ echo "🎯 IMPORTANT: The automatic 5-minute sync needs to be updated with the s
 echo "   Update file: app/Console/Commands/SyncViciCallLogsIncremental.php\n";
 
 
+/**
+ * CORRECT Vici Import - JOINs vicidial_log with vicidial_list to get Brain IDs
+ * This is the proper way to import call logs with Brain lead matching
+ */
+
+echo "=== CORRECT VICI IMPORT WITH PROPER JOINS ===\n\n";
+echo "Date: August 15, 2025\n";
+echo "Strategy: JOIN vicidial_log with vicidial_list to get Brain IDs\n\n";
+
+require_once __DIR__ . '/vendor/autoload.php';
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+
+// Bootstrap Laravel
+$app = require_once __DIR__ . '/bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+$response = $kernel->handle($request = Illuminate\Http\Request::capture());
+
+// 90 days as requested
+$startDate = '2025-05-17';
+$endDate = '2025-08-15';
+
+echo "📅 Date Range: {$startDate} to {$endDate} (90 days)\n";
+echo "⏳ Starting proper import with JOINs...\n\n";
+
+$totalImported = 0;
+$totalOrphaned = 0;
+$totalProcessed = 0;
+$totalErrors = 0;
+$startTime = microtime(true);
+
+// Process day by day
+$currentDate = $startDate;
+
+while ($currentDate <= $endDate) {
+    echo "📅 {$currentDate}: ";
+    
+    // Get count for this day
+    $countSql = "SELECT COUNT(*) FROM vicidial_log WHERE call_date BETWEEN '{$currentDate} 00:00:00' AND '{$currentDate} 23:59:59'";
+    
+    try {
+        $countResponse = Http::timeout(30)->post('https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute', [
+            'command' => "mysql -u root Q6hdjl67GRigMofv -B -N -e " . escapeshellarg($countSql) . " 2>&1"
+        ]);
+        
+        if (!$countResponse->successful()) {
+            echo "Failed to get count\n";
+            $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+            continue;
+        }
+        
+        $output = $countResponse->json()['output'] ?? '0';
+        $output = preg_replace('/Could not create directory.*\n/', '', $output);
+        $output = preg_replace('/Failed to add the host.*\n/', '', $output);
+        $dayCount = intval(trim($output));
+        
+        if ($dayCount == 0) {
+            echo "No calls\n";
+            $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+            continue;
+        }
+        
+        echo "{$dayCount} calls - ";
+        
+        // Process in smaller batches
+        $offset = 0;
+        $batchSize = 500;
+        $dayImported = 0;
+        $dayOrphaned = 0;
+        
+        while ($offset < $dayCount) {
+            // CORRECT QUERY WITH JOIN to get Brain IDs
+            $fetchSql = "
+                SELECT 
+                    vl.call_date,
+                    vl.lead_id,
+                    vl.phone_number,
+                    vl.campaign_id,
+                    vl.status,
+                    vl.length_in_sec,
+                    vl.user,
+                    vl.list_id,
+                    COALESCE(vlist.vendor_lead_code, vlist.source_id, '') as brain_id
+                FROM vicidial_log vl
+                LEFT JOIN vicidial_list vlist ON vl.lead_id = vlist.lead_id
+                WHERE vl.call_date BETWEEN '{$currentDate} 00:00:00' AND '{$currentDate} 23:59:59'
+                ORDER BY vl.call_date ASC
+                LIMIT {$batchSize} OFFSET {$offset}
+            ";
+            
+            try {
+                $fetchResponse = Http::timeout(60)->post('https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute', [
+                    'command' => "mysql -u root Q6hdjl67GRigMofv -B -N -e " . escapeshellarg($fetchSql) . " 2>&1"
+                ]);
+                
+                if (!$fetchResponse->successful()) {
+                    $totalErrors++;
+                    break;
+                }
+                
+                $fetchOutput = $fetchResponse->json()['output'] ?? '';
+                $fetchOutput = preg_replace('/Could not create directory.*\n/', '', $fetchOutput);
+                $fetchOutput = preg_replace('/Failed to add the host.*\n/', '', $fetchOutput);
+                
+                $lines = explode("\n", trim($fetchOutput));
+                
+                if (empty($lines[0])) {
+                    break; // No more data
+                }
+                
+                foreach ($lines as $line) {
+                    if (empty($line)) continue;
+                    
+                    $fields = explode("\t", $line);
+                    if (count($fields) < 9) continue;
+                    
+                    $totalProcessed++;
+                    
+                    // Parse fields
+                    $callDate = $fields[0];
+                    $viciLeadId = $fields[1];
+                    $phoneNumber = $fields[2];
+                    $campaignId = $fields[3];
+                    $status = $fields[4];
+                    $lengthInSec = intval($fields[5]);
+                    $agent = $fields[6] ?? '';
+                    $listId = $fields[7] ?? '';
+                    $brainId = $fields[8] ?? ''; // This is from the JOIN!
+                    
+                    // Try to find lead using Brain ID
+                    $leadId = null;
+                    
+                    // Check if we have a valid 13-digit Brain ID
+                    if (!empty($brainId) && preg_match('/^\d{13}$/', $brainId)) {
+                        $lead = DB::table('leads')
+                            ->where('external_lead_id', $brainId)
+                            ->select('id')
+                            ->first();
+                        if ($lead) {
+                            $leadId = $lead->id;
+                        }
+                    }
+                    
+                    // Fallback to phone match if no Brain ID match
+                    if (!$leadId && !empty($phoneNumber)) {
+                        $cleanPhone = preg_replace('/\D/', '', $phoneNumber);
+                        if (strlen($cleanPhone) == 10) {
+                            $lead = DB::table('leads')
+                                ->where('phone', 'LIKE', '%' . $cleanPhone . '%')
+                                ->select('id')
+                                ->first();
+                            if ($lead) {
+                                $leadId = $lead->id;
+                            }
+                        }
+                    }
+                    
+                    if ($leadId) {
+                        // Insert into vici_call_metrics
+                        try {
+                            DB::table('vici_call_metrics')->insertOrIgnore([
+                                'lead_id' => $leadId,
+                                'vici_lead_id' => $viciLeadId,
+                                'campaign_id' => $campaignId,
+                                'list_id' => $listId,
+                                'phone_number' => $phoneNumber,
+                                'status' => $status,
+                                'last_call_time' => $callDate,
+                                'call_duration' => $lengthInSec,
+                                'agent_id' => $agent,
+                                'total_calls' => 1,
+                                'connected' => in_array($status, ['SALE', 'SOLD', 'XFER']) ? 1 : 0,
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                            $dayImported++;
+                            $totalImported++;
+                        } catch (\Exception $e) {
+                            // Duplicate, skip
+                        }
+                    } else {
+                        // Store as orphan
+                        try {
+                            DB::table('orphan_call_logs')->insertOrIgnore([
+                                'vici_lead_id' => $viciLeadId,
+                                'phone_number' => $phoneNumber,
+                                'call_date' => $callDate,
+                                'campaign_id' => $campaignId,
+                                'status' => $status,
+                                'vendor_lead_code' => $brainId, // Store the Brain ID if we have it
+                                'raw_data' => json_encode([
+                                    'call_date' => $callDate,
+                                    'vici_lead_id' => $viciLeadId,
+                                    'list_id' => $listId,
+                                    'phone_number' => $phoneNumber,
+                                    'campaign_id' => $campaignId,
+                                    'status' => $status,
+                                    'length_in_sec' => $lengthInSec,
+                                    'agent' => $agent,
+                                    'brain_id' => $brainId
+                                ]),
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                            $dayOrphaned++;
+                            $totalOrphaned++;
+                        } catch (\Exception $e) {
+                            // Skip on error
+                        }
+                    }
+                }
+                
+            } catch (\Exception $e) {
+                $totalErrors++;
+                echo "X";
+                break;
+            }
+            
+            $offset += $batchSize;
+            
+            // Show progress
+            if ($dayImported > 0 || $dayOrphaned > 0) {
+                echo ".";
+            }
+            
+            // Prevent memory issues
+            if ($offset % 5000 == 0) {
+                DB::connection()->disconnect();
+                DB::connection()->reconnect();
+            }
+        }
+        
+        echo " Imported: {$dayImported} | Orphaned: {$dayOrphaned}\n";
+        
+    } catch (\Exception $e) {
+        echo "Error: " . $e->getMessage() . "\n";
+        $totalErrors++;
+    }
+    
+    // Move to next day
+    $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+}
+
+$totalTime = round(microtime(true) - $startTime, 2);
+
+echo "\n=== IMPORT COMPLETE ===\n\n";
+echo "📊 FINAL RESULTS:\n";
+echo "  • Total Processed: " . number_format($totalProcessed) . "\n";
+echo "  • Imported to Brain: " . number_format($totalImported) . "\n";
+echo "  • Orphaned (no match): " . number_format($totalOrphaned) . "\n";
+echo "  • Errors: " . number_format($totalErrors) . "\n";
+
+if ($totalProcessed > 0) {
+    echo "  • Match Rate: " . round(($totalImported / $totalProcessed) * 100, 2) . "%\n";
+    echo "  • Processing Speed: " . round($totalProcessed / $totalTime) . " calls/sec\n";
+}
+
+echo "  • Total Time: " . gmdate("H:i:s", $totalTime) . "\n\n";
+
+// Update last sync time
+Cache::put('vici_last_incremental_sync', Carbon::parse($endDate), now()->addDays(7));
+echo "✅ Last sync time updated to: {$endDate}\n";
+echo "✅ Automatic 5-minute sync will continue from here\n\n";
+
+// Check what we have now
+$totalCalls = DB::table('vici_call_metrics')->count();
+$totalOrphans = DB::table('orphan_call_logs')->count();
+
+echo "📊 Database Status:\n";
+echo "  • Total Call Records: " . number_format($totalCalls) . "\n";
+echo "  • Total Orphan Records: " . number_format($totalOrphans) . "\n\n";
+
+echo "📈 Your reports are ready at:\n";
+echo "  • https://quotingfast-brain-ohio.onrender.com/admin/vici-reports\n";
+echo "  • https://quotingfast-brain-ohio.onrender.com/admin/vici-comprehensive-reports\n\n";
+
+echo "🎯 IMPORTANT: The automatic 5-minute sync needs to be updated with the same JOIN logic!\n";
+echo "   Update file: app/Console/Commands/SyncViciCallLogsIncremental.php\n";
+
+

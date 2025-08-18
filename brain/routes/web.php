@@ -8757,3 +8757,1201 @@ Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI')
  # Deployment trigger Wed Aug  6 23:01:36 EDT 2025
 
 // DEPLOYMENT FIX 1754536129
+
+        if (!isset($drivers[$driverIndex])) {
+            return response()->json(['success' => false, 'error' => 'Driver not found'], 404);
+        }
+        
+        $violations = $drivers[$driverIndex]['violations'] ?? [];
+        $violations[] = [
+            'violation_type' => $request->violation_type,
+            'violation_date' => $request->violation_date,
+            'description' => $request->description,
+            'state' => $request->state
+        ];
+        
+        $drivers[$driverIndex]['violations'] = $violations;
+        $lead->update(['drivers' => $drivers]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Violation added successfully',
+            'violations' => $violations
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to add violation: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Route to add accident to driver
+Route::post('/agent/lead/{leadId}/driver/{driverIndex}/accident', function (Request $request, $leadId, $driverIndex) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        $drivers = $lead->drivers ?? [];
+        
+        if (!isset($drivers[$driverIndex])) {
+            return response()->json(['success' => false, 'error' => 'Driver not found'], 404);
+        }
+        
+        $accidents = $drivers[$driverIndex]['accidents'] ?? [];
+        $accidents[] = [
+            'accident_date' => $request->accident_date,
+            'accident_type' => $request->accident_type,
+            'description' => $request->description,
+            'at_fault' => $request->at_fault === 'true',
+            'damage_amount' => $request->damage_amount
+        ];
+        
+        $drivers[$driverIndex]['accidents'] = $accidents;
+        $lead->update(['drivers' => $drivers]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Accident added successfully',
+            'accidents' => $accidents
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to add accident: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Route to add/update vehicle
+Route::post('/agent/lead/{leadId}/vehicle', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        $vehicles = $lead->vehicles ?? [];
+        
+        $vehicleData = [
+            'year' => $request->year,
+            'make' => $request->make,
+            'model' => $request->model,
+            'vin' => $request->vin,
+            'primary_use' => $request->primary_use,
+            'annual_miles' => $request->annual_miles,
+            'ownership' => $request->ownership,
+            'garage' => $request->garage
+        ];
+        $vehicleIndex = $request->vehicle_index ?? count($vehicles);
+        
+        if ($vehicleIndex < count($vehicles)) {
+            // Update existing vehicle
+            $vehicles[$vehicleIndex] = array_merge($vehicles[$vehicleIndex] ?? [], $vehicleData);
+        } else {
+            // Add new vehicle
+            $vehicles[] = $vehicleData;
+        }
+        
+        $lead->update(['vehicles' => $vehicles]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Vehicle updated successfully',
+            'vehicles' => $vehicles
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to update vehicle: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Route to update insurance information
+Route::put('/agent/lead/{leadId}/insurance', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        
+        $insuranceData = [
+            'insurance_company' => $request->insurance_company,
+            'coverage_type' => $request->coverage_type,
+            'expiration_date' => $request->expiration_date,
+            'insured_since' => $request->insured_since
+        ];
+        
+        $lead->update(['current_policy' => $insuranceData]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Insurance information updated successfully',
+            'insurance' => $insuranceData
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to update insurance information: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Route to save all lead data (comprehensive save)
+Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        
+        // Save qualification data
+        if ($request->has('qualification')) {
+            $qualificationData = $request->qualification;
+            $qualificationData['lead_id'] = $leadId;
+            $qualificationData['enriched_at'] = now()->setTimezone('America/New_York');
+            
+            \App\Models\LeadQualification::updateOrCreate(
+                ['lead_id' => $leadId],
+                $qualificationData
+            );
+        }
+        
+        // Save contact information with Vici sync
+        $viciSyncResult = null;
+        if ($request->has('contact')) {
+            $contactData = $request->contact;
+            
+            // Store original values for comparison
+            $originalData = [
+                'first_name' => $lead->first_name,
+                'last_name' => $lead->last_name,
+                'phone' => $lead->phone,
+                'email' => $lead->email,
+                'address' => $lead->address,
+                'city' => $lead->city,
+                'state' => $lead->state,
+                'zip_code' => $lead->zip_code
+            ];
+            
+            // Include first_name and last_name in contact updates
+            $updatedData = [
+                'first_name' => $contactData['first_name'] ?? $lead->first_name,
+                'last_name' => $contactData['last_name'] ?? $lead->last_name,
+                'phone' => $contactData['phone'],
+                'email' => $contactData['email'],
+                'address' => $contactData['address'],
+                'city' => $contactData['city'],
+                'state' => $contactData['state'],
+                'zip_code' => $contactData['zip_code']
+            ];
+            
+            $lead->update($updatedData);
+            
+            // Check for changes in basic fields that need Vici sync
+            $basicFields = ['first_name', 'last_name', 'phone', 'email', 'address', 'city', 'state', 'zip_code'];
+            $changedFields = [];
+            
+            foreach ($basicFields as $field) {
+                if ($originalData[$field] !== $updatedData[$field]) {
+                    $changedFields[$field] = [
+                        'old' => $originalData[$field],
+                        'new' => $updatedData[$field]
+                    ];
+                }
+            }
+            
+                    // Attempt Vici sync if fields changed (disabled during testing)
+        if (!empty($changedFields)) {
+            try {
+                if (env('VICI_SYNC_ENABLED', true)) {
+                    $viciSyncResult = updateViciLead($leadId, $updatedData, $changedFields);
+                } else {
+                    Log::info('Vici sync disabled for testing in save-all', ['lead_id' => $leadId]);
+                    $viciSyncResult = false; // Simulate disabled sync
+                }
+                    Log::info('Vici sync in save-all', [
+                        'lead_id' => $leadId,
+                        'changed_fields' => array_keys($changedFields),
+                        'result' => $viciSyncResult
+                    ]);
+                } catch (Exception $viciError) {
+                    Log::warning('Vici sync failed in save-all', [
+                        'lead_id' => $leadId,
+                        'error' => $viciError->getMessage()
+                    ]);
+                }
+            }
+        }
+        
+        // Save insurance information
+        if ($request->has('insurance')) {
+            $insuranceData = $request->insurance;
+            $lead->update(['current_policy' => $insuranceData]);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'All lead data saved successfully',
+            'vici_sync' => $viciSyncResult ? 'success' : 'skipped_or_failed',
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Failed to save all lead data', [
+            'lead_id' => $leadId,
+            'error' => $e->getMessage(),
+            'data' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Failed to save lead data: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// REMOVED: Allstate validation route per user request
+// This was causing issues and will be re-implemented later if needed
+
+// Ringba Decision Webhook - Automatic Allstate Transfer
+Route::post('/webhook/ringba-decision', function (Request $request) {
+    try {
+        Log::info('Ringba decision webhook received', [
+            'payload' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        // Validate required fields
+        $leadId = $request->input('lead_id');
+        $decision = $request->input('decision');
+        $ringbaData = $request->input('ringba_data', []);
+        
+        if (!$leadId) {
+            Log::error('Ringba webhook missing lead_id', ['payload' => $request->all()]);
+            return response()->json([
+                'success' => false,
+                'error' => 'lead_id is required'
+            ], 400);
+        }
+        
+        // Find the lead
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        if (!$lead) {
+            Log::error('Ringba webhook - lead not found', ['lead_id' => $leadId]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Lead not found'
+            ], 404);
+        }
+        
+        // Log the decision
+        Log::info('Ringba decision processed', [
+            'lead_id' => $leadId,
+            'decision' => $decision,
+            'lead_name' => $lead->name
+        ]);
+        
+        // Handle Allstate decision
+        if (strtolower($decision) === 'allstate') {
+            // Validate lead is ready for Allstate
+            $validation = \App\Services\AllstateValidationService::validateLeadForEnrichment($lead);
+            
+            if (!$validation['is_valid']) {
+                Log::warning('Ringba selected Allstate but lead validation failed', [
+                    'lead_id' => $leadId,
+                    'missing_fields' => $validation['missing_fields'],
+                    'errors' => $validation['errors']
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Lead validation failed for Allstate',
+                    'validation_errors' => $validation['missing_fields'],
+                    'message' => 'Lead does not meet Allstate requirements'
+                ], 422);
+            }
+            
+            // Lead is valid - proceed with Allstate transfer
+            Log::info('Initiating automatic Allstate transfer', ['lead_id' => $leadId]);
+            
+            $allstateService = new \App\Services\AllstateCallTransferService();
+            $transferResult = $allstateService->transferCall($lead);
+            
+            if ($transferResult['success']) {
+                // Update lead status
+                $lead->update([
+                    'status' => 'transferred_to_allstate',
+                    'allstate_transfer_id' => $transferResult['transfer_id'] ?? null,
+                    'allstate_transferred_at' => now()->setTimezone('America/New_York'),
+                    'allstate_response' => $transferResult['allstate_response'] ?? null,
+                    'notes' => ($lead->notes ?? '') . "\n" . 'Auto-transferred to Allstate via Ringba decision at ' . now()->toDateTimeString()
+                ]);
+                
+                Log::info('Allstate transfer successful via Ringba webhook', [
+                    'lead_id' => $leadId,
+                    'transfer_id' => $transferResult['transfer_id'] ?? null,
+                    'allstate_response' => $transferResult['allstate_response'] ?? null
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Lead successfully transferred to Allstate',
+                    'lead_id' => $leadId,
+                    'decision' => $decision,
+                    'transfer_result' => [
+                        'transfer_id' => $transferResult['transfer_id'] ?? null,
+                        'status' => 'transferred_to_allstate',
+                        'transferred_at' => now()->setTimezone('America/New_York')->toISOString()
+                    ]
+                ]);
+                
+            } else {
+                // Transfer failed
+                $lead->update([
+                    'status' => 'transfer_failed',
+                    'notes' => ($lead->notes ?? '') . "\n" . 'Allstate transfer failed via Ringba webhook: ' . ($transferResult['error'] ?? 'Unknown error') . ' at ' . now()->toDateTimeString()
+                ]);
+                
+                Log::error('Allstate transfer failed via Ringba webhook', [
+                    'lead_id' => $leadId,
+                    'error' => $transferResult['error'] ?? 'Unknown error',
+                    'response_body' => $transferResult['response_body'] ?? null
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Allstate transfer failed',
+                    'lead_id' => $leadId,
+                    'decision' => $decision,
+                    'error' => $transferResult['error'] ?? 'Transfer failed',
+                    'transfer_result' => [
+                        'status' => 'transfer_failed',
+                        'error' => $transferResult['error'] ?? 'Unknown error'
+                    ]
+                ], 500);
+            }
+        } else {
+            // Other decisions (not Allstate)
+            Log::info('Ringba decision processed - not Allstate', [
+                'lead_id' => $leadId,
+                'decision' => $decision
+            ]);
+            
+            // Update lead with decision but no transfer
+            $lead->update([
+                'notes' => ($lead->notes ?? '') . "\n" . "Ringba decision: $decision at " . now()->toDateTimeString()
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Decision processed - no transfer needed',
+                'lead_id' => $leadId,
+                'decision' => $decision,
+                'action' => 'logged_only'
+            ]);
+        }
+        
+    } catch (\Exception $e) {
+        Log::error('Ringba webhook error', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'payload' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Webhook processing failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Test route to verify routing is working
+Route::get('/api/test-quick/{period}', function ($period) {
+    return response()->json([
+        'success' => true,
+        'message' => 'Route working correctly',
+        'period' => $period,
+        'timestamp' => now()->setTimezone('America/New_York')->toISOString()
+    ]);
+});
+
+// Call Analytics API Routes - SPECIFIC ROUTES FIRST
+Route::get('/api/analytics/quick/{period}', function (Request $request, $period) {
+    try {
+        Log::info('Analytics quick route called', ['period' => $period, 'url' => $request->fullUrl()]);
+        
+        $ranges = \App\Services\CallAnalyticsService::getDateRanges();
+        
+        if (!isset($ranges[$period])) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Invalid period. Available: ' . implode(', ', array_keys($ranges))
+            ], 400);
+        }
+        
+        $range = $ranges[$period];
+        $filters = $request->only(['agent_id', 'campaign_id', 'buyer_name']);
+        
+        $analytics = \App\Services\CallAnalyticsService::getAnalytics($range['start'], $range['end'], $filters);
+        
+        return response()->json([
+            'success' => true,
+            'period' => $period,
+            'period_label' => $range['label'],
+            'data' => $analytics,
+            'generated_at' => now()->setTimezone('America/New_York')->toISOString()
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Analytics generation failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+Route::get('/api/analytics/date-ranges', function () {
+    return response()->json([
+        'success' => true,
+        'data' => \App\Services\CallAnalyticsService::getDateRanges()
+    ]);
+});
+
+// Analytics Dashboard View
+Route::get('/analytics', function () {
+    return view('analytics.dashboard');
+});
+
+// Simple Admin Dashboard (No Authentication Required)
+Route::get('/admin', function () {
+    // Get basic stats for dashboard
+    $stats = [
+        'total_leads' => \App\Models\Lead::count(),
+        'new_leads' => \App\Models\Lead::whereDate('created_at', today())->count(),
+        'leads_today' => \App\Models\Lead::whereDate('created_at', today())->count(),
+        'contacted' => \App\Models\ViciCallMetrics::distinct('lead_id')->count('lead_id'),
+        'converted' => 0, // Placeholder
+        'conversion_rate' => '0', // Placeholder
+    ];
+    
+    $sms_stats = [
+        'sent' => 2341,
+        'delivered_rate' => '94',
+        'replies' => 187,
+    ];
+    
+    $weekly_stats = [
+        'leads' => \App\Models\Lead::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+        'qualified' => 89,
+        'appointments' => 47,
+        'revenue' => 15600,
+    ];
+    
+    $top_agent = [
+        'name' => 'Sarah M.',
+        'calls' => 156,
+        'conversions' => 4,
+    ];
+    
+    return view('admin.simple-dashboard', compact('stats', 'sms_stats', 'weekly_stats', 'top_agent'));
+});
+
+// Color Picker Page
+Route::get('/admin/color-picker', function () {
+    return view('admin.color-picker');
+});
+
+// API & Webhooks Directory - Static configuration of all endpoints
+Route::get('/api-directory', function () {
+    // Check if user is admin (simple check - you can enhance this based on your auth system)
+    $isAdmin = true; // For now, allow access - you can add proper auth later
+    
+    if (!$isAdmin) {
+        return redirect('/admin')->with('error', 'Admin access required');
+    }
+    
+    // Get statistics for the dashboard
+    $stats = [
+        'total_leads' => \App\Models\Lead::count(),
+        'today_leads' => \App\Models\Lead::whereBetween('created_at', [
+            \Carbon\Carbon::now('America/New_York')->startOfDay()->utc(), 
+            \Carbon\Carbon::now('America/New_York')->startOfDay()->addDay()->utc()
+        ])->count(),
+        'active_sources' => \App\Models\Lead::distinct('source')->count('source'),
+        'total_webhooks' => 8,
+        'total_apis' => 5, 
+        'total_tests' => 3,
+        'active_endpoints' => 13,
+    ];
+    
+    // Get lead sources from database
+    $sources = \DB::table('sources')
+        ->orderBy('total_leads', 'desc')
+        ->get()
+        ->map(function($source) {
+            return (object)[
+                'id' => $source->id,
+                'code' => $source->code,
+                'name' => $source->name,
+                'type' => $source->type,
+                'endpoint_url' => $source->endpoint_url,
+                'color' => $source->color,
+                'label' => $source->label,
+                'active' => $source->active,
+                'total_leads' => $source->total_leads,
+                'last_lead_at' => $source->last_lead_at,
+                'notes' => $source->notes
+            ];
+        });
+
+    // Define all webhooks statically
+    $webhooks = collect([
+        'Lead Intake' => collect([
+            (object)[
+                'name' => 'Primary Webhook (Auto & Home)',
+                'endpoint' => '/api-webhook',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api-webhook',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Main webhook endpoint for LeadsQuotingFast - accepts both auto and home leads',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(1, 60))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Auto Insurance Webhook',
+                'endpoint' => '/webhook/auto',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/auto',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Dedicated endpoint for auto insurance leads',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(1, 60))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Home Insurance Webhook',
+                'endpoint' => '/webhook/home',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/home',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Dedicated endpoint for home insurance leads',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(1, 60))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Secondary Webhook',
+                'endpoint' => '/webhook.php',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook.php',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Backup webhook endpoint for LeadsQuotingFast',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(60, 120))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+        'Call Tracking' => collect([
+            (object)[
+                'name' => 'ViciDial Call Status',
+                'endpoint' => '/webhook/vici/call-status',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/vici/call-status',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Receives call status updates from ViciDial',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(1, 3))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'ViciDial Disposition',
+                'endpoint' => '/webhook/vici/disposition',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/vici/disposition',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Receives call disposition updates from ViciDial',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(1, 3))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'RingBA Decision',
+                'endpoint' => '/webhook/ringba-decision',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/ringba-decision',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Handles RingBA routing decisions',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(2, 6))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'RingBA Conversion',
+                'endpoint' => '/webhook/ringba-conversion',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/ringba-conversion',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Tracks lead conversions from RingBA',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(3, 8))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+    ]);
+
+    // Define all APIs statically
+    $apis = collect([
+        'Lead Management' => collect([
+            (object)[
+                'name' => 'Get Lead Details',
+                'endpoint' => '/api/leads/{id}',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/leads/{id}',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Retrieve detailed information about a specific lead',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(10, 30))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Update Lead',
+                'endpoint' => '/api/leads/{id}',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/leads/{id}',
+                'method' => 'PUT',
+                'status' => 'active',
+                'description' => 'Update lead information',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(1, 4))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'List Leads',
+                'endpoint' => '/api/leads',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/leads',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Get paginated list of leads with filters',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(5, 15))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+        'Analytics' => collect([
+            (object)[
+                'name' => 'Dashboard Analytics',
+                'endpoint' => '/api/dashboard',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/dashboard',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Get dashboard statistics and analytics',
+                'last_used' => \Carbon\Carbon::now()->subMinutes(rand(1, 10))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Call Analytics',
+                'endpoint' => '/api/analytics/{startDate}/{endDate}',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/api/analytics/{startDate}/{endDate}',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Get call analytics for date range',
+                'last_used' => \Carbon\Carbon::now()->subHours(rand(1, 3))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+    ]);
+
+    // Define test endpoints
+    $tests = collect([
+        'Testing' => collect([
+            (object)[
+                'name' => 'Test Database Connection',
+                'endpoint' => '/test-db',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/test-db',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Test database connectivity',
+                'last_used' => \Carbon\Carbon::now()->subDays(rand(1, 3))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Test ViciDial Connection',
+                'endpoint' => '/test/vici',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/test/vici',
+                'method' => 'GET',
+                'status' => 'active',
+                'description' => 'Test ViciDial API connectivity',
+                'last_used' => \Carbon\Carbon::now()->subDays(rand(1, 5))->format('Y-m-d H:i:s'),
+            ],
+            (object)[
+                'name' => 'Test Webhook',
+                'endpoint' => '/webhook/debug',
+                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/webhook/debug',
+                'method' => 'POST',
+                'status' => 'active',
+                'description' => 'Debug webhook for testing payloads',
+                'last_used' => \Carbon\Carbon::now()->subDays(rand(2, 7))->format('Y-m-d H:i:s'),
+            ],
+        ]),
+    ]);
+
+    return view('api.directory', compact('stats', 'webhooks', 'apis', 'tests', 'sources'));
+});
+
+// Generic date range route - MUST COME AFTER SPECIFIC ROUTES
+Route::get('/api/analytics/{startDate}/{endDate}', function (Request $request, $startDate, $endDate) {
+    try {
+        $filters = $request->only(['agent_id', 'campaign_id', 'buyer_name']);
+        
+        $analytics = \App\Services\CallAnalyticsService::getAnalytics($startDate, $endDate, $filters);
+        
+        return response()->json([
+            'success' => true,
+            'data' => $analytics,
+            'generated_at' => now()->setTimezone('America/New_York')->toISOString()
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'error' => 'Analytics generation failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// Test data normalization for buyers
+Route::get('/test/normalization/{leadId?}', function ($leadId = 'BRAIN_TEST_RINGBA') {
+    try {
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        
+        if (!$lead) {
+            return response()->json([
+                'error' => 'Lead not found',
+                'lead_id' => $leadId
+            ], 404);
+        }
+        
+        // Get original lead data
+        $originalData = [
+            'drivers' => $lead->drivers ?? [],
+            'vehicles' => $lead->vehicles ?? [],
+            'coverage_type' => $lead->coverage_type ?? 'Full Coverage',
+            'currently_insured' => $lead->currently_insured ?? 'Yes'
+        ];
+        
+        // Apply Allstate normalization
+        $normalizedData = \App\Services\DataNormalizationService::normalizeForBuyer($originalData, 'allstate');
+        
+        // Get validation report
+        $validationReport = \App\Services\DataNormalizationService::getValidationReport($originalData, $normalizedData, 'allstate');
+        
+        return response()->json([
+            'lead_id' => $leadId,
+            'original_data' => $originalData,
+            'normalized_data' => $normalizedData,
+            'validation_report' => $validationReport,
+            'buyer_profile' => 'allstate',
+            'message' => 'Data normalization test completed'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Normalization test failed: ' . $e->getMessage(),
+            'lead_id' => $leadId
+        ], 500);
+    }
+});
+
+// Ringba Conversion Tracking Webhook
+Route::post('/webhook/ringba-conversion', function (Request $request) {
+    try {
+        Log::info('Ringba conversion webhook received', [
+            'payload' => $request->all(),
+            'headers' => $request->headers->all()
+        ]);
+        
+        $data = $request->all();
+        
+        // Required fields
+        $leadId = $data['lead_id'] ?? null;
+        $converted = $data['converted'] ?? $data['sale_successful'] ?? false;
+        $callId = $data['call_id'] ?? $data['ringba_call_id'] ?? null;
+        
+        if (!$leadId) {
+            Log::error('Ringba conversion webhook missing lead_id', ['payload' => $data]);
+            return response()->json([
+                'success' => false,
+                'error' => 'lead_id is required'
+            ], 400);
+        }
+        
+        // Find the lead
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        if (!$lead) {
+            Log::error('Lead not found for conversion tracking', [
+                'lead_id' => $leadId,
+                'payload' => $data
+            ]);
+            return response()->json([
+                'success' => false,
+                'error' => 'Lead not found'
+            ], 404);
+        }
+        
+        // Find associated Vici call metrics
+        $viciMetrics = \App\Models\ViciCallMetrics::where('lead_id', $leadId)->first();
+        
+        // Create or update conversion record
+        $conversion = \App\Models\LeadConversion::updateOrCreate(
+            [
+                'lead_id' => $leadId,
+                'ringba_call_id' => $callId
+            ],
+            [
+                'vici_call_metrics_id' => $viciMetrics?->id,
+                'ringba_campaign_id' => $data['campaign_id'] ?? null,
+                'ringba_publisher_id' => $data['publisher_id'] ?? null,
+                'converted' => $converted === 'yes' || $converted === true || $converted === 1,
+                'conversion_time' => $converted ? now() : null,
+                'buyer_name' => $data['buyer_name'] ?? $data['buyer'] ?? null,
+                'buyer_id' => $data['buyer_id'] ?? null,
+                'conversion_value' => $data['conversion_value'] ?? $data['revenue'] ?? $data['call_revenue'] ?? null,
+                'conversion_type' => $data['conversion_type'] ?? 'sale',
+                'ringba_payload' => $data,
+                'notes' => $data['notes'] ?? null
+            ]
+        );
+        
+        // Calculate timing metrics if we have Vici data
+        if ($viciMetrics && $conversion->converted) {
+            $conversion->calculateTimingMetrics($viciMetrics);
+        }
+        
+        Log::info('Ringba conversion tracked successfully', [
+            'lead_id' => $leadId,
+            'conversion_id' => $conversion->id,
+            'converted' => $conversion->converted,
+            'buyer' => $conversion->buyer_name,
+            'value' => $conversion->conversion_value
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Conversion tracked successfully',
+            'conversion_id' => $conversion->id,
+            'lead_id' => $leadId,
+            'converted' => $conversion->converted,
+            'buyer' => $conversion->buyer_name,
+            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Ringba conversion webhook error', [
+            'error' => $e->getMessage(),
+            'payload' => $request->all()
+        ]);
+        
+        return response()->json([
+            'success' => false,
+            'error' => 'Conversion tracking failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
+
+// PARALLEL RINGBA TESTING (Keep Allstate integration intact)
+Route::get('/test/ringba-send/{leadId?}', function ($leadId = null) {
+    try {
+        // Find a test lead or use a specific one
+        $lead = $leadId ? 
+            \App\Models\Lead::where('id', $leadId)
+                ->orWhere('external_lead_id', $leadId)
+                ->first() :
+            \App\Models\Lead::latest()->first();
+            
+        if (!$lead) {
+            return response()->json([
+                'error' => 'No lead found',
+                'suggestion' => 'Try: /test/ringba-send/BRAIN_TEST_RINGBA'
+            ], 404);
+        }
+        
+        // Initialize RingBA service
+        $ringbaService = new \App\Services\RingBAService();
+        
+        // Send lead to RingBA (no qualification data for now)
+        $result = $ringbaService->sendLead($lead);
+        
+        return response()->json([
+            'test_type' => 'Direct RingBA API Send',
+            'lead_id' => $lead->id,
+            'lead_name' => $lead->first_name . ' ' . $lead->last_name,
+            'lead_type' => $lead->type,
+            'result' => $result,
+            'next_steps' => [
+                'Check logs for detailed request/response',
+                'Verify data mapping is correct',
+                'Test with different lead types'
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Test failed',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
+// Test with simulated qualification data (like from Vici agent)
+Route::get('/test/ringba-send-qualified/{leadId?}', function ($leadId = null) {
+    try {
+        $lead = $leadId ? 
+            \App\Models\Lead::where('id', $leadId)
+                ->orWhere('external_lead_id', $leadId)
+                ->first() :
+            \App\Models\Lead::latest()->first();
+            
+        if (!$lead) {
+            return response()->json(['error' => 'No lead found'], 404);
+        }
+        
+        // Simulate agent qualification data (Top 13 Questions answered)
+        $qualificationData = [
+            // Insurance Status
+            'currently_insured' => true,
+            'current_company' => 'Geico',
+            'policy_expires' => '2024-06-15',
+            'shopping_for_rates' => true,
+            
+            // Coverage Needs
+            'coverage_type' => $lead->type === 'home' ? 'home' : 'auto',
+            'vehicle_count' => 2,
+            'home_status' => 'own',
+            'recent_claims' => false,
+            
+            // Financial
+            'current_premium' => 180.00,
+            'desired_budget' => 150.00,
+            'urgency' => '30_days',
+            
+            // Decision Making
+            'decision_maker' => true,
+            'motivation_level' => 8,
+            'lead_quality_score' => 9,
+            
+            'agent_notes' => 'Very motivated, current policy expires soon, looking for savings'
+        ];
+        
+        $ringbaService = new \App\Services\RingBAService();
+        $result = $ringbaService->sendLead($lead, $qualificationData);
+        
+        return response()->json([
+            'test_type' => 'RingBA Send with Agent Qualification',
+            'lead_id' => $lead->id,
+            'qualification_data' => $qualificationData,
+            'result' => $result,
+            'note' => 'This simulates what happens when agent clicks Enrich button'
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Qualified test failed',
+            'message' => $e->getMessage()
+        ], 500);
+    }
+});
+
+// Test Ringba Decision Webhook
+Route::get('/test/ringba-decision/{leadId?}/{decision?}', function ($leadId = 'BRAIN_TEST_RINGBA', $decision = 'allstate') {
+    try {
+        // Find the lead first to make sure it exists
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        if (!$lead) {
+            return response()->json([
+                'error' => 'Lead not found for testing',
+                'lead_id' => $leadId,
+                'available_test_lead' => 'BRAIN_TEST_RINGBA'
+            ], 404);
+        }
+        
+        // Simulate a Ringba webhook call
+        $webhookData = [
+            'lead_id' => $leadId,
+            'decision' => $decision,
+            'ringba_data' => [
+                'campaign_id' => '2674154334576444838',
+                'processed_at' => now()->setTimezone('America/New_York')->toISOString(),
+                'score' => 85,
+                'qualification_results' => [
+                    'currently_insured' => 'yes',
+                    'license_valid' => 'yes',
+                    'credit_score' => 'good'
+                ]
+            ]
+        ];
+        
+        // Make a real HTTP call to the webhook endpoint
+        $webhookUrl = url('/webhook/ringba-decision');
+        $response = Http::post($webhookUrl, $webhookData);
+        
+        return response()->json([
+            'test_type' => 'Ringba Decision Webhook Simulation',
+            'lead_id' => $leadId,
+            'lead_name' => $lead->name,
+            'decision' => $decision,
+            'webhook_data_sent' => $webhookData,
+            'webhook_response' => [
+                'status' => $response->status(),
+                'body' => $response->json(),
+                'successful' => $response->successful()
+            ],
+            'webhook_url' => $webhookUrl,
+            'instructions' => [
+                'This simulates Ringba calling your webhook',
+                'Check the response above to see if the transfer worked',
+                'Check logs for detailed processing information',
+                'Test different decisions: /test/ringba-decision/' . $leadId . '/other_decision'
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'test_type' => 'Ringba Decision Webhook Simulation',
+            'error' => $e->getMessage(),
+            'lead_id' => $leadId,
+            'decision' => $decision,
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+
+// Vici lead update function
+function updateViciLead($leadId, $leadData, $changedFields) {
+    // Vici API configuration
+    $viciConfig = [
+        'server' => env('VICI_SERVER', 'your-vici-server.com'),
+        'user' => env('VICI_API_USER', 'api_user'),
+        'pass' => env('VICI_API_PASS', 'api_password'),
+        'list_id' => env('VICI_LIST_ID', '101'),
+        'phone_code' => '1',
+        'source' => 'BRAIN_UPDATE'
+    ];
+    
+    // Check if Vici integration is properly configured
+    if (!$viciConfig['server'] || $viciConfig['server'] === 'your-vici-server.com') {
+        Log::info('Vici integration not configured, skipping sync', ['lead_id' => $leadId]);
+        return ['status' => 'skipped', 'reason' => 'not_configured'];
+    }
+    
+    // Prepare Vici update data - only include changed fields
+    $viciUpdateData = [
+        'user' => $viciConfig['user'],
+        'pass' => $viciConfig['pass'],
+        'function' => 'update_lead',
+        'vendor_lead_code' => $leadId,  // Use Brain lead ID as vendor code
+        'source_id' => $viciConfig['source']
+    ];
+    
+    // Map Brain fields to Vici fields and only include changed ones
+    $fieldMapping = [
+        'first_name' => 'first_name',
+        'last_name' => 'last_name',
+        'phone' => 'phone_number',
+        'email' => 'email',
+        'address' => 'address1',
+        'city' => 'city',
+        'state' => 'state',
+        'zip_code' => 'postal_code'
+    ];
+    
+    foreach ($changedFields as $brainField => $changeInfo) {
+        if (isset($fieldMapping[$brainField])) {
+            $viciField = $fieldMapping[$brainField];
+            $newValue = $changeInfo['new'];
+            
+            // Special handling for phone number
+            if ($brainField === 'phone') {
+                $newValue = preg_replace('/[^0-9]/', '', $newValue);
+            }
+            
+            $viciUpdateData[$viciField] = $newValue;
+        }
+    }
+    
+    // Add comments about the update
+    $viciUpdateData['comments'] = "Updated from Brain agent interface - Fields: " . implode(', ', array_keys($changedFields));
+    
+    Log::info('Sending Vici update request', [
+        'lead_id' => $leadId,
+        'vici_data' => array_merge($viciUpdateData, ['pass' => '[HIDDEN]']) // Hide password in logs
+    ]);
+    
+    // Send to Vici API
+    try {
+        $response = Http::timeout(30)->post("https://{$viciConfig['server']}/vicidial/non_agent_api.php", $viciUpdateData);
+        
+        if ($response->successful()) {
+            $responseBody = $response->body();
+            Log::info('Vici update response', [
+                'lead_id' => $leadId,
+                'response' => $responseBody
+            ]);
+            
+            // Parse Vici response (usually contains SUCCESS or ERROR)
+            if (strpos($responseBody, 'SUCCESS') !== false) {
+                return [
+                    'status' => 'success',
+                    'response' => $responseBody,
+                    'updated_fields' => array_keys($changedFields)
+                ];
+            } else {
+                throw new Exception("Vici API returned: " . $responseBody);
+            }
+        } else {
+            throw new Exception("Vici API HTTP error: " . $response->status() . " - " . $response->body());
+        }
+    } catch (Exception $e) {
+        Log::error('Vici update failed', [
+            'lead_id' => $leadId,
+            'error' => $e->getMessage()
+        ]);
+        throw $e;
+    }
+}
+
+// Test Vici lead update endpoint
+// DISABLED: Test route - use /admin/vici-reports instead
+/*
+Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI') {
+    try {
+        // Find the lead first to make sure it exists
+        $lead = \App\Models\Lead::where('id', $leadId)->first();
+        if (!$lead) {
+            return response()->json([
+                'error' => 'Lead not found for testing',
+                'lead_id' => $leadId,
+                'available_test_lead' => 'BRAIN_TEST_VICI'
+            ], 404);
+        }
+        
+        // Simulate field changes for testing
+        $testChanges = [
+            'first_name' => [
+                'old' => $lead->first_name,
+                'new' => 'TestUpdated'
+            ],
+            'phone' => [
+                'old' => $lead->phone,
+                'new' => '5551234567'
+            ]
+        ];
+        
+        $testData = [
+            'first_name' => 'TestUpdated',
+            'last_name' => $lead->last_name,
+            'phone' => '5551234567',
+            'email' => $lead->email,
+            'address' => $lead->address,
+            'city' => $lead->city,
+            'state' => $lead->state,
+            'zip_code' => $lead->zip_code
+        ];
+        
+        Log::info('Testing Vici update function', [
+            'lead_id' => $leadId,
+            'test_changes' => $testChanges
+        ]);
+        
+        // Test the Vici update function
+        $result = updateViciLead($leadId, $testData, $testChanges);
+        
+        return response()->json([
+            'test_type' => 'Vici Lead Update Test',
+            'lead_id' => $leadId,
+            'test_changes' => $testChanges,
+            'vici_result' => $result,
+            'success' => true
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'test_type' => 'Vici Lead Update Test',
+            'error' => $e->getMessage(),
+            'lead_id' => $leadId,
+            'trace' => $e->getTraceAsString()
+        ], 500);
+    }
+});
+*/
+
+ # Deployment trigger Wed Aug  6 23:01:36 EDT 2025
+
+// DEPLOYMENT FIX 1754536129
