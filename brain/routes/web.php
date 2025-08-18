@@ -84,6 +84,12 @@ Route::prefix('vici')->group(function () {
         return view('vici.lead-flow');
     })->name('vici.lead-flow-visual');
     
+    Route::get('/lead-flow-ab-test', function() {
+        $callbackService = new \App\Services\CallbackTrackingService();
+        $callbackStats = $callbackService->getCallbackStats();
+        return view('vici.lead-flow-ab-test', compact('callbackStats'));
+    })->name('vici.lead-flow-ab');
+    
     Route::get('/sync-status', function() {
         return redirect('/admin/vici-sync-management');
     })->name('vici.sync-status');

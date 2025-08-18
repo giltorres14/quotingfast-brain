@@ -260,6 +260,18 @@
                             </a>
                         </div>
                         <div class="dropdown-section">
+                            <div class="dropdown-title">Lead Flow Configuration</div>
+                            <a href="/vici/lead-flow" class="dropdown-item">
+                                <span class="icon">📋</span>Current Lead Flow
+                            </a>
+                            <a href="/vici/lead-flow-ab-test" class="dropdown-item" style="background: #fef3c7;">
+                                <span class="icon">🔬</span><strong>A/B Test Comparison</strong>
+                            </a>
+                            <a href="/vici/lead-flow-visual" class="dropdown-item">
+                                <span class="icon">🎨</span>Visual Flow Diagram
+                            </a>
+                        </div>
+                        <div class="dropdown-section">
                             <div class="dropdown-title">Management</div>
                             <a href="/admin/vici-sync-management" class="dropdown-item">
                                 <span class="icon">🔄</span>Sync Management
