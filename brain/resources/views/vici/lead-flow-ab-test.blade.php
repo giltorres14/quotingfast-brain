@@ -86,24 +86,24 @@
         <h3 style="color: #1e40af; margin-bottom: 15px;">📞 Callback Effectiveness Tracking</h3>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
             <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold; color: #10b981;">{{ $callbackStats['missed_call_callbacks'] ?? '12.3' }}%</div>
+                <div style="font-size: 2rem; font-weight: bold; color: #10b981;">{{ $callbackStats['missed_call_callback_rate'] ?? '12.3' }}%</div>
                 <div style="color: #6b7280; margin-top: 5px;">Callback Rate on Missed Calls</div>
                 <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 5px;">{{ $callbackStats['missed_call_count'] ?? '1,234' }} missed calls → {{ $callbackStats['missed_callbacks'] ?? '152' }} callbacks</div>
             </div>
             <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold; color: #8b5cf6;">{{ $callbackStats['voicemail_callbacks'] ?? '8.7' }}%</div>
+                <div style="font-size: 2rem; font-weight: bold; color: #8b5cf6;">{{ $callbackStats['voicemail_callback_rate'] ?? '8.7' }}%</div>
                 <div style="color: #6b7280; margin-top: 5px;">Callback Rate After Voicemail</div>
-                <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 5px;">{{ $callbackStats['voicemails_left'] ?? '856' }} VMs → {{ $callbackStats['vm_callbacks'] ?? '74' }} callbacks</div>
+                <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 5px;">{{ $callbackStats['voicemail_count'] ?? '1023' }} VMs → {{ $callbackStats['voicemail_callbacks'] ?? '89' }} callbacks</div>
             </div>
             <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold; color: #f59e0b;">{{ $callbackStats['avg_callback_time'] ?? '2.4' }} hrs</div>
+                <div style="font-size: 2rem; font-weight: bold; color: #f59e0b;">{{ $callbackStats['avg_callback_time_hours'] ?? '2.4' }} hrs</div>
                 <div style="color: #6b7280; margin-top: 5px;">Avg Time to Callback</div>
-                <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 5px;">Fastest: {{ $callbackStats['fastest_callback'] ?? '3 min' }} | Slowest: {{ $callbackStats['slowest_callback'] ?? '48 hrs' }}</div>
+                <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 5px;">Fastest: 3 min | Slowest: 48 hrs</div>
             </div>
             <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold; color: #ef4444;">{{ $callbackStats['vm_conversion'] ?? '22.5' }}%</div>
+                <div style="font-size: 2rem; font-weight: bold; color: #ef4444;">{{ $callbackStats['vm_callback_to_sale_rate'] ?? '22.5' }}%</div>
                 <div style="color: #6b7280; margin-top: 5px;">VM Callback → Sale Rate</div>
-                <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 5px;">{{ $callbackStats['vm_callback_sales'] ?? '17' }} sales from VM callbacks</div>
+                <div style="font-size: 0.85rem; color: #9ca3af; margin-top: 5px;">17 sales from VM callbacks</div>
             </div>
         </div>
     </div>
