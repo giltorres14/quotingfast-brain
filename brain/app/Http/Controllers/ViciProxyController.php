@@ -285,3 +285,4 @@ class ViciProxyController extends Controller
             ], 500);
         }
     }
+}

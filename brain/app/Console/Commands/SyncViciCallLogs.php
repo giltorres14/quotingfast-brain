@@ -456,24 +456,3 @@ class SyncViciCallLogs extends Command
         }
     }
 }
-
-                ['New Call Records', number_format($stats['new_records'])],
-                ['Updated Records', number_format($stats['updated_records'])],
-                ['Orphan Calls (No Lead)', number_format($stats['orphan_calls'])],
-                ['Leads Updated', number_format($stats['leads_updated'])],
-                ['Failed', number_format($stats['failed'])],
-            ]
-        );
-        
-        $successRate = $stats['total_calls'] > 0 
-            ? round((($stats['total_calls'] - $stats['failed']) / $stats['total_calls']) * 100, 1)
-            : 0;
-            
-        $this->newLine();
-        $this->info("✅ Success Rate: {$successRate}%");
-        
-        if ($stats['failed'] > 0) {
-            $this->warn("⚠️ {$stats['failed']} records failed to process. Check logs for details.");
-        }
-    }
-}
