@@ -261,3 +261,4 @@ This approach is specifically designed for shared leads sold to 5-8 buyers. It's
 ---
 
 *Based on analysis of shared lead dynamics in insurance vertical, 2024*
+

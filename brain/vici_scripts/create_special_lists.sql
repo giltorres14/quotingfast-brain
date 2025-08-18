@@ -167,3 +167,4 @@ SELECT
     'INACTIVE - Special Campaigns Only' as status
 FROM vicidial_list
 WHERE list_id = 199;
+

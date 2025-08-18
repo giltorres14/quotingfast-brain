@@ -29,3 +29,7 @@ file_put_contents('resources/views/agent/lead-display.blade.php', $content);
 
 echo "Removed duplicate vendor section\n";
 
+
+
+
+

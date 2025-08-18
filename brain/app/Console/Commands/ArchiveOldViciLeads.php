@@ -185,3 +185,7 @@ class ArchiveOldViciLeads extends Command
         $this->info("📊 Total leads in Archive list (199): " . number_format($count));
     }
 }
+
+
+
+

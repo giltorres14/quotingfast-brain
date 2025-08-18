@@ -65,3 +65,7 @@ try {
     echo "Line: " . $e->getLine() . "\n";
     echo "\nTrace:\n" . $e->getTraceAsString() . "\n";
 }
+
+
+
+

@@ -187,3 +187,4 @@ return new class extends Migration
         Schema::dropIfExists('ab_test_leads');
     }
 };
+

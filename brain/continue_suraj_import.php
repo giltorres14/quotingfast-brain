@@ -361,3 +361,7 @@ $surajTotal = DB::table('leads')->where('source', 'SURAJ_BULK')->count();
 echo "Total Suraj leads in system: " . number_format($surajTotal) . "\n";
 
 
+
+
+
+

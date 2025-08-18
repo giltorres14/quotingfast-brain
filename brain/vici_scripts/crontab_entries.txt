@@ -111,3 +111,7 @@
 0 */6 * * * mysql -u root Q6hdjl67GRigMofv -e "SELECT list_id, COUNT(*) as stuck_count FROM vicidial_list WHERE list_id BETWEEN 101 AND 109 AND DATEDIFF(NOW(), entry_date) > 35 GROUP BY list_id" 2>&1 | logger -t vici_stuck
 
 
+
+
+
+

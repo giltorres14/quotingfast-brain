@@ -53,3 +53,7 @@ foreach ($commands as $command => $description) {
 }
 
 echo "✅ All caches cleared!\n";
+
+
+
+

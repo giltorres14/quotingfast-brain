@@ -243,3 +243,7 @@ echo "\nNext Steps:\n";
 echo "• Move all List 0 leads to List 101 to start the calling campaign\n";
 echo "• As calls are made, leads will automatically move through lists 102-110\n";
 echo "• Monitor daily to ensure proper list progression\n";
+
+
+
+

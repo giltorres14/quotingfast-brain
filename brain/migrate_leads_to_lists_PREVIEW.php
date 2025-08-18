@@ -457,3 +457,7 @@ echo "4. As calls are made, leads automatically progress through lists\n";
 echo "5. Migration preserves all lead data and call history\n";
 echo "\n⚠️  This is a PREVIEW ONLY - no actual changes have been made\n";
 echo "Review the logic above and confirm it matches your requirements.\n";
+
+
+
+

@@ -439,3 +439,7 @@ echo "❌ Broken: $brokenCount\n";
 if ($brokenCount > 0) {
     echo "\n🔧 Creating fix script...\n";
 }
+
+
+
+

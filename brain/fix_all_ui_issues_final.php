@@ -451,3 +451,7 @@ echo "✅ Fixed: Horizontal scroll, Date column, Lead detail modal\n";
 
 echo "\n✅ ALL UI ISSUES FIXED!\n";
 echo "Now committing and deploying...\n";
+
+
+
+

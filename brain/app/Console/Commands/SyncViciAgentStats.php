@@ -277,3 +277,7 @@ class SyncViciAgentStats extends Command
         $this->info('📊 View reports at: /admin/vici-reports');
     }
 }
+
+
+
+

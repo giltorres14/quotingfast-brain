@@ -263,3 +263,7 @@ echo "  2. /webhook/auto endpoint enabled\n";
 echo "  3. Vici tables created in database\n";
 echo "\nThe webhook endpoints should now receive leads properly.\n";
 
+
+
+
+

@@ -453,3 +453,7 @@ echo "4. Active engagement (moderate calls) → Lists 103-104\n";
 echo "5. Low engagement (few calls, older) → Lists 105-106\n";
 echo "6. Inactive/Old (90+ days or very few calls) → List 110\n";
 echo "\nWould you like me to create a migration script to move the leads?\n";
+
+
+
+

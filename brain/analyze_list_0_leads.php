@@ -401,3 +401,7 @@ echo "• Move all " . number_format($totalToMove) . " leads from List 0 to appr
 echo "• Leads with 0 calls → List 101 (Brand New)\n";
 echo "• Leads with existing calls → Distribute to Lists 102-110 based on call count\n";
 echo "\nWould you like me to create a migration script to move these leads?\n";
+
+
+
+

@@ -203,3 +203,7 @@ echo "   Will update up to " . count($phoneMap) . " Vici leads\n\n";
 echo "This file can be executed directly on the Vici server for maximum speed.\n";
 
 
+
+
+
+

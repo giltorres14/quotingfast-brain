@@ -31,3 +31,7 @@ if php -r "exit(function_exists('opcache_reset') ? 0 : 1);"; then
 fi
 
 echo "All caches cleared successfully"
+
+
+
+

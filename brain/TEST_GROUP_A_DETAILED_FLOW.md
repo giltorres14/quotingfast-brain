@@ -177,3 +177,4 @@ TOTAL:     25 calls
 This might be more realistic while still being "aggressive" compared to Group B's 18 calls.
 
 **What do you think? Should we stick with 35 for Group A or reduce to 25?**
+

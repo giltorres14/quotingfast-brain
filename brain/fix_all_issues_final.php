@@ -643,3 +643,7 @@ if ($returnCode === 0) {
     echo "⚠️ Migration output: " . implode("\n", $output) . "\n";
 }
 
+
+
+
+

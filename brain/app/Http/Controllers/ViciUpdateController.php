@@ -58,3 +58,7 @@ class ViciUpdateController extends Controller
         return response()->json($results);
     }
 }
+
+
+
+

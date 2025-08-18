@@ -2,7 +2,41 @@
 
 @section('content')
 <div class="container-fluid" style="max-width: 1600px; margin: 0 auto; padding: 20px;">
-    <h1 style="text-align: center; margin-bottom: 30px;">🔬 A/B Test Lead Flow Comparison</h1>
+    <h1 style="text-align: center; margin-bottom: 30px;">📊 Vici Lead Flow A/B Test - Compare Strategies</h1>
+    
+    <!-- Summary Stats for Current View -->
+    <div id="summaryStats">
+        <!-- Test A Stats (Default) -->
+        <div class="testA-stats" style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
+            <div style="background: #f0f9ff; padding: 15px 30px; border-radius: 10px; border: 2px solid #3b82f6;">
+                <strong>Total Attempts:</strong> 48 calls
+            </div>
+            <div style="background: #f0fdf4; padding: 15px 30px; border-radius: 10px; border: 2px solid #10b981;">
+                <strong>Campaign Duration:</strong> 30 days + rest + reactivation
+            </div>
+            <div style="background: #fef3c7; padding: 15px 30px; border-radius: 10px; border: 2px solid #f59e0b;">
+                <strong>Speed to Lead:</strong> 3 calls in first 6 hours
+            </div>
+            <div style="background: #fce7f3; padding: 15px 30px; border-radius: 10px; border: 2px solid #ec4899;">
+                <strong>Cost per Lead:</strong> $24 (at $0.50/call)
+            </div>
+        </div>
+        <!-- Test B Stats (Hidden by default) -->
+        <div class="testB-stats" style="display: none; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
+            <div style="background: #f0f9ff; padding: 15px 30px; border-radius: 10px; border: 2px solid #3b82f6;">
+                <strong>Total Attempts:</strong> 18 calls
+            </div>
+            <div style="background: #f0fdf4; padding: 15px 30px; border-radius: 10px; border: 2px solid #10b981;">
+                <strong>Campaign Duration:</strong> 30 days (no rest period)
+            </div>
+            <div style="background: #fef3c7; padding: 15px 30px; border-radius: 10px; border: 2px solid #f59e0b;">
+                <strong>Speed to Lead:</strong> 4 calls in first hour
+            </div>
+            <div style="background: #fce7f3; padding: 15px 30px; border-radius: 10px; border: 2px solid #ec4899;">
+                <strong>Cost per Lead:</strong> $9 (at $0.50/call)
+            </div>
+        </div>
+    </div>
     
     <!-- WHAT WE'RE TESTING - PROMINENT DISPLAY -->
     <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
@@ -385,21 +419,35 @@
 
 <script>
 function showTestA() {
+    // Show Test A content
     document.getElementById('testAFlow').style.display = 'block';
     document.getElementById('testBFlow').style.display = 'none';
+    
+    // Update buttons
     document.getElementById('btnTestA').style.background = '#667eea';
     document.getElementById('btnTestA').style.color = 'white';
     document.getElementById('btnTestB').style.background = 'transparent';
     document.getElementById('btnTestB').style.color = '#4b5563';
+    
+    // Update summary stats
+    document.querySelectorAll('.testA-stats').forEach(el => el.style.display = 'flex');
+    document.querySelectorAll('.testB-stats').forEach(el => el.style.display = 'none');
 }
 
 function showTestB() {
+    // Show Test B content
     document.getElementById('testAFlow').style.display = 'none';
     document.getElementById('testBFlow').style.display = 'block';
-    document.getElementById('btnTestB').style.background = '#667eea';
+    
+    // Update buttons
+    document.getElementById('btnTestB').style.background = '#f97316';
     document.getElementById('btnTestB').style.color = 'white';
     document.getElementById('btnTestA').style.background = 'transparent';
     document.getElementById('btnTestA').style.color = '#4b5563';
+    
+    // Update summary stats
+    document.querySelectorAll('.testA-stats').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.testB-stats').forEach(el => el.style.display = 'flex');
 }
 
 // Auto-refresh callback stats every 30 seconds

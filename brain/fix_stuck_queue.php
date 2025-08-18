@@ -267,3 +267,7 @@ echo "  - Added Date column showing when lead was created\n";
 echo "  - Fixed Lead Detail button to show modal\n";
 echo "  - Added modal with lead information\n";
 
+
+
+
+

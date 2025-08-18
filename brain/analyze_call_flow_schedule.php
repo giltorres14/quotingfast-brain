@@ -469,3 +469,7 @@ echo "4. How many calls per day for List 103?\n";
 echo "5. Are my assumptions for Lists 104-108 correct?\n";
 echo "6. Should there be any lists between 108 and 110?\n";
 echo "\nPlease provide the correct schedule for each list.\n";
+
+
+
+

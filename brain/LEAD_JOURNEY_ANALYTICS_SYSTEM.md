@@ -363,3 +363,4 @@ You'll know EXACTLY:
 5. **Customized to YOUR leads** not generic advice
 
 The academics say 6-8 calls. Your current process does 42. The truth for YOUR specific shared leads is somewhere in between, and only YOUR DATA can tell you where.
+

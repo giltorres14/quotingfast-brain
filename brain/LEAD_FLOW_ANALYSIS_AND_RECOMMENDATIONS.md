@@ -270,3 +270,4 @@ The insurance lead market is extremely competitive. The company that responds fa
 ---
 
 *Based on analysis of MIT/Kellogg Lead Response studies, insurance industry benchmarks, and modern contact center best practices (2024)*
+

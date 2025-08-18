@@ -338,3 +338,4 @@ class LeadJourneyAnalytics
         return $insights;
     }
 }
+

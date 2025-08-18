@@ -509,3 +509,7 @@ echo "  • https://quotingfast-brain-ohio.onrender.com/admin/vici-comprehensive
 echo "🎯 The automatic 5-minute sync is now active and will keep data updated!\n";
 
 
+
+
+
+

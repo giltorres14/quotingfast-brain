@@ -481,3 +481,7 @@ Hi [[first_name]], this is [[agent_name]] from QuotingFast...<br>
 5. In Campaign settings, set Script Override for List 103 to use `VM_LIST_103`
 
 This way, whenever an agent gets a lead from List 103, they'll automatically see this alert script instead of the default script.
+
+
+
+

@@ -339,3 +339,7 @@ function insertBatch($pdo, $batch) {
 }
 
 
+
+
+
+

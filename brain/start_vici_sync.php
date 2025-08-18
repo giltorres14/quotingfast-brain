@@ -187,3 +187,7 @@ echo "  • Check last sync: php artisan tinker --execute=\"echo Cache::get('vic
 echo "\n🎯 Next automatic sync will run in ~5 minutes.\n\n";
 
 
+
+
+
+

@@ -497,3 +497,7 @@ echo "  nohup ./process_all_vici_chunks.sh > vici_update.log 2>&1 &\n\n";
 echo "Estimated time: " . round($totalLeads / 60, 0) . " minutes (at ~60 leads/minute)\n";
 
 
+
+
+
+

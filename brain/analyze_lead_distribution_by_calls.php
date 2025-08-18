@@ -423,3 +423,7 @@ echo "• Percentage needing redistribution: " . round(($totalNeedMoving / $tota
 echo "\n📌 RECOMMENDATION:\n";
 echo "Create a migration script to move " . number_format($totalNeedMoving) . " leads to their correct lists\n";
 echo "based on their call count following your established call flow.\n";
+
+
+
+

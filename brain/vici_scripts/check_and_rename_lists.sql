@@ -184,3 +184,4 @@ WHERE DATEDIFF(NOW(), entry_date) > 89
     AND list_id BETWEEN 101 AND 120
 GROUP BY list_id
 HAVING expired_count > 0;
+
