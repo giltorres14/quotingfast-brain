@@ -18,7 +18,7 @@
                 <strong>Speed to Lead:</strong> 3 calls in first 6 hours
             </div>
             <div style="background: #fce7f3; padding: 15px 30px; border-radius: 10px; border: 2px solid #ec4899;">
-                <strong>Cost per Lead:</strong> $24 (at $0.50/call)
+                <strong>Cost per Lead:</strong> $0.092 (23 min total call time)
             </div>
         </div>
         <!-- Test B Stats (Hidden by default) -->
@@ -33,7 +33,7 @@
                 <strong>Speed to Lead:</strong> 4 calls in first hour
             </div>
             <div style="background: #fce7f3; padding: 15px 30px; border-radius: 10px; border: 2px solid #ec4899;">
-                <strong>Cost per Lead:</strong> $9 (at $0.50/call)
+                <strong>Cost per Lead:</strong> $0.044 (11 min total call time)
             </div>
         </div>
     </div>
@@ -104,6 +104,78 @@
             <button id="btnTestB" onclick="showTestB()" style="padding: 12px 30px; border: none; border-radius: 8px; background: transparent; color: #4b5563; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                 TEST B: Strategic Approach (18 Calls)
             </button>
+        </div>
+    </div>
+
+    <!-- REAL COST BREAKDOWN -->
+    <div style="background: #f0fdf4; border: 2px solid #10b981; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+        <h3 style="color: #059669; margin-bottom: 15px;">💰 Real Cost Analysis (at $0.004/min, 6-sec increments)</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <h4 style="color: #3b82f6; margin-bottom: 10px;">Test A: 48 Calls</h4>
+                <ul style="line-height: 1.8; font-size: 0.9rem;">
+                    <li><strong>Connects (15%):</strong> 7 calls × 2 min = 14 min × $0.004 = $0.056</li>
+                    <li><strong>Voicemails (25%):</strong> 12 calls × 30 sec = 6 min × $0.004 = $0.024</li>
+                    <li><strong>No Answer (60%):</strong> 29 calls × 6 sec = 3 min × $0.004 = $0.012</li>
+                    <li style="color: #dc2626; font-weight: bold;">Total: $0.092 per lead (23 minutes)</li>
+                    <li style="color: #059669;">If 5% convert: $1.84 per sale</li>
+                </ul>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <h4 style="color: #f97316; margin-bottom: 10px;">Test B: 18 Calls</h4>
+                <ul style="line-height: 1.8; font-size: 0.9rem;">
+                    <li><strong>Connects (20%):</strong> 4 calls × 2 min = 8 min × $0.004 = $0.032</li>
+                    <li><strong>Voicemails (20%):</strong> 4 calls × 30 sec = 2 min × $0.004 = $0.008</li>
+                    <li><strong>No Answer (60%):</strong> 10 calls × 6 sec = 1 min × $0.004 = $0.004</li>
+                    <li style="color: #dc2626; font-weight: bold;">Total: $0.044 per lead (11 minutes)</li>
+                    <li style="color: #059669;">If 5% convert: $0.88 per sale</li>
+                </ul>
+            </div>
+        </div>
+        <div style="margin-top: 15px; padding: 10px; background: #fef3c7; border-radius: 6px;">
+            <strong>📊 Key Insight:</strong> Test A costs 2.1x more than Test B. The question: Does Test A convert at 2.1x the rate to justify the cost?
+        </div>
+    </div>
+
+    <!-- DETAILED MOVEMENT LOGIC -->
+    <div style="background: #fff7ed; border: 2px solid #f59e0b; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+        <h3 style="color: #92400e; margin-bottom: 15px;">🔄 How Leads Move Between Lists (SQL Logic)</h3>
+        <div style="font-size: 0.9rem; line-height: 1.8;">
+            <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px;">
+                <strong style="color: #3b82f6;">List 101 → 102 (After 1st call):</strong><br>
+                <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">
+                WHERE calls_today >= 1 AND status IN ('NA','B','AL') AND list_id = 101
+                </code><br>
+                <span style="color: #6b7280; font-size: 0.85rem;">Moves after first dial attempt if no contact. Runs every 20 minutes.</span>
+            </div>
+            
+            <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px;">
+                <strong style="color: #10b981;">List 102 → 103 (After 3 NA in Day 1):</strong><br>
+                <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">
+                WHERE total_calls >= 3 AND last_status = 'NA' AND hours_since_entry < 24
+                </code><br>
+                <span style="color: #6b7280; font-size: 0.85rem;">Triggers voicemail list after 3 no-answers. Checked hourly.</span>
+            </div>
+            
+            <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px;">
+                <strong style="color: #f59e0b;">List 103 → 104 (Day 2-4 intensive):</strong><br>
+                <code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">
+                WHERE days_in_list >= 1 AND total_calls BETWEEN 4 AND 15
+                </code><br>
+                <span style="color: #6b7280; font-size: 0.85rem;">Moves to 4x/day calling pattern. Runs at midnight.</span>
+            </div>
+            
+            <div style="margin-bottom: 15px; padding: 15px; background: white; border-radius: 8px;">
+                <strong style="color: #dc2626;">Special Rules:</strong><br>
+                • <strong>DNC/NI:</strong> Remove from all lists immediately<br>
+                • <strong>SALE:</strong> Move to sold list, stop calling<br>
+                • <strong>CallBack:</strong> Keep in current list, set specific callback time<br>
+                • <strong>89+ days old:</strong> Move to List 199 (TCPA expired), stop calling
+            </div>
+            
+            <div style="padding: 15px; background: #dcfce7; border-radius: 8px;">
+                <strong style="color: #059669;">✅ Key Principle:</strong> Only ACTUAL DIALS count (from vicidial_dial_log), not manual status changes or system events. This ensures accurate call counting and proper list progression.
+            </div>
         </div>
     </div>
 
