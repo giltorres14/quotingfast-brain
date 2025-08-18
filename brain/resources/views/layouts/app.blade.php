@@ -655,69 +655,6 @@
         </div>
     </nav>
     
-    <!-- Sub Navigation for Leads -->
-    @if(request()->is('leads*') || request()->is('admin/vendor-management*') || request()->is('campaigns/directory*'))
-    <div class="sub-nav active">
-        <div class="sub-nav-container">
-            <a href="/leads" class="sub-nav-item {{ request()->is('leads') ? 'active' : '' }}">Dashboard</a>
-            <a href="/admin/lead-queue-monitor" class="sub-nav-item {{ request()->is('admin/lead-queue-monitor') ? 'active' : '' }}">Stuck in Queue</a>
-            <a href="/leads/import" class="sub-nav-item {{ request()->is('leads/import') ? 'active' : '' }}">Import</a>
-            <a href="/admin/vendor-management" class="sub-nav-item {{ request()->is('admin/vendor-management') ? 'active' : '' }}">Sources/Vendors</a>
-            <a href="/campaigns/directory" class="sub-nav-item {{ request()->is('campaigns/directory') ? 'active' : '' }}">Campaigns</a>
-            <a href="/leads/reports" class="sub-nav-item {{ request()->is('leads/reports') ? 'active' : '' }}">Reports</a>
-        </div>
-    </div>
-    @endif
-    
-    <!-- Sub Navigation for Vici -->
-    @if(request()->is('vici*'))
-    <div class="sub-nav active">
-        <div class="sub-nav-container">
-            <a href="/vici" class="sub-nav-item {{ request()->is('vici') ? 'active' : '' }}">Dashboard</a>
-            <a href="/vici/reports" class="sub-nav-item {{ request()->is('vici/reports') ? 'active' : '' }}">Reports</a>
-            <a href="/vici/lead-flow" class="sub-nav-item {{ request()->is('vici/lead-flow') ? 'active' : '' }}">Lead Flow</a>
-            <a href="/vici/sync-status" class="sub-nav-item {{ request()->is('vici/sync-status') ? 'active' : '' }}">Sync Status</a>
-            <a href="/vici/settings" class="sub-nav-item {{ request()->is('vici/settings') ? 'active' : '' }}">Settings</a>
-        </div>
-    </div>
-    @endif
-    
-    <!-- Sub Navigation for SMS -->
-    @if(request()->is('sms*'))
-    <div class="sub-nav active">
-        <div class="sub-nav-container">
-            <a href="/sms" class="sub-nav-item {{ request()->is('sms') ? 'active' : '' }}">Dashboard</a>
-            <a href="/sms/campaigns" class="sub-nav-item {{ request()->is('sms/campaigns') ? 'active' : '' }}">Campaigns</a>
-            <a href="/sms/templates" class="sub-nav-item {{ request()->is('sms/templates') ? 'active' : '' }}">Templates</a>
-            <a href="/sms/analytics" class="sub-nav-item {{ request()->is('sms/analytics') ? 'active' : '' }}">Analytics</a>
-        </div>
-    </div>
-    @endif
-    
-    <!-- Sub Navigation for Buyers -->
-    @if(request()->is('buyers*'))
-    <div class="sub-nav active">
-        <div class="sub-nav-container">
-            <a href="/buyers" class="sub-nav-item {{ request()->is('buyers') ? 'active' : '' }}">Dashboard</a>
-            <a href="/buyers/directory" class="sub-nav-item {{ request()->is('buyers/directory') ? 'active' : '' }}">Directory</a>
-            <a href="/buyers/transfers" class="sub-nav-item {{ request()->is('buyers/transfers') ? 'active' : '' }}">Transfers</a>
-            <a href="/buyers/revenue" class="sub-nav-item {{ request()->is('buyers/revenue') ? 'active' : '' }}">Revenue</a>
-        </div>
-    </div>
-    @endif
-    
-    <!-- Sub Navigation for Admin -->
-    @if(request()->is('admin*') && !request()->is('admin/vendor-management*'))
-    <div class="sub-nav active">
-        <div class="sub-nav-container">
-            <a href="/admin" class="sub-nav-item {{ request()->is('admin') ? 'active' : '' }}">Dashboard</a>
-            <a href="/admin/simple-dashboard" class="sub-nav-item {{ request()->is('admin/simple-dashboard') ? 'active' : '' }}">Simple Dashboard</a>
-            <a href="/admin/control-center" class="sub-nav-item {{ request()->is('admin/control-center') ? 'active' : '' }}">Control Center</a>
-            <a href="/admin/lead-queue-monitor" class="sub-nav-item {{ request()->is('admin/lead-queue-monitor') ? 'active' : '' }}">Lead Queue Monitor</a>
-            <a href="/admin/buyer-management" class="sub-nav-item {{ request()->is('admin/buyer-management') ? 'active' : '' }}">Buyer Management</a>
-        </div>
-    </div>
-    @endif
     
     <!-- Main Content -->
     <div class="main-content">
