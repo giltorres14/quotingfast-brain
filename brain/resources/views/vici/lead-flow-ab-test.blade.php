@@ -69,6 +69,32 @@
         </div>
     </div>
     
+    <!-- LATE-DAY LEAD HANDLING STRATEGY -->
+    <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+        <h3 style="color: #92400e; margin-bottom: 15px;">⏰ Late-Day Lead Strategy: "Speed + Consistency"</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <strong style="color: #059669;">9 AM - 2 PM Leads:</strong>
+                <div style="margin-top: 5px; font-size: 0.9rem;">Complete all 5 calls same day (full golden hour)</div>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <strong style="color: #0891b2;">2 PM - 4 PM Leads:</strong>
+                <div style="margin-top: 5px; font-size: 0.9rem;">3-4 calls today, remaining 1-2 calls at 9 AM tomorrow</div>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <strong style="color: #dc2626;">4 PM - 6 PM Leads:</strong>
+                <div style="margin-top: 5px; font-size: 0.9rem;">2 immediate calls, then priority queue at 9 AM tomorrow</div>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <strong style="color: #7c3aed;">After 6 PM Leads:</strong>
+                <div style="margin-top: 5px; font-size: 0.9rem;">Start fresh at 9 AM with full 5-call sequence</div>
+            </div>
+        </div>
+        <div style="margin-top: 15px; padding: 10px; background: #fff7ed; border-radius: 6px;">
+            <strong>🎯 Key Principle:</strong> NEVER let a lead sit untouched. Call immediately regardless of time, then ensure no gaps longer than 15 hours between attempts.
+        </div>
+    </div>
+    
     <!-- Toggle Buttons -->
     <div style="text-align: center; margin-bottom: 30px;">
         <div style="display: inline-flex; background: #e5e7eb; border-radius: 12px; padding: 4px;">
@@ -242,10 +268,11 @@
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">201-205</td>
                         <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>5</strong></td>
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">
-                            0 min → <span style="color: green; font-weight: bold;">5 min</span> → 15 min → 30 min → 60 min
+                            0 min → <span style="color: green; font-weight: bold;">5 min</span> → 15 min → 30 min → 60 min<br>
+                            <span style="color: #dc2626; font-size: 0.85rem;">*After 3pm: Call immediately, continue sequence next AM</span>
                         </td>
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">
-                            <span style="background: #dcfce7; padding: 2px 6px; border-radius: 4px;">Golden Hour Focus</span>
+                            <span style="background: #dcfce7; padding: 2px 6px; border-radius: 4px;">Speed Priority</span>
                         </td>
                     </tr>
                     <tr>
