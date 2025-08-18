@@ -893,7 +893,8 @@
     </script>
 </head>
 <body>
-
+    @include('agent.ni-retarget-script')
+    
     <!-- Save button moved inside lead details section -->
     
     <!-- REMOVED: Allstate validation progress indicator per user request -->

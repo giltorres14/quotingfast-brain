@@ -213,8 +213,8 @@
                 <!-- Movement Logic 108->109 -->
                 <tr style="background: #f9fafb;">
                     <td colspan="9" style="padding: 15px; border: 1px solid #e5e7eb; font-style: italic; color: #4b5563;">
-                        <strong>↓ Movement 108→109:</strong> After 7 calendar days rest OR if TCPA expires in <7 days.
-                        <br>Daily check includes TCPA compliance calculation.
+                        <strong>↓ Movement 108→109:</strong> After 7 calendar days rest OR if TCPA expires in <7 days (day 82+).
+                        <br>Daily check includes TCPA 89-day compliance calculation.
                     </td>
                 </tr>
 
@@ -234,8 +234,8 @@
                 <!-- Movement Logic 109->111 -->
                 <tr style="background: #f9fafb;">
                     <td colspan="9" style="padding: 15px; border: 1px solid #e5e7eb; font-style: italic; color: #4b5563;">
-                        <strong>↓ Movement 109→111:</strong> After 5 dial attempts OR when TCPA 30-day limit reached.
-                        <br>Sets status='HOLD30' for 30-day reactivation.
+                        <strong>↓ Movement 109→111:</strong> After 5 dial attempts OR when TCPA 89-day limit reached.
+                        <br>Sets status='HOLD30' for 30-day reactivation (if within TCPA window).
                     </td>
                 </tr>
 
@@ -276,27 +276,123 @@
         </table>
     </div>
 
+    <!-- Special Purpose Lists -->
+    <div style="margin-top: 30px; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="text-align: center; color: #1f2937; margin-bottom: 20px;">🎯 Special Purpose Lists</h2>
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+            <thead>
+                <tr style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white;">
+                    <th style="padding: 12px; text-align: left; border: 1px solid #f59e0b;">List</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #f59e0b;">Name</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #f59e0b;">Campaign</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #f59e0b;">Purpose</th>
+                    <th style="padding: 12px; text-align: center; border: 1px solid #f59e0b;">Source</th>
+                    <th style="padding: 12px; text-align: left; border: 1px solid #f59e0b;">Special Instructions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- List 112 - NI Retargeting -->
+                <tr style="background: #fef3c7;">
+                    <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">112</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">NI Retarget</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">AutoDial</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">Rate Reduction Script</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">45-day old NI leads</td>
+                    <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                        <strong style="color: #d97706;">Special Script:</strong> "Rate reduction in your area"<br>
+                        Max 2 attempts, different agent pool
+                    </td>
+                </tr>
+                
+                <!-- List 120 - Training -->
+                <tr style="background: #dbeafe;">
+                    <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">120</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">Training Leads</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb; color: #1e40af; font-weight: bold;">Auto2</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">Agent Training</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">Days 40-85, 30+ calls</td>
+                    <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                        <strong style="color: #1e40af;">Training Only:</strong> Heavily worked leads<br>
+                        Still valid TCPA, low conversion expected
+                    </td>
+                </tr>
+                
+                <!-- List 199 - TCPA Graveyard -->
+                <tr style="background: #fee2e2;">
+                    <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">199</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">TCPA Expired</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb; color: #dc2626; font-weight: bold;">SPECIAL</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">Archive/Special</td>
+                    <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">89+ days old</td>
+                    <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                        <strong style="color: #dc2626;">⚠️ NON-ALLSTATE ONLY:</strong> Special campaigns<br>
+                        Requires permission, alternative contact methods preferred
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
     <!-- Call Counting Logic -->
     <div style="margin-top: 30px; background: #f0f9ff; padding: 20px; border-radius: 10px; border: 2px solid #3b82f6;">
-        <h3 style="color: #1e40af; margin-bottom: 15px;">🔢 Call Counting Implementation</h3>
-        <div style="background: white; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px;">
-            <strong>Using vicidial_dial_log (NOT vicidial_log):</strong><br>
-            <pre style="margin: 10px 0; background: #f9fafb; padding: 10px; border-radius: 4px;">
+        <h3 style="color: #1e40af; margin-bottom: 15px;">🔢 Call Counting Implementation - Complete Status List</h3>
+        <div style="background: white; padding: 15px; border-radius: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div style="background: #dcfce7; padding: 15px; border-radius: 8px;">
+                    <h4 style="margin-top: 0; color: #059669;">✅ STATUSES THAT COUNT AS CALLS</h4>
+                    <div style="font-family: monospace; font-size: 12px; line-height: 1.8;">
+                        <strong>Answering Machine:</strong><br>
+                        • A - Answering Machine<br>
+                        • AA - Answering Machine Auto<br>
+                        • AL - Answering Machine Left Msg<br>
+                        • AM - Answering Machine Msg Played<br>
+                        <strong>Contact Attempts:</strong><br>
+                        • B - Busy Signal<br>
+                        • NA - No Answer<br>
+                        • DROP - Dropped Call<br>
+                        • PDROP - Predictive Drop<br>
+                        <strong>Successful Contact:</strong><br>
+                        • SALE - Sale Made<br>
+                        • NI - Not Interested<br>
+                        • DNC/DNCL - Do Not Call<br>
+                        • XFER/XFERA - Transferred<br>
+                        • CALLBK - Callback Scheduled<br>
+                        <strong>Bad Numbers:</strong><br>
+                        • DC - Disconnected<br>
+                        • ADCT - Auto Disconnected<br>
+                        • ADC - Disconnected Number
+                    </div>
+                </div>
+                <div style="background: #fee2e2; padding: 15px; border-radius: 8px;">
+                    <h4 style="margin-top: 0; color: #dc2626;">❌ STATUSES THAT DON'T COUNT</h4>
+                    <div style="font-family: monospace; font-size: 12px; line-height: 1.8;">
+                        <strong>Never Dialed:</strong><br>
+                        • NEW - Never called yet<br>
+                        • QUEUE - Waiting to dial<br>
+                        <strong>System Statuses:</strong><br>
+                        • INCALL - Currently on call<br>
+                        • DISPO - Awaiting disposition<br>
+                        • VMQ - Voicemail Queue<br>
+                        • HOLD - Administrative hold<br>
+                        <strong>Manual Updates:</strong><br>
+                        • CBHOLD - Callback on hold<br>
+                        • Any manual status change without dial
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-top: 15px; font-family: monospace; font-size: 13px;">
+                <strong>SQL Query for Accurate Call Counting:</strong>
+                <pre style="margin: 10px 0; background: white; padding: 10px; border-radius: 4px; border: 1px solid #e5e7eb;">
 -- Count ONLY real dial attempts for list movement
 SELECT COUNT(*) as call_count 
 FROM vicidial_dial_log 
 WHERE lead_id = [LEAD_ID]
   AND list_id = [CURRENT_LIST]
-  AND caller_code NOT LIKE 'V%'  -- Exclude manual entries
-  
--- Statuses that COUNT as calls:
--- NA, B, A, AA, AM, AL (Answer variants)
--- DC, ADC, ADCT (Disconnected)
--- Any auto-dialer generated status
-
--- Statuses that DON'T count:
--- NEW, CALLBK, CBHOLD (Never dialed/Scheduled)
--- Manual dispositions without dial</pre>
+  AND status IN ('A','AA','AL','AM','B','NA','DROP','PDROP',
+                 'SALE','NI','DNC','DNCL','XFER','XFERA',
+                 'CALLBK','DC','ADCT','ADC')
+  AND call_date > DATE_SUB(NOW(), INTERVAL 90 DAY);</pre>
+            </div>
         </div>
     </div>
 
@@ -317,11 +413,12 @@ WHERE lead_id = [LEAD_ID]
             
             <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
                 <h4 style="margin-top: 0; color: #059669;">TCPA Compliance Scripts</h4>
-                <p><strong>tcpa_30day_compliance.sql</strong> (Daily 1 AM)</p>
+                <p><strong>tcpa_89day_compliance.sql</strong> (Daily 1 AM)</p>
                 <ul style="font-size: 14px; line-height: 1.6;">
-                    <li>Scans all lists for leads past 30-day consent</li>
+                    <li>Scans all lists for leads past 89-day consent window</li>
                     <li>Automatically moves to List 110 (Archive)</li>
                     <li>Sets status='TCPAEXP' for tracking</li>
+                    <li>TCPA Rule: Cannot call after 89 days from opt-in</li>
                 </ul>
             </div>
             
@@ -351,26 +448,38 @@ WHERE lead_id = [LEAD_ID]
 
     <!-- Non-Dialable Statuses -->
     <div style="margin-top: 20px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <h3 style="color: #1f2937; margin-bottom: 15px;">🚫 Non-Dialable Status Codes</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
-            <div style="background: #fee2e2; padding: 10px; border-radius: 6px;">
-                <strong>VMQ:</strong> Voicemail Queue (System)
+        <h3 style="color: #1f2937; margin-bottom: 15px;">🚫 Non-Dialable Status Codes (NEVER MOVE IN LEAD FLOW)</h3>
+        <div style="background: #fef2f2; padding: 15px; border-radius: 8px; border: 2px solid #ef4444; margin-bottom: 15px;">
+            <strong style="color: #dc2626;">⚠️ IMPORTANT:</strong> Leads with these statuses will NEVER be moved between lists. They are permanently excluded from the lead flow system.
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px;">
+            <div style="background: #dcfce7; padding: 12px; border-radius: 6px; border-left: 4px solid #10b981;">
+                <strong>XFER/XFERA:</strong> Transferred Successfully
+                <div style="font-size: 12px; color: #059669; margin-top: 4px;">✅ SUCCESS - Lead converted, stop calling</div>
             </div>
-            <div style="background: #dcfce7; padding: 10px; border-radius: 6px;">
-                <strong>XFER/XFERA:</strong> Transferred (Success!)
-            </div>
-            <div style="background: #fee2e2; padding: 10px; border-radius: 6px;">
+            <div style="background: #fee2e2; padding: 12px; border-radius: 6px; border-left: 4px solid #ef4444;">
                 <strong>DNC/DNCL:</strong> Do Not Call
+                <div style="font-size: 12px; color: #dc2626; margin-top: 4px;">🚫 PERMANENT - Federal/Internal DNC list</div>
             </div>
-            <div style="background: #fef3c7; padding: 10px; border-radius: 6px;">
-                <strong>ADCT/ADC/DC:</strong> Disconnected
-            </div>
-            <div style="background: #f3e8ff; padding: 10px; border-radius: 6px;">
+            <div style="background: #fee2e2; padding: 12px; border-radius: 6px; border-left: 4px solid #ef4444;">
                 <strong>NI:</strong> Not Interested
+                <div style="font-size: 12px; color: #dc2626; margin-top: 4px;">❌ REFUSAL - Customer declined, stop calling</div>
             </div>
-            <div style="background: #e0e7ff; padding: 10px; border-radius: 6px;">
-                <strong>LVM:</strong> Left VM (Triggers move)
+            <div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b;">
+                <strong>DC/ADCT/ADC:</strong> Disconnected
+                <div style="font-size: 12px; color: #d97706; margin-top: 4px;">📵 BAD NUMBER - Line disconnected</div>
             </div>
+            <div style="background: #f3e8ff; padding: 12px; border-radius: 6px; border-left: 4px solid #8b5cf6;">
+                <strong>VMQ:</strong> Voicemail Queue
+                <div style="font-size: 12px; color: #7c3aed; margin-top: 4px;">🔧 SYSTEM - Non-selectable internal status</div>
+            </div>
+            <div style="background: #e0e7ff; padding: 12px; border-radius: 6px; border-left: 4px solid #6366f1;">
+                <strong>LVM:</strong> Left Voicemail
+                <div style="font-size: 12px; color: #4f46e5; margin-top: 4px;">📧 SPECIAL - Triggers move to next list</div>
+            </div>
+        </div>
+        <div style="background: #f9fafb; padding: 12px; border-radius: 6px; margin-top: 15px;">
+            <strong>How it works:</strong> The <code>update_excluded_statuses.sql</code> script runs every 30 minutes to mark these leads as non-dialable by setting <code>called_since_last_reset='Y'</code>. All movement scripts check: <code>AND status NOT IN ('XFER','XFERA','DNC','DNCL','NI','DC','ADCT','ADC','VMQ')</code>
         </div>
     </div>
 
