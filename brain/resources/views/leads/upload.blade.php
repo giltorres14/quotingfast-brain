@@ -603,8 +603,7 @@ Jane,Smith,555-987-6543,jane@example.com,Orlando,FL,32801
         }
     </script>
 </body>
-</html>
-                        <div class="error-list">
+</html>                        <div class="error-list">
                             <strong>Error Details:</strong>
                             ${stats.error_details.map(error => `<div class="error-item">${error}</div>`).join('')}
                         </div>

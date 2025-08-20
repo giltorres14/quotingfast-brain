@@ -427,3 +427,5 @@ $estimatedTotalTime = ($totalLeads / $stats['processed']) * $totalTime;
 echo "\nEstimated time for all $totalLeads leads: " . round($estimatedTotalTime / 3600, 1) . " hours\n";
 
 echo "\nTo continue, run: php update_vici_smart.php $limit " . ($offset + $limit) . "\n";
+
+

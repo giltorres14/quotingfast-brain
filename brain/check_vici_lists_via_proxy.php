@@ -194,3 +194,4 @@ $output = executeViaProxy($command);
 echo $output . "\n\n";
 
 echo "=== ANALYSIS COMPLETE ===\n";
+

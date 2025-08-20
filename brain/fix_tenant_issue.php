@@ -190,3 +190,4 @@ try {
     echo "The tenant table issue needs to be fixed on the server.\n";
     echo "As a workaround, we'll update the webhook endpoints to make tenant_id optional.\n";
 }
+

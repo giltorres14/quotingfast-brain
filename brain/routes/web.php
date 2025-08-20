@@ -2145,8 +2145,8 @@ Route::post('/webhook.php', function (Request $request) {
                     $externalLeadId = generateLeadId();
                     $leadData['external_lead_id'] = $externalLeadId;
                     
-                    $lead = Lead::create($leadData);
-                    
+        $lead = Lead::create($leadData);
+        
                     Log::info('🔄 Created re-engagement lead (11-90 days old)', [
                         'new_lead_id' => $lead->id,
                         'original_lead_id' => $existingLead->id,
@@ -9907,3 +9907,4 @@ use App\Http\Controllers\CallAnalyticsController;
 Route::get('/reports/call-analytics', [CallAnalyticsController::class, 'index'])->name('reports.call-analytics');
 Route::post('/api/reports/call-analytics', [CallAnalyticsController::class, 'getAnalytics']);
 Route::get('/api/reports/export-csv', [CallAnalyticsController::class, 'exportCSV']);
+ 

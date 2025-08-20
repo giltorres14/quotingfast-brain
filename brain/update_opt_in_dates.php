@@ -295,3 +295,5 @@ echo "Found {$oldLeads['count']} leads older than 90 days from opt-in date\n";
 if ($oldLeads['count'] > 0) {
     echo "\nThese leads should be archived according to TCPA compliance rules.\n";
 }
+
+

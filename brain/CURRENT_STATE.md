@@ -1,25 +1,29 @@
 # 🧠 QuotingFast Brain - Current State
-**Last Updated:** January 19, 2025 - 6:20 PM EST
+**Last Updated:** August 20, 2025 - 10:00 AM EDT
 **Status:** ✅ OPERATIONAL - All Systems Running
 
 ---
 
-## 🚨 CRITICAL UPDATE: Real Conversion Rate is 1.08% (Not 76%!)
+## 🚨 TODAY'S UPDATES: August 20, 2025
 
-### 📊 **90-DAY ANALYSIS RESULTS (1.3M Calls Analyzed):**
-1. **✅ TRUE CONVERSION**: 1.08% (1,605 transfers from 148,571 leads)
-2. **📞 TRANSFER DISPOSITIONS**: XFER (740) + XFERA (868) only
-3. **⚠️ EXCESSIVE CALLING**: 8.7 calls/lead average (1,385 leads getting 30+ calls)
-4. **💡 OPPORTUNITY**: Can improve to 2-3% with optimization
+### 📊 **VICIDIAL LIST SETUP COMPLETE:**
+1. **✅ CREATED**: All 15 lists for Test A & Test B strategies
+2. **📋 TEST A**: Lists 101-111 with 48-call strategy, 3-day rest
+3. **🚀 TEST B**: Lists 150-153 with 12-18 call optimized strategy  
+4. **🔧 SPECIAL**: Lists 998 (Transfers) & 999 (DNC/DNQ) for tracking
+5. **⏰ SCHEDULED**: Campaign updates for after 8 PM EDT
 
-### **REVISED ACTION PLAN (Test B - Lists 150-153):**
-- Reduce to 12 calls maximum (from 48)
-- Golden Hour: 5 calls in first 4 hours
-- Focus on best times: 10am-12pm, 2-4pm
-- NI retargeting after 30 days (List 160)
-- Expected: 66% cost reduction, 1.5-2% conversion
-- Verify all deployments
-- Code optimization
+### **VICIDIAL ACCESS DOCUMENTED:**
+- SSH Port: 11845 (not standard 22!)
+- Database: Q6hdjl67GRigMofv (not asterisk)
+- Proxy: Use "command" not "query" parameter
+- Created comprehensive access documentation
+
+### **CAMPAIGN CHANGES (After 8 PM):**
+- List Order Mix → DOWN COUNT
+- Lead Filter → called_since_last_reset = 'N'
+- Hopper Level → Keep at 50 (optimal for fresh leads)
+- Script ready: `update_campaign_after_hours.php`
 
 ---
 

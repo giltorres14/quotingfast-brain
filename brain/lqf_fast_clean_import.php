@@ -529,3 +529,5 @@ function insertBatch($pdo, $batch) {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($values);
 }
+
+

@@ -1027,8 +1027,7 @@
         });
     </script>
 </body>
-</html>
-                if (!e.target.closest('.dropdown')) {
+</html>                if (!e.target.closest('.dropdown')) {
                     dropdowns.forEach(dropdown => {
                         dropdown.classList.remove('open');
                     });

@@ -315,3 +315,5 @@ $totalTime = time() - $startTime;
 echo "\n=== COMPLETE ===\n";
 echo "✅ All Vici leads have been updated with Brain IDs!\n";
 echo "Total time: " . round($totalTime / 60, 1) . " minutes\n";
+
+
