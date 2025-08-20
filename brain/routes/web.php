@@ -150,7 +150,7 @@ Route::prefix('vici')->group(function () {
     
     Route::get('/', function() {
         // Return a simple HTML response to test
-        return '<!DOCTYPE html>
+        return response('<!DOCTYPE html>
 <html>
 <head>
     <title>Vici Dashboard</title>
@@ -210,7 +210,7 @@ Route::prefix('vici')->group(function () {
         </p>
     </div>
 </body>
-</html>';
+</html>')->header('Content-Type', 'text/html');
     })->name('vici.dashboard');
     
     Route::get('/reports', function() {
