@@ -86,7 +86,12 @@ Route::prefix('vici')->group(function () {
     })->name('vici.reports');
     
     Route::get('/lead-flow', function() {
-        return view('vici.lead-flow-static');
+        // Temporarily return JSON to test if route works
+        return response()->json([
+            'status' => 'Route is working',
+            'message' => 'The lead-flow route is accessible',
+            'timestamp' => now()->toISOString()
+        ]);
     })->name('vici.lead-flow');
     
     Route::get('/lead-flow-visual', function() {
@@ -123,52 +128,12 @@ Route::get('/lead-flow-ab-test', function() {
     })->name('vici.lead-flow-ab');
     
     Route::get('/sync-status', function() {
-        // Simplified version with default values
-        $lastCompleteSync = null;
-        $lastIncrementalSync = null;
-        $syncHistory = collect();
-        $pendingSync = 0;
-        $totalCallLogs = 0;
-        $totalViciMetrics = 0;
-        
-        try {
-            $totalCallLogs = DB::table('orphan_call_logs')->count();
-            $totalViciMetrics = DB::table('vici_call_metrics')->count();
-        } catch (\Exception $e) {
-            // If tables don't exist, use defaults
-        }
-        
-        $syncStats = [
-            'total_synced_today' => 0,
-            'total_synced_week' => 0,
-            'total_synced_month' => 0,
-        ];
-        
-        try {
-            $syncStats = [
-                'total_synced_today' => DB::table('orphan_call_logs')
-                    ->whereDate('created_at', today())
-                    ->count(),
-                'total_synced_week' => DB::table('orphan_call_logs')
-                    ->where('created_at', '>=', now()->subWeek())
-                    ->count(),
-                'total_synced_month' => DB::table('orphan_call_logs')
-                    ->where('created_at', '>=', now()->subMonth())
-                    ->count(),
-            ];
-        } catch (\Exception $e) {
-            // Use defaults if error
-        }
-        
-        return view('admin.vici-sync-management', compact(
-            'lastCompleteSync',
-            'lastIncrementalSync',
-            'totalCallLogs',
-            'totalViciMetrics',
-            'syncHistory',
-            'syncStats',
-            'pendingSync'
-        ));
+        // Temporarily return JSON to test if route works
+        return response()->json([
+            'status' => 'Route is working',
+            'message' => 'The sync-status route is accessible',
+            'timestamp' => now()->toISOString()
+        ]);
     })->name('vici.sync-status');
     
     Route::get('/settings', function() {
@@ -6173,8 +6138,14 @@ Route::get('/admin/vici-reports', function () {
 })->name('admin.vici-reports');
 
 // Comprehensive Vici Reports with 12 Different Report Types
-Route::get('/admin/vici-comprehensive-reports', 'App\Http\Controllers\ViciReportsController@comprehensiveReports')
-    ->name('admin.vici.comprehensive-reports');
+Route::get('/admin/vici-comprehensive-reports', function() {
+    // Temporarily return JSON to test if route works
+    return response()->json([
+        'status' => 'Route is working',
+        'message' => 'The vici-comprehensive-reports route is accessible',
+        'timestamp' => now()->toISOString()
+    ]);
+})->name('admin.vici.comprehensive-reports');
 Route::get('/admin/vici-reports/export/{type}', 'App\Http\Controllers\ViciReportsController@exportReports')
     ->name('admin.vici.export-reports');
 Route::get('/admin/vici-reports/real-time', 'App\Http\Controllers\ViciReportsController@realTimeData')
