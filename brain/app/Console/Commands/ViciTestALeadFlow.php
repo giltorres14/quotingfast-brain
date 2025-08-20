@@ -144,7 +144,7 @@ class ViciTestALeadFlow extends Command
         }
         
         // ===================================
-        // LIST 108 → 109 (Days 21-30)
+        // LIST 108 → 109 (Days 17-30) - After 3-day rest
         // ===================================
         $moved108to109 = $viciDb->update("
             UPDATE vicidial_list 
@@ -152,13 +152,13 @@ class ViciTestALeadFlow extends Command
                 called_since_last_reset = 'N',  -- Resume calling
                 comments = CONCAT(COALESCE(comments, ''), ' | Final attempts at ', NOW())
             WHERE list_id = 108
-            AND TIMESTAMPDIFF(DAY, entry_date, NOW()) >= 20
+            AND TIMESTAMPDIFF(DAY, entry_date, NOW()) >= 16  -- Changed from 20 to 16 (3-day rest)
             AND status IN ('" . implode("','", array_merge(self::NO_CONTACT_DISPOSITIONS, self::HUMAN_CONTACT_DISPOSITIONS)) . "')
             AND status NOT IN ('" . implode("','", self::TERMINAL_DISPOSITIONS) . "')
         ");
         
         if ($moved108to109 > 0) {
-            $this->info("✓ Moved {$moved108to109} leads to List 109 (Days 21-30 final)");
+            $this->info("✓ Moved {$moved108to109} leads to List 109 (Days 17-30 final)");
         }
         
         // ===================================

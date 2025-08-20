@@ -273,17 +273,17 @@
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">Cool Down</td>
                     </tr>
                     <tr style="background: #fef3c7;">
-                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAYS 14-20</td>
+                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAYS 14-16</td>
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">108</td>
                         <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>0</strong></td>
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">NO CALLS - Rest Period</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">⏸️ Psychological Reset</td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">⏸️ 3-Day Reset (was 7)</td>
                     </tr>
                     <tr>
-                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAYS 21-30</td>
+                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAYS 17-30</td>
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">109</td>
                         <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>5</strong></td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">1 call every other day</td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">1 call every 3 days</td>
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">Final Attempts</td>
                     </tr>
                     <tr style="background: #f0fdf4;">
@@ -296,14 +296,31 @@
                     <tr style="background: #e5e7eb;">
                         <td colspan="2" style="padding: 10px; font-weight: bold; text-align: right; border: 1px solid #e5e7eb;">TOTAL:</td>
                         <td style="padding: 10px; text-align: center; font-weight: bold; font-size: 1.2rem; border: 1px solid #e5e7eb;">48</td>
-                        <td colspan="2" style="padding: 10px; border: 1px solid #e5e7eb;">Mimics your current approach</td>
+                        <td colspan="2" style="padding: 10px; border: 1px solid #e5e7eb;">Full persistence approach</td>
                     </tr>
                 </tbody>
             </table>
 
+            <!-- AUTO2 Training Pool -->
+            <div style="margin-top: 20px; padding: 15px; background: #dbeafe; border: 2px solid #3b82f6; border-radius: 10px;">
+                <h4 style="color: #1e40af; margin-bottom: 10px;">🎓 AUTO2 Training Pool (From Test A)</h4>
+                <p style="margin: 5px 0; font-size: 0.9rem;">
+                    <strong>When:</strong> After 30+ days and 30+ calls<br>
+                    <strong>Lists:</strong> 200-202 in AUTO2 campaign<br>
+                    <strong>Purpose:</strong> Training new agents on heavily worked leads<br>
+                    <strong>Note:</strong> These leads have been through full Test A flow
+                </p>
+            </div>
+
             <!-- CORRECTED Movement Logic for Test A -->
             <div style="margin-top: 20px; padding: 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px;">
-                <h4 style="color: #92400e; margin-bottom: 15px;">⚠️ CORRECTED Movement Logic (Test A)</h4>
+                <h4 style="color: #92400e; margin-bottom: 15px;">✅ FIXED Movement Logic (Test A)</h4>
+                
+                <div style="background: #dcfce7; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                    <strong>📍 Lead Priority:</strong> Using ViciDial "DOWN COUNT" - newest leads called first automatically<br>
+                    <strong>🔄 Rest Period:</strong> Reduced from 7 days to 3 days for faster reactivation<br>
+                    <strong>🎯 Dispositions:</strong> Now includes ALL statuses, not just 'NA'
+                </div>
                 
                 <div style="margin-bottom: 20px;">
                     <h5 style="color: #d97706; margin-bottom: 10px;">List 101 → 102 (After First Call)</h5>

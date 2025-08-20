@@ -5,17 +5,80 @@
     <h1 style="text-align: center; margin-bottom: 30px;">📊 Vici Lead Flow Configuration - Optimized with Call Counting</h1>
     
     <!-- A/B Test Comparison Button -->
-    <!-- REVISED ACTION PLAN BASED ON 1.08% CONVERSION ANALYSIS -->
+    <!-- OPTIMIZED DIAL STRATEGY FOR LIMITED LEADS -->
+    <div style="background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);">
+        <h2 style="margin: 0 0 20px 0; font-size: 24px;">⚡ OPTIMIZED DIAL STRATEGY - 9 AM to 6 PM Operation</h2>
+        
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+            <h3 style="margin: 0 0 10px 0; font-size: 18px;">🎯 Smart Dial Ratio by Hour (Lower During Peak Times):</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <strong>Peak Hours (More Answers = Lower Ratio)</strong>
+                    <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
+                        <li>9-10 AM: Dial Ratio <strong>1.8</strong> (Best contact)</li>
+                        <li>10-11 AM: Dial Ratio <strong>2.0</strong> (Still good)</li>
+                        <li>3-4 PM: Dial Ratio <strong>1.8</strong> (Second peak)</li>
+                        <li>4-5 PM: Dial Ratio <strong>2.0</strong> (Decent)</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong>Off-Peak (More VM = Higher Ratio)</strong>
+                    <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
+                        <li>11 AM-12 PM: Dial Ratio <strong>2.5</strong></li>
+                        <li>12-1 PM: Dial Ratio <strong>3.0</strong> (Lunch)</li>
+                        <li>1-2 PM: Dial Ratio <strong>2.8</strong></li>
+                        <li>2-3 PM: Dial Ratio <strong>2.5</strong></li>
+                        <li>5-6 PM: Dial Ratio <strong>2.8</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px;">
+            <h4 style="margin: 0 0 10px 0; color: #fff;">📊 List Priority System (Single Campaign):</h4>
+            <div style="font-family: monospace; font-size: 13px; line-height: 1.6;">
+                UPDATE vicidial_lists SET list_order = 10 WHERE list_id = 101;  -- Fresh leads (highest priority)<br>
+                UPDATE vicidial_lists SET list_order = 20 WHERE list_id = 102;  -- 1 hour old<br>
+                UPDATE vicidial_lists SET list_order = 30 WHERE list_id = 103;  -- Day 2<br>
+                UPDATE vicidial_lists SET list_order = 40 WHERE list_id = 104;  -- Day 3-7<br>
+                UPDATE vicidial_lists SET list_order = 99 WHERE list_id = 111;  -- Final attempts (lowest)
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #fff;">💡 Lead Preservation Tactics:</h4>
+                <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
+                    <li>NA: Max 3 attempts per day</li>
+                    <li>VM: Max 2 attempts per day</li>
+                    <li>Hopper Level: 30-50 (conservative)</li>
+                    <li>Smart recycling after 4-6 hours</li>
+                </ul>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #fff;">📈 Expected Results:</h4>
+                <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
+                    <li>3-3.5% conversion (up from 2.51%)</li>
+                    <li>No agent idle time</li>
+                    <li>Fresh leads get priority</li>
+                    <li>Training doesn't steal production</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- REVISED ACTION PLAN BASED ON 2.51% CONVERSION ANALYSIS -->
     <div style="background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);">
         <h2 style="margin: 0 0 20px 0; font-size: 24px;">🎯 REVISED ACTION PLAN - Based on Real Data Analysis</h2>
         
         <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
             <h3 style="margin: 0 0 10px 0; font-size: 18px;">📊 Current Performance Reality:</h3>
             <ul style="margin: 5px 0; padding-left: 20px;">
-                <li><strong>Actual Conversion Rate: 1.08%</strong> (1,605 out of 148,571 leads)</li>
-                <li><strong>Transfer Dispositions:</strong> XFER (740) + XFERA (868) only</li>
-                <li><strong>Average Calls Per Lead:</strong> 8.7 (too high for 1% conversion)</li>
-                <li><strong>Industry Benchmark:</strong> 1-3% for shared internet leads</li>
+                <li><strong>Actual Conversion Rate: 2.51%</strong> (3,728 transfers from 148,571 leads)</li>
+                <li><strong>Transfer Dispositions:</strong> XFER (1,721) + XFERA (2,007) only</li>
+                <li><strong>Average Calls Per Lead:</strong> 8.7 attempts</li>
+                <li><strong>Persistence Pays:</strong> 8.43% conversion for 41+ calls</li>
             </ul>
         </div>
 
@@ -23,32 +86,22 @@
             <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px;">
                 <h4 style="margin: 0 0 10px 0; color: #fff;">🚀 IMMEDIATE ACTIONS:</h4>
                 <ol style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
-                    <li><strong>Reduce Max Calls:</strong> From 42 to 10-12 attempts</li>
-                    <li><strong>Golden Hour Focus:</strong> 50% of calls in first 48 hours</li>
-                    <li><strong>Speed to Lead:</strong> Call within 5 minutes</li>
-                    <li><strong>Stop Excessive Calling:</strong> 1,385 leads getting 30+ calls</li>
+                    <li><strong>Optimize Dial Ratios:</strong> Lower during peak hours</li>
+                    <li><strong>List Prioritization:</strong> Fresh leads first</li>
+                    <li><strong>Smart Recycling:</strong> 4-6 hour gaps</li>
+                    <li><strong>A/B Test:</strong> Current vs Optimized flow</li>
                 </ol>
             </div>
             
             <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px;">
                 <h4 style="margin: 0 0 10px 0; color: #fff;">💡 OPTIMIZATION TARGETS:</h4>
                 <ol style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
-                    <li><strong>Improve Scripts:</strong> Why aren't "A" calls converting?</li>
-                    <li><strong>Local Presence:</strong> Increase connect rate from 4.1%</li>
-                    <li><strong>Best Hours:</strong> Focus 10am-12pm, 2-4pm EST</li>
-                    <li><strong>List Priority:</strong> Focus on high-performing lists</li>
+                    <li><strong>Peak Hours:</strong> 9-11 AM, 3-5 PM EST</li>
+                    <li><strong>Training Pool:</strong> 30+ day old leads</li>
+                    <li><strong>Lead Volume:</strong> Monitor and adjust</li>
+                    <li><strong>Cost Control:</strong> Strategic timing</li>
                 </ol>
             </div>
-        </div>
-
-        <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;">
-            <h4 style="margin: 0 0 10px 0; color: #fff;">📈 Expected Improvements:</h4>
-            <p style="margin: 5px 0; font-size: 14px;">
-                • <strong>Conversion:</strong> 1.08% → 2-3% (double/triple current rate)<br>
-                • <strong>Cost Reduction:</strong> 30% fewer wasted calls<br>
-                • <strong>Connect Rate:</strong> 4.1% → 10-15% with local presence<br>
-                • <strong>ROI:</strong> Significantly improved with reduced call volume
-            </p>
         </div>
     </div>
 
