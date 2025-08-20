@@ -195,6 +195,72 @@
     </style>
 </head>
 <body>
+    @php
+        // Check system health status
+        $healthStatus = Cache::get('system_health_status');
+        $hasCriticalIssues = $healthStatus && $healthStatus['status'] === 'critical';
+        $criticalIssues = $healthStatus['issues'] ?? [];
+    @endphp
+
+    @if($hasCriticalIssues)
+    <!-- CRITICAL SYSTEM ALERT BAR -->
+    <div id="critical-alert-bar" style="
+        background: linear-gradient(90deg, #ff0000, #ff4444, #ff0000);
+        background-size: 200% 100%;
+        animation: flashAlert 1s ease-in-out infinite;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 9999;
+        box-shadow: 0 2px 10px rgba(255,0,0,0.5);
+    ">
+        <div style="max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 15px;">
+            <span style="font-size: 24px; animation: pulse 0.5s infinite;">🚨</span>
+            <span style="font-size: 16px;">SYSTEM CRITICAL:</span>
+            @foreach($criticalIssues as $issue)
+                <span style="background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 4px;">{{ $issue }}</span>
+            @endforeach
+            <a href="/admin/health" style="
+                background: white;
+                color: #ff0000;
+                padding: 5px 15px;
+                border-radius: 20px;
+                text-decoration: none;
+                font-weight: bold;
+                margin-left: 10px;
+            ">VIEW DETAILS →</a>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes flashAlert {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        body.has-critical-alert {
+            padding-top: 50px;
+        }
+        body.has-critical-alert .top-nav {
+            top: 50px;
+        }
+    </style>
+    
+    <script>
+        if(document.getElementById('critical-alert-bar')) {
+            document.body.classList.add('has-critical-alert');
+        }
+    </script>
+    @endif
+
     <!-- Unified Navigation -->
     <nav class="top-nav">
         <div class="nav-container">
@@ -261,11 +327,17 @@
                         </div>
                         <div class="dropdown-section">
                             <div class="dropdown-title">Lead Flow Configuration</div>
+                            <a href="{{ route('vici.command-center') }}" class="dropdown-item" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                                <span class="icon">🎛️</span><strong>COMMAND CENTER</strong>
+                            </a>
                             <a href="/vici/lead-flow" class="dropdown-item">
                                 <span class="icon">📋</span>Current Lead Flow
                             </a>
-                            <a href="/vici/lead-flow-ab-test" class="dropdown-item" style="background: #fef3c7;">
-                                <span class="icon">🔬</span><strong>A/B Test Comparison</strong>
+                            <a href="/vici/lead-flow-ab-test" class="dropdown-item">
+                                <span class="icon">🔬</span>A/B Test Comparison
+                            </a>
+                            <a href="{{ route('vici.sql-automation') }}" class="dropdown-item">
+                                <span class="icon">🔧</span>SQL Automation Scripts
                             </a>
                             <a href="/vici/lead-flow-visual" class="dropdown-item">
                                 <span class="icon">🎨</span>Visual Flow Diagram

@@ -84,7 +84,15 @@ Route::prefix('vici')->group(function () {
         return view('vici.lead-flow');
     })->name('vici.lead-flow-visual');
     
-    Route::get('/lead-flow-ab-test', function() {
+    Route::get('/sql-automation', function() {
+    return view('vici.sql-automation-dashboard');
+})->name('vici.sql-automation');
+
+Route::get('/vici-command-center', function() {
+    return view('vici.lead-flow-control-center');
+})->name('vici.command-center');
+
+Route::get('/lead-flow-ab-test', function() {
         // Mock callback stats for now since Vici tables might not be accessible
         $callbackStats = [
             'missed_call_callback_rate' => 12.3,
@@ -106,7 +114,62 @@ Route::prefix('vici')->group(function () {
     })->name('vici.lead-flow-ab');
     
     Route::get('/sync-status', function() {
-        return redirect('/admin/vici-sync-management');
+        // Check if tables exist first
+        $hasSyncLogs = Schema::hasTable('sync_logs');
+        $hasPendingSync = Schema::hasTable('vici_pending_sync');
+        
+        $lastCompleteSync = null;
+        $lastIncrementalSync = null;
+        $syncHistory = collect();
+        $pendingSync = 0;
+        
+        if ($hasSyncLogs) {
+            $lastCompleteSync = DB::table('sync_logs')
+                ->where('sync_type', 'complete')
+                ->where('status', 'completed')
+                ->orderBy('created_at', 'desc')
+                ->value('created_at');
+                
+            $lastIncrementalSync = DB::table('sync_logs')
+                ->where('sync_type', 'incremental')
+                ->where('status', 'completed')
+                ->orderBy('created_at', 'desc')
+                ->value('created_at');
+                
+            $syncHistory = DB::table('sync_logs')
+                ->orderBy('created_at', 'desc')
+                ->limit(20)
+                ->get();
+        }
+        
+        if ($hasPendingSync) {
+            $pendingSync = DB::table('vici_pending_sync')->count();
+        }
+        
+        $totalCallLogs = DB::table('orphan_call_logs')->count();
+        $totalViciMetrics = DB::table('vici_call_metrics')->count();
+        
+        $syncStats = [
+            'total_synced_today' => DB::table('orphan_call_logs')
+                ->whereDate('created_at', today())
+                ->count(),
+            'total_synced_week' => DB::table('orphan_call_logs')
+                ->where('created_at', '>=', now()->subWeek())
+                ->count(),
+            'total_synced_month' => DB::table('orphan_call_logs')
+                ->where('created_at', '>=', now()->subMonth())
+                ->count(),
+        ];
+        
+        return view('admin.vici-sync-management', compact(
+            'lastCompleteSync',
+            'lastIncrementalSync',
+            'totalCallLogs',
+            'totalViciMetrics',
+            'syncHistory',
+            'syncStats',
+            'pendingSync'
+        ));
     })->name('vici.sync-status');
     
     Route::get('/settings', function() {
@@ -722,6 +785,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use App\Http\Controllers\DashboardController;
 
 // Debug Allstate integration
@@ -5099,6 +5163,16 @@ Route::post('/buyer/logout', function () {
 });
 
 // Admin Campaign Management
+// System Health Dashboard
+Route::get('/admin/health', function() {
+    return view('admin.health');
+})->name('admin.health');
+
+Route::post('/api/health-check', function() {
+    Artisan::call('system:health-check', ['--alert' => true]);
+    return response()->json(['status' => 'completed']);
+});
+
 Route::get('/admin/campaigns', function () {
     $campaigns = \App\Models\Campaign::with('buyers')
         ->orderBy('is_auto_created', 'desc')
@@ -7085,14 +7159,15 @@ Route::post('/webhook/auto', function (Request $request) {
 
 // Generate unique 9-digit lead ID starting with 100000001
 // Helper function to detect lead type from payload
-function detectLeadType($data) {
-    // Check for explicit type in payload
-    if (isset($data['type'])) {
-        return strtolower($data['type']);
-    }
-    
-    // Check for vertical field (common in lead forms)
-    if (isset($data['vertical'])) {
+if (!function_exists('detectLeadType')) {
+    function detectLeadType($data) {
+        // Check for explicit type in payload
+        if (isset($data['type'])) {
+            return strtolower($data['type']);
+        }
+        
+        // Check for vertical field (common in lead forms)
+        if (isset($data['vertical'])) {
         $vertical = strtolower($data['vertical']);
         if (strpos($vertical, 'home') !== false || strpos($vertical, 'property') !== false) {
             return 'home';
@@ -7125,6 +7200,7 @@ function detectLeadType($data) {
     
     // Default to auto if can't determine
     return 'auto';
+    }
 }
 
 // Vici integration function (shared between webhooks)
@@ -9855,3 +9931,10 @@ Route::get('/test/vici-update/{leadId?}', function ($leadId = 'BRAIN_TEST_VICI')
  # Deployment trigger Wed Aug  6 23:01:36 EDT 2025
 
 // DEPLOYMENT FIX 1754536129
+
+
+// Call Analytics Reports
+use App\Http\Controllers\CallAnalyticsController;
+Route::get('/reports/call-analytics', [CallAnalyticsController::class, 'index'])->name('reports.call-analytics');
+Route::post('/api/reports/call-analytics', [CallAnalyticsController::class, 'getAnalytics']);
+Route::get('/api/reports/export-csv', [CallAnalyticsController::class, 'exportCSV']);

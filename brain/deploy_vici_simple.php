@@ -177,3 +177,5 @@ echo "mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/move_101_102.sql\n";
 
 
 
+
+

@@ -1,255 +1,187 @@
 <?php
+/**
+ * Monitor and auto-restart import processes
+ * Checks every 5 minutes and restarts if needed
+ */
 
-// Import monitoring script
-// Tracks progress of Suraj and LQF imports
+require_once __DIR__ . '/vendor/autoload.php';
+use Illuminate\Support\Facades\DB;
 
-$dbConfig = [
-    'host' => 'dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com',
-    'port' => 5432,
-    'dbname' => 'brain_production',
-    'user' => 'brain_user',
-    'password' => 'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
-];
+// Bootstrap Laravel
+$app = require_once __DIR__ . '/bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
 
-try {
-    $pdo = new PDO(
-        "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}",
-        $dbConfig['user'],
-        $dbConfig['password'],
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-    
-    $logFile = 'import_monitor.log';
-    
-    echo "Starting import monitor... (Press Ctrl+C to stop)\n";
-    echo "Logging to: $logFile\n\n";
-    
-    $lastCounts = [];
-    $startTime = time();
-    
-    while (true) {
-        // Get current counts
-        $stats = $pdo->query("
-            SELECT 
-                source, 
-                COUNT(*) as count,
-                MAX(created_at) as last_import
-            FROM leads 
-            GROUP BY source 
-            ORDER BY source
-        ")->fetchAll(PDO::FETCH_ASSOC);
-        
-        $output = "\n" . str_repeat("=", 60) . "\n";
-        $output .= date('Y-m-d H:i:s') . " EST\n";
-        $output .= "Runtime: " . gmdate("H:i:s", time() - $startTime) . "\n";
-        $output .= str_repeat("-", 60) . "\n";
-        
-        $totalLeads = 0;
-        $hasChanges = false;
-        
-        foreach ($stats as $stat) {
-            $source = $stat['source'];
-            $count = $stat['count'];
-            $totalLeads += $count;
-            
-            // Calculate rate if count changed
-            $rate = '';
-            if (isset($lastCounts[$source])) {
-                $diff = $count - $lastCounts[$source];
-                if ($diff > 0) {
-                    $rate = " (+$diff in last 30s = " . round($diff * 2, 1) . "/min)";
-                    $hasChanges = true;
-                }
-            }
-            
-            $output .= sprintf(
-                "%-20s: %8s leads%s\n",
-                $source,
-                number_format($count),
-                $rate
-            );
-            
-            $lastCounts[$source] = $count;
-        }
-        
-        $output .= str_repeat("-", 60) . "\n";
-        $output .= sprintf("TOTAL LEADS: %s\n", number_format($totalLeads));
-        
-        // Estimate completion for Suraj
-        if (isset($lastCounts['SURAJ_BULK'])) {
-            $surajCount = $lastCounts['SURAJ_BULK'];
-            $targetCount = 279000;
-            $remaining = $targetCount - $surajCount;
-            $percentComplete = round(($surajCount / $targetCount) * 100, 2);
-            
-            $output .= "\nSURAJ IMPORT PROGRESS:\n";
-            $output .= "  Completed: $percentComplete%\n";
-            $output .= "  Remaining: " . number_format($remaining) . " leads\n";
-            
-            // Estimate time remaining based on recent rate
-            if (isset($lastCounts['SURAJ_BULK']) && $diff > 0) {
-                $leadsPerHour = $diff * 120; // 30 seconds * 120 = 1 hour
-                if ($leadsPerHour > 0) {
-                    $hoursRemaining = $remaining / $leadsPerHour;
-                    $output .= "  Est. Time Remaining: " . round($hoursRemaining, 1) . " hours\n";
-                }
-            }
-        }
-        
-        // Display output
-        echo $output;
-        
-        // Log to file if there are changes
-        if ($hasChanges) {
-            file_put_contents($logFile, $output, FILE_APPEND);
-        }
-        
-        // Check for any recent errors in Laravel log
-        $laravelLog = '../storage/logs/laravel.log';
-        if (file_exists($laravelLog)) {
-            $recentErrors = `tail -n 100 $laravelLog | grep -c "ERROR"`;
-            if (trim($recentErrors) > 0) {
-                echo "\n⚠️  Recent errors detected in Laravel log: $recentErrors\n";
-            }
-        }
-        
-        // Wait 30 seconds before next check
-        sleep(30);
-    }
-    
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
-    exit(1);
+$logFile = __DIR__ . '/monitor.log';
+
+function log_status($message) {
+    global $logFile;
+    $timestamp = date('Y-m-d H:i:s');
+    file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
+    echo "[$timestamp] $message\n";
 }
 
-
-
-
-// Import monitoring script
-// Tracks progress of Suraj and LQF imports
-
-$dbConfig = [
-    'host' => 'dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com',
-    'port' => 5432,
-    'dbname' => 'brain_production',
-    'user' => 'brain_user',
-    'password' => 'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
-];
-
-try {
-    $pdo = new PDO(
-        "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}",
-        $dbConfig['user'],
-        $dbConfig['password'],
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-    
-    $logFile = 'import_monitor.log';
-    
-    echo "Starting import monitor... (Press Ctrl+C to stop)\n";
-    echo "Logging to: $logFile\n\n";
-    
-    $lastCounts = [];
-    $startTime = time();
-    
-    while (true) {
-        // Get current counts
-        $stats = $pdo->query("
-            SELECT 
-                source, 
-                COUNT(*) as count,
-                MAX(created_at) as last_import
-            FROM leads 
-            GROUP BY source 
-            ORDER BY source
-        ")->fetchAll(PDO::FETCH_ASSOC);
-        
-        $output = "\n" . str_repeat("=", 60) . "\n";
-        $output .= date('Y-m-d H:i:s') . " EST\n";
-        $output .= "Runtime: " . gmdate("H:i:s", time() - $startTime) . "\n";
-        $output .= str_repeat("-", 60) . "\n";
-        
-        $totalLeads = 0;
-        $hasChanges = false;
-        
-        foreach ($stats as $stat) {
-            $source = $stat['source'];
-            $count = $stat['count'];
-            $totalLeads += $count;
-            
-            // Calculate rate if count changed
-            $rate = '';
-            if (isset($lastCounts[$source])) {
-                $diff = $count - $lastCounts[$source];
-                if ($diff > 0) {
-                    $rate = " (+$diff in last 30s = " . round($diff * 2, 1) . "/min)";
-                    $hasChanges = true;
-                }
-            }
-            
-            $output .= sprintf(
-                "%-20s: %8s leads%s\n",
-                $source,
-                number_format($count),
-                $rate
-            );
-            
-            $lastCounts[$source] = $count;
-        }
-        
-        $output .= str_repeat("-", 60) . "\n";
-        $output .= sprintf("TOTAL LEADS: %s\n", number_format($totalLeads));
-        
-        // Estimate completion for Suraj
-        if (isset($lastCounts['SURAJ_BULK'])) {
-            $surajCount = $lastCounts['SURAJ_BULK'];
-            $targetCount = 279000;
-            $remaining = $targetCount - $surajCount;
-            $percentComplete = round(($surajCount / $targetCount) * 100, 2);
-            
-            $output .= "\nSURAJ IMPORT PROGRESS:\n";
-            $output .= "  Completed: $percentComplete%\n";
-            $output .= "  Remaining: " . number_format($remaining) . " leads\n";
-            
-            // Estimate time remaining based on recent rate
-            if (isset($lastCounts['SURAJ_BULK']) && $diff > 0) {
-                $leadsPerHour = $diff * 120; // 30 seconds * 120 = 1 hour
-                if ($leadsPerHour > 0) {
-                    $hoursRemaining = $remaining / $leadsPerHour;
-                    $output .= "  Est. Time Remaining: " . round($hoursRemaining, 1) . " hours\n";
-                }
-            }
-        }
-        
-        // Display output
-        echo $output;
-        
-        // Log to file if there are changes
-        if ($hasChanges) {
-            file_put_contents($logFile, $output, FILE_APPEND);
-        }
-        
-        // Check for any recent errors in Laravel log
-        $laravelLog = '../storage/logs/laravel.log';
-        if (file_exists($laravelLog)) {
-            $recentErrors = `tail -n 100 $laravelLog | grep -c "ERROR"`;
-            if (trim($recentErrors) > 0) {
-                echo "\n⚠️  Recent errors detected in Laravel log: $recentErrors\n";
-            }
-        }
-        
-        // Wait 30 seconds before next check
-        sleep(30);
-    }
-    
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
-    exit(1);
+function check_process($processName) {
+    $output = shell_exec("ps aux | grep '$processName' | grep -v grep");
+    return !empty(trim($output));
 }
 
+function get_import_progress() {
+    // Check orphan_call_logs count
+    $count = DB::table('orphan_call_logs')->count();
+    
+    // Check last import time
+    $lastImport = DB::table('orphan_call_logs')
+        ->orderBy('created_at', 'desc')
+        ->first();
+    
+    return [
+        'count' => $count,
+        'last_import' => $lastImport ? $lastImport->created_at : null,
+        'target' => 800736
+    ];
+}
 
+function get_vendor_sync_progress() {
+    // Check vendor_sync.log for progress
+    if (file_exists(__DIR__ . '/vendor_sync.log')) {
+        $lastLines = shell_exec('tail -5 ' . __DIR__ . '/vendor_sync.log');
+        if (strpos($lastLines, 'SYNC COMPLETE') !== false) {
+            return ['status' => 'complete'];
+        }
+        // Extract progress from log
+        if (preg_match('/Progress: Processed (\d+) Brain leads/', $lastLines, $matches)) {
+            return [
+                'status' => 'running',
+                'processed' => $matches[1],
+                'total' => 237654
+            ];
+        }
+    }
+    return ['status' => 'unknown'];
+}
 
+function restart_import() {
+    log_status("⚠️ Restarting 90-day import...");
+    
+    // Kill any existing import process
+    shell_exec("pkill -f 'import_90_days_optimized.php'");
+    sleep(2);
+    
+    // Get current progress to resume
+    $progress = get_import_progress();
+    $resumePoint = floor($progress['count'] / 10000) * 10000; // Round down to nearest 10k
+    
+    // Restart the import
+    $cmd = "cd " . __DIR__ . " && nohup php import_90_days_optimized.php --resume=$resumePoint > import_optimized.log 2>&1 &";
+    shell_exec($cmd);
+    
+    log_status("✅ Import restarted from record $resumePoint");
+}
 
+function restart_vendor_sync() {
+    log_status("⚠️ Restarting vendor sync...");
+    
+    // Kill any existing sync process
+    shell_exec("pkill -f 'batch_sync_vendor_codes.php'");
+    sleep(2);
+    
+    // Restart the sync
+    $cmd = "cd " . __DIR__ . " && nohup php batch_sync_vendor_codes.php > vendor_sync.log 2>&1 &";
+    shell_exec($cmd);
+    
+    log_status("✅ Vendor sync restarted");
+}
 
+// Main monitoring loop
+log_status("🚀 Starting automated monitoring (checks every 5 minutes)");
 
+$importComplete = false;
+$vendorComplete = false;
+$lastImportCount = 0;
+$stuckCounter = 0;
 
+while (!$importComplete || !$vendorComplete) {
+    log_status("=" . str_repeat("=", 60));
+    log_status("📊 Checking status...");
+    
+    // Check 90-day import
+    if (!$importComplete) {
+        $importRunning = check_process('import_90_days_optimized.php');
+        $importProgress = get_import_progress();
+        
+        log_status(sprintf(
+            "Import: %s | Records: %s / %s (%.1f%%)",
+            $importRunning ? "RUNNING" : "STOPPED",
+            number_format($importProgress['count']),
+            number_format($importProgress['target']),
+            ($importProgress['count'] / $importProgress['target']) * 100
+        ));
+        
+        // Check if import is complete
+        if ($importProgress['count'] >= $importProgress['target'] * 0.95) { // 95% is good enough
+            $importComplete = true;
+            log_status("✅ Import COMPLETE!");
+        }
+        // Check if import is stuck
+        elseif (!$importRunning) {
+            log_status("❌ Import not running - restarting...");
+            restart_import();
+        }
+        elseif ($importProgress['count'] == $lastImportCount) {
+            $stuckCounter++;
+            if ($stuckCounter >= 3) { // Stuck for 15 minutes
+                log_status("⚠️ Import appears stuck - restarting...");
+                restart_import();
+                $stuckCounter = 0;
+            }
+        } else {
+            $stuckCounter = 0; // Reset if progress is made
+        }
+        
+        $lastImportCount = $importProgress['count'];
+    }
+    
+    // Check vendor sync
+    if (!$vendorComplete) {
+        $vendorRunning = check_process('batch_sync_vendor_codes.php');
+        $vendorProgress = get_vendor_sync_progress();
+        
+        if ($vendorProgress['status'] == 'complete') {
+            $vendorComplete = true;
+            log_status("✅ Vendor sync COMPLETE!");
+        } elseif ($vendorProgress['status'] == 'running') {
+            log_status(sprintf(
+                "Vendor Sync: RUNNING | Processed: %s / %s",
+                number_format($vendorProgress['processed']),
+                number_format($vendorProgress['total'])
+            ));
+        } elseif (!$vendorRunning && !$vendorComplete) {
+            log_status("❌ Vendor sync not running - restarting...");
+            restart_vendor_sync();
+        }
+    }
+    
+    // If both complete, exit
+    if ($importComplete && $vendorComplete) {
+        log_status("🎉 ALL PROCESSES COMPLETE!");
+        
+        // Final summary
+        $finalImport = get_import_progress();
+        log_status(sprintf(
+            "Final Stats: %s call logs imported",
+            number_format($finalImport['count'])
+        ));
+        
+        // Update health check cache
+        \Cache::put('import_complete', true, 3600);
+        
+        break;
+    }
+    
+    // Wait 5 minutes before next check
+    log_status("💤 Waiting 5 minutes before next check...\n");
+    sleep(300); // 5 minutes
+}
+
+log_status("Monitor script completed successfully!");

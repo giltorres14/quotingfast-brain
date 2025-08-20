@@ -37,6 +37,24 @@ class Kernel extends ConsoleKernel
             ->dailyAt('02:00')
             ->withoutOverlapping()
             ->appendOutputTo(storage_path('logs/vici_archive.log'));
+            
+        // Execute Vici lead flow movements every 5 minutes
+        $schedule->command('vici:execute-lead-flow')
+            ->everyFiveMinutes()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/vici_lead_flow.log'));
+            
+        // Test A Lead Flow with corrected disposition logic
+        $schedule->command('vici:test-a-flow')
+            ->everyFiveMinutes()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/vici_test_a_flow.log'));
+            
+        // System health check every minute
+        $schedule->command('system:health-check')
+            ->everyMinute()
+            ->withoutOverlapping()
+            ->appendOutputTo(storage_path('logs/health_check.log'));
     }
 
     /**

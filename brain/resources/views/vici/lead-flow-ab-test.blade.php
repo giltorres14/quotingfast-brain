@@ -102,7 +102,7 @@
                 TEST A: Current Approach (48 Calls)
             </button>
             <button id="btnTestB" onclick="showTestB()" style="padding: 12px 30px; border: none; border-radius: 8px; background: transparent; color: #4b5563; font-weight: bold; cursor: pointer; transition: all 0.3s;">
-                TEST B: Strategic Approach (18 Calls)
+                TEST B: Data-Driven (12 Calls, Lists 150+)
             </button>
         </div>
     </div>
@@ -122,18 +122,19 @@
                 </ul>
             </div>
             <div style="background: white; padding: 15px; border-radius: 8px;">
-                <h4 style="color: #f97316; margin-bottom: 10px;">Test B: 18 Calls</h4>
+                <h4 style="color: #f97316; margin-bottom: 10px;">Test B: 12 Calls (Lists 150-153)</h4>
                 <ul style="line-height: 1.8; font-size: 0.9rem;">
-                    <li><strong>Connects (20%):</strong> 4 calls × 2 min = 8 min × $0.004 = $0.032</li>
-                    <li><strong>Voicemails (20%):</strong> 4 calls × 30 sec = 2 min × $0.004 = $0.008</li>
-                    <li><strong>No Answer (60%):</strong> 10 calls × 6 sec = 1 min × $0.004 = $0.004</li>
-                    <li style="color: #dc2626; font-weight: bold;">Total: $0.044 per lead (11 minutes)</li>
-                    <li style="color: #059669;">If 5% convert: $0.88 per sale</li>
+                    <li><strong>Connects (25%):</strong> 3 calls × 2 min = 6 min × $0.004 = $0.024</li>
+                    <li><strong>Voicemails (15%):</strong> 2 calls × 30 sec = 1 min × $0.004 = $0.004</li>
+                    <li><strong>No Answer (60%):</strong> 7 calls × 6 sec = 0.7 min × $0.004 = $0.003</li>
+                    <li style="color: #dc2626; font-weight: bold;">Total: $0.031 per lead (7.7 minutes)</li>
+                    <li style="color: #059669;">If 1.5% convert: $2.07 per sale</li>
+                    <li style="color: #3b82f6;">66% cost reduction vs Test A!</li>
                 </ul>
             </div>
         </div>
         <div style="margin-top: 15px; padding: 10px; background: #fef3c7; border-radius: 6px;">
-            <strong>📊 Key Insight:</strong> Test A costs 2.1x more than Test B. The question: Does Test A convert at 2.1x the rate to justify the cost?
+            <strong>📊 Key Insight:</strong> Test A costs 3x more than Test B ($0.092 vs $0.031). Based on data showing 1.08% conversion with 8.7 calls average, Test B's 12-call approach is more aligned with actual performance.
         </div>
     </div>
 
@@ -299,27 +300,137 @@
                     </tr>
                 </tbody>
             </table>
+
+            <!-- CORRECTED Movement Logic for Test A -->
+            <div style="margin-top: 20px; padding: 20px; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px;">
+                <h4 style="color: #92400e; margin-bottom: 15px;">⚠️ CORRECTED Movement Logic (Test A)</h4>
+                
+                <div style="margin-bottom: 20px;">
+                    <h5 style="color: #d97706; margin-bottom: 10px;">List 101 → 102 (After First Call)</h5>
+                    <div style="background: #1f2937; color: #10b981; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 0.9rem;">
+                        UPDATE vicidial_list SET list_id = 102<br>
+                        WHERE list_id = 101 AND call_count >= 1<br>
+                        AND status IN ('NA','A','B','N','AB','DROP','PDROP','DAIR','NI','LVM')<br>
+                        AND status NOT IN ('XFER','XFERA','DNC','DNCL','DC','ADC','DNQ')
+                    </div>
+                    <p style="margin-top: 10px; color: #6b7280; font-size: 0.9rem;">
+                        ✅ Now includes ALL no-contact and human-contact dispositions<br>
+                        ❌ Excludes terminal dispositions (transfers, DNC, disconnected)
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h5 style="color: #d97706; margin-bottom: 10px;">List 102 → 103 (Voicemail Trigger - FIXED)</h5>
+                    <div style="background: #1f2937; color: #10b981; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 0.9rem;">
+                        UPDATE vicidial_list SET list_id = 103<br>
+                        WHERE list_id = 102 AND call_count >= 3<br>
+                        AND status IN ('NA','A','N','B','AB','DROP','PDROP','TIMEOT','DAIR')<br>
+                        AND hours_since_entry < 24<br>
+                        AND status NOT IN ('XFER','XFERA','DNC','DNCL','DC','ADC','DNQ')
+                    </div>
+                    <p style="margin-top: 10px; color: #6b7280; font-size: 0.9rem;">
+                        ✅ Triggers after 3 attempts with NO HUMAN CONTACT<br>
+                        ✅ Includes: No Answer (NA), Answering Machine (A), Busy (B), Drops<br>
+                        ❌ NOT just 'NA' status anymore!
+                    </p>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h5 style="color: #2563eb; margin-bottom: 10px;">ALL Test A List Movements (101-111)</h5>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="background: #1e293b; color: white;">
+                                <th style="padding: 8px; border: 1px solid #475569;">Movement</th>
+                                <th style="padding: 8px; border: 1px solid #475569;">Trigger</th>
+                                <th style="padding: 8px; border: 1px solid #475569;">Dispositions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">101 → 102</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">After 1 call</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Any non-terminal</td>
+                            </tr>
+                            <tr style="background: #f9fafb;">
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">102 → 103</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">3 no-contact in 24hr</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">NA, A, B, DROP, etc.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">103 → 104</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Day 2 (5 calls, 24hr)</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Any non-terminal</td>
+                            </tr>
+                            <tr style="background: #f9fafb;">
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">104 → 106</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Day 4 (17 calls)</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Any non-terminal</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">106 → 107</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Day 9 (32 calls)</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Any non-terminal</td>
+                            </tr>
+                            <tr style="background: #f9fafb;">
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">107 → 108</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Day 14 REST (42 calls)</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Any non-terminal</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">108 → 109</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Day 21 Resume</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Any non-terminal</td>
+                            </tr>
+                            <tr style="background: #f9fafb;">
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">109 → 111</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Day 30+ (47 calls)</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Any non-terminal</td>
+                            </tr>
+                            <tr style="background: #dcfce7;">
+                                <td style="padding: 8px; border: 1px solid #e5e7eb; font-weight: bold;">Any → 998</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb; color: #059669;">TRANSFERRED!</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">XFER, XFERA (tracked)</td>
+                            </tr>
+                            <tr style="background: #fee2e2;">
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Any → 199</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">TCPA 89+ days</td>
+                                <td style="padding: 8px; border: 1px solid #e5e7eb;">Archived</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div>
+                    <h5 style="color: #dc2626; margin-bottom: 10px;">Special Handling</h5>
+                    <ul style="color: #6b7280; font-size: 0.9rem; line-height: 1.6;">
+                        <li><strong>DROP/PDROP:</strong> Prioritized for immediate callback (5 min delay)</li>
+                        <li><strong>NI (Not Interested):</strong> After 42 calls, wait 30 days → List 112 retargeting</li>
+                        <li><strong>Answering Machine (A):</strong> 3+ in a row triggers special handling</li>
+                        <li><strong>TCPA:</strong> Auto-archive to List 199 after 89 days</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- TEST B: Strategic Approach -->
     <div id="testBFlow" style="display: none;">
         <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px;">
-            <h2 style="color: #ed8936; margin-bottom: 20px;">TEST B: Strategic Approach (Optimized)</h2>
+            <h2 style="color: #ed8936; margin-bottom: 20px;">TEST B: Data-Driven Optimization (Based on 1.08% Conversion Analysis)</h2>
             
             <!-- Summary Stats -->
             <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
                 <div style="background: #fed7aa; padding: 15px 30px; border-radius: 10px; border: 2px solid #ed8936;">
-                    <strong>Total Attempts:</strong> 18 calls
+                    <strong>Total Attempts:</strong> 12 calls
                 </div>
                 <div style="background: #fed7aa; padding: 15px 30px; border-radius: 10px; border: 2px solid #ed8936;">
-                    <strong>Day 1 Calls:</strong> 5 (within 1 hour!)
+                    <strong>Day 1 Calls:</strong> 5 (Golden Hour)
                 </div>
                 <div style="background: #fed7aa; padding: 15px 30px; border-radius: 10px; border: 2px solid #ed8936;">
-                    <strong>20-Min Gap:</strong> NO (5-min instead)
+                    <strong>Lists:</strong> 150-153, 160
                 </div>
                 <div style="background: #fed7aa; padding: 15px 30px; border-radius: 10px; border: 2px solid #ed8936;">
-                    <strong>Cost/Lead:</strong> $9.00
+                    <strong>Cost/Lead:</strong> $0.05
                 </div>
             </div>
 
@@ -331,61 +442,131 @@
                         <th style="padding: 12px; border: 1px solid #ed8936;">List</th>
                         <th style="padding: 12px; border: 1px solid #ed8936;">Calls</th>
                         <th style="padding: 12px; border: 1px solid #ed8936;">Schedule</th>
-                        <th style="padding: 12px; border: 1px solid #ed8936;">Notes</th>
+                        <th style="padding: 12px; border: 1px solid #ed8936;">Movement Logic</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr style="background: #fffbeb;">
-                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAY 1 (Hour 1)</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">201-205</td>
+                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAY 1 - Golden Hour</td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;"><strong>150</strong></td>
                         <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>5</strong></td>
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">
-                            0 min → <span style="color: green; font-weight: bold;">5 min</span> → 15 min → 30 min → 60 min<br>
-                            <span style="color: #dc2626; font-size: 0.85rem;">*After 3pm: Call immediately, continue sequence next AM</span>
+                            0 min → 5 min → 30 min → 2 hr → 4 hr+VM<br>
+                            <span style="color: #059669; font-size: 0.85rem;">Focus: 10am-12pm, 2-4pm (best connect)</span>
                         </td>
                         <td style="padding: 10px; border: 1px solid #e5e7eb;">
-                            <span style="background: #dcfce7; padding: 2px 6px; border-radius: 4px;">Speed Priority</span>
+                            <code style="background: #f3f4f6; padding: 2px 4px; border-radius: 3px; font-size: 11px;">
+                            UPDATE vicidial_list SET list_id=151<br>
+                            WHERE list_id=150 AND call_count>=5<br>
+                            AND status NOT IN ('XFER','XFERA')
+                            </code>
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAY 2</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">206</td>
+                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAY 2 - Momentum</td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;"><strong>151</strong></td>
                         <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>2</strong></td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">9 AM, 3 PM</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">Strategic Follow-up</td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                            10 AM, 2 PM<br>
+                            <span style="color: #059669; font-size: 0.85rem;">Hit optimal windows</span>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                            <code style="background: #f3f4f6; padding: 2px 4px; border-radius: 3px; font-size: 11px;">
+                            UPDATE vicidial_list SET list_id=152<br>
+                            WHERE list_id=151 AND call_count>=7<br>
+                            AND last_call_time < NOW()-INTERVAL '24 HOURS'
+                            </code>
+                        </td>
                     </tr>
                     <tr style="background: #f9fafb;">
-                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAYS 3-7</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">207</td>
-                        <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>5</strong></td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">1 call/day at optimal times</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">Steady Persistence</td>
+                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAYS 3-5 - Persistence</td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;"><strong>152</strong></td>
+                        <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>3</strong></td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                            1 call/day at 11 AM or 2 PM<br>
+                            <span style="color: #059669; font-size: 0.85rem;">Day 5: Add VM</span>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                            <code style="background: #f3f4f6; padding: 2px 4px; border-radius: 3px; font-size: 11px;">
+                            UPDATE vicidial_list SET list_id=153<br>
+                            WHERE list_id=152 AND call_count>=10<br>
+                            AND DATEDIFF(NOW(),entry_date)>=5
+                            </code>
+                        </td>
                     </tr>
                     <tr>
-                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">WEEK 2</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">208</td>
-                        <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>4</strong></td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">Mon, Wed, Fri, Mon</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">Selective Contact</td>
-                    </tr>
-                    <tr style="background: #f9fafb;">
-                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">WEEKS 3-4</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">209</td>
+                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAYS 6-10 - Final</td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;"><strong>153</strong></td>
                         <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>2</strong></td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">Day 21, Day 28</td>
-                        <td style="padding: 10px; border: 1px solid #e5e7eb;">Long-term Nurture</td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                            Day 7 + Day 10 (final)<br>
+                            <span style="color: #dc2626; font-size: 0.85rem;">Check for NI status</span>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                            <code style="background: #f3f4f6; padding: 2px 4px; border-radius: 3px; font-size: 11px;">
+                            -- If NI, move to retarget after 30 days<br>
+                            UPDATE vicidial_list SET list_id=160<br>
+                            WHERE status='NI' AND call_count>=12<br>
+                            AND last_call_time < NOW()-INTERVAL '30 DAYS'
+                            </code>
+                        </td>
+                    </tr>
+                    <tr style="background: #fef3c7;">
+                        <td style="padding: 10px; font-weight: bold; border: 1px solid #e5e7eb;">DAY 30+ - NI Retarget</td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;"><strong>160</strong></td>
+                        <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;"><strong>3</strong></td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                            3 calls over 7 days<br>
+                            <span style="color: #7c3aed; font-size: 0.85rem;">Different script: "Rate reduction"</span>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #e5e7eb;">
+                            <code style="background: #f3f4f6; padding: 2px 4px; border-radius: 3px; font-size: 11px;">
+                            -- Final disposition after retarget<br>
+                            UPDATE vicidial_list SET list_id=199<br>
+                            WHERE list_id=160 AND call_count>=15
+                            </code>
+                        </td>
                     </tr>
                     <tr style="background: #e5e7eb;">
                         <td colspan="2" style="padding: 10px; font-weight: bold; text-align: right; border: 1px solid #e5e7eb;">TOTAL:</td>
-                        <td style="padding: 10px; text-align: center; font-weight: bold; font-size: 1.2rem; border: 1px solid #e5e7eb;">18</td>
-                        <td colspan="2" style="padding: 10px; border: 1px solid #e5e7eb;">62% fewer calls, focused on high-value times</td>
+                        <td style="padding: 10px; text-align: center; font-weight: bold; font-size: 1.2rem; border: 1px solid #e5e7eb;">12-15</td>
+                        <td colspan="2" style="padding: 10px; border: 1px solid #e5e7eb;">
+                            <strong>Expected improvement:</strong> 1.08% → 1.5-2.0% conversion
+                        </td>
                     </tr>
                 </tbody>
             </table>
+
+            <!-- Detailed Movement Explanation -->
+            <div style="margin-top: 20px; padding: 15px; background: #fff7ed; border: 2px solid #f59e0b; border-radius: 8px;">
+                <h4 style="color: #92400e; margin-bottom: 10px;">🔄 Detailed Lead Movement Logic (Test B)</h4>
+                <div style="font-size: 0.9rem; line-height: 1.6;">
+                    <strong>List 150 → 151:</strong> After 5 calls on Day 1 (Golden Hour intensive)<br>
+                    • Condition: <code>call_count >= 5 AND status NOT IN ('XFER','XFERA')</code><br>
+                    • Purpose: Move non-converted leads to Day 2 strategy<br><br>
+                    
+                    <strong>List 151 → 152:</strong> After 2 more calls on Day 2<br>
+                    • Condition: <code>call_count >= 7 AND hours_since_last_call > 24</code><br>
+                    • Purpose: Transition to daily touch pattern<br><br>
+                    
+                    <strong>List 152 → 153:</strong> After 3 calls (Days 3-5)<br>
+                    • Condition: <code>call_count >= 10 AND days_since_entry >= 5</code><br>
+                    • Purpose: Final attempt phase<br><br>
+                    
+                    <strong>List 153 → 160 (NI Only):</strong> Not Interested leads for retargeting<br>
+                    • Condition: <code>status = 'NI' AND days_since_last_call >= 30</code><br>
+                    • Purpose: Different approach with "rate reduction" messaging<br><br>
+                    
+                    <strong>Any List → 199:</strong> TCPA expiration or max attempts<br>
+                    • Condition: <code>days_since_entry >= 89 OR call_count >= 15</code><br>
+                    • Purpose: Compliance and efficiency cap
+                </div>
+            </div>
         </div>
     </div>
+    </div>
 
-    <!-- Side-by-Side Comparison -->
+    <!-- Side-by-Side Comparison - Always Visible -->
     <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px;">
         <h3 style="text-align: center; margin-bottom: 20px;">📊 Key Differences</h3>
         <table style="width: 100%; border-collapse: collapse;">

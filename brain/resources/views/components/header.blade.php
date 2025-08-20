@@ -426,11 +426,14 @@
                         📈 Analytics
                     </a>
                     <div class="dropdown-menu">
+                        <a href="/reports/call-analytics" class="dropdown-item {{ request()->is('reports/call-analytics*') ? 'active' : '' }}">
+                            📊 Call Analytics Reports
+                        </a>
                         <a href="/admin/lead-flow" class="dropdown-item {{ request()->is('admin/lead-flow*') ? 'active' : '' }}">
                             🔄 Lead Flow Visualization
                         </a>
                         <a href="/analytics" class="dropdown-item {{ request()->is('analytics') ? 'active' : '' }}" onclick="alert('Full analytics dashboard coming soon!')">
-                            📊 Full Dashboard
+                            📈 Full Dashboard
                         </a>
                     </div>
                 </li>

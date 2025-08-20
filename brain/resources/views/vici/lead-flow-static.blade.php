@@ -5,9 +5,59 @@
     <h1 style="text-align: center; margin-bottom: 30px;">📊 Vici Lead Flow Configuration - Optimized with Call Counting</h1>
     
     <!-- A/B Test Comparison Button -->
+    <!-- REVISED ACTION PLAN BASED ON 1.08% CONVERSION ANALYSIS -->
+    <div style="background: linear-gradient(135deg, #ff6b6b, #ff8e53); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);">
+        <h2 style="margin: 0 0 20px 0; font-size: 24px;">🎯 REVISED ACTION PLAN - Based on Real Data Analysis</h2>
+        
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+            <h3 style="margin: 0 0 10px 0; font-size: 18px;">📊 Current Performance Reality:</h3>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+                <li><strong>Actual Conversion Rate: 1.08%</strong> (1,605 out of 148,571 leads)</li>
+                <li><strong>Transfer Dispositions:</strong> XFER (740) + XFERA (868) only</li>
+                <li><strong>Average Calls Per Lead:</strong> 8.7 (too high for 1% conversion)</li>
+                <li><strong>Industry Benchmark:</strong> 1-3% for shared internet leads</li>
+            </ul>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #fff;">🚀 IMMEDIATE ACTIONS:</h4>
+                <ol style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
+                    <li><strong>Reduce Max Calls:</strong> From 42 to 10-12 attempts</li>
+                    <li><strong>Golden Hour Focus:</strong> 50% of calls in first 48 hours</li>
+                    <li><strong>Speed to Lead:</strong> Call within 5 minutes</li>
+                    <li><strong>Stop Excessive Calling:</strong> 1,385 leads getting 30+ calls</li>
+                </ol>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px;">
+                <h4 style="margin: 0 0 10px 0; color: #fff;">💡 OPTIMIZATION TARGETS:</h4>
+                <ol style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
+                    <li><strong>Improve Scripts:</strong> Why aren't "A" calls converting?</li>
+                    <li><strong>Local Presence:</strong> Increase connect rate from 4.1%</li>
+                    <li><strong>Best Hours:</strong> Focus 10am-12pm, 2-4pm EST</li>
+                    <li><strong>List Priority:</strong> Focus on high-performing lists</li>
+                </ol>
+            </div>
+        </div>
+
+        <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <h4 style="margin: 0 0 10px 0; color: #fff;">📈 Expected Improvements:</h4>
+            <p style="margin: 5px 0; font-size: 14px;">
+                • <strong>Conversion:</strong> 1.08% → 2-3% (double/triple current rate)<br>
+                • <strong>Cost Reduction:</strong> 30% fewer wasted calls<br>
+                • <strong>Connect Rate:</strong> 4.1% → 10-15% with local presence<br>
+                • <strong>ROI:</strong> Significantly improved with reduced call volume
+            </p>
+        </div>
+    </div>
+
     <div style="text-align: center; margin-bottom: 20px;">
-        <a href="/vici/lead-flow-ab-test" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: transform 0.2s;">
-            🔬 View A/B Test Comparison - Compare 48 vs 18 Call Strategies
+        <a href="/reports/call-analytics" style="display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: transform 0.2s; margin-right: 10px;">
+            📊 View Live Analytics Dashboard
+        </a>
+        <a href="/vici/lead-flow-ab-test" style="display: inline-block; background: linear-gradient(135deg, #20c997, #17a2b8); color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(32, 201, 151, 0.4); transition: transform 0.2s;">
+            🔬 View A/B Test Comparison
         </a>
     </div>
     

@@ -323,3 +323,5 @@ echo "   - Test manually: mysql -u root Q6hdjl67GRigMofv < /opt/vici_scripts/mov
 
 
 
+
+

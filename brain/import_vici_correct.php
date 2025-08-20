@@ -565,3 +565,5 @@ echo "   Update file: app/Console/Commands/SyncViciCallLogsIncremental.php\n";
 
 
 
+
+

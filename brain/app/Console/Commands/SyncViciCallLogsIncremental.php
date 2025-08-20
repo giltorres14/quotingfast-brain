@@ -120,6 +120,7 @@ class SyncViciCallLogsIncremental extends Command
         ];
         
         // Build SQL query for Vici - JOIN with vicidial_list to get vendor_lead_code
+        // CORRECT DATABASE: Q6hdjl67GRigMofv (not asterisk!)
         $sql = "
             SELECT 
                 vl.call_date,
@@ -137,48 +138,59 @@ class SyncViciCallLogsIncremental extends Command
             LEFT JOIN vicidial_list vlist ON vl.lead_id = vlist.lead_id
             WHERE vl.call_date BETWEEN '{$fromTime->format('Y-m-d H:i:s')}' 
                 AND '{$toTime->format('Y-m-d H:i:s')}'
-            AND vl.campaign_id IS NOT NULL 
-            AND vl.campaign_id != ''
+            AND vl.campaign_id IN ('AUTODIAL', 'AUTO2')
             ORDER BY vl.call_date ASC
             LIMIT 5000
         ";
         
-        // Execute via proxy
+        // Execute via proxy with CORRECT database
         $response = Http::timeout(30)->post('https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute', [
-            'command' => "mysql -u root Q6hdjl67GRigMofv -e " . escapeshellarg($sql) . " 2>&1"
+            'command' => "mysql -u root -pQ6hdjl67GRigMofv Q6hdjl67GRigMofv -N -B -e " . escapeshellarg($sql)
         ]);
         
         if (!$response->successful()) {
             throw new \Exception('Failed to fetch data from Vici');
         }
         
-        $output = $response->json()['output'] ?? '';
+        // Get the raw output from the proxy response
+        $responseBody = json_decode($response->body(), true);
+        $output = $responseBody['output'] ?? '';
         
-        // Parse the output
+        // Parse the tab-separated output (using -N -B flags for clean output)
         $lines = explode("\n", $output);
-        $headers = [];
+        $processedCount = 0;
         
-        foreach ($lines as $lineNum => $line) {
-            // Skip empty lines and errors
-            if (empty($line) || strpos($line, 'Could not create') !== false || 
+        foreach ($lines as $line) {
+            // Skip empty lines and SSH warnings
+            if (empty(trim($line)) || 
+                strpos($line, 'Could not create') !== false || 
                 strpos($line, 'Failed to add') !== false) {
                 continue;
             }
             
-            // First data line is headers
-            if (empty($headers)) {
-                $headers = preg_split('/\s+/', trim($line));
+            // Parse tab-separated values
+            $values = explode("\t", $line);
+            
+            // We expect 11 fields from our SELECT query
+            if (count($values) < 11) {
                 continue;
             }
             
-            // Parse data line
-            $values = preg_split('/\s+/', trim($line), count($headers));
+            // Map to expected structure
+            $record = [
+                'call_date' => $values[0],
+                'lead_id' => $values[1],
+                'list_id' => $values[2],
+                'phone_number' => $values[3],
+                'campaign_id' => $values[4],
+                'status' => $values[5],
+                'length_in_sec' => $values[6],
+                'user' => $values[7],
+                'term_reason' => $values[8],
+                'vendor_lead_code' => $values[9],
+                'uniqueid' => $values[10]
+            ];
             
-            if (count($values) < count($headers)) {
-                continue;
-            }
-            
-            $record = array_combine($headers, $values);
             $stats['total']++;
             
             // Process in batch mode if not dry run
@@ -191,6 +203,12 @@ class SyncViciCallLogsIncremental extends Command
             if ($stats['total'] % 100 == 0) {
                 $this->info("  Processing... {$stats['total']} records");
             }
+            
+            $processedCount++;
+        }
+        
+        if ($processedCount == 0) {
+            $this->info('  No new call logs found');
         }
         
         return $stats;
@@ -287,3 +305,5 @@ use App\Models\ViciCallMetrics;
 use App\Models\Lead;
 use App\Models\OrphanCallLog;
 use Carbon\Carbon;
+
+
