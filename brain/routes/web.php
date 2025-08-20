@@ -123,11 +123,7 @@ Route::get('/lead-flow-ab-test', function() {
     })->name('vici.lead-flow-ab');
     
     Route::get('/sync-status', function() {
-        // Provide all required variables with safe defaults
-        $lastCompleteSync = null;
-        $lastIncrementalSync = null;
-        $recentSyncs = collect();
-        $pendingSync = 0;
+        // Use simple view that will definitely work
         $totalCallLogs = 0;
         $totalViciMetrics = 0;
         
@@ -135,46 +131,10 @@ Route::get('/lead-flow-ab-test', function() {
             $totalCallLogs = DB::table('orphan_call_logs')->count();
             $totalViciMetrics = DB::table('vici_call_metrics')->count();
         } catch (\Exception $e) {
-            // Tables don't exist, use defaults
+            // Ignore errors
         }
         
-        // Stats array with all required fields
-        $stats = [
-            'total_calls' => $totalCallLogs,
-            'matched_calls' => 0,
-            'orphan_calls' => 0,
-            'calls_today' => 0,
-            'total_synced_today' => 0,
-            'total_synced_week' => 0,
-            'total_synced_month' => 0,
-        ];
-        
-        $syncStats = $stats; // Keep for backward compatibility
-        
-        // Additional required variables
-        $syncHistory = collect();
-        $currentlyRunning = false;
-        $lastSyncTime = null;
-        $nextSyncTime = null;
-        $autoSyncEnabled = false;
-        $syncHealth = 'good';
-        
-        return view('admin.vici-sync-management', compact(
-            'lastCompleteSync',
-            'lastIncrementalSync',
-            'totalCallLogs',
-            'totalViciMetrics',
-            'syncHistory',
-            'syncStats',
-            'pendingSync',
-            'recentSyncs',
-            'currentlyRunning',
-            'lastSyncTime',
-            'nextSyncTime',
-            'stats',
-            'autoSyncEnabled',
-            'syncHealth'
-        ));
+        return view('admin.vici-sync-simple', compact('totalCallLogs', 'totalViciMetrics'));
     })->name('vici.sync-status');
     
     Route::get('/settings', function() {
@@ -6180,69 +6140,8 @@ Route::get('/admin/vici-reports', function () {
 
 // Comprehensive Vici Reports with 12 Different Report Types
 Route::get('/admin/vici-comprehensive-reports', function() {
-    // Provide all required data with proper nested structure
-    $executiveSummary = [
-        'overview' => [
-            'total_calls' => 0,
-            'connected_calls' => 0,
-            'total_leads' => 0,
-            'conversion_rate' => 0,
-            'avg_speed_to_lead' => 0,
-            'revenue' => 0,
-            'cost' => 0,
-            'roi' => 0
-        ],
-        'conversion' => [
-            'total_transfers' => 0,
-            'conversion_rate' => 0
-        ],
-        'costs' => [
-            'total_cost' => 0,
-            'cost_per_transfer' => 0,
-            'roi' => 0
-        ]
-    ];
-    
-    $agentScorecard = collect();
-    $campaignROI = collect();
-    $speedToLead = [
-        'buckets' => [],
-        'avg_speed' => 0
-    ];
-    $leadRecycling = [
-        'recycled_leads' => 0,
-        'recycled_conversions' => 0,
-        'recycling_roi' => 0
-    ];
-    $optimalCallTimes = [
-        'best_hours' => [],
-        'best_days' => []
-    ];
-    $leadWaste = [
-        'wasted_leads' => 0,
-        'waste_reasons' => []
-    ];
-    $predictiveScoring = collect();
-    $realTimeOps = [
-        'active_agents' => 0,
-        'calls_in_progress' => 0,
-        'leads_in_hopper' => 0,
-        'avg_wait_time' => 0,
-        'current_connect_rate' => 0,
-        'calls_today' => 0
-    ];
-    
-    return view('admin.vici-comprehensive-reports', compact(
-        'executiveSummary',
-        'agentScorecard',
-        'campaignROI',
-        'speedToLead',
-        'leadRecycling',
-        'optimalCallTimes',
-        'leadWaste',
-        'predictiveScoring',
-        'realTimeOps'
-    ));
+    // Use simple view that will definitely work
+    return view('admin.vici-reports-simple');
 })->name('admin.vici.comprehensive-reports');
 Route::get('/admin/vici-reports/export/{type}', 'App\Http\Controllers\ViciReportsController@exportReports')
     ->name('admin.vici.export-reports');
