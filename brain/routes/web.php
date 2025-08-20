@@ -86,12 +86,7 @@ Route::prefix('vici')->group(function () {
     })->name('vici.reports');
     
     Route::get('/lead-flow', function() {
-        // Temporarily return JSON to test if route works
-        return response()->json([
-            'status' => 'Route is working',
-            'message' => 'The lead-flow route is accessible',
-            'timestamp' => now()->toISOString()
-        ]);
+        return view('vici.lead-flow-static');
     })->name('vici.lead-flow');
     
     Route::get('/lead-flow-visual', function() {
@@ -131,7 +126,7 @@ Route::get('/lead-flow-ab-test', function() {
         // Provide all required variables with safe defaults
         $lastCompleteSync = null;
         $lastIncrementalSync = null;
-        $recentSyncs = collect(); // Changed from syncHistory to recentSyncs
+        $recentSyncs = collect();
         $pendingSync = 0;
         $totalCallLogs = 0;
         $totalViciMetrics = 0;
@@ -143,17 +138,26 @@ Route::get('/lead-flow-ab-test', function() {
             // Tables don't exist, use defaults
         }
         
-        $syncStats = [
+        // Stats array with all required fields
+        $stats = [
+            'total_calls' => $totalCallLogs,
+            'matched_calls' => 0,
+            'orphan_calls' => 0,
+            'calls_today' => 0,
             'total_synced_today' => 0,
             'total_synced_week' => 0,
             'total_synced_month' => 0,
         ];
+        
+        $syncStats = $stats; // Keep for backward compatibility
         
         // Additional required variables
         $syncHistory = collect();
         $currentlyRunning = false;
         $lastSyncTime = null;
         $nextSyncTime = null;
+        $autoSyncEnabled = false;
+        $syncHealth = 'good';
         
         return view('admin.vici-sync-management', compact(
             'lastCompleteSync',
@@ -166,7 +170,10 @@ Route::get('/lead-flow-ab-test', function() {
             'recentSyncs',
             'currentlyRunning',
             'lastSyncTime',
-            'nextSyncTime'
+            'nextSyncTime',
+            'stats',
+            'autoSyncEnabled',
+            'syncHealth'
         ));
     })->name('vici.sync-status');
     
