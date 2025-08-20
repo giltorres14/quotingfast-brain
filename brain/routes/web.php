@@ -75,6 +75,21 @@ Route::get('/test-deployment', function() {
     ]);
 });
 
+// Clear cache route
+Route::get('/clear-cache-emergency', function() {
+    Artisan::call('view:clear');
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('optimize:clear');
+    
+    return response()->json([
+        'status' => 'success',
+        'message' => 'All caches cleared',
+        'timestamp' => now()->toISOString()
+    ]);
+});
+
 // VICI SECTION
 Route::prefix('vici')->group(function () {
     Route::get('/', function() {
