@@ -10,24 +10,24 @@
         <!-- Quick Stats Bar -->
         <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
             <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 1.5rem; font-weight: bold;">12</div>
+                <div style="font-size: 1.5rem; font-weight: bold;">A: 11 | B: 4</div>
                 <div style="font-size: 0.9rem;">Active Lists</div>
             </div>
             <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 1.5rem; font-weight: bold;">24</div>
-                <div style="font-size: 0.9rem;">Dispositions</div>
+                <div style="font-size: 1.5rem; font-weight: bold;">2 Campaigns</div>
+                <div style="font-size: 0.9rem;">AUTO + AUTO2</div>
             </div>
             <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 1.5rem; font-weight: bold;">8</div>
-                <div style="font-size: 0.9rem;">Movement Rules</div>
+                <div style="font-size: 1.5rem; font-weight: bold;">DOWN COUNT</div>
+                <div style="font-size: 0.9rem;">Priority Mode</div>
             </div>
             <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 1.5rem; font-weight: bold;">5 min</div>
-                <div style="font-size: 0.9rem;">Update Freq</div>
+                <div style="font-size: 1.5rem; font-weight: bold;">3 Days</div>
+                <div style="font-size: 0.9rem;">Rest Period</div>
             </div>
             <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 1.5rem; font-weight: bold;" id="systemStatus">✅</div>
-                <div style="font-size: 0.9rem;">System Status</div>
+                <div style="font-size: 1.5rem; font-weight: bold;" id="systemStatus">✅ LIVE</div>
+                <div style="font-size: 0.9rem;">A/B Test Active</div>
             </div>
         </div>
     </div>
@@ -145,24 +145,41 @@
                     <h3 style="color: #4299e1; margin-bottom: 15px;">Test A Movement Rules (Lists 101-111)</h3>
                     
                     <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 15px;">
-                        <h4 style="margin-bottom: 10px;">List 101 → 102</h4>
+                        <h4 style="margin-bottom: 10px;">List 101 → 102 (After First Call)</h4>
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: bold;">After Calls:</label>
-                                <input type="number" id="rule_101_102_calls" value="1" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
+                                <input type="number" id="rule_101_102_calls" value="1" disabled style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
                             </div>
                             <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Within Hours:</label>
-                                <input type="number" id="rule_101_102_hours" value="1" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Wait Time:</label>
+                                <input type="text" value="20 minutes" disabled style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
                             </div>
                             <div>
-                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">If Status In:</label>
-                                <select multiple id="rule_101_102_statuses" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px; height: 80px;">
-                                    <option value="NA" selected>NA - No Answer</option>
-                                    <option value="A" selected>A - Answering Machine</option>
-                                    <option value="B" selected>B - Busy</option>
-                                    <option value="DROP" selected>DROP - Dropped</option>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Moves ALL except:</label>
+                                <select multiple disabled style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px; height: 80px;">
+                                    <option selected>XFER - Transferred</option>
+                                    <option selected>XFERA - Allstate</option>
+                                    <option selected>DNC - Do Not Call</option>
+                                    <option selected>DC - Disconnected</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; color: #059669; font-size: 0.9rem;">
+                            ✅ Fixed: Now handles ALL dispositions correctly (not just NA)
+                        </div>
+                    </div>
+
+                    <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 10px; padding: 20px; margin-bottom: 15px;">
+                        <h4 style="margin-bottom: 10px;">List 108 → 109 (Rest Period)</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Rest Duration:</label>
+                                <input type="text" value="3 days (was 7)" disabled style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px; background: #fef3c7;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Status During Rest:</label>
+                                <input type="text" value="called_since_last_reset = Y (no calls)" disabled style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
                             </div>
                         </div>
                     </div>
@@ -340,42 +357,80 @@ WHERE list_id = 101
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
                     <!-- Test A Config -->
                     <div style="background: #dbeafe; border: 2px solid #4299e1; border-radius: 10px; padding: 20px;">
-                        <h3 style="color: #2563eb; margin-bottom: 15px;">Test A Configuration</h3>
+                        <h3 style="color: #2563eb; margin-bottom: 15px;">Test A Configuration (Full Persistence)</h3>
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-weight: bold;">Campaign:</label>
+                            <div style="margin-top: 5px; color: #059669;">✅ AUTODIAL (Production)</div>
+                        </div>
                         <div style="margin-bottom: 15px;">
                             <label style="font-weight: bold;">Lists Used:</label>
                             <div style="margin-top: 5px;">
-                                <label><input type="checkbox" checked> 101-111 (Current Flow)</label>
+                                <label><input type="checkbox" checked disabled> 101-111 (11 lists total)</label>
                             </div>
                         </div>
                         <div style="margin-bottom: 15px;">
-                            <label style="font-weight: bold;">Total Calls:</label>
-                            <input type="number" value="48" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
+                            <label style="font-weight: bold;">Strategy:</label>
+                            <div style="margin-top: 5px;">
+                                • 48 total calls over 30 days<br>
+                                • 3-day rest period (Days 14-16)<br>
+                                • Movement based on call counts<br>
+                                • ALL dispositions handled
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-weight: bold;">After Completion:</label>
+                            <div style="margin-top: 5px; color: #7c3aed;">→ AUTO2 Training Pool (Lists 200-202)</div>
                         </div>
                         <div style="margin-bottom: 15px;">
                             <label style="font-weight: bold;">Lead Distribution:</label>
-                            <input type="range" value="50" min="0" max="100" style="width: 100%;">
+                            <input type="range" value="50" min="0" max="100" disabled style="width: 100%;">
                             <div style="text-align: center;">50%</div>
                         </div>
                     </div>
 
                     <!-- Test B Config -->
                     <div style="background: #fed7aa; border: 2px solid #f59e0b; border-radius: 10px; padding: 20px;">
-                        <h3 style="color: #d97706; margin-bottom: 15px;">Test B Configuration</h3>
+                        <h3 style="color: #d97706; margin-bottom: 15px;">Test B Configuration (Optimized)</h3>
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-weight: bold;">Campaign:</label>
+                            <div style="margin-top: 5px; color: #059669;">✅ AUTODIAL (Same as Test A)</div>
+                        </div>
                         <div style="margin-bottom: 15px;">
                             <label style="font-weight: bold;">Lists Used:</label>
                             <div style="margin-top: 5px;">
-                                <label><input type="checkbox" checked> 150-153 (Optimized)</label>
+                                <label><input type="checkbox" checked disabled> 150-153 (4 lists total)</label>
                             </div>
                         </div>
                         <div style="margin-bottom: 15px;">
-                            <label style="font-weight: bold;">Total Calls:</label>
-                            <input type="number" value="12" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
+                            <label style="font-weight: bold;">Strategy:</label>
+                            <div style="margin-top: 5px;">
+                                • 12-18 total calls<br>
+                                • No rest period (continuous)<br>
+                                • Heavy Day 1 focus<br>
+                                • Time-based progression
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="font-weight: bold;">After Completion:</label>
+                            <div style="margin-top: 5px; color: #7c3aed;">→ AUTO2 Training Pool (Lists 200-202)</div>
                         </div>
                         <div style="margin-bottom: 15px;">
                             <label style="font-weight: bold;">Lead Distribution:</label>
-                            <input type="range" value="50" min="0" max="100" style="width: 100%;">
+                            <input type="range" value="50" min="0" max="100" disabled style="width: 100%;">
                             <div style="text-align: center;">50%</div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Campaign Priority System -->
+                <div style="margin-top: 30px; background: #f0f9ff; border: 2px solid #3b82f6; border-radius: 10px; padding: 20px;">
+                    <h4 style="color: #1e40af; margin-bottom: 15px;">📍 DOWN COUNT Priority System</h4>
+                    <div style="line-height: 1.8;">
+                        • ViciDial automatically calls <strong>newest leads first</strong> (by entry timestamp)<br>
+                        • No list priority settings needed - DOWN COUNT handles it naturally<br>
+                        • Fresh lead in List 101 beats 2-day old lead in List 102<br>
+                        • Fresh lead in List 150 beats 8-day old lead in List 153<br>
+                        • This ensures <strong>speed-to-lead</strong> for shared internet leads
                     </div>
                 </div>
 
@@ -405,27 +460,72 @@ WHERE list_id = 101
             <div style="padding: 20px;">
                 <h2 style="margin-bottom: 20px; color: #374151;">Live System Monitor</h2>
                 
+                <!-- Current Dial Ratio -->
+                <div style="background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 15px;">⚡ Current Dial Ratio Settings</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+                        <div>
+                            <div style="font-size: 3rem; font-weight: bold;" id="currentTime">2:45 PM</div>
+                            <div style="font-size: 1.2rem; opacity: 0.9;">Current Ratio: <strong style="font-size: 1.5rem;">2.5</strong></div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; align-items: center;">
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                                <div style="font-size: 0.8rem;">9-10 AM</div>
+                                <div style="font-weight: bold;">1.8</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                                <div style="font-size: 0.8rem;">10-11 AM</div>
+                                <div style="font-weight: bold;">2.0</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                                <div style="font-size: 0.8rem;">11-12 PM</div>
+                                <div style="font-weight: bold;">2.5</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                                <div style="font-size: 0.8rem;">12-1 PM</div>
+                                <div style="font-weight: bold;">3.0</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.3); border-radius: 5px; border: 2px solid white;">
+                                <div style="font-size: 0.8rem;">2-3 PM</div>
+                                <div style="font-weight: bold; font-size: 1.2rem;">2.5 ✓</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                                <div style="font-size: 0.8rem;">3-4 PM</div>
+                                <div style="font-weight: bold;">1.8</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                                <div style="font-size: 0.8rem;">4-5 PM</div>
+                                <div style="font-weight: bold;">2.0</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.2); border-radius: 5px;">
+                                <div style="font-size: 0.8rem;">5-6 PM</div>
+                                <div style="font-weight: bold;">2.8</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Real-time Stats -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
                     <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; border-radius: 5px;">
-                        <div style="font-size: 0.9rem; color: #6b7280;">Leads Available Now</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #059669;">1,247</div>
-                        <div style="font-size: 0.85rem; color: #10b981;">↑ 12% from hour ago</div>
+                        <div style="font-size: 0.9rem; color: #6b7280;">Test A Active</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #059669;">647</div>
+                        <div style="font-size: 0.85rem; color: #10b981;">Lists 101-111</div>
                     </div>
                     <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 5px;">
-                        <div style="font-size: 0.9rem; color: #6b7280;">Calls This Hour</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #d97706;">342</div>
-                        <div style="font-size: 0.85rem; color: #f59e0b;">On pace for 2,736 today</div>
+                        <div style="font-size: 0.9rem; color: #6b7280;">Test B Active</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #d97706;">600</div>
+                        <div style="font-size: 0.85rem; color: #f59e0b;">Lists 150-153</div>
                     </div>
                     <div style="background: #ede9fe; border-left: 4px solid #8b5cf6; padding: 15px; border-radius: 5px;">
                         <div style="font-size: 0.9rem; color: #6b7280;">Transfers Today</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #7c3aed;">18</div>
-                        <div style="font-size: 0.85rem; color: #8b5cf6;">1.2% conversion</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #7c3aed;">A:9 | B:9</div>
+                        <div style="font-size: 0.85rem; color: #8b5cf6;">2.51% avg conversion</div>
                     </div>
                     <div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 15px; border-radius: 5px;">
-                        <div style="font-size: 0.9rem; color: #6b7280;">Script Errors</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #dc2626;">0</div>
-                        <div style="font-size: 0.85rem; color: #10b981;">All systems running</div>
+                        <div style="font-size: 0.9rem; color: #6b7280;">AUTO2 Training</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #dc2626;">85</div>
+                        <div style="font-size: 0.85rem; color: #10b981;">Aged leads (30+ days)</div>
                     </div>
                 </div>
 
