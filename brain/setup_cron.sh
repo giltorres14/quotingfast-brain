@@ -1,34 +1,23 @@
 #!/bin/bash
+# This script sets up the Laravel scheduler to run automatically
 
-# Setup Laravel scheduler cron job for Vici sync
-# This script adds the Laravel scheduler to crontab if it doesn't exist
+echo "Setting up Laravel scheduler cron job..."
 
-CURRENT_DIR=$(pwd)
-PHP_PATH=$(which php)
+# The ONLY cron entry needed for Laravel
+# This runs every minute and Laravel decides what to execute
+CRON_ENTRY="* * * * * cd /var/www/html && php artisan schedule:run >> /dev/null 2>&1"
 
-# Check if cron job already exists
-if crontab -l 2>/dev/null | grep -q "schedule:run"; then
-    echo "✅ Laravel scheduler cron job already exists"
-    crontab -l | grep "schedule:run"
-else
-    echo "📝 Adding Laravel scheduler cron job..."
-    
-    # Add the cron job
-    (crontab -l 2>/dev/null; echo "* * * * * cd $CURRENT_DIR && $PHP_PATH artisan schedule:run >> /dev/null 2>&1") | crontab -
-    
-    echo "✅ Laravel scheduler cron job added successfully!"
-    echo ""
-    echo "The following cron job has been added:"
-    echo "* * * * * cd $CURRENT_DIR && $PHP_PATH artisan schedule:run >> /dev/null 2>&1"
-    echo ""
-    echo "This will run every minute and execute:"
-    echo "  - vici:sync-incremental (every 5 minutes)"
-    echo "  - vici:run-export (every 5 minutes)"
-    echo "  - vici:match-orphans (every 10 minutes)"
-    echo "  - vici:archive-old-leads (daily at 2 AM)"
-fi
-
+# Add to crontab (this would be done on the server)
+echo "Add this line to your server's crontab:"
+echo "$CRON_ENTRY"
 echo ""
-echo "Current crontab:"
-crontab -l
-
+echo "To add it, run: crontab -e"
+echo "Then paste the line above and save"
+echo ""
+echo "Once added, Laravel will handle ALL scheduled tasks automatically:"
+echo "- Call log syncs every 15 minutes"
+echo "- Lead flow movements every 30 minutes"  
+echo "- Optimal timing control every hour"
+echo "- Health checks every 5 minutes"
+echo ""
+echo "NO HUMAN INTERACTION REQUIRED! 🤖"

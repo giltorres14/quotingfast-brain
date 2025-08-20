@@ -7171,7 +7171,8 @@ if (!function_exists('detectLeadType')) {
 }
 
 // Vici integration function (shared between webhooks)
-function sendToViciList101($leadData, $leadId, array $overrides = []) {
+if (!function_exists('sendToViciList101')) {
+    function sendToViciList101($leadData, $leadId, array $overrides = []) {
     // Your Vici API configuration (with firewall-aware endpoint)
     // FIXED: Ensure list_id is always 101, not from env variable that might be wrong
     $viciConfig = [
@@ -7336,7 +7337,8 @@ function sendToViciList101($leadData, $leadId, array $overrides = []) {
             'message' => 'Lead processing completed but Vici API failed - check logs'
         ];
     }
-}
+    } // End of sendToViciList101 function
+} // End of if (!function_exists('sendToViciList101'))
 
 // Route to save lead qualification data
 Route::post('/agent/lead/{leadId}/qualification', function (Request $request, $leadId) {
