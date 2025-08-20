@@ -131,7 +131,7 @@ Route::get('/lead-flow-ab-test', function() {
         // Provide all required variables with safe defaults
         $lastCompleteSync = null;
         $lastIncrementalSync = null;
-        $syncHistory = collect();
+        $recentSyncs = collect(); // Changed from syncHistory to recentSyncs
         $pendingSync = 0;
         $totalCallLogs = 0;
         $totalViciMetrics = 0;
@@ -149,6 +149,12 @@ Route::get('/lead-flow-ab-test', function() {
             'total_synced_month' => 0,
         ];
         
+        // Additional required variables
+        $syncHistory = collect();
+        $currentlyRunning = false;
+        $lastSyncTime = null;
+        $nextSyncTime = null;
+        
         return view('admin.vici-sync-management', compact(
             'lastCompleteSync',
             'lastIncrementalSync',
@@ -156,7 +162,11 @@ Route::get('/lead-flow-ab-test', function() {
             'totalViciMetrics',
             'syncHistory',
             'syncStats',
-            'pendingSync'
+            'pendingSync',
+            'recentSyncs',
+            'currentlyRunning',
+            'lastSyncTime',
+            'nextSyncTime'
         ));
     })->name('vici.sync-status');
     
