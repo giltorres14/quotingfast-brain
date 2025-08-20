@@ -192,7 +192,7 @@ Route::prefix('vici')->group(function () {
                 // Table might not exist
             }
             
-            return view('vici.dashboard', compact(
+            return view('vici.dashboard-standalone', compact(
                 'totalCalls', 
                 'todayCalls', 
                 'connectedCalls', 
