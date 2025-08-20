@@ -77,7 +77,12 @@ Route::prefix('vici')->group(function () {
     })->name('vici.reports');
     
     Route::get('/lead-flow', function() {
-        return view('vici.lead-flow-static');
+        try {
+            return view('vici.lead-flow-static');
+        } catch (\Exception $e) {
+            \Log::error('Lead flow error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     })->name('vici.lead-flow');
     
     Route::get('/lead-flow-visual', function() {
@@ -114,62 +119,67 @@ Route::get('/lead-flow-ab-test', function() {
     })->name('vici.lead-flow-ab');
     
     Route::get('/sync-status', function() {
-        // Check if tables exist first
-        $hasSyncLogs = Schema::hasTable('sync_logs');
-        $hasPendingSync = Schema::hasTable('vici_pending_sync');
-        
-        $lastCompleteSync = null;
-        $lastIncrementalSync = null;
-        $syncHistory = collect();
-        $pendingSync = 0;
-        
-        if ($hasSyncLogs) {
-            $lastCompleteSync = DB::table('sync_logs')
-                ->where('sync_type', 'complete')
-                ->where('status', 'completed')
-                ->orderBy('created_at', 'desc')
-                ->value('created_at');
-                
-            $lastIncrementalSync = DB::table('sync_logs')
-                ->where('sync_type', 'incremental')
-                ->where('status', 'completed')
-                ->orderBy('created_at', 'desc')
-                ->value('created_at');
-                
-            $syncHistory = DB::table('sync_logs')
-                ->orderBy('created_at', 'desc')
-                ->limit(20)
-                ->get();
+        try {
+            // Check if tables exist first
+            $hasSyncLogs = Schema::hasTable('sync_logs');
+            $hasPendingSync = Schema::hasTable('vici_pending_sync');
+            
+            $lastCompleteSync = null;
+            $lastIncrementalSync = null;
+            $syncHistory = collect();
+            $pendingSync = 0;
+            
+            if ($hasSyncLogs) {
+                $lastCompleteSync = DB::table('sync_logs')
+                    ->where('sync_type', 'complete')
+                    ->where('status', 'completed')
+                    ->orderBy('created_at', 'desc')
+                    ->value('created_at');
+                    
+                $lastIncrementalSync = DB::table('sync_logs')
+                    ->where('sync_type', 'incremental')
+                    ->where('status', 'completed')
+                    ->orderBy('created_at', 'desc')
+                    ->value('created_at');
+                    
+                $syncHistory = DB::table('sync_logs')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(20)
+                    ->get();
+            }
+            
+            if ($hasPendingSync) {
+                $pendingSync = DB::table('vici_pending_sync')->count();
+            }
+            
+            $totalCallLogs = DB::table('orphan_call_logs')->count();
+            $totalViciMetrics = DB::table('vici_call_metrics')->count();
+            
+            $syncStats = [
+                'total_synced_today' => DB::table('orphan_call_logs')
+                    ->whereDate('created_at', today())
+                    ->count(),
+                'total_synced_week' => DB::table('orphan_call_logs')
+                    ->where('created_at', '>=', now()->subWeek())
+                    ->count(),
+                'total_synced_month' => DB::table('orphan_call_logs')
+                    ->where('created_at', '>=', now()->subMonth())
+                    ->count(),
+            ];
+            
+            return view('admin.vici-sync-management', compact(
+                'lastCompleteSync',
+                'lastIncrementalSync',
+                'totalCallLogs',
+                'totalViciMetrics',
+                'syncHistory',
+                'syncStats',
+                'pendingSync'
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Sync status error: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
         }
-        
-        if ($hasPendingSync) {
-            $pendingSync = DB::table('vici_pending_sync')->count();
-        }
-        
-        $totalCallLogs = DB::table('orphan_call_logs')->count();
-        $totalViciMetrics = DB::table('vici_call_metrics')->count();
-        
-        $syncStats = [
-            'total_synced_today' => DB::table('orphan_call_logs')
-                ->whereDate('created_at', today())
-                ->count(),
-            'total_synced_week' => DB::table('orphan_call_logs')
-                ->where('created_at', '>=', now()->subWeek())
-                ->count(),
-            'total_synced_month' => DB::table('orphan_call_logs')
-                ->where('created_at', '>=', now()->subMonth())
-                ->count(),
-        ];
-        
-        return view('admin.vici-sync-management', compact(
-            'lastCompleteSync',
-            'lastIncrementalSync',
-            'totalCallLogs',
-            'totalViciMetrics',
-            'syncHistory',
-            'syncStats',
-            'pendingSync'
-        ));
     })->name('vici.sync-status');
     
     Route::get('/settings', function() {
