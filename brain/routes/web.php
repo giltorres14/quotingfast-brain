@@ -6163,29 +6163,56 @@ Route::get('/admin/vici-reports', function () {
 
 // Comprehensive Vici Reports with 12 Different Report Types
 Route::get('/admin/vici-comprehensive-reports', function() {
-    // Provide all required data with safe defaults
+    // Provide all required data with proper nested structure
     $executiveSummary = [
-        'total_leads' => 0,
-        'total_calls' => 0,
-        'conversion_rate' => 0,
-        'avg_speed_to_lead' => 0,
-        'revenue' => 0,
-        'cost' => 0,
-        'roi' => 0
+        'overview' => [
+            'total_calls' => 0,
+            'connected_calls' => 0,
+            'total_leads' => 0,
+            'conversion_rate' => 0,
+            'avg_speed_to_lead' => 0,
+            'revenue' => 0,
+            'cost' => 0,
+            'roi' => 0
+        ],
+        'conversion' => [
+            'total_transfers' => 0,
+            'conversion_rate' => 0
+        ],
+        'costs' => [
+            'total_cost' => 0,
+            'cost_per_transfer' => 0,
+            'roi' => 0
+        ]
     ];
     
     $agentScorecard = collect();
     $campaignROI = collect();
-    $speedToLead = collect();
-    $leadRecycling = collect();
-    $optimalCallTimes = collect();
-    $leadWaste = collect();
+    $speedToLead = [
+        'buckets' => [],
+        'avg_speed' => 0
+    ];
+    $leadRecycling = [
+        'recycled_leads' => 0,
+        'recycled_conversions' => 0,
+        'recycling_roi' => 0
+    ];
+    $optimalCallTimes = [
+        'best_hours' => [],
+        'best_days' => []
+    ];
+    $leadWaste = [
+        'wasted_leads' => 0,
+        'waste_reasons' => []
+    ];
     $predictiveScoring = collect();
     $realTimeOps = [
         'active_agents' => 0,
         'calls_in_progress' => 0,
         'leads_in_hopper' => 0,
-        'avg_wait_time' => 0
+        'avg_wait_time' => 0,
+        'current_connect_rate' => 0,
+        'calls_today' => 0
     ];
     
     return view('admin.vici-comprehensive-reports', compact(
