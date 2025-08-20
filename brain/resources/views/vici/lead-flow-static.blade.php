@@ -5,66 +5,71 @@
     <h1 style="text-align: center; margin-bottom: 30px;">📊 Vici Lead Flow Configuration - Optimized with Call Counting</h1>
     
     <!-- A/B Test Comparison Button -->
-    <!-- OPTIMIZED DIAL STRATEGY FOR LIMITED LEADS -->
+    <!-- COMPLETE CAMPAIGN & DIAL STRATEGY -->
     <div style="background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; padding: 25px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);">
-        <h2 style="margin: 0 0 20px 0; font-size: 24px;">⚡ OPTIMIZED DIAL STRATEGY - 9 AM to 6 PM Operation</h2>
+        <h2 style="margin: 0 0 20px 0; font-size: 24px;">⚡ COMPLETE SYSTEM CONFIGURATION</h2>
         
+        <!-- Campaign Structure -->
         <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-            <h3 style="margin: 0 0 10px 0; font-size: 18px;">🎯 Smart Dial Ratio by Hour (Lower During Peak Times):</h3>
+            <h3 style="margin: 0 0 10px 0; font-size: 18px;">📋 Campaign & List Structure:</h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
-                    <strong>Peak Hours (More Answers = Lower Ratio)</strong>
+                    <strong>AUTODIAL Campaign (Production)</strong>
                     <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
-                        <li>9-10 AM: Dial Ratio <strong>1.8</strong> (Best contact)</li>
-                        <li>10-11 AM: Dial Ratio <strong>2.0</strong> (Still good)</li>
-                        <li>3-4 PM: Dial Ratio <strong>1.8</strong> (Second peak)</li>
-                        <li>4-5 PM: Dial Ratio <strong>2.0</strong> (Decent)</li>
+                        <li><strong>Test A:</strong> Lists 101-111 (48 calls, 3-day rest)</li>
+                        <li><strong>Test B:</strong> Lists 150-153 (12-18 calls, optimized)</li>
+                        <li><strong>Special:</strong> List 998 (transferred), 199 (TCPA expired)</li>
+                        <li><strong>Priority:</strong> DOWN COUNT (newest leads first)</li>
                     </ul>
                 </div>
                 <div>
-                    <strong>Off-Peak (More VM = Higher Ratio)</strong>
+                    <strong>AUTO2 Campaign (Training Only)</strong>
                     <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
-                        <li>11 AM-12 PM: Dial Ratio <strong>2.5</strong></li>
-                        <li>12-1 PM: Dial Ratio <strong>3.0</strong> (Lunch)</li>
-                        <li>1-2 PM: Dial Ratio <strong>2.8</strong></li>
-                        <li>2-3 PM: Dial Ratio <strong>2.5</strong></li>
-                        <li>5-6 PM: Dial Ratio <strong>2.8</strong></li>
+                        <li><strong>List 200:</strong> Aged leads (30+ days, 30+ calls)</li>
+                        <li><strong>List 201:</strong> Practice callbacks</li>
+                        <li><strong>List 202:</strong> Old NI for objection training</li>
+                        <li><strong>Source:</strong> From both Test A & B after completion</li>
                     </ul>
                 </div>
             </div>
         </div>
 
+        <!-- Dial Ratio Strategy -->
         <div style="background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px;">
-            <h4 style="margin: 0 0 10px 0; color: #fff;">📊 List Priority System (Single Campaign):</h4>
-            <div style="font-family: monospace; font-size: 13px; line-height: 1.6;">
-                UPDATE vicidial_lists SET list_order = 10 WHERE list_id = 101;  -- Fresh leads (highest priority)<br>
-                UPDATE vicidial_lists SET list_order = 20 WHERE list_id = 102;  -- 1 hour old<br>
-                UPDATE vicidial_lists SET list_order = 30 WHERE list_id = 103;  -- Day 2<br>
-                UPDATE vicidial_lists SET list_order = 40 WHERE list_id = 104;  -- Day 3-7<br>
-                UPDATE vicidial_lists SET list_order = 99 WHERE list_id = 111;  -- Final attempts (lowest)
+            <h4 style="margin: 0 0 10px 0; color: #fff;">🎯 Smart Dial Ratio by Hour (9 AM - 6 PM EST):</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <strong>Peak Hours = Lower Ratio (Avoid Drops)</strong>
+                    <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
+                        <li>9-10 AM: <strong>1.8</strong> (Best contact rate)</li>
+                        <li>10-11 AM: <strong>2.0</strong> (Still good)</li>
+                        <li>3-4 PM: <strong>1.8</strong> (Second peak)</li>
+                        <li>4-5 PM: <strong>2.0</strong> (Decent contacts)</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong>Off-Peak = Higher Ratio (More VM)</strong>
+                    <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
+                        <li>11 AM-12 PM: <strong>2.5</strong> (Pre-lunch)</li>
+                        <li>12-1 PM: <strong>3.0</strong> (Lunch hour)</li>
+                        <li>1-2 PM: <strong>2.8</strong> (Post-lunch)</li>
+                        <li>2-3 PM: <strong>2.5</strong> (Afternoon)</li>
+                        <li>5-6 PM: <strong>2.8</strong> (End of day)</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                <h4 style="margin: 0 0 10px 0; color: #fff;">💡 Lead Preservation Tactics:</h4>
-                <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
-                    <li>NA: Max 3 attempts per day</li>
-                    <li>VM: Max 2 attempts per day</li>
-                    <li>Hopper Level: 30-50 (conservative)</li>
-                    <li>Smart recycling after 4-6 hours</li>
-                </ul>
-            </div>
-            
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                <h4 style="margin: 0 0 10px 0; color: #fff;">📈 Expected Results:</h4>
-                <ul style="margin: 5px 0; padding-left: 20px; font-size: 14px;">
-                    <li>3-3.5% conversion (up from 2.51%)</li>
-                    <li>No agent idle time</li>
-                    <li>Fresh leads get priority</li>
-                    <li>Training doesn't steal production</li>
-                </ul>
-            </div>
+        <!-- How DOWN COUNT Works -->
+        <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;">
+            <h4 style="margin: 0 0 10px 0; color: #fff;">📍 How DOWN COUNT Priority Works:</h4>
+            <p style="margin: 5px 0; font-size: 14px; line-height: 1.6;">
+                • ViciDial automatically calls newest leads first (by entry timestamp)<br>
+                • A fresh lead in List 101 beats a 2-day old lead in List 102<br>
+                • A fresh lead in List 150 beats an 8-day old lead in List 153<br>
+                • This ensures speed-to-lead for shared internet leads<br>
+                • <strong>No list priority settings needed</strong> - DOWN COUNT handles it naturally
+            </p>
         </div>
     </div>
 
@@ -114,19 +119,49 @@
         </a>
     </div>
     
+    <!-- A/B Test Configuration -->
+    <div style="background: #f0f9ff; padding: 20px; border-radius: 10px; margin-bottom: 30px; border: 2px solid #3b82f6;">
+        <h3 style="color: #1e40af; margin-bottom: 15px;">🔬 A/B Test Configuration</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <h4 style="color: #3b82f6; margin-bottom: 10px;">Test A (Lists 101-111)</h4>
+                <ul style="line-height: 1.8; font-size: 14px;">
+                    <li><strong>Strategy:</strong> Full persistence (48 calls)</li>
+                    <li><strong>Rest Period:</strong> 3 days (Days 14-16)</li>
+                    <li><strong>Movement:</strong> Based on call counts + time</li>
+                    <li><strong>Dispositions:</strong> ALL statuses handled correctly</li>
+                    <li><strong>After 30 days:</strong> → AUTO2 training pool</li>
+                </ul>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px;">
+                <h4 style="color: #f97316; margin-bottom: 10px;">Test B (Lists 150-153)</h4>
+                <ul style="line-height: 1.8; font-size: 14px;">
+                    <li><strong>Strategy:</strong> Optimized (12-18 calls)</li>
+                    <li><strong>Rest Period:</strong> None (continuous)</li>
+                    <li><strong>Movement:</strong> Time-based progression</li>
+                    <li><strong>Focus:</strong> Heavy Day 1, then strategic</li>
+                    <li><strong>After 30 days:</strong> → AUTO2 training pool</li>
+                </ul>
+            </div>
+        </div>
+        <div style="background: #dbeafe; padding: 10px; border-radius: 5px; margin-top: 15px;">
+            <strong>Lead Assignment:</strong> Brain randomly assigns new leads 50/50 to Test A (List 101) or Test B (List 150)
+        </div>
+    </div>
+
     <!-- Summary Stats -->
     <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap;">
         <div style="background: #f0f9ff; padding: 15px 30px; border-radius: 10px; border: 2px solid #3b82f6;">
-            <strong>Total Attempts:</strong> 47 calls
+            <strong>Test A:</strong> 48 calls total
         </div>
         <div style="background: #f0fdf4; padding: 15px 30px; border-radius: 10px; border: 2px solid #10b981;">
-            <strong>Campaign Duration:</strong> 30 days + reactivation
+            <strong>Test B:</strong> 12-18 calls total
         </div>
         <div style="background: #fef3c7; padding: 15px 30px; border-radius: 10px; border: 2px solid #f59e0b;">
-            <strong>Speed to Lead:</strong> 3 calls in first hour
+            <strong>Speed to Lead:</strong> Both < 5 minutes
         </div>
         <div style="background: #fce7f3; padding: 15px 30px; border-radius: 10px; border: 2px solid #ec4899;">
-            <strong>Voicemails:</strong> 2 strategic VMs + 30-day check
+            <strong>Campaign:</strong> Both in AUTODIAL
         </div>
     </div>
 
@@ -169,10 +204,11 @@
                 <!-- Movement Logic 101->102/104 -->
                 <tr style="background: #f9fafb;">
                     <td colspan="9" style="padding: 15px; border: 1px solid #e5e7eb; font-style: italic; color: #4b5563;">
-                        <strong>↓ Movement:</strong> After 1 dial attempt in vicidial_dial_log:
-                        <br>• CALLBK status → List 104 (skip voicemail, straight to hot phase)
-                        <br>• All other statuses → List 102 (20-min follow-up)
-                        <br>• Runs every 5 minutes. Excludes: DNC, XFER, NI, DC statuses.
+                        <strong>↓ Movement:</strong> After 1 dial attempt (counts from vicidial_dial_log):
+                        <br>• <strong>All non-terminal dispositions</strong> → List 102 (20-min follow-up)
+                        <br>• Includes: NA, A, B, DROP, NI, LVM, etc. (any status except terminal)
+                        <br>• Terminal statuses stay in list: XFER, XFERA, DNC, DNCL, DC
+                        <br>• Runs every 5 minutes via cron job
                     </td>
                 </tr>
 
@@ -192,9 +228,11 @@
                 <!-- Movement Logic 102->103 -->
                 <tr style="background: #f9fafb;">
                     <td colspan="9" style="padding: 15px; border: 1px solid #e5e7eb; font-style: italic; color: #4b5563;">
-                        <strong>↓ Movement 102→103:</strong> After 1 dial attempt logged in vicidial_dial_log (not time-based).
-                        <br>Query checks: COUNT(*) FROM vicidial_dial_log WHERE lead_id = X AND list_id = 102
-                        <br>Runs every 5 minutes.
+                        <strong>↓ Movement 102→103:</strong> After 1 more dial attempt (total 2 calls now)
+                        <br>• Triggers when lead has been called once in List 102
+                        <br>• Based on actual dials, not time elapsed
+                        <br>• List 103 is for leaving first voicemail
+                        <br>• Runs every 5 minutes via cron
                     </td>
                 </tr>
 
@@ -317,14 +355,16 @@
                     <td style="padding: 10px; text-align: center; border: 1px solid #e5e7eb;">-</td>
                     <td style="padding: 10px; border: 1px solid #e5e7eb;">None</td>
                     <td style="padding: 10px; color: #6b7280; font-weight: bold; border: 1px solid #e5e7eb;">⏸️ NO CALLS</td>
-                    <td style="padding: 10px; border: 1px solid #e5e7eb;">7 day psychological reset</td>
+                    <td style="padding: 10px; border: 1px solid #e5e7eb;">3 day psychological reset</td>
                 </tr>
                 
                 <!-- Movement Logic 108->109 -->
                 <tr style="background: #f9fafb;">
                     <td colspan="9" style="padding: 15px; border: 1px solid #e5e7eb; font-style: italic; color: #4b5563;">
-                        <strong>↓ Movement 108→109:</strong> After 7 calendar days rest OR if TCPA expires in <7 days (day 82+).
-                        <br>Daily check includes TCPA 89-day compliance calculation.
+                        <strong>↓ Movement 108→109:</strong> After 3 calendar days rest (reduced from 7 for faster reactivation)
+                        <br>• Lead must be in List 108 for 3+ days
+                        <br>• Sets called_since_last_reset='N' to resume calling
+                        <br>• Daily check at midnight includes TCPA compliance
                     </td>
                 </tr>
 
@@ -639,7 +679,7 @@ WHERE lead_id = [LEAD_ID]
             <li><strong>Speed to Lead:</strong> 3 attempts within first hour (Lists 101→102→103)</li>
             <li><strong>Call Counting Accuracy:</strong> Using vicidial_dial_log ensures only real calls count</li>
             <li><strong>Two Strategic Voicemails:</strong> List 103 (friendly) and List 105 (urgency)</li>
-            <li><strong>Rest Period Psychology:</strong> 7-day break in List 108 resets receptiveness</li>
+            <li><strong>Rest Period Psychology:</strong> 3-day break in List 108 resets receptiveness</li>
             <li><strong>30-Day Reactivation:</strong> 27% of leads buy 30-90 days later - List 111 captures these</li>
             <li><strong>CALLBK Smart Routing:</strong> Skip VM, go straight to hot phase (101→104)</li>
             <li><strong>Staggered Cron:</strong> Prevents server overload, maintains dialing performance</li>
