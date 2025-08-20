@@ -5,6 +5,7 @@ use App\Helpers\timezone;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\DirectHtmlController;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
 
@@ -148,70 +149,7 @@ Route::prefix('vici')->group(function () {
         ]);
     });
     
-    Route::get('/', function() {
-        // Return a simple HTML response to test
-        return response('<!DOCTYPE html>
-<html>
-<head>
-    <title>Vici Dashboard</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
-        h1 { color: #333; }
-        .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 30px 0; }
-        .metric { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; }
-        .metric-value { font-size: 2em; font-weight: bold; }
-        .metric-label { opacity: 0.9; margin-top: 5px; }
-        .nav { margin: 20px 0; }
-        .nav a { display: inline-block; padding: 10px 20px; background: #4A90E2; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px; }
-        .command-center { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>📊 Vici Dashboard</h1>
-        
-        <div class="nav">
-            <a href="/vici/reports">Reports</a>
-            <a href="/vici/lead-flow">Lead Flow</a>
-            <a href="/vici/lead-flow-ab-test">A/B Test</a>
-            <a href="/vici-command-center" class="command-center">🎛️ COMMAND CENTER</a>
-        </div>
-        
-        <div class="metrics">
-            <div class="metric">
-                <div class="metric-value">38,549</div>
-                <div class="metric-label">Total Calls</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">517</div>
-                <div class="metric-label">Today\'s Calls</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">968</div>
-                <div class="metric-label">Transfers</div>
-            </div>
-            <div class="metric">
-                <div class="metric-value">2.51%</div>
-                <div class="metric-label">Conversion Rate</div>
-            </div>
-        </div>
-        
-        <h2>System Status</h2>
-        <p>✅ Lead Flow: Active</p>
-        <p>✅ Call Sync: Running every 5 minutes</p>
-        <p>✅ TCPA Compliance: Enforced</p>
-        <p>⚠️ Orphan Calls: 1,299,903 pending</p>
-        
-        <h2>Quick Actions</h2>
-        <p>
-            <a href="/reports/call-analytics" style="padding: 10px 20px; background: #10b981; color: white; text-decoration: none; border-radius: 5px;">📊 View Call Analytics</a>
-            <a href="/admin/vici-comprehensive-reports" style="padding: 10px 20px; background: #f59e0b; color: white; text-decoration: none; border-radius: 5px; margin-left: 10px;">📈 Comprehensive Reports</a>
-        </p>
-    </div>
-</body>
-</html>')->header('Content-Type', 'text/html');
-    })->name('vici.dashboard');
+    Route::get('/', [DirectHtmlController::class, 'viciDashboard'])->name('vici.dashboard');
     
     Route::get('/reports', function() {
         return redirect('/admin/vici-comprehensive-reports');
@@ -229,9 +167,7 @@ Route::prefix('vici')->group(function () {
     return view('vici.sql-automation-dashboard');
 })->name('vici.sql-automation');
 
-Route::get('/vici-command-center', function() {
-    return view('vici.lead-flow-control-center');
-})->name('vici.command-center');
+Route::get('/vici-command-center', [DirectHtmlController::class, 'commandCenter'])->name('vici.command-center');
 
 Route::get('/lead-flow-ab-test', function() {
         // Mock callback stats for now since Vici tables might not be accessible
