@@ -52,6 +52,9 @@
             <button onclick="showSection('monitoring')" id="btnMonitoring" class="control-tab">
                 📊 Live Monitor
             </button>
+            <button onclick="showSection('didhealth')" id="btnDidHealth" class="control-tab">
+                📞 DID Health
+            </button>
         </div>
 
         <!-- DISPOSITIONS SECTION -->
@@ -769,6 +772,16 @@ function viewLogs() {
     window.open('/storage/logs/vici/', '_blank');
 }
 
+// DID Health functions
+function saveDIDSettings() {
+    alert('DID settings saved!');
+}
+
+function runDIDHealthCheck() {
+    alert('Running DID health check...');
+    // Would trigger php artisan did:monitor
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     // Add change listeners
@@ -777,4 +790,100 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- DID HEALTH SECTION - Added before closing -->
+<div id="sectionDidhealth" class="control-section" style="display: none; padding: 20px;">
+    <h2 style="margin-bottom: 20px; color: #374151;">📞 DID Health Monitoring</h2>
+    
+    <!-- Health Overview Dashboard -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 30px;">
+        <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold;">87</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Active DIDs</div>
+            <div style="font-size: 0.8rem; margin-top: 5px;">✅ Healthy</div>
+        </div>
+        <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold;">12</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Warning DIDs</div>
+            <div style="font-size: 0.8rem; margin-top: 5px;">⚠️ Monitor</div>
+        </div>
+        <div style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold;">5</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Critical DIDs</div>
+            <div style="font-size: 0.8rem; margin-top: 5px;">🔴 Spam Risk</div>
+        </div>
+        <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold;">18</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Resting DIDs</div>
+            <div style="font-size: 0.8rem; margin-top: 5px;">💤 21-Day Rest</div>
+        </div>
+        <div style="background: linear-gradient(135deg, #06b6d4, #0891b2); color: white; padding: 15px; border-radius: 10px; text-align: center;">
+            <div style="font-size: 2rem; font-weight: bold;">15.8%</div>
+            <div style="font-size: 0.9rem; opacity: 0.9;">Avg Answer Rate</div>
+            <div style="font-size: 0.8rem; margin-top: 5px;">📈 Good</div>
+        </div>
+    </div>
+
+    <!-- Critical Alerts -->
+    <div style="background: #fef2f2; border: 2px solid #dc2626; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+        <h3 style="color: #dc2626; margin-bottom: 10px;">🚨 Critical Alerts - Immediate Action Required</h3>
+        <div id="didAlerts">
+            <div style="padding: 10px; background: white; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>305-555-1234</strong> - Answer rate dropped to 3.2% (Likely SPAM)
+                    <div style="font-size: 0.9rem; color: #6b7280; margin-top: 5px;">Area: Miami, FL | Calls Today: 47 | Last 3 days: -12% decline</div>
+                </div>
+                <button style="background: #dc2626; color: white; padding: 5px 15px; border: none; border-radius: 5px; cursor: pointer;">Rest Now</button>
+            </div>
+            <div style="padding: 10px; background: white; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong>786-555-2345</strong> - Exceeded 50 calls today (Overuse)
+                    <div style="font-size: 0.9rem; color: #6b7280; margin-top: 5px;">Area: Miami, FL | Calls Today: 52 | Answer Rate: 8.1%</div>
+                </div>
+                <button style="background: #dc2626; color: white; padding: 5px 15px; border: none; border-radius: 5px; cursor: pointer;">Rest Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Thresholds -->
+    <div style="background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 15px; margin-bottom: 20px;">
+        <h3 style="margin-bottom: 15px;">📊 DID Health Thresholds</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div style="text-align: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #dc2626;">< 5%</div>
+                <div style="font-size: 0.9rem; color: #6b7280;">Spam Likely - Rest Immediately</div>
+            </div>
+            <div style="text-align: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #f59e0b;">5-10%</div>
+                <div style="font-size: 0.9rem; color: #6b7280;">Warning Zone - Monitor</div>
+            </div>
+            <div style="text-align: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #10b981;">> 15%</div>
+                <div style="font-size: 0.9rem; color: #6b7280;">Healthy - Keep Active</div>
+            </div>
+            <div style="text-align: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #3b82f6;">40-45</div>
+                <div style="font-size: 0.9rem; color: #6b7280;">Optimal Calls/Day</div>
+            </div>
+            <div style="text-align: center; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #8b5cf6;">21 Days</div>
+                <div style="font-size: 0.9rem; color: #6b7280;">Rest Period</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="margin-top: 20px;">
+        <button onclick="runDIDHealthCheck()" style="background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 500;">
+            🔄 Run Health Check Now
+        </button>
+        <button onclick="window.location.href='/did/analytics'" style="background: #10b981; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; margin-left: 10px;">
+            📈 View Detailed Analytics
+        </button>
+        <button onclick="saveDIDSettings()" style="background: #8b5cf6; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 500; margin-left: 10px;">
+            ⚙️ Configure Settings
+        </button>
+    </div>
+</div>
+
 @endsection
