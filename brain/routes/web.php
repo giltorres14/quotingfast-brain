@@ -90,6 +90,19 @@ Route::get('/clear-cache-emergency', function() {
     ]);
 });
 
+// Fix Vici Dashboard route
+Route::get('/fix-vici-dashboard', function() {
+    Artisan::call('vici:fix-dashboard');
+    $output = Artisan::output();
+    
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Vici Dashboard fix applied',
+        'output' => explode("\n", $output),
+        'timestamp' => now()->toISOString()
+    ]);
+});
+
 // VICI SECTION
 Route::prefix('vici')->group(function () {
     // Debug route to check what's wrong
@@ -97,6 +110,40 @@ Route::prefix('vici')->group(function () {
         return response()->json([
             'status' => 'OK',
             'message' => 'Vici routes are working',
+            'timestamp' => now()->toISOString()
+        ]);
+    });
+    
+    // Diagnostic route
+    Route::get('/diagnostic', function() {
+        $checks = [];
+        
+        // Check if models exist
+        $checks['ViciCallMetrics_model'] = class_exists('\App\Models\ViciCallMetrics');
+        $checks['OrphanCallLog_model'] = class_exists('\App\Models\OrphanCallLog');
+        
+        // Check if tables exist
+        try {
+            $checks['vici_call_metrics_table'] = \DB::select("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'vici_call_metrics')")[0]->exists ?? false;
+        } catch (\Exception $e) {
+            $checks['vici_call_metrics_table'] = false;
+            $checks['vici_call_metrics_error'] = $e->getMessage();
+        }
+        
+        try {
+            $checks['orphan_call_logs_table'] = \DB::select("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'orphan_call_logs')")[0]->exists ?? false;
+        } catch (\Exception $e) {
+            $checks['orphan_call_logs_table'] = false;
+            $checks['orphan_call_logs_error'] = $e->getMessage();
+        }
+        
+        // Check if views exist
+        $checks['dashboard_view'] = view()->exists('vici.dashboard');
+        $checks['app_layout'] = view()->exists('layouts.app');
+        
+        return response()->json([
+            'status' => 'diagnostic',
+            'checks' => $checks,
             'timestamp' => now()->toISOString()
         ]);
     });
