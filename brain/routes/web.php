@@ -103,7 +103,56 @@ Route::prefix('vici')->group(function () {
     
     Route::get('/', function() {
         try {
-            return view('vici.dashboard');
+            // Get metrics with safe defaults
+            $totalCalls = 0;
+            $todayCalls = 0;
+            $connectedCalls = 0;
+            $orphanCalls = 0;
+            
+            try {
+                $totalCalls = \App\Models\ViciCallMetrics::count();
+                $todayCalls = \App\Models\ViciCallMetrics::whereDate('created_at', today())->count();
+                $connectedCalls = \App\Models\ViciCallMetrics::where('call_status', 'XFER')->count();
+            } catch (\Exception $e) {
+                // Tables might not exist
+            }
+            
+            try {
+                $orphanCalls = \App\Models\OrphanCallLog::count();
+            } catch (\Exception $e) {
+                // Table might not exist
+            }
+            
+            // List distribution with safe defaults
+            $listDistribution = [
+                ['list' => '101 - New', 'count' => 0, 'color' => '#3b82f6'],
+                ['list' => '102 - Aggressive', 'count' => 0, 'color' => '#8b5cf6'],
+                ['list' => '103 - Callback', 'count' => 0, 'color' => '#ec4899'],
+                ['list' => '104 - Phase 1', 'count' => 0, 'color' => '#f59e0b'],
+                ['list' => '106 - Phase 2', 'count' => 0, 'color' => '#10b981'],
+                ['list' => '108 - Phase 3', 'count' => 0, 'color' => '#06b6d4'],
+                ['list' => '110 - Archive', 'count' => 0, 'color' => '#6b7280'],
+                ['list' => '199 - DNC', 'count' => 0, 'color' => '#ef4444']
+            ];
+            
+            // Recent calls with safe defaults
+            $recentCalls = collect([]);
+            try {
+                $recentCalls = \App\Models\ViciCallMetrics::orderBy('created_at', 'desc')
+                    ->limit(10)
+                    ->get();
+            } catch (\Exception $e) {
+                // Table might not exist
+            }
+            
+            return view('vici.dashboard', compact(
+                'totalCalls', 
+                'todayCalls', 
+                'connectedCalls', 
+                'orphanCalls',
+                'listDistribution',
+                'recentCalls'
+            ));
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
@@ -6172,8 +6221,7 @@ Route::get('/admin/vici-reports', function () {
 
 // Comprehensive Vici Reports with 12 Different Report Types
 Route::get('/admin/vici-comprehensive-reports', function() {
-    // Use simple view that will definitely work
-    return view('admin.vici-reports-simple');
+    return view('admin.vici-comprehensive-reports');
 })->name('admin.vici.comprehensive-reports');
 Route::get('/admin/vici-reports/export/{type}', 'App\Http\Controllers\ViciReportsController@exportReports')
     ->name('admin.vici.export-reports');

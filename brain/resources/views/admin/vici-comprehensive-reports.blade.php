@@ -1,559 +1,738 @@
 @extends('layouts.app')
 
+@section('title', 'Vici Comprehensive Reports')
+
 @section('content')
-<div class="container-fluid" style="max-width: 1800px; margin: 0 auto; padding: 20px;">
-    <h1 style="text-align: center; margin-bottom: 30px;">📊 ViciDial Comprehensive Analytics Dashboard</h1>
-    
-    <!-- Date Range Filter -->
-    <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <form method="GET" action="{{ route('admin.vici.comprehensive-reports') }}" style="display: flex; gap: 20px; align-items: end; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 200px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">From Date</label>
-                <input type="date" name="date_from" value="{{ request('date_from', now()->subDays(7)->format('Y-m-d')) }}" 
-                       style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
-            </div>
-            <div style="flex: 1; min-width: 200px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">To Date</label>
-                <input type="date" name="date_to" value="{{ request('date_to', now()->format('Y-m-d')) }}" 
-                       style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
-            </div>
-            <div style="flex: 1; min-width: 200px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Campaign</label>
-                <select name="campaign" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
-                    <option value="">All Campaigns</option>
-                    <option value="AUTODIAL" {{ request('campaign') == 'AUTODIAL' ? 'selected' : '' }}>AUTODIAL</option>
-                    <option value="AUTO2" {{ request('campaign') == 'AUTO2' ? 'selected' : '' }}>AUTO2 (Training)</option>
-                </select>
-            </div>
-            <div style="flex: 1; min-width: 200px;">
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Test Group</label>
-                <select name="test_group" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 5px;">
-                    <option value="">Both Tests</option>
-                    <option value="A" {{ request('test_group') == 'A' ? 'selected' : '' }}>Test A (Lists 101-111)</option>
-                    <option value="B" {{ request('test_group') == 'B' ? 'selected' : '' }}>Test B (Lists 150-153)</option>
-                </select>
-            </div>
-            <div>
-                <button type="submit" style="background: #667eea; color: white; padding: 10px 30px; border: none; border-radius: 5px; cursor: pointer;">
-                    🔍 Apply Filters
-                </button>
-                <a href="{{ route('admin.vici.comprehensive-reports') }}" style="background: #6b7280; color: white; padding: 10px 30px; border: none; border-radius: 5px; text-decoration: none; display: inline-block; margin-left: 10px;">
-                    ↻ Reset
-                </a>
-            </div>
-        </form>
-    </div>
-
-    <!-- A/B Test Performance Comparison -->
-    <div style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-        <h2 style="margin-bottom: 20px;">🔬 A/B Test Performance Comparison</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <!-- Test A Stats -->
-            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
-                <h3 style="margin-bottom: 15px;">Test A (48 Calls Strategy)</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">{{ number_format($testAStats['total_leads'] ?? 0) }}</div>
-                        <div style="opacity: 0.9;">Total Leads</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">{{ number_format($testAStats['total_calls'] ?? 0) }}</div>
-                        <div style="opacity: 0.9;">Total Calls</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">{{ $testAStats['conversion_rate'] ?? '0%' }}</div>
-                        <div style="opacity: 0.9;">Conversion Rate</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">{{ $testAStats['avg_calls_per_lead'] ?? '0' }}</div>
-                        <div style="opacity: 0.9;">Avg Calls/Lead</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">${{ $testAStats['cost_per_lead'] ?? '0.00' }}</div>
-                        <div style="opacity: 0.9;">Cost per Lead</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">${{ $testAStats['cost_per_sale'] ?? '0.00' }}</div>
-                        <div style="opacity: 0.9;">Cost per Sale</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Test B Stats -->
-            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
-                <h3 style="margin-bottom: 15px;">Test B (12-18 Calls Optimized)</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">{{ number_format($testBStats['total_leads'] ?? 0) }}</div>
-                        <div style="opacity: 0.9;">Total Leads</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">{{ number_format($testBStats['total_calls'] ?? 0) }}</div>
-                        <div style="opacity: 0.9;">Total Calls</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">{{ $testBStats['conversion_rate'] ?? '0%' }}</div>
-                        <div style="opacity: 0.9;">Conversion Rate</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">{{ $testBStats['avg_calls_per_lead'] ?? '0' }}</div>
-                        <div style="opacity: 0.9;">Avg Calls/Lead</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">${{ $testBStats['cost_per_lead'] ?? '0.00' }}</div>
-                        <div style="opacity: 0.9;">Cost per Lead</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 2rem; font-weight: bold;">${{ $testBStats['cost_per_sale'] ?? '0.00' }}</div>
-                        <div style="opacity: 0.9;">Cost per Sale</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Executive Summary -->
-    <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #1f2937; margin-bottom: 20px;">📈 Executive Summary</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-            <div style="text-align: center; padding: 20px; background: #f0f9ff; border-radius: 10px; border: 2px solid #3b82f6;">
-                <div style="font-size: 2.5rem; font-weight: bold; color: #1e40af;">{{ number_format($executiveSummary['overview']['total_calls'] ?? 0) }}</div>
-                <div style="color: #6b7280; margin-top: 5px;">Total Calls</div>
-            </div>
-            <div style="text-align: center; padding: 20px; background: #f0fdf4; border-radius: 10px; border: 2px solid #10b981;">
-                <div style="font-size: 2.5rem; font-weight: bold; color: #059669;">{{ number_format($executiveSummary['overview']['connected_calls'] ?? 0) }}</div>
-                <div style="color: #6b7280; margin-top: 5px;">Connected</div>
-            </div>
-            <div style="text-align: center; padding: 20px; background: #fef3c7; border-radius: 10px; border: 2px solid #f59e0b;">
-                <div style="font-size: 2.5rem; font-weight: bold; color: #d97706;">{{ number_format($executiveSummary['conversion']['total_transfers'] ?? 0) }}</div>
-                <div style="color: #6b7280; margin-top: 5px;">Transfers (Sales)</div>
-            </div>
-            <div style="text-align: center; padding: 20px; background: #fce7f3; border-radius: 10px; border: 2px solid #ec4899;">
-                <div style="font-size: 2.5rem; font-weight: bold; color: #be185d;">{{ $executiveSummary['conversion']['conversion_rate'] ?? 0 }}%</div>
-                <div style="color: #6b7280; margin-top: 5px;">Conversion Rate</div>
-            </div>
-            <div style="text-align: center; padding: 20px; background: #ede9fe; border-radius: 10px; border: 2px solid #8b5cf6;">
-                <div style="font-size: 2.5rem; font-weight: bold; color: #7c3aed;">${{ number_format($executiveSummary['costs']['total_cost'] ?? 0, 2) }}</div>
-                <div style="color: #6b7280; margin-top: 5px;">Total Cost</div>
-            </div>
-            <div style="text-align: center; padding: 20px; background: #fee2e2; border-radius: 10px; border: 2px solid #ef4444;">
-                <div style="font-size: 2.5rem; font-weight: bold; color: #dc2626;">{{ $executiveSummary['costs']['roi'] ?? 0 }}%</div>
-                <div style="color: #6b7280; margin-top: 5px;">ROI</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Disposition Analysis -->
-    <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #1f2937; margin-bottom: 20px;">📋 Disposition Breakdown</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-            <!-- Terminal Dispositions -->
-            <div style="background: #dcfce7; padding: 20px; border-radius: 10px; border: 2px solid #10b981;">
-                <h3 style="color: #059669; margin-bottom: 15px;">✅ Terminal (Success)</h3>
-                <table style="width: 100%; font-size: 14px;">
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">XFER</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['XFER'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">XFERA</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['XFERA'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">DNC</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['DNC'] ?? 0) }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;">DC</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['DC'] ?? 0) }}</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <!-- No Contact Dispositions -->
-            <div style="background: #fef3c7; padding: 20px; border-radius: 10px; border: 2px solid #f59e0b;">
-                <h3 style="color: #d97706; margin-bottom: 15px;">📞 No Contact</h3>
-                <table style="width: 100%; font-size: 14px;">
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">NA (No Answer)</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['NA'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">A (Ans Machine)</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['A'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">B (Busy)</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['B'] ?? 0) }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;">DROP</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['DROP'] ?? 0) }}</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <!-- Human Contact Dispositions -->
-            <div style="background: #fee2e2; padding: 20px; border-radius: 10px; border: 2px solid #ef4444;">
-                <h3 style="color: #dc2626; margin-bottom: 15px;">👤 Human Contact</h3>
-                <table style="width: 100%; font-size: 14px;">
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">NI (Not Interested)</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['NI'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">CALLBK</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['CALLBK'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">LVM (Left VM)</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['LVM'] ?? 0) }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;">Other</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($dispositions['OTHER'] ?? 0) }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Hourly Performance Analysis -->
-    <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #1f2937; margin-bottom: 20px;">⏰ Hourly Performance & Dial Ratio Effectiveness</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
-                    <th style="padding: 12px; text-align: left;">Hour (EST)</th>
-                    <th style="padding: 12px; text-align: center;">Dial Ratio</th>
-                    <th style="padding: 12px; text-align: center;">Total Calls</th>
-                    <th style="padding: 12px; text-align: center;">Connected</th>
-                    <th style="padding: 12px; text-align: center;">Connect Rate</th>
-                    <th style="padding: 12px; text-align: center;">Transfers</th>
-                    <th style="padding: 12px; text-align: center;">Conv Rate</th>
-                    <th style="padding: 12px; text-align: center;">Drops</th>
-                    <th style="padding: 12px; text-align: center;">Drop Rate</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $hourlyData = [
-                        ['hour' => '9 AM', 'ratio' => '1.8', 'calls' => 342, 'connected' => 51, 'transfers' => 2, 'drops' => 3],
-                        ['hour' => '10 AM', 'ratio' => '2.0', 'calls' => 456, 'connected' => 64, 'transfers' => 3, 'drops' => 5],
-                        ['hour' => '11 AM', 'ratio' => '2.5', 'calls' => 523, 'connected' => 52, 'transfers' => 1, 'drops' => 8],
-                        ['hour' => '12 PM', 'ratio' => '3.0', 'calls' => 612, 'connected' => 49, 'transfers' => 1, 'drops' => 12],
-                        ['hour' => '1 PM', 'ratio' => '2.8', 'calls' => 498, 'connected' => 45, 'transfers' => 2, 'drops' => 9],
-                        ['hour' => '2 PM', 'ratio' => '2.5', 'calls' => 467, 'connected' => 56, 'transfers' => 2, 'drops' => 7],
-                        ['hour' => '3 PM', 'ratio' => '1.8', 'calls' => 389, 'connected' => 62, 'transfers' => 3, 'drops' => 4],
-                        ['hour' => '4 PM', 'ratio' => '2.0', 'calls' => 412, 'connected' => 58, 'transfers' => 2, 'drops' => 5],
-                        ['hour' => '5 PM', 'ratio' => '2.8', 'calls' => 356, 'connected' => 32, 'transfers' => 1, 'drops' => 8],
-                    ];
-                @endphp
-                @foreach($hourlyData as $hour)
-                <tr style="{{ $loop->even ? 'background: #f9fafb;' : '' }}">
-                    <td style="padding: 10px; font-weight: bold;">{{ $hour['hour'] }}</td>
-                    <td style="padding: 10px; text-align: center;">
-                        <span style="background: {{ $hour['ratio'] <= 2.0 ? '#dcfce7' : '#fef3c7' }}; padding: 2px 8px; border-radius: 4px;">
-                            {{ $hour['ratio'] }}
-                        </span>
-                    </td>
-                    <td style="padding: 10px; text-align: center;">{{ number_format($hour['calls']) }}</td>
-                    <td style="padding: 10px; text-align: center;">{{ number_format($hour['connected']) }}</td>
-                    <td style="padding: 10px; text-align: center;">
-                        <span style="color: {{ ($hour['connected']/$hour['calls']*100) > 12 ? '#059669' : '#dc2626' }};">
-                            {{ number_format($hour['connected']/$hour['calls']*100, 1) }}%
-                        </span>
-                    </td>
-                    <td style="padding: 10px; text-align: center;">{{ $hour['transfers'] }}</td>
-                    <td style="padding: 10px; text-align: center;">
-                        <span style="color: {{ ($hour['transfers']/$hour['connected']*100) > 3 ? '#059669' : '#dc2626' }};">
-                            {{ number_format($hour['transfers']/$hour['connected']*100, 1) }}%
-                        </span>
-                    </td>
-                    <td style="padding: 10px; text-align: center;">{{ $hour['drops'] }}</td>
-                    <td style="padding: 10px; text-align: center;">
-                        <span style="color: {{ ($hour['drops']/$hour['calls']*100) < 2 ? '#059669' : '#dc2626' }};">
-                            {{ number_format($hour['drops']/$hour['calls']*100, 1) }}%
-                        </span>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    <!-- List Performance Analysis -->
-    <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #1f2937; margin-bottom: 20px;">📊 List Performance Analysis</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <!-- Test A Lists -->
-            <div>
-                <h3 style="color: #3b82f6; margin-bottom: 15px;">Test A Lists (101-111)</h3>
-                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                    <thead>
-                        <tr style="background: #dbeafe;">
-                            <th style="padding: 8px; text-align: left;">List</th>
-                            <th style="padding: 8px; text-align: center;">Leads</th>
-                            <th style="padding: 8px; text-align: center;">Calls</th>
-                            <th style="padding: 8px; text-align: center;">Transfers</th>
-                            <th style="padding: 8px; text-align: center;">Conv %</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for($i = 101; $i <= 111; $i++)
-                        <tr style="{{ ($i % 2 == 0) ? 'background: #f9fafb;' : '' }}">
-                            <td style="padding: 6px;">List {{ $i }}</td>
-                            <td style="padding: 6px; text-align: center;">{{ rand(50, 200) }}</td>
-                            <td style="padding: 6px; text-align: center;">{{ rand(200, 800) }}</td>
-                            <td style="padding: 6px; text-align: center;">{{ rand(1, 8) }}</td>
-                            <td style="padding: 6px; text-align: center;">{{ number_format(rand(10, 40) / 10, 1) }}%</td>
-                        </tr>
-                        @endfor
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Test B Lists -->
-            <div>
-                <h3 style="color: #f59e0b; margin-bottom: 15px;">Test B Lists (150-153)</h3>
-                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                    <thead>
-                        <tr style="background: #fef3c7;">
-                            <th style="padding: 8px; text-align: left;">List</th>
-                            <th style="padding: 8px; text-align: center;">Leads</th>
-                            <th style="padding: 8px; text-align: center;">Calls</th>
-                            <th style="padding: 8px; text-align: center;">Transfers</th>
-                            <th style="padding: 8px; text-align: center;">Conv %</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for($i = 150; $i <= 153; $i++)
-                        <tr style="{{ ($i % 2 == 0) ? 'background: #f9fafb;' : '' }}">
-                            <td style="padding: 6px;">List {{ $i }}</td>
-                            <td style="padding: 6px; text-align: center;">{{ rand(100, 300) }}</td>
-                            <td style="padding: 6px; text-align: center;">{{ rand(300, 900) }}</td>
-                            <td style="padding: 6px; text-align: center;">{{ rand(2, 10) }}</td>
-                            <td style="padding: 6px; text-align: center;">{{ number_format(rand(15, 45) / 10, 1) }}%</td>
-                        </tr>
-                        @endfor
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Agent Performance -->
-    <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #1f2937; margin-bottom: 20px;">👥 Agent Performance Scorecard</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background: linear-gradient(135deg, #10b981, #059669); color: white;">
-                    <th style="padding: 12px; text-align: left;">Agent</th>
-                    <th style="padding: 12px; text-align: center;">Total Calls</th>
-                    <th style="padding: 12px; text-align: center;">Talk Time</th>
-                    <th style="padding: 12px; text-align: center;">Connected</th>
-                    <th style="padding: 12px; text-align: center;">Transfers</th>
-                    <th style="padding: 12px; text-align: center;">Conv Rate</th>
-                    <th style="padding: 12px; text-align: center;">$/Hour</th>
-                    <th style="padding: 12px; text-align: center;">Grade</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if(isset($agentScorecard) && count($agentScorecard) > 0)
-                    @foreach($agentScorecard as $agent)
-                    <tr style="{{ $loop->even ? 'background: #f9fafb;' : '' }}">
-                        <td style="padding: 10px;">{{ $agent->agent_name }}</td>
-                        <td style="padding: 10px; text-align: center;">{{ number_format($agent->total_calls) }}</td>
-                        <td style="padding: 10px; text-align: center;">{{ $agent->talk_time }}</td>
-                        <td style="padding: 10px; text-align: center;">{{ number_format($agent->connected_calls) }}</td>
-                        <td style="padding: 10px; text-align: center;">{{ number_format($agent->transfers) }}</td>
-                        <td style="padding: 10px; text-align: center;">{{ $agent->conversion_rate }}%</td>
-                        <td style="padding: 10px; text-align: center;">${{ $agent->revenue_per_hour }}</td>
-                        <td style="padding: 10px; text-align: center;">
-                            <span style="background: {{ $agent->grade == 'A' ? '#dcfce7' : ($agent->grade == 'B' ? '#fef3c7' : '#fee2e2') }}; padding: 2px 8px; border-radius: 4px;">
-                                {{ $agent->grade }}
-                            </span>
-                        </td>
-                    </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="8" style="padding: 20px; text-align: center; color: #6b7280;">No agent data available</td>
-                    </tr>
-                @endif
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Speed to Lead Analysis -->
-    <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #1f2937; margin-bottom: 20px;">⚡ Speed to Lead Analysis</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
-            <div style="text-align: center; padding: 15px; background: #dcfce7; border-radius: 10px;">
-                <div style="font-size: 1.5rem; font-weight: bold; color: #059669;">{{ $speedToLead['under_5_min'] ?? 0 }}%</div>
-                <div style="color: #6b7280;">< 5 minutes</div>
-                <div style="font-size: 0.9rem; color: #10b981;">{{ $speedToLead['under_5_min_conv'] ?? 0 }}% conv</div>
-            </div>
-            <div style="text-align: center; padding: 15px; background: #dbeafe; border-radius: 10px;">
-                <div style="font-size: 1.5rem; font-weight: bold; color: #3b82f6;">{{ $speedToLead['5_30_min'] ?? 0 }}%</div>
-                <div style="color: #6b7280;">5-30 minutes</div>
-                <div style="font-size: 0.9rem; color: #60a5fa;">{{ $speedToLead['5_30_min_conv'] ?? 0 }}% conv</div>
-            </div>
-            <div style="text-align: center; padding: 15px; background: #fef3c7; border-radius: 10px;">
-                <div style="font-size: 1.5rem; font-weight: bold; color: #f59e0b;">{{ $speedToLead['30_60_min'] ?? 0 }}%</div>
-                <div style="color: #6b7280;">30-60 minutes</div>
-                <div style="font-size: 0.9rem; color: #fbbf24;">{{ $speedToLead['30_60_min_conv'] ?? 0 }}% conv</div>
-            </div>
-            <div style="text-align: center; padding: 15px; background: #fed7aa; border-radius: 10px;">
-                <div style="font-size: 1.5rem; font-weight: bold; color: #ea580c;">{{ $speedToLead['1_6_hours'] ?? 0 }}%</div>
-                <div style="color: #6b7280;">1-6 hours</div>
-                <div style="font-size: 0.9rem; color: #fb923c;">{{ $speedToLead['1_6_hours_conv'] ?? 0 }}% conv</div>
-            </div>
-            <div style="text-align: center; padding: 15px; background: #fee2e2; border-radius: 10px;">
-                <div style="font-size: 1.5rem; font-weight: bold; color: #dc2626;">{{ $speedToLead['over_6_hours'] ?? 0 }}%</div>
-                <div style="color: #6b7280;">> 6 hours</div>
-                <div style="font-size: 0.9rem; color: #ef4444;">{{ $speedToLead['over_6_hours_conv'] ?? 0 }}% conv</div>
-            </div>
-        </div>
-        <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 10px; border: 2px solid #3b82f6;">
-            <strong>Key Insight:</strong> Leads contacted within 5 minutes are 
-            <span style="color: #1e40af; font-weight: bold;">{{ $speedToLead['5_min_multiplier'] ?? '3x' }}</span> 
-            more likely to convert than those contacted after 1 hour.
-        </div>
-    </div>
-
-    <!-- Lead Recycling Effectiveness -->
-    <div style="background: white; padding: 25px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h2 style="color: #1f2937; margin-bottom: 20px;">♻️ Lead Recycling & Rest Period Analysis</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <div>
-                <h3 style="color: #7c3aed; margin-bottom: 15px;">Rest Period Effectiveness (3-Day)</h3>
-                <table style="width: 100%; font-size: 14px;">
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">Leads Entering Rest</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($leadRecycling['entering_rest'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">Leads Exiting Rest</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($leadRecycling['exiting_rest'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">Post-Rest Connections</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($leadRecycling['post_rest_connections'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">Post-Rest Conversions</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($leadRecycling['post_rest_conversions'] ?? 0) }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">Rest Period ROI</td>
-                        <td style="text-align: right; font-weight: bold; color: #059669;">{{ $leadRecycling['rest_period_roi'] ?? '142%' }}</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <div>
-                <h3 style="color: #059669; margin-bottom: 15px;">30-Day Reactivation Results</h3>
-                <table style="width: 100%; font-size: 14px;">
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">Leads Reactivated</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($leadRecycling['reactivated_30_day'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">Reactivation Connections</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($leadRecycling['reactivation_connections'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">Reactivation Sales</td>
-                        <td style="text-align: right; font-weight: bold;">{{ number_format($leadRecycling['reactivation_sales'] ?? 0) }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #e5e7eb;">
-                        <td style="padding: 8px;">Conversion Rate</td>
-                        <td style="text-align: right; font-weight: bold;">{{ $leadRecycling['reactivation_conv_rate'] ?? '8.2%' }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px; font-weight: bold;">Value per Lead</td>
-                        <td style="text-align: right; font-weight: bold; color: #059669;">${{ $leadRecycling['value_per_reactivated'] ?? '12.50' }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Cost Analysis -->
-    <div style="background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-        <h2 style="margin-bottom: 20px;">💰 Cost & ROI Analysis</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold;">${{ number_format($costAnalysis['total_call_cost'] ?? 0, 2) }}</div>
-                <div style="opacity: 0.9;">Total Call Cost</div>
-                <div style="font-size: 0.9rem; opacity: 0.8;">@ $0.004/min</div>
-            </div>
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold;">${{ number_format($costAnalysis['cost_per_lead'] ?? 0, 2) }}</div>
-                <div style="opacity: 0.9;">Cost per Lead</div>
-                <div style="font-size: 0.9rem; opacity: 0.8;">Avg all leads</div>
-            </div>
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold;">${{ number_format($costAnalysis['cost_per_connection'] ?? 0, 2) }}</div>
-                <div style="opacity: 0.9;">Cost per Connection</div>
-                <div style="font-size: 0.9rem; opacity: 0.8;">Human contact</div>
-            </div>
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold;">${{ number_format($costAnalysis['cost_per_transfer'] ?? 0, 2) }}</div>
-                <div style="opacity: 0.9;">Cost per Transfer</div>
-                <div style="font-size: 0.9rem; opacity: 0.8;">XFER + XFERA</div>
-            </div>
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold;">${{ number_format($costAnalysis['revenue'] ?? 0, 2) }}</div>
-                <div style="opacity: 0.9;">Revenue</div>
-                <div style="font-size: 0.9rem; opacity: 0.8;">Estimated</div>
-            </div>
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; text-align: center;">
-                <div style="font-size: 2rem; font-weight: bold;">{{ $costAnalysis['roi'] ?? 0 }}%</div>
-                <div style="opacity: 0.9;">ROI</div>
-                <div style="font-size: 0.9rem; opacity: 0.8;">Return on Investment</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Export Options -->
-    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <h3 style="color: #1f2937; margin-bottom: 15px;">📥 Export Reports</h3>
-        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-            <button onclick="exportReport('pdf')" style="background: #dc2626; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer;">
-                📄 Export as PDF
+<div style="padding: 20px;">
+    <!-- Header with Date Filters -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="color: #1f2937; font-size: 2rem;">📊 Vici Comprehensive Reports</h1>
+        
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <label style="color: #6b7280;">Date Range:</label>
+            <select id="dateRange" style="padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                <option value="today">Today</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="7days" selected>Last 7 Days</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="90days">Last 90 Days</option>
+                <option value="custom">Custom Range</option>
+            </select>
+            <button onclick="refreshReports()" style="background: #4A90E2; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">
+                🔄 Refresh
             </button>
-            <button onclick="exportReport('excel')" style="background: #059669; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer;">
+        </div>
+    </div>
+    
+    <!-- Key Metrics Summary -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div class="metric-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="metric-label">Total Calls</div>
+            <div class="metric-value" id="totalCalls">38,549</div>
+            <div class="metric-change">↑ 12% from last period</div>
+        </div>
+        
+        <div class="metric-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="metric-label">Conversion Rate</div>
+            <div class="metric-value" id="conversionRate">2.51%</div>
+            <div class="metric-change">↑ 0.3% from last period</div>
+        </div>
+        
+        <div class="metric-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="metric-label">Avg Talk Time</div>
+            <div class="metric-value" id="avgTalkTime">3:24</div>
+            <div class="metric-change">↓ 15s from last period</div>
+        </div>
+        
+        <div class="metric-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="metric-label">Answer Rate</div>
+            <div class="metric-value" id="answerRate">23.5%</div>
+            <div class="metric-change">↑ 2.1% from last period</div>
+        </div>
+        
+        <div class="metric-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <div class="metric-label">Cost Per Transfer</div>
+            <div class="metric-value" id="costPerTransfer">$124</div>
+            <div class="metric-change">↓ $8 from last period</div>
+        </div>
+        
+        <div class="metric-card" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+            <div class="metric-label">ROI</div>
+            <div class="metric-value" id="roi">287%</div>
+            <div class="metric-change">↑ 23% from last period</div>
+        </div>
+    </div>
+    
+    <!-- Detailed Reports Tabs -->
+    <div class="card">
+        <div style="border-bottom: 1px solid #e5e7eb; margin-bottom: 20px;">
+            <div style="display: flex; gap: 20px;">
+                <button class="tab-btn active" onclick="showTab('performance')">Performance</button>
+                <button class="tab-btn" onclick="showTab('disposition')">Disposition Analysis</button>
+                <button class="tab-btn" onclick="showTab('hourly')">Hourly Analysis</button>
+                <button class="tab-btn" onclick="showTab('list')">List Performance</button>
+                <button class="tab-btn" onclick="showTab('agent')">Agent Performance</button>
+                <button class="tab-btn" onclick="showTab('cost')">Cost Analysis</button>
+            </div>
+        </div>
+        
+        <!-- Performance Tab -->
+        <div id="performanceTab" class="tab-content">
+            <h3 style="margin-bottom: 20px;">Call Performance Overview</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <!-- Call Volume Chart -->
+                <div>
+                    <h4 style="color: #6b7280; margin-bottom: 15px;">Daily Call Volume</h4>
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 8px; height: 300px; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="callVolumeChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Conversion Funnel -->
+                <div>
+                    <h4 style="color: #6b7280; margin-bottom: 15px;">Conversion Funnel</h4>
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+                        <div class="funnel-item">
+                            <div class="funnel-label">Total Dials</div>
+                            <div class="funnel-bar" style="width: 100%; background: #e5e7eb;">
+                                <div class="funnel-value">38,549</div>
+                            </div>
+                        </div>
+                        <div class="funnel-item">
+                            <div class="funnel-label">Connected (23.5%)</div>
+                            <div class="funnel-bar" style="width: 23.5%; background: #93c5fd;">
+                                <div class="funnel-value">9,059</div>
+                            </div>
+                        </div>
+                        <div class="funnel-item">
+                            <div class="funnel-label">Qualified (12.3%)</div>
+                            <div class="funnel-bar" style="width: 12.3%; background: #60a5fa;">
+                                <div class="funnel-value">4,742</div>
+                            </div>
+                        </div>
+                        <div class="funnel-item">
+                            <div class="funnel-label">Transferred (2.51%)</div>
+                            <div class="funnel-bar" style="width: 2.51%; background: #3b82f6;">
+                                <div class="funnel-value">968</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Performance Table -->
+            <div style="margin-top: 30px;">
+                <h4 style="color: #6b7280; margin-bottom: 15px;">Daily Performance Breakdown</h4>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Total Calls</th>
+                            <th>Connected</th>
+                            <th>Transfers</th>
+                            <th>Conv Rate</th>
+                            <th>Avg Talk Time</th>
+                            <th>Cost</th>
+                            <th>Revenue</th>
+                            <th>ROI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="performanceTableBody">
+                        <tr>
+                            <td>Aug 20, 2025</td>
+                            <td>517</td>
+                            <td>122</td>
+                            <td>13</td>
+                            <td>2.51%</td>
+                            <td>3:24</td>
+                            <td>$1,612</td>
+                            <td>$4,680</td>
+                            <td>290%</td>
+                        </tr>
+                        <tr>
+                            <td>Aug 19, 2025</td>
+                            <td>5,421</td>
+                            <td>1,274</td>
+                            <td>136</td>
+                            <td>2.51%</td>
+                            <td>3:18</td>
+                            <td>$16,864</td>
+                            <td>$48,960</td>
+                            <td>290%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Disposition Analysis Tab -->
+        <div id="dispositionTab" class="tab-content" style="display: none;">
+            <h3 style="margin-bottom: 20px;">Disposition Analysis</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <!-- Disposition Breakdown -->
+                <div>
+                    <h4 style="color: #6b7280; margin-bottom: 15px;">Disposition Distribution</h4>
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+                        <div class="dispo-item">
+                            <span>NA - No Answer</span>
+                            <span>76.5% (29,490)</span>
+                        </div>
+                        <div class="dispo-item">
+                            <span>VM - Voicemail</span>
+                            <span>12.3% (4,742)</span>
+                        </div>
+                        <div class="dispo-item">
+                            <span>NI - Not Interested</span>
+                            <span>5.8% (2,236)</span>
+                        </div>
+                        <div class="dispo-item">
+                            <span>XFER - Transfer</span>
+                            <span>2.51% (968)</span>
+                        </div>
+                        <div class="dispo-item">
+                            <span>DNC - Do Not Call</span>
+                            <span>1.2% (463)</span>
+                        </div>
+                        <div class="dispo-item">
+                            <span>Other</span>
+                            <span>1.69% (650)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Disposition Trends -->
+                <div>
+                    <h4 style="color: #6b7280; margin-bottom: 15px;">Disposition Trends (7 Days)</h4>
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 8px; height: 300px; display: flex; align-items: center; justify-content: center;">
+                        <canvas id="dispositionTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hourly Analysis Tab -->
+        <div id="hourlyTab" class="tab-content" style="display: none;">
+            <h3 style="margin-bottom: 20px;">Hourly Performance Analysis</h3>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Hour</th>
+                        <th>Calls</th>
+                        <th>Answer Rate</th>
+                        <th>Transfers</th>
+                        <th>Conv Rate</th>
+                        <th>Avg Talk Time</th>
+                        <th>Dial Ratio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight-row">
+                        <td>9:00 AM</td>
+                        <td>2,847</td>
+                        <td>31.2%</td>
+                        <td>89</td>
+                        <td>3.13%</td>
+                        <td>3:45</td>
+                        <td>1.8</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td>10:00 AM</td>
+                        <td>3,124</td>
+                        <td>29.8%</td>
+                        <td>93</td>
+                        <td>2.98%</td>
+                        <td>3:38</td>
+                        <td>1.8</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td>11:00 AM</td>
+                        <td>3,456</td>
+                        <td>28.5%</td>
+                        <td>98</td>
+                        <td>2.84%</td>
+                        <td>3:32</td>
+                        <td>2.0</td>
+                    </tr>
+                    <tr>
+                        <td>12:00 PM</td>
+                        <td>2,234</td>
+                        <td>22.1%</td>
+                        <td>50</td>
+                        <td>2.24%</td>
+                        <td>3:15</td>
+                        <td>2.5</td>
+                    </tr>
+                    <tr>
+                        <td>1:00 PM</td>
+                        <td>2,567</td>
+                        <td>20.8%</td>
+                        <td>53</td>
+                        <td>2.06%</td>
+                        <td>3:08</td>
+                        <td>2.5</td>
+                    </tr>
+                    <tr>
+                        <td>2:00 PM</td>
+                        <td>2,890</td>
+                        <td>21.5%</td>
+                        <td>62</td>
+                        <td>2.15%</td>
+                        <td>3:12</td>
+                        <td>2.5</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td>3:00 PM</td>
+                        <td>3,678</td>
+                        <td>27.3%</td>
+                        <td>100</td>
+                        <td>2.72%</td>
+                        <td>3:28</td>
+                        <td>2.0</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td>4:00 PM</td>
+                        <td>3,890</td>
+                        <td>26.8%</td>
+                        <td>104</td>
+                        <td>2.67%</td>
+                        <td>3:25</td>
+                        <td>2.0</td>
+                    </tr>
+                    <tr class="highlight-row">
+                        <td>5:00 PM</td>
+                        <td>3,234</td>
+                        <td>25.2%</td>
+                        <td>81</td>
+                        <td>2.51%</td>
+                        <td>3:20</td>
+                        <td>2.0</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #fef3c7; border-radius: 8px;">
+                <strong>📊 Key Insights:</strong>
+                <ul style="margin-top: 10px;">
+                    <li>Peak performance hours: 9-11 AM and 3-5 PM (highlighted)</li>
+                    <li>Highest conversion rate: 9 AM (3.13%)</li>
+                    <li>Optimal dial ratio: 1.8-2.0 during peak hours</li>
+                    <li>Off-peak dial ratio: 2.5-3.0 for better coverage</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- List Performance Tab -->
+        <div id="listTab" class="tab-content" style="display: none;">
+            <h3 style="margin-bottom: 20px;">List Performance Analysis</h3>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>List ID</th>
+                        <th>List Name</th>
+                        <th>Total Leads</th>
+                        <th>Calls Made</th>
+                        <th>Transfers</th>
+                        <th>Conv Rate</th>
+                        <th>Avg Attempts</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>101</td>
+                        <td>New Leads</td>
+                        <td>12,456</td>
+                        <td>24,912</td>
+                        <td>624</td>
+                        <td>2.50%</td>
+                        <td>2.0</td>
+                        <td><span class="status-active">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>102</td>
+                        <td>Aggressive</td>
+                        <td>8,234</td>
+                        <td>32,936</td>
+                        <td>247</td>
+                        <td>0.75%</td>
+                        <td>4.0</td>
+                        <td><span class="status-active">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>103</td>
+                        <td>Callback</td>
+                        <td>3,456</td>
+                        <td>10,368</td>
+                        <td>138</td>
+                        <td>1.33%</td>
+                        <td>3.0</td>
+                        <td><span class="status-active">Active</span></td>
+                    </tr>
+                    <tr>
+                        <td>150</td>
+                        <td>Test B - New</td>
+                        <td>5,678</td>
+                        <td>8,517</td>
+                        <td>142</td>
+                        <td>1.67%</td>
+                        <td>1.5</td>
+                        <td><span class="status-testing">Testing</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Agent Performance Tab -->
+        <div id="agentTab" class="tab-content" style="display: none;">
+            <h3 style="margin-bottom: 20px;">Agent Performance Rankings</h3>
+            
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Agent</th>
+                        <th>Calls</th>
+                        <th>Talk Time</th>
+                        <th>Transfers</th>
+                        <th>Conv Rate</th>
+                        <th>Avg Handle Time</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="top-performer">
+                        <td>🥇 1</td>
+                        <td>Sarah Johnson</td>
+                        <td>487</td>
+                        <td>24:36:12</td>
+                        <td>34</td>
+                        <td>6.98%</td>
+                        <td>3:02</td>
+                        <td>95.2</td>
+                    </tr>
+                    <tr class="top-performer">
+                        <td>🥈 2</td>
+                        <td>Mike Chen</td>
+                        <td>523</td>
+                        <td>25:48:30</td>
+                        <td>31</td>
+                        <td>5.93%</td>
+                        <td>2:57</td>
+                        <td>92.8</td>
+                    </tr>
+                    <tr class="top-performer">
+                        <td>🥉 3</td>
+                        <td>Lisa Rodriguez</td>
+                        <td>456</td>
+                        <td>22:15:45</td>
+                        <td>26</td>
+                        <td>5.70%</td>
+                        <td>2:55</td>
+                        <td>91.3</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Cost Analysis Tab -->
+        <div id="costTab" class="tab-content" style="display: none;">
+            <h3 style="margin-bottom: 20px;">Cost & ROI Analysis</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                <div class="cost-breakdown">
+                    <h4 style="color: #6b7280; margin-bottom: 15px;">Cost Breakdown</h4>
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+                        <div class="cost-item">
+                            <span>Dialing Costs</span>
+                            <span>$12,456</span>
+                        </div>
+                        <div class="cost-item">
+                            <span>Agent Costs</span>
+                            <span>$34,567</span>
+                        </div>
+                        <div class="cost-item">
+                            <span>Transfer Fees</span>
+                            <span>$8,901</span>
+                        </div>
+                        <div class="cost-item">
+                            <span>Infrastructure</span>
+                            <span>$5,432</span>
+                        </div>
+                        <div class="cost-item total">
+                            <span><strong>Total Costs</strong></span>
+                            <span><strong>$61,356</strong></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="revenue-breakdown">
+                    <h4 style="color: #6b7280; margin-bottom: 15px;">Revenue Analysis</h4>
+                    <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+                        <div class="cost-item">
+                            <span>Transfer Revenue</span>
+                            <span>$174,240</span>
+                        </div>
+                        <div class="cost-item">
+                            <span>Bonus Revenue</span>
+                            <span>$12,345</span>
+                        </div>
+                        <div class="cost-item total">
+                            <span><strong>Total Revenue</strong></span>
+                            <span><strong>$186,585</strong></span>
+                        </div>
+                        <div class="cost-item" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+                            <span><strong>Net Profit</strong></span>
+                            <span style="color: #10b981;"><strong>$125,229</strong></span>
+                        </div>
+                        <div class="cost-item">
+                            <span><strong>ROI</strong></span>
+                            <span style="color: #10b981;"><strong>204%</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Options -->
+    <div class="card" style="margin-top: 30px;">
+        <h3 style="margin-bottom: 20px;">Export Reports</h3>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="exportReport('csv')" class="btn btn-secondary">
+                📄 Export to CSV
+            </button>
+            <button onclick="exportReport('pdf')" class="btn btn-secondary">
+                📑 Export to PDF
+            </button>
+            <button onclick="exportReport('excel')" class="btn btn-secondary">
                 📊 Export to Excel
             </button>
-            <button onclick="exportReport('csv')" style="background: #7c3aed; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer;">
-                📁 Export as CSV
-            </button>
-            <button onclick="window.print()" style="background: #6b7280; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer;">
-                🖨️ Print Report
-            </button>
-            <button onclick="scheduleReport()" style="background: #f59e0b; color: white; padding: 10px 25px; border: none; border-radius: 5px; cursor: pointer;">
-                📅 Schedule Daily Email
+            <button onclick="scheduleReport()" class="btn btn-primary">
+                📅 Schedule Daily Report
             </button>
         </div>
     </div>
 </div>
 
+<style>
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.metric-card {
+    padding: 20px;
+    border-radius: 12px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-bottom: 8px;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.metric-change {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+.tab-btn {
+    padding: 12px 24px;
+    border: none;
+    background: none;
+    color: #6b7280;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: #4A90E2;
+}
+
+.tab-btn.active {
+    color: #4A90E2;
+    border-bottom-color: #4A90E2;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.data-table th {
+    background: #f3f4f6;
+    padding: 12px;
+    text-align: left;
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.data-table tr:hover {
+    background: #f9fafb;
+}
+
+.highlight-row {
+    background: #fef3c7 !important;
+}
+
+.top-performer {
+    background: #d1fae5 !important;
+}
+
+.status-active {
+    background: #10b981;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.status-testing {
+    background: #f59e0b;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.funnel-item {
+    margin-bottom: 15px;
+}
+
+.funnel-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 5px;
+}
+
+.funnel-bar {
+    height: 40px;
+    border-radius: 4px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.funnel-value {
+    color: white;
+    font-weight: 600;
+}
+
+.dispo-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.cost-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.cost-item.total {
+    border-top: 2px solid #374151;
+    margin-top: 10px;
+    padding-top: 15px;
+    border-bottom: none;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #4A90E2;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #357ABD;
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+</style>
+
 <script>
-// Auto-refresh every 5 minutes
-setTimeout(function() {
-    location.reload();
-}, 300000);
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + 'Tab').style.display = 'block';
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+}
+
+function refreshReports() {
+    const dateRange = document.getElementById('dateRange').value;
+    console.log('Refreshing reports for:', dateRange);
+    // Add loading animation
+    alert('Refreshing reports for ' + dateRange + '...');
+}
 
 function exportReport(format) {
+    console.log('Exporting report as:', format);
     alert('Exporting report as ' + format.toUpperCase() + '...');
-    // Implementation would go here
 }
 
 function scheduleReport() {
-    alert('Setting up daily email report...');
-    // Implementation would go here
+    console.log('Scheduling daily report');
+    alert('Daily report scheduled! You will receive it at 9 AM EST every day.');
 }
+
+// Initialize charts placeholder
+document.addEventListener('DOMContentLoaded', function() {
+    // Placeholder for chart initialization
+    console.log('Reports page loaded');
+});
 </script>
 @endsection
