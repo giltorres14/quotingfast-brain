@@ -92,8 +92,25 @@ Route::get('/clear-cache-emergency', function() {
 
 // VICI SECTION
 Route::prefix('vici')->group(function () {
+    // Debug route to check what's wrong
+    Route::get('/test', function() {
+        return response()->json([
+            'status' => 'OK',
+            'message' => 'Vici routes are working',
+            'timestamp' => now()->toISOString()
+        ]);
+    });
+    
     Route::get('/', function() {
-        return view('vici.dashboard');
+        try {
+            return view('vici.dashboard');
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ], 500);
+        }
     })->name('vici.dashboard');
     
     Route::get('/reports', function() {
