@@ -128,12 +128,36 @@ Route::get('/lead-flow-ab-test', function() {
     })->name('vici.lead-flow-ab');
     
     Route::get('/sync-status', function() {
-        // Temporarily return JSON to test if route works
-        return response()->json([
-            'status' => 'Route is working',
-            'message' => 'The sync-status route is accessible',
-            'timestamp' => now()->toISOString()
-        ]);
+        // Provide all required variables with safe defaults
+        $lastCompleteSync = null;
+        $lastIncrementalSync = null;
+        $syncHistory = collect();
+        $pendingSync = 0;
+        $totalCallLogs = 0;
+        $totalViciMetrics = 0;
+        
+        try {
+            $totalCallLogs = DB::table('orphan_call_logs')->count();
+            $totalViciMetrics = DB::table('vici_call_metrics')->count();
+        } catch (\Exception $e) {
+            // Tables don't exist, use defaults
+        }
+        
+        $syncStats = [
+            'total_synced_today' => 0,
+            'total_synced_week' => 0,
+            'total_synced_month' => 0,
+        ];
+        
+        return view('admin.vici-sync-management', compact(
+            'lastCompleteSync',
+            'lastIncrementalSync',
+            'totalCallLogs',
+            'totalViciMetrics',
+            'syncHistory',
+            'syncStats',
+            'pendingSync'
+        ));
     })->name('vici.sync-status');
     
     Route::get('/settings', function() {
@@ -6139,12 +6163,42 @@ Route::get('/admin/vici-reports', function () {
 
 // Comprehensive Vici Reports with 12 Different Report Types
 Route::get('/admin/vici-comprehensive-reports', function() {
-    // Temporarily return JSON to test if route works
-    return response()->json([
-        'status' => 'Route is working',
-        'message' => 'The vici-comprehensive-reports route is accessible',
-        'timestamp' => now()->toISOString()
-    ]);
+    // Provide all required data with safe defaults
+    $executiveSummary = [
+        'total_leads' => 0,
+        'total_calls' => 0,
+        'conversion_rate' => 0,
+        'avg_speed_to_lead' => 0,
+        'revenue' => 0,
+        'cost' => 0,
+        'roi' => 0
+    ];
+    
+    $agentScorecard = collect();
+    $campaignROI = collect();
+    $speedToLead = collect();
+    $leadRecycling = collect();
+    $optimalCallTimes = collect();
+    $leadWaste = collect();
+    $predictiveScoring = collect();
+    $realTimeOps = [
+        'active_agents' => 0,
+        'calls_in_progress' => 0,
+        'leads_in_hopper' => 0,
+        'avg_wait_time' => 0
+    ];
+    
+    return view('admin.vici-comprehensive-reports', compact(
+        'executiveSummary',
+        'agentScorecard',
+        'campaignROI',
+        'speedToLead',
+        'leadRecycling',
+        'optimalCallTimes',
+        'leadWaste',
+        'predictiveScoring',
+        'realTimeOps'
+    ));
 })->name('admin.vici.comprehensive-reports');
 Route::get('/admin/vici-reports/export/{type}', 'App\Http\Controllers\ViciReportsController@exportReports')
     ->name('admin.vici.export-reports');
