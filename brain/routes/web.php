@@ -181,8 +181,13 @@ Route::prefix('vici')->group(function () {
     })->name('vici.reports');
     
     Route::get('/lead-flow', function() {
-        return view('vici.lead-flow-static');
+        return view('vici.lead-flow-evolved');
     })->name('vici.lead-flow');
+    
+    // Original Lead Flow (for reference)
+    Route::get('/lead-flow-original', function () {
+        return view('vici.lead-flow-static');
+    })->name('vici.lead-flow-original');
     
     Route::get('/lead-flow-visual', function() {
         return view('vici.lead-flow');
