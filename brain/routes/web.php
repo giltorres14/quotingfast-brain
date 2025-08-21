@@ -10133,3 +10133,8 @@ Route::get('/reports/call-analytics', [CallAnalyticsController::class, 'index'])
 Route::post('/api/reports/call-analytics', [CallAnalyticsController::class, 'getAnalytics']);
 Route::get('/api/reports/export-csv', [CallAnalyticsController::class, 'exportCSV']);
  
+
+// All Leads Management Page with Working Date Filters
+Route::get('/all-leads', function () {
+    return view('admin.all-leads');
+});
