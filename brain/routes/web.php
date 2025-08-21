@@ -3633,16 +3633,44 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             ];
         }
 
+        // Ensure lead has all required properties for the view
+        if ($lead && !isset($lead->name) && isset($lead->first_name)) {
+            $lead->name = trim(($lead->first_name ?? '') . ' ' . ($lead->last_name ?? ''));
+        }
+        
+        // Make sure created_at and updated_at are Carbon instances or strings
+        if ($lead && isset($lead->created_at) && !($lead->created_at instanceof \Carbon\Carbon)) {
+            try {
+                $lead->created_at = \Carbon\Carbon::parse($lead->created_at);
+            } catch (Exception $e) {
+                $lead->created_at = \Carbon\Carbon::now();
+            }
+        }
+        
+        if ($lead && isset($lead->updated_at) && !($lead->updated_at instanceof \Carbon\Carbon)) {
+            try {
+                $lead->updated_at = \Carbon\Carbon::parse($lead->updated_at);
+            } catch (Exception $e) {
+                $lead->updated_at = \Carbon\Carbon::now();
+            }
+        }
+        
         return response()->view('agent.lead-display', [
             'lead' => $lead,
             'callMetrics' => $callMetrics,
             'transferUrl' => url("/api/transfer/{$leadId}"),
             'apiBase' => url('/api'),
-            'mockData' => !($lead instanceof App\Models\Lead), // Flag to show this is mock data
+            'mockData' => false,
             'mode' => $mode // 'agent', 'view', or 'edit'
         ]);
 
     } catch (Exception $e) {
+        \Log::error('Agent lead display error', [
+            'lead_id' => $leadId,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
         return response()->view('agent.error', [
             'error' => $e->getMessage(),
             'leadId' => $leadId
