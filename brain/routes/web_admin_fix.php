@@ -3,3 +3,5 @@
 Route::get('/admin', function () {
     return redirect('/vici');
 });
+
+

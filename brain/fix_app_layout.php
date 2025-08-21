@@ -23,3 +23,5 @@ if ($htmlEndPos !== false) {
     echo "❌ Could not find </html> tag in file\n";
 }
 
+
+

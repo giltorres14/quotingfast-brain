@@ -38,3 +38,5 @@ try {
     echo "\nYou can create a user manually by running:\n";
     echo "php artisan make:filament-user\n";
 }
+
+

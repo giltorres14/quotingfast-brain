@@ -63,3 +63,5 @@ class AdminPanelProvider extends PanelProvider
             ->favicon('https://quotingfast.com/qfqflogo.png');
     }
 }
+
+
