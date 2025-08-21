@@ -193,3 +193,4 @@ Your idea: "Should I have 2 different lead flows with different lists in the flo
 2. Stop Make.com
 3. Let the automated flow take over
 
+

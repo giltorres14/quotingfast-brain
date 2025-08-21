@@ -767,3 +767,4 @@ class DirectHtmlController extends Controller
         </script>';
     }
 }
+

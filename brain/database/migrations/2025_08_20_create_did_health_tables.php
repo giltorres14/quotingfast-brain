@@ -122,3 +122,4 @@ class CreateDidHealthTables extends Migration
         Schema::dropIfExists('did_health_monitor');
     }
 }
+

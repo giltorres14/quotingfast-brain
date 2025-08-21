@@ -187,3 +187,4 @@ $executionTime = round(microtime(true) - $startTime, 2);
 echo "\n⏱️ Analysis completed in {$executionTime} seconds\n";
 echo "================================================================================\n";
 
+

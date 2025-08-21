@@ -185,3 +185,4 @@ class FixViciDashboard extends Command
         return 0;
     }
 }
+

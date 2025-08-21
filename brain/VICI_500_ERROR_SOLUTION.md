@@ -51,3 +51,4 @@ curl https://quotingfast-brain-ohio.onrender.com/vici/test
 - Direct HTML responses bypass all view compilation issues
 - Test routes (/test) help isolate routing vs view issues
 - Render.com has specific issues with Blade compilation that don't occur locally
+

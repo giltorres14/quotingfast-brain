@@ -46,3 +46,4 @@ class UpdateSystemTime extends Command
         return 0;
     }
 }
+

@@ -185,3 +185,4 @@ while (!$importComplete || !$vendorComplete) {
 }
 
 log_status("Monitor script completed successfully!");
+

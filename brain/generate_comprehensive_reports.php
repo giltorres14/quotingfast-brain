@@ -336,3 +336,4 @@ $reportContent = ob_get_contents();
 file_put_contents(__DIR__ . '/reports/90_day_analysis_' . date('Ymd_His') . '.txt', $reportContent);
 echo "Report saved to: reports/90_day_analysis_" . date('Ymd_His') . ".txt\n";
 
+

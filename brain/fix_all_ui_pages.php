@@ -472,3 +472,4 @@ foreach ($pages as $page => $config) {
 
 echo "\nShared styles and scripts have been generated.\n";
 echo "Next step: Update routes/web.php with direct HTML responses.\n";
+

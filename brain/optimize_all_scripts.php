@@ -462,3 +462,4 @@ echo "════════════════════════�
 // Run the optimizer
 $optimizer = new ScriptOptimizer();
 $optimizer->runAll();
+

@@ -147,3 +147,4 @@ class CheckViciHealth extends Command
    - Add to scheduler
    - Set up alerts for failures
 
+

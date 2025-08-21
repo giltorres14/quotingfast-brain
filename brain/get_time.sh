@@ -15,3 +15,4 @@ if [ $current_hour -ge 9 ] && [ $current_hour -lt 18 ]; then
 else
     echo "ViciDial Status: Outside calling hours"
 fi
+

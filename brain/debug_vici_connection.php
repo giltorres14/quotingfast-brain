@@ -155,3 +155,4 @@ if ($result && $result['success'] && isset($result['output'])) {
 curl_close($ch);
 
 echo "\n═══════════════════════════════════════════════════════════════\n";
+

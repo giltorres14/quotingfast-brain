@@ -33,3 +33,4 @@ echo "✓ All optimizations cleared\n";
 
 echo "\n✅ All caches cleared successfully!\n";
 echo "The server should now use the latest templates.\n";
+

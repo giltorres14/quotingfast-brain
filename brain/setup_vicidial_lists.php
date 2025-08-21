@@ -381,3 +381,4 @@ Generated: " . date('Y-m-d H:i:s T') . "
 
 file_put_contents('VICIDIAL_LIST_SETUP.md', $summaryDoc);
 echo "📄 Documentation saved to: VICIDIAL_LIST_SETUP.md\n";
+
