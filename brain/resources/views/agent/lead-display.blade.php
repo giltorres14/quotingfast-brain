@@ -4394,20 +4394,25 @@
         }
         
         // View Payload function
+        @if(isset($lead->payload))
+        const leadPayload = @json($lead->payload);
+        @else
+        const leadPayload = null;
+        @endif
+        
         function viewPayload() {
-            @if(isset($lead->payload))
-                const payload = @json($lead->payload);
+            if (leadPayload) {
                 let payloadData;
                 
                 // Parse if it's a string
-                if (typeof payload === 'string') {
+                if (typeof leadPayload === 'string') {
                     try {
-                        payloadData = JSON.parse(payload);
+                        payloadData = JSON.parse(leadPayload);
                     } catch (e) {
-                        payloadData = payload;
+                        payloadData = leadPayload;
                     }
                 } else {
-                    payloadData = payload;
+                    payloadData = leadPayload;
                 }
                 
                 // Create modal
@@ -4498,9 +4503,9 @@
                         document.body.removeChild(modal);
                     }
                 };
-            @else
+            } else {
                 alert('No payload data available for this lead.');
-            @endif
+            }
         }
         
         // Notify parent window that iframe is loaded

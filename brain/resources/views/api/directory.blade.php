@@ -676,51 +676,6 @@
     </script>
 </body>
 </html>
-                                    ">{{ $source->label }}</span>
-                                    {{ $source->name }}
-                                </div>
-                                <div class="endpoint-path">
-                                    Code: {{ $source->code }} | Type: {{ ucfirst($source->type) }}
-                                </div>
-                                <div class="endpoint-meta">
-                                    <span class="status-badge status-{{ $source->active ? 'active' : 'inactive' }}">
-                                        {{ $source->active ? 'Active' : 'Inactive' }}
-                                    </span>
-                                    <span style="margin-left: 10px; color: #64748b;">
-                                        {{ number_format($source->total_leads) }} leads
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="endpoint-body">
-                                @if($source->endpoint_url)
-                                    <div class="endpoint-description">
-                                        Endpoint: <code>{{ $source->endpoint_url }}</code>
-                                    </div>
-                                @endif
-                                @if($source->notes)
-                                    <div class="endpoint-description">{{ $source->notes }}</div>
-                                @endif
-                                @if($source->last_lead_at)
-                                    <div style="margin-top: 8px; color: #64748b; font-size: 12px;">
-                                        Last lead: {{ \Carbon\Carbon::parse($source->last_lead_at)->diffForHumans() }}
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-                
-                <!-- Add New Source Button -->
-                <div style="margin-top: 2rem; text-align: center;">
-                    <button onclick="openAddSourceModal()" class="btn btn-primary" style="background: #10b981; border-color: #10b981;">
-                        ➕ Add New Source
-                    </button>
-                </div>
-            @else
-                <p>No sources configured yet.</p>
-            @endif
-        </div>
-    </div>
 
     <!-- Add Source Modal -->
     <div id="addSourceModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
