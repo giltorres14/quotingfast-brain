@@ -339,7 +339,7 @@
             <a href="/admin/vici-comprehensive-reports" class="sub-nav-item {{ request()->is('admin/vici-comprehensive-reports') ? 'active' : '' }}">📊 Analytics</a>
             <a href="/vici/lead-flow" class="sub-nav-item {{ request()->is('vici/lead-flow') ? 'active' : '' }}">Lead Flow</a>
             <a href="/vici/lead-flow-ab-test" class="sub-nav-item {{ request()->is('vici/lead-flow-ab-test') ? 'active' : '' }}" style="background: #fef3c7; color: #92400e; font-weight: bold;">🔬 A/B Test</a>
-            <a href="/vici-command-center" class="sub-nav-item {{ request()->is('vici-command-center') ? 'active' : '' }}" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-weight: bold;">🎛️ COMMAND CENTER</a>
+            <a href="/vici/command-center" class="sub-nav-item {{ request()->is('vici/command-center') ? 'active' : '' }}" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; font-weight: bold;">🎛️ COMMAND CENTER</a>
             <a href="/vici/sync-status" class="sub-nav-item {{ request()->is('vici/sync-status') ? 'active' : '' }}">Sync Status</a>
             <a href="/vici/settings" class="sub-nav-item {{ request()->is('vici/settings') ? 'active' : '' }}">Settings</a>
         </div>

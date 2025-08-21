@@ -10138,3 +10138,8 @@ Route::get('/api/reports/export-csv', [CallAnalyticsController::class, 'exportCS
 Route::get('/all-leads', function () {
     return view('admin.all-leads');
 });
+
+// Redirect old command center URL to new one
+Route::get('/vici-command-center', function () {
+    return redirect('/vici/command-center');
+});

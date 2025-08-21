@@ -46,7 +46,7 @@
             <a href="/vici/lead-flow-ab-test" class="nav-link">🔬 A/B Test</a>
             <a href="/vici/sync-status" class="nav-link">Sync Status</a>
             <a href="/vici/settings" class="nav-link">Settings</a>
-            <a href="/vici-command-center" class="nav-link command-center-btn">🎛️ COMMAND CENTER</a>
+            <a href="/vici/command-center" class="nav-link command-center-btn">🎛️ COMMAND CENTER</a>
         </div>
     </div>
     
