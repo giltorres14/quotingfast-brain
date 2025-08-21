@@ -191,7 +191,6 @@ Route::prefix('vici')->group(function () {
     Route::get('/sql-automation', function() {
         return view('vici.sql-automation-dashboard');
     })->name('vici.sql-automation');
-});
 
 Route::get('/vici-command-center', function() {
     return view('vici.lead-flow-control-center');
