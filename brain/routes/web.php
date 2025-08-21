@@ -5,7 +5,7 @@ use App\Helpers\timezone;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
-use App\Http\Controllers\DirectHtmlController;
+use App\Helpers\UiHelper;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Lead;
 
@@ -149,7 +149,9 @@ Route::prefix('vici')->group(function () {
         ]);
     });
     
-    Route::get('/', [DirectHtmlController::class, 'viciDashboard'])->name('vici.dashboard');
+    Route::get('/', function() {
+        return response(UiHelper::getBeautifulDashboard())->header('Content-Type', 'text/html');
+    })->name('vici.dashboard');
     
     Route::get('/reports', function() {
         return redirect('/admin/vici-comprehensive-reports');
@@ -167,7 +169,9 @@ Route::prefix('vici')->group(function () {
     return view('vici.sql-automation-dashboard');
 })->name('vici.sql-automation');
 
-Route::get('/vici-command-center', [DirectHtmlController::class, 'commandCenter'])->name('vici.command-center');
+Route::get('/vici-command-center', function() {
+    return response(UiHelper::getCommandCenter())->header('Content-Type', 'text/html');
+})->name('vici.command-center');
 
 Route::get('/lead-flow-ab-test', function() {
         // Mock callback stats for now since Vici tables might not be accessible
