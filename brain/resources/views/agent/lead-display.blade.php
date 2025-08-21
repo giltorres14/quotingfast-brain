@@ -4394,11 +4394,7 @@
         }
         
         // View Payload function
-        @if(isset($lead->payload))
-        const leadPayload = @json($lead->payload);
-        @else
-        const leadPayload = null;
-        @endif
+        const leadPayload = @if(isset($lead->payload)) @json($lead->payload) @else null @endif;
         
         function viewPayload() {
             if (leadPayload) {
