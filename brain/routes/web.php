@@ -191,12 +191,12 @@ Route::prefix('vici')->group(function () {
     Route::get('/sql-automation', function() {
         return view('vici.sql-automation-dashboard');
     })->name('vici.sql-automation');
-
-Route::get('/vici-command-center', function() {
-    return view('vici.lead-flow-control-center');
-})->name('vici.command-center');
-
-Route::get('/lead-flow-ab-test', function() {
+    
+    Route::get('/command-center', function() {
+        return view('vici.lead-flow-control-center');
+    })->name('vici.command-center');
+    
+    Route::get('/lead-flow-ab-test', function() {
         // Mock callback stats for now since Vici tables might not be accessible
         $callbackStats = [
             'missed_call_callback_rate' => 12.3,
