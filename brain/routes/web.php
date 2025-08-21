@@ -3357,6 +3357,68 @@ Route::get('/leads', function (Request $request) {
     }
 });
 
+// Individual lead view route
+Route::get('/leads/{id}', function ($id) {
+    try {
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+        
+        // Get lead by ID
+        $stmt = $pdo->prepare("
+            SELECT * FROM leads 
+            WHERE id = :id OR external_lead_id = :id
+            LIMIT 1
+        ");
+        $stmt->execute([':id' => $id]);
+        $lead = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$lead) {
+            abort(404, 'Lead not found');
+        }
+        
+        // Redirect to agent view for now
+        return redirect('/agent/lead/' . $lead['id'] . '?mode=view');
+        
+    } catch (Exception $e) {
+        \Log::error('Lead view error: ' . $e->getMessage());
+        abort(500, 'Error loading lead');
+    }
+});
+
+// Individual lead edit route
+Route::get('/leads/{id}/edit', function ($id) {
+    try {
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+        
+        // Get lead by ID
+        $stmt = $pdo->prepare("
+            SELECT * FROM leads 
+            WHERE id = :id OR external_lead_id = :id
+            LIMIT 1
+        ");
+        $stmt->execute([':id' => $id]);
+        $lead = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$lead) {
+            abort(404, 'Lead not found');
+        }
+        
+        // Redirect to agent view in edit mode
+        return redirect('/agent/lead/' . $lead['id'] . '?mode=edit');
+        
+    } catch (Exception $e) {
+        \Log::error('Lead edit error: ' . $e->getMessage());
+        abort(500, 'Error loading lead');
+    }
+});
+
 // Agent iframe endpoint - displays full lead data with transfer button
 Route::get('/agent/lead/{leadId}', function ($leadId) {
     $mode = request()->get('mode', 'agent'); // 'agent', 'view', or 'edit'
