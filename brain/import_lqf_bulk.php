@@ -69,6 +69,8 @@ try {
     $insertStmt = $pdo->prepare("
         INSERT INTO leads (
             external_lead_id,
+            jangle_lead_id,
+            name,
             first_name,
             last_name,
             email,
@@ -84,6 +86,8 @@ try {
             tcpa_consent_text,
             trusted_form_cert,
             leadid_code,
+            user_agent,
+            landing_page_url,
             drivers,
             vehicles,
             current_policy,
@@ -92,12 +96,16 @@ try {
             vici_list_id,
             vendor_name,
             buyer_name,
+            campaign_id,
+            opt_in_date,
             received_at,
             created_at,
             updated_at,
             tenant_id
         ) VALUES (
             :external_lead_id,
+            :jangle_lead_id,
+            :name,
             :first_name,
             :last_name,
             :email,
@@ -113,6 +121,8 @@ try {
             :tcpa_consent_text,
             :trusted_form_cert,
             :leadid_code,
+            :user_agent,
+            :landing_page_url,
             :drivers,
             :vehicles,
             :current_policy,
@@ -121,10 +131,12 @@ try {
             :vici_list_id,
             :vendor_name,
             :buyer_name,
+            :campaign_id,
+            :opt_in_date,
             :received_at,
             NOW(),
             NOW(),
-            5
+            1
         )
         ON CONFLICT (external_lead_id) DO UPDATE
         SET 
@@ -157,11 +169,13 @@ try {
             $zipCode = $row[$columnMap['ZIP Code']] ?? '';
             $ipAddress = $row[$columnMap['IP Address']] ?? '';
             $timestamp = $row[$columnMap['Timestamp']] ?? '';
+            $originallyCreated = $row[$columnMap['Originally Created']] ?? '';
             $tcpa = $row[$columnMap['TCPA']] ?? '';
             $tcpaText = $row[$columnMap['TCPA Consent Text']] ?? '';
             $trustedForm = $row[$columnMap['Trusted Form Cert URL']] ?? '';
             $leadidCode = $row[$columnMap['LeadiD Code']] ?? '';
             $vendor = $row[$columnMap['Vendor']] ?? '';
+            $vendorCampaign = $row[$columnMap['Vendor Campaign']] ?? '';
             $buyer = $row[$columnMap['Buyer']] ?? '';
             
             // Parse the Data column (JSON)
@@ -197,9 +211,16 @@ try {
             // These are LQF bulk leads that need to be matched with ViciDial lists 6018-6026
             $viciListId = '0'; // Start in List 0, will be matched later
             
+            // Generate 13-digit external_lead_id
+            $timestamp = time();
+            $sequence = str_pad($imported % 1000, 3, '0', STR_PAD_LEFT);
+            $externalLeadId = $timestamp . $sequence;
+            
             // Execute insert/update
             $insertStmt->execute([
-                ':external_lead_id' => 'LQF_' . $leadId,
+                ':external_lead_id' => $externalLeadId,
+                ':jangle_lead_id' => $leadId,
+                ':name' => trim($firstName . ' ' . $lastName),
                 ':first_name' => $firstName,
                 ':last_name' => $lastName,
                 ':email' => $email,
@@ -223,7 +244,9 @@ try {
                 ':vici_list_id' => $viciListId,
                 ':vendor_name' => $vendor,
                 ':buyer_name' => $buyer,
-                ':received_at' => $timestamp ?: date('Y-m-d H:i:s')
+                ':campaign_id' => $vendorCampaign,
+                ':opt_in_date' => $timestamp ?: null,
+                ':received_at' => $originallyCreated ?: $timestamp ?: date('Y-m-d H:i:s')
             ]);
             
             if ($insertStmt->rowCount() > 0) {

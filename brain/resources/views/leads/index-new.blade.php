@@ -408,9 +408,7 @@
             <div class="lead-actions">
                 <a href="/agent/lead/{{ $lead->id }}?mode=view" class="btn btn-primary">👁️ View</a>
                 <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-secondary">✏️ Edit</a>
-                @if(isset($lead->payload) && $lead->payload)
-                    <button class="btn btn-secondary" onclick='showPayload(@json($lead))'>💾 Payload</button>
-                @endif
+                <a href="/api/lead/{{ $lead->id }}/payload" target="_blank" class="btn btn-secondary">📋 Payload</a>
             </div>
         </div>
     @empty
@@ -1156,9 +1154,7 @@
             <div class="lead-actions">
                 <a href="/agent/lead/{{ $lead->id }}?mode=view" class="btn btn-primary">👁️ View</a>
                 <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-secondary">✏️ Edit</a>
-                @if(isset($lead->payload) && $lead->payload)
-                    <button class="btn btn-secondary" onclick='showPayload(@json($lead))'>💾 Payload</button>
-                @endif
+                <a href="/api/lead/{{ $lead->id }}/payload" target="_blank" class="btn btn-secondary">📋 Payload</a>
             </div>
         </div>
     @empty
@@ -1494,6 +1490,7 @@
     }
 </script>
 @endsection
+
 
 
 
