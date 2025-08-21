@@ -3420,35 +3420,57 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             $isTestLead = false;
             
     try {
+        // Use direct database query instead of Model
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+        
         // First try to find by external_lead_id (for Vici), then by internal ID (for admin)
-        $lead = App\Models\Lead::where('external_lead_id', $leadId)->first();
-        if (!$lead && is_numeric($leadId)) {
-        $lead = App\Models\Lead::find($leadId);
-        }
-                if ($lead) {
-                    // Ensure JSON fields are properly decoded as arrays for view compatibility
-                    if (is_string($lead->drivers)) {
-                        $lead->drivers = json_decode($lead->drivers, true) ?: [];
-                    }
-                    if (is_string($lead->vehicles)) {
-                        $lead->vehicles = json_decode($lead->vehicles, true) ?: [];
-                    }
-                    if (is_string($lead->current_policy)) {
-                        $lead->current_policy = json_decode($lead->current_policy, true) ?: [];
-                    }
-                    if (is_string($lead->requested_policy)) {
-                        $lead->requested_policy = json_decode($lead->requested_policy, true) ?: [];
-                    }
-                    if (is_string($lead->meta)) {
-                        $lead->meta = json_decode($lead->meta, true) ?: [];
-                    }
-                    
-                    $callMetrics = App\Models\ViciCallMetrics::where('lead_id', $lead->id)->first();
-                }
-            } catch (Exception $dbError) {
-                // Database connection failed - try cache fallback
-                Log::info('Database connection failed, trying cache', ['error' => $dbError->getMessage(), 'lead_id' => $leadId]);
+        $stmt = $pdo->prepare("SELECT * FROM leads WHERE external_lead_id = :id OR id = :id2 LIMIT 1");
+        $stmt->execute([':id' => $leadId, ':id2' => $leadId]);
+        $leadData = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($leadData) {
+            // Convert to object for compatibility with view
+            $lead = (object) $leadData;
+            
+            // Ensure JSON fields are properly decoded as arrays for view compatibility
+            if (is_string($lead->drivers)) {
+                $lead->drivers = json_decode($lead->drivers, true) ?: [];
             }
+            if (is_string($lead->vehicles)) {
+                $lead->vehicles = json_decode($lead->vehicles, true) ?: [];
+            }
+            if (is_string($lead->current_policy)) {
+                $lead->current_policy = json_decode($lead->current_policy, true) ?: [];
+            }
+            if (is_string($lead->requested_policy)) {
+                $lead->requested_policy = json_decode($lead->requested_policy, true) ?: [];
+            }
+            if (is_string($lead->meta)) {
+                $lead->meta = json_decode($lead->meta, true) ?: [];
+            }
+            
+            // Try to get call metrics
+            $callMetrics = null;
+            try {
+                $stmt2 = $pdo->prepare("SELECT * FROM vici_call_metrics WHERE lead_id = :id LIMIT 1");
+                $stmt2->execute([':id' => $lead->id]);
+                $metricsData = $stmt2->fetch(PDO::FETCH_ASSOC);
+                if ($metricsData) {
+                    $callMetrics = (object) $metricsData;
+                }
+            } catch (Exception $e) {
+                // Call metrics table might not exist
+                $callMetrics = null;
+            }
+        }
+    } catch (Exception $dbError) {
+        // Database connection failed - try cache fallback
+        Log::info('Database connection failed, trying cache', ['error' => $dbError->getMessage(), 'lead_id' => $leadId]);
+    }
             
             // If database failed, try to get from cache (for recent LQF leads)
         if (!$lead) {
