@@ -1850,8 +1850,40 @@ Route::get('/api/lead/{leadId}/payload', function ($leadId) {
         // Try to find the lead in database first
         $lead = Lead::find($leadId);
         
-        if ($lead && $lead->payload) {
-            $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+        if ($lead) {
+            // Build the complete payload from all lead data
+            $payload = [
+                'contact' => [
+                    'first_name' => $lead->first_name,
+                    'last_name' => $lead->last_name,
+                    'phone' => $lead->phone,
+                    'email' => $lead->email,
+                    'address' => $lead->address,
+                    'city' => $lead->city,
+                    'state' => $lead->state,
+                    'zip_code' => $lead->zip_code
+                ],
+                'data' => [
+                    'drivers' => is_string($lead->drivers) ? json_decode($lead->drivers, true) : $lead->drivers,
+                    'vehicles' => is_string($lead->vehicles) ? json_decode($lead->vehicles, true) : $lead->vehicles,
+                    'current_policy' => is_string($lead->current_policy) ? json_decode($lead->current_policy, true) : $lead->current_policy,
+                    'requested_policy' => is_string($lead->requested_policy) ? json_decode($lead->requested_policy, true) : $lead->requested_policy
+                ],
+                'meta' => is_string($lead->meta) ? json_decode($lead->meta, true) : $lead->meta,
+                'compliance' => [
+                    'tcpa_compliant' => $lead->tcpa_compliant,
+                    'tcpa_consent_text' => $lead->tcpa_consent_text,
+                    'trusted_form_cert' => $lead->trusted_form_cert,
+                    'leadid_code' => $lead->leadid_code,
+                    'opt_in_date' => $lead->opt_in_date
+                ],
+                'identifiers' => [
+                    'id' => $lead->id,
+                    'external_lead_id' => $lead->external_lead_id,
+                    'jangle_lead_id' => $lead->jangle_lead_id,
+                    'vici_list_id' => $lead->vici_list_id
+                ]
+            ];
             
             return response()->json([
                 'lead_id' => $leadId,
@@ -3357,66 +3389,16 @@ Route::get('/leads', function (Request $request) {
     }
 });
 
-// Individual lead view route
+// Individual lead view route - redirect to agent view
 Route::get('/leads/{id}', function ($id) {
-    try {
-        $pdo = new PDO(
-            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
-            'brain_user',
-            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
-        );
-        
-        // Get lead by ID
-        $stmt = $pdo->prepare("
-            SELECT * FROM leads 
-            WHERE id = :id OR external_lead_id = :id
-            LIMIT 1
-        ");
-        $stmt->execute([':id' => $id]);
-        $lead = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$lead) {
-            abort(404, 'Lead not found');
-        }
-        
-        // Redirect to agent view for now
-        return redirect('/agent/lead/' . $lead['id'] . '?mode=view');
-        
-    } catch (Exception $e) {
-        \Log::error('Lead view error: ' . $e->getMessage());
-        abort(500, 'Error loading lead');
-    }
+    // Simply redirect to the agent lead view in view mode
+    return redirect('/agent/lead/' . $id . '?mode=view');
 });
 
-// Individual lead edit route
+// Individual lead edit route - redirect to agent edit
 Route::get('/leads/{id}/edit', function ($id) {
-    try {
-        $pdo = new PDO(
-            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
-            'brain_user',
-            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
-        );
-        
-        // Get lead by ID
-        $stmt = $pdo->prepare("
-            SELECT * FROM leads 
-            WHERE id = :id OR external_lead_id = :id
-            LIMIT 1
-        ");
-        $stmt->execute([':id' => $id]);
-        $lead = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if (!$lead) {
-            abort(404, 'Lead not found');
-        }
-        
-        // Redirect to agent view in edit mode
-        return redirect('/agent/lead/' . $lead['id'] . '?mode=edit');
-        
-    } catch (Exception $e) {
-        \Log::error('Lead edit error: ' . $e->getMessage());
-        abort(500, 'Error loading lead');
-    }
+    // Simply redirect to the agent lead view in edit mode
+    return redirect('/agent/lead/' . $id . '?mode=edit');
 });
 
 // Agent iframe endpoint - displays full lead data with transfer button

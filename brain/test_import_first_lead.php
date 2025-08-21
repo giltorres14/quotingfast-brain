@@ -190,6 +190,7 @@ try {
         INSERT INTO leads (
             external_lead_id,
             jangle_lead_id,
+            name,
             first_name,
             last_name,
             email,
@@ -224,6 +225,7 @@ try {
         ) VALUES (
             :external_lead_id,
             :jangle_lead_id,
+            :name,
             :first_name,
             :last_name,
             :email,
@@ -254,24 +256,15 @@ try {
             :received_at,
             NOW(),
             NOW(),
-            5
+            1
         )
-        ON CONFLICT (external_lead_id) DO UPDATE
-        SET 
-            jangle_lead_id = EXCLUDED.jangle_lead_id,
-            drivers = EXCLUDED.drivers,
-            vehicles = EXCLUDED.vehicles,
-            current_policy = EXCLUDED.current_policy,
-            requested_policy = EXCLUDED.requested_policy,
-            meta = EXCLUDED.meta,
-            opt_in_date = EXCLUDED.opt_in_date,
-            updated_at = NOW()
         RETURNING id, external_lead_id
     ");
     
     $insertStmt->execute([
         ':external_lead_id' => $externalLeadId,
         ':jangle_lead_id' => $leadId,
+        ':name' => trim($firstName . ' ' . $lastName),
         ':first_name' => $firstName,
         ':last_name' => $lastName,
         ':email' => $email,
