@@ -42,12 +42,14 @@ $isEditMode = request()->get('mode') === 'edit';
             <div class="flex items-center justify-between">
                 <!-- Left section -->
                 <div class="flex items-center space-x-4">
+                    <?php if (empty($isIframe)): ?>
                     <a href="/leads" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" style="display:inline-flex; align-items:center; color:#4b5563; background:#fff; border:1px solid #d1d5db; border-radius:6px; padding:6px 8px;">
                         <svg width="16" height="16" style="margin-right:8px; flex-shrink:0; color:#4b5563; display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                         </svg>
                         Back to Leads
                     </a>
+                    <?php endif; ?>
                     
                     <!-- Avatar -->
                     <div class="h-16 w-16 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg" style="margin-top: 8px;">
@@ -100,6 +102,155 @@ $isEditMode = request()->get('mode') === 'edit';
     <!-- Main Content -->
     <div class="container mx-auto px-4" style="padding-top: 120px;">
         <?php if ($isEditMode): ?>
+            <!-- Edit Mode - Show lead snapshot above the form -->
+            <div class="space-y-6 mb-6">
+                <!-- Contact Information (same as view) -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Contact Information</h3>
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Name</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->name); ?></dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->phone ?: 'N/A'); ?></dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Email</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->email ?: 'N/A'); ?></dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Address</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php 
+                                $addressParts = array_filter([
+                                    $lead->address,
+                                    $lead->city,
+                                    $lead->state,
+                                    $lead->zip ?? $lead->zip_code ?? null,
+                                ]);
+                                echo htmlspecialchars(implode(', ', $addressParts) ?: 'N/A');
+                                ?>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <?php if (!empty($vehicles)): ?>
+                <div class="bg-white shadow rounded-lg p-6" data-section="vehicles-edit">
+                    <h3 class="text-lg font-semibold mb-4">Vehicles</h3>
+                    <div class="space-y-4">
+                        <?php foreach ($vehicles as $vehicle): ?>
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <p class="font-medium">
+                                <?php 
+                                $vehicleDesc = array_filter([
+                                    $vehicle['year'] ?? '',
+                                    $vehicle['make'] ?? '',
+                                    $vehicle['model'] ?? ''
+                                ]);
+                                echo htmlspecialchars(implode(' ', $vehicleDesc) ?: 'Vehicle');
+                                ?>
+                            </p>
+                            <?php if (!empty($vehicle['vin'])): ?>
+                            <p class="text-sm text-gray-600">VIN: <?php echo htmlspecialchars($vehicle['vin']); ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($vehicle['primary_use'])): ?>
+                            <p class="text-sm text-gray-600">Use: <?php echo htmlspecialchars($vehicle['primary_use']); ?></p>
+                            <?php endif; ?>
+                            <details class="mt-2">
+                                <summary class="text-sm text-blue-700 cursor-pointer">More details</summary>
+                                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                                    <?php 
+                                    $vehicleDetails = [
+                                        'ownership' => 'Ownership',
+                                        'annual_miles' => 'Annual Miles',
+                                        'weekly_commute_days' => 'Commute Days/Week',
+                                        'one_way_distance' => 'One-way Commute (mi)',
+                                        'garage' => 'Garage Type',
+                                        'alarm' => 'Alarm',
+                                        'rental' => 'Rental',
+                                        'towing' => 'Towing',
+                                        'collision_deductible' => 'Collision Deductible',
+                                        'comprehensive_deductible' => 'Comprehensive Deductible',
+                                        'submodel' => 'Trim/Submodel',
+                                        'salvaged' => 'Salvaged'
+                                    ];
+                                    foreach ($vehicleDetails as $key => $label) {
+                                        if (isset($vehicle[$key]) && $vehicle[$key] !== '' && $vehicle[$key] !== null) {
+                                            $val = is_bool($vehicle[$key]) ? ($vehicle[$key] ? 'Yes' : 'No') : $vehicle[$key];
+                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . htmlspecialchars((string)$val) . '</div>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </details>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($drivers)): ?>
+                <div class="bg-white shadow rounded-lg p-6" data-section="drivers-edit">
+                    <h3 class="text-lg font-semibold mb-4">Drivers</h3>
+                    <div class="space-y-4">
+                        <?php foreach ($drivers as $driver): ?>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <p class="font-medium">
+                                <?php 
+                                $driverName = trim(($driver['first_name'] ?? '') . ' ' . ($driver['last_name'] ?? ''));
+                                echo htmlspecialchars($driverName ?: 'Driver');
+                                ?>
+                            </p>
+                            <?php if (!empty($driver['license_status'])): ?>
+                            <p class="text-sm text-gray-600">License: <?php echo htmlspecialchars($driver['license_status']); ?></p>
+                            <?php endif; ?>
+                            <details class="mt-2">
+                                <summary class="text-sm text-green-700 cursor-pointer">More details</summary>
+                                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                                    <?php 
+                                    $driverDetails = [
+                                        'relationship' => 'Relationship',
+                                        'birth_date' => 'DOB',
+                                        'gender' => 'Gender',
+                                        'marital_status' => 'Marital Status',
+                                        'license_state' => 'License State',
+                                        'license_status' => 'License Status',
+                                        'age_licensed' => 'Age Licensed',
+                                        'requires_sr22' => 'Requires SR-22',
+                                        'education' => 'Education',
+                                        'occupation' => 'Occupation',
+                                        'months_at_residence' => 'Months at Residence',
+                                        'license_ever_suspended' => 'License Ever Suspended'
+                                    ];
+                                    foreach ($driverDetails as $key => $label) {
+                                        if (isset($driver[$key]) && $driver[$key] !== '' && $driver[$key] !== null) {
+                                            $val = is_bool($driver[$key]) ? ($driver[$key] ? 'Yes' : 'No') : $driver[$key];
+                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . htmlspecialchars((string)$val) . '</div>';
+                                        }
+                                    }
+                                    $counts = [
+                                        'tickets' => 'Tickets',
+                                        'accidents' => 'Accidents',
+                                        'claims' => 'Claims'
+                                    ];
+                                    foreach ($counts as $k => $label) {
+                                        if (isset($driver[$k]) && is_array($driver[$k])) {
+                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . count($driver[$k]) . '</div>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </details>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+
             <!-- Edit Mode - Qualification Form -->
             <div class="bg-white shadow rounded-lg p-6">
                 <h2 class="text-2xl font-bold mb-6">Qualify Lead - Top 13 Questions</h2>
@@ -322,7 +473,7 @@ $isEditMode = request()->get('mode') === 'edit';
                                     $lead->address,
                                     $lead->city,
                                     $lead->state,
-                                    $lead->zip
+                                    $lead->zip ?? $lead->zip_code ?? null,
                                 ]);
                                 echo htmlspecialchars(implode(', ', $addressParts) ?: 'N/A');
                                 ?>
@@ -354,6 +505,33 @@ $isEditMode = request()->get('mode') === 'edit';
                             <?php if (!empty($vehicle['primary_use'])): ?>
                             <p class="text-sm text-gray-600">Use: <?php echo htmlspecialchars($vehicle['primary_use']); ?></p>
                             <?php endif; ?>
+                            <details class="mt-2">
+                                <summary class="text-sm text-blue-700 cursor-pointer">More details</summary>
+                                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                                    <?php 
+                                    $vehicleDetails = [
+                                        'ownership' => 'Ownership',
+                                        'annual_miles' => 'Annual Miles',
+                                        'weekly_commute_days' => 'Commute Days/Week',
+                                        'one_way_distance' => 'One-way Commute (mi)',
+                                        'garage' => 'Garage Type',
+                                        'alarm' => 'Alarm',
+                                        'rental' => 'Rental',
+                                        'towing' => 'Towing',
+                                        'collision_deductible' => 'Collision Deductible',
+                                        'comprehensive_deductible' => 'Comprehensive Deductible',
+                                        'submodel' => 'Trim/Submodel',
+                                        'salvaged' => 'Salvaged'
+                                    ];
+                                    foreach ($vehicleDetails as $key => $label) {
+                                        if (isset($vehicle[$key]) && $vehicle[$key] !== '' && $vehicle[$key] !== null) {
+                                            $val = is_bool($vehicle[$key]) ? ($vehicle[$key] ? 'Yes' : 'No') : $vehicle[$key];
+                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . htmlspecialchars((string)$val) . '</div>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </details>
                         </div>
                         <?php endforeach; ?>
                     </div>
@@ -376,12 +554,48 @@ $isEditMode = request()->get('mode') === 'edit';
                                 echo htmlspecialchars($driverName ?: 'Driver');
                                 ?>
                             </p>
-                            <?php if (!empty($driver['dob'])): ?>
-                            <p class="text-sm text-gray-600">DOB: <?php echo htmlspecialchars($driver['dob']); ?></p>
-                            <?php endif; ?>
                             <?php if (!empty($driver['license_status'])): ?>
                             <p class="text-sm text-gray-600">License: <?php echo htmlspecialchars($driver['license_status']); ?></p>
                             <?php endif; ?>
+                            <?php if (!empty($driver['dob']) || !empty($driver['birth_date'])): ?>
+                            <p class="text-sm text-gray-600">DOB: <?php echo htmlspecialchars($driver['dob'] ?? $driver['birth_date']); ?></p>
+                            <?php endif; ?>
+                            <details class="mt-2">
+                                <summary class="text-sm text-green-700 cursor-pointer">More details</summary>
+                                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                                    <?php 
+                                    $driverDetails = [
+                                        'relationship' => 'Relationship',
+                                        'gender' => 'Gender',
+                                        'marital_status' => 'Marital Status',
+                                        'license_state' => 'License State',
+                                        'license_status' => 'License Status',
+                                        'age_licensed' => 'Age Licensed',
+                                        'requires_sr22' => 'Requires SR-22',
+                                        'education' => 'Education',
+                                        'occupation' => 'Occupation',
+                                        'months_at_residence' => 'Months at Residence',
+                                        'license_ever_suspended' => 'License Ever Suspended'
+                                    ];
+                                    foreach ($driverDetails as $key => $label) {
+                                        if (isset($driver[$key]) && $driver[$key] !== '' && $driver[$key] !== null) {
+                                            $val = is_bool($driver[$key]) ? ($driver[$key] ? 'Yes' : 'No') : $driver[$key];
+                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . htmlspecialchars((string)$val) . '</div>';
+                                        }
+                                    }
+                                    $counts = [
+                                        'tickets' => 'Tickets',
+                                        'accidents' => 'Accidents',
+                                        'claims' => 'Claims'
+                                    ];
+                                    foreach ($counts as $k => $label) {
+                                        if (isset($driver[$k]) && is_array($driver[$k])) {
+                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . count($driver[$k]) . '</div>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </details>
                         </div>
                         <?php endforeach; ?>
                     </div>
