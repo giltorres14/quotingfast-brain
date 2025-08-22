@@ -1098,8 +1098,22 @@ $isEditMode = request()->get('mode') === 'edit';
 </div>
 
 <script>
+<?php
+// Compute defaults for Allstate-required fields from primary driver/payload
+$primaryDriver = [];
+if (is_array($drivers) && !empty($drivers)) {
+    $primaryDriver = $drivers[0];
+}
+$defaultDob = $primaryDriver['dob'] ?? $primaryDriver['birth_date'] ?? ($lead->date_of_birth ?? null);
+$defaultGender = $primaryDriver['gender'] ?? null;
+$defaultMarital = $primaryDriver['marital_status'] ?? null;
+?>
+
 // Get lead ID from PHP
 const leadId = '<?php echo $lead->id; ?>';
+const defaultDob = '<?php echo htmlspecialchars($defaultDob ?? "", ENT_QUOTES); ?>';
+const defaultGender = '<?php echo htmlspecialchars($defaultGender ?? "", ENT_QUOTES); ?>';
+const defaultMarital = '<?php echo htmlspecialchars($defaultMarital ?? "", ENT_QUOTES); ?>';
 
 // Toggle insurance questions based on currently insured selection
 function toggleInsuranceQuestions() {
@@ -1144,7 +1158,11 @@ function getFormData() {
         dui_sr22: document.getElementById('dui_sr22')?.value || '',
         dui_timeframe: document.getElementById('dui_timeframe')?.value || '',
         allstate_quote: document.getElementById('allstate_quote')?.value || '',
-        ready_to_speak: document.getElementById('ready_to_speak')?.value || ''
+        ready_to_speak: document.getElementById('ready_to_speak')?.value || '',
+        // Allstate-required fields (sourced from payload/primary driver)
+        date_of_birth: defaultDob || '',
+        gender: defaultGender || '',
+        marital_status: defaultMarital || ''
     };
     return data;
 }
@@ -1219,6 +1237,19 @@ async function enrichLead(type) {
             ['first_name', data.first_name || ''],
             ['last_name', data.last_name || ''],
             ['email', data.email || ''],
+            ['date_of_birth', data.date_of_birth || ''],
+            ['gender', (function(){
+                const g = (data.gender || '').toLowerCase().trim();
+                if (g === 'm' || g === 'male') return 'male';
+                if (g === 'f' || g === 'female') return 'female';
+                if (g === 'x') return 'X';
+                return 'unknown';
+            })()],
+            ['marital_status', (function(){
+                const m = (data.marital_status || '').toLowerCase().trim();
+                const valid = ['single','married','separated','divorced','widowed'];
+                return valid.includes(m) ? m : (m || 'single');
+            })()],
             ['residence_status', mapResidence(data.home_status)],
             ['tcpa_compliant', 'true'],
             ['external_id', leadId || ''],
