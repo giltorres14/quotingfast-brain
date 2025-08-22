@@ -1,134 +1,143 @@
 # Brain System Current State
-**Last Updated:** August 22, 2025 - Evening Session
+**Last Updated:** August 22, 2025 - 11:30 PM EST
 
-## ✅ Recent Accomplishments
+## 🎯 System Overview
+The Brain system is a lead management platform that receives, qualifies, and routes insurance leads from LeadsQuotingFast (LQF) to various buyers including Allstate via RingBA.
 
-### Lead View Page (Agent)
-- Implemented sticky top panel with full address and phone formatted as `(xxx) xxx-xxxx`
-- Restored layout and sections in this exact order:
-  1) Top Panel (sticky)
-  2) Lead Information
-  3) TCPA Compliance
-  4) Drivers
-  5) Vehicles
-  6) Current Insurance Policy
-- Drivers/Vehicles show all available data with expandable “More details” blocks
-- TCPA panel enriched with:
-  - `trusted_form_cert_url` (with copy),
-  - Opt-in Date (uses `opt_in_date` or meta `originally_created`, shown as mm-dd-yyyy),
-  - Landing Page URL (with copy),
-  - LeadiD/lead_id_code when available,
-  - Consent text in collapsible view with copy button
+## ✅ Recent Accomplishments (Aug 22, 2025)
 
-### Lead Edit Page (Agent / Iframe)
-- Top 13 Questions appear directly under the header (no scrolling needed)
-- Canonical question order aligned with project docs; conditional fields show when “Currently Insured = Yes”
-- In iframe view, header actions (Back, View Payload, Copy Payload, View Mode) are hidden
-- Lead Information: only Lead Type and External Lead ID visible in edit mode
-- TCPA Compliance: only TCPA Consent and Opt‑in Date visible in edit mode
-- Added Enrichment buttons after the questions: `Insured`, `Uninsured`, `Home` (hooked to RingBA test endpoints)
-- Opt-in date formatted as `mm-dd-yyyy`
+### Agent Lead View/Edit Pages - FULLY RESTORED
+1. **View Page** (`/agent/lead/{id}?mode=view`)
+   - Sticky header with lead name, phone (xxx) xxx-xxxx format, email, Lead ID
+   - Sections in order: Lead Information, TCPA Compliance, Drivers, Vehicles, Current Insurance
+   - All driver/vehicle data displays with expandable "More details"
+   - TCPA enriched with TrustedForm URL, opt-in date (mm-dd-yyyy), landing page, LeadiD, consent text
+   - Copy buttons for all important fields
 
-### Stability/Styling
-- Converted Blade conditionals inside JS to pure PHP (prevents compilation errors)
-- Added Tailwind via CDN in `layouts/app.blade.php` so utility classes render without local build
+2. **Edit Page** (`/agent/lead/{id}?mode=edit`)
+   - **8 Agent Qualification Questions** (not 13) with proper conditional logic:
+     1. Currently insured? → Shows provider & continuous coverage if Yes
+     2. How many vehicles?
+     3. Own or rent home?
+     4. DUI/SR22? → Shows timeframe if DUI selected
+     5. State
+     6. ZIP Code
+     7. Allstate quote in last 2 months? (with agent script)
+     8. Ready to speak now?
+   - **Enrichment Buttons**: Insured, Uninsured, Homeowner (RingBA integration)
+   - In iframe mode: hides Back/View Payload/Copy buttons
+   - Minimal Lead Info (Type, External ID) and TCPA (Consent, Opt-in date) shown
 
-## 📊 System Status
+### Technical Improvements
+- Removed all Blade directives from JavaScript (prevents compilation errors)
+- Added Tailwind CSS via CDN for consistent styling
+- Implemented proper conditional field toggling with JavaScript
+- RingBA parameter mapping for all three enrichment types
 
-## 📊 System Status
+## 📊 Current System Status
 
 ### ✅ Working
-- **LQF Webhook:** Receiving 1,360+ leads/day via `/api-webhook`
-- **Database:** 242,891+ leads in PostgreSQL
-- **Import Script:** Fixed to read Vertical column for lead type
+- **Lead Reception**: 2,873 leads in last 24 hours via `/api-webhook`
+- **Database**: 245,743 total leads (18,076 from LQF webhook)
+- **UI Pages**: Agent view/edit pages fully functional
+- **Health Check**: `/health` endpoint returning 200 OK
+- **Deployment**: Render.com auto-deploy via GitHub push
 
-### ❌ Not Working / Pending
-- Health endpoints `/health` and `/health/ui` availability in production is still inconsistent
-- Final RingBA parameter payloads (Insured/Uninsured/Home variants) need confirmation
+### ⚠️ Pending Tasks
+- **Lead Type Migration**: Many leads still showing "unknown" instead of "auto"/"home"
+- **Bulk Import**: 111k+ LQF leads ready for import (CSV prepared)
+- **ViciDial Integration**: Currently bypassed for testing, needs restoration
+- **RingBA Production**: Test endpoints working, production config pending
 
-### ⚠️ Pending Issues
-- **Lead Types:** Many showing "unknown" - need migration
-- **ViciDial Sync:** Lists 6018-6026 need matching
-- **Bulk Import:** LQF CSV ready but not imported
+### ❌ Known Issues
+- Some Blade templates in admin pages have @if inside <script> tags (6 files)
+- Duplicate route definitions need cleanup (70+ warnings)
+- Direct property access without isset() checks in various views
 
-## 🔧 This Session’s Work Log (Aug 22, 2025)
-- Restored and finalized Agent view page sections and styling
-- Rebuilt Agent edit page to display canonical Top 13 with conditional insured fields
-- Hid header action buttons in iframe mode; removed inline edit affordances elsewhere
-- Enriched TCPA panel and ensured mm‑dd‑yyyy formatting for Opt‑in
-- Replaced enrichment buttons with `Insured` / `Uninsured` / `Home` hooks
-- Injected Tailwind CDN; removed reliance on Blade-in-JS patterns
+## 🔄 Current Lead Flow
 
-### Files Modified
-- `resources/views/agent/lead-display.blade.php` (major UI + logic updates)
-- `resources/views/layouts/app.blade.php` (Tailwind CDN)
-- `routes/web.php` (lead view route stability, qualification save, RingBA test hooks)
+### Active Flow (Testing Mode)
+```
+LeadsQuotingFast → Brain (/api-webhook) → Database → Agent UI → RingBA Test → (Manual)
+```
 
-## 🛠️ Debug Tools Available
+### Target Production Flow
+```
+LeadsQuotingFast → Brain → ViciDial → Agent Qualification → RingBA → Allstate API
+```
+
+## 🛠️ Key Components
+
+### Endpoints
+- `/api-webhook` - Primary webhook for LQF leads (WORKING)
+- `/agent/lead/{id}` - Agent view/edit interface (WORKING)
+- `/health` - Health check endpoint (WORKING)
+- `/admin/allstate-testing` - Testing dashboard
+- `/test/ringba-send/{id}` - RingBA test endpoints
+
+### Database
+- **Production**: PostgreSQL on Render (Ohio region)
+- **Host**: dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com
+- **Database**: brain_production
+- **Lead Count**: 245,743+
+
+### Files Modified Today
+- `resources/views/agent/lead-display.blade.php` - Complete UI overhaul
+- `resources/views/layouts/app.blade.php` - Tailwind CDN added
+- `routes/web.php` - Route stability improvements
+
+## 📝 Agent Qualification Questions (Current Implementation)
+
+1. **Are you currently insured?**
+   - If Yes → Current provider (dropdown)
+   - If Yes → Continuous coverage duration
+
+2. **How many cars need a quote?** (1-4+ vehicles)
+
+3. **Do you own or rent your home?** (Own/Rent/Other)
+
+4. **DUI or SR22?**
+   - If DUI → How long ago? (Under 1 year/1-3 years/Over 3 years)
+
+5. **State** (All US states)
+
+6. **ZIP Code**
+
+7. **Have you received an Allstate quote in last 2 months?**
+
+8. **Ready to speak with an agent now?** (Yes/No/Maybe)
+
+## 🔧 Debug Tools Available
 ```bash
-php pre_deploy_check.php      # Check before deploying
-php check_recent_leads.php    # Monitor webhook activity
-php find_unbalanced_if.php    # Find Blade imbalances
-php trace_ifs.php             # Trace @if/@endif pairs
-php clear_view_cache.php      # Clear local view cache
+php pre_deploy_check.php      # Pre-deployment validation
+php check_recent_leads.php    # Monitor lead activity
+php find_unbalanced_if.php    # Find Blade syntax issues
+php clear_view_cache.php      # Clear compiled views
 ```
 
-## 📝 Critical Learnings
-1. **Always check git history** when something "used to work"
-2. **Blade compilation caches aggressively** on Render
-3. **CACHE_BUST in Dockerfile** forces complete rebuild
-4. **PDO queries more stable** than Eloquent in routes
-5. **View cache must be cleared** both locally and on server
-
-## 🎯 Immediate Next Actions
-1. **Wait for deployment** - Cache rebuild should complete in 2-3 min
-2. **Test lead pages** - Check if error is resolved
-3. **If still broken:** May need manual server intervention
-4. **If fixed:** Continue with pending tasks
-
-## 📋 TODO Status
-- [x] Fix Blade syntax errors
-- [x] Document session work
-- [ ] Wait for cache rebuild to complete
-- [ ] Verify lead pages working
-- [ ] Run type migration for "unknown" leads
-- [ ] Import LQF Bulk CSV
-- [ ] Sync ViciDial lists
-
-## 🔑 Key Information
-
-### Database Connection
-```
-Host: dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com
-Database: brain_production
-User: brain_user
-```
-
-### Test Lead
-- **ID:** 491471 (or 491801)
-- **Issue:** Shows "unknown" type, should be "auto"
-
-### Blade Template Rules
-- Must have exactly 81 @if and 81 @endif
-- Qualification form and TCPA sections are SEQUENTIAL, not nested
-- Never put @if/@endif inside JavaScript
-
-## ⚡ Quick Commands
+## 🚀 Deployment Process
 ```bash
-# Check system
-php pre_deploy_check.php
-
-# Monitor leads
-php check_recent_leads.php
-
-# Deploy with cache bust
-git add -A && git commit -m "Message" && git push origin main
-
-# Check specific lead
-psql -h dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com \
-  -U brain_user -d brain_production \
-  -c "SELECT id, type, name FROM leads WHERE id = 491471;"
+# Make changes
+git add -A
+git commit -m "Description of changes"
+git push origin main
+# Wait 2-3 minutes for Render deployment
 ```
+
+## 📋 Immediate Priorities
+1. ✅ Fix Agent UI pages (COMPLETED)
+2. ⬜ Migrate "unknown" lead types to proper values
+3. ⬜ Import 111k bulk leads from LQF CSV
+4. ⬜ Restore ViciDial integration
+5. ⬜ Configure production RingBA endpoints
+6. ⬜ Complete Allstate API integration
+
+## 🔑 Critical Notes
+- **External Lead ID Format**: 13-digit timestamp (e.g., 1755897534000)
+- **Lead Types**: Should be "auto" or "home", not "unknown"
+- **Blade Templates**: Never use @if/@endif inside <script> tags
+- **Cache Clearing**: Required after Blade template changes
+- **Iframe Mode**: Automatically hides navigation elements
 
 ---
-*This represents the exact state as of Dec 19, 2024 late night. Blade error persisting, cache rebuild in progress.*
+*System actively receiving ~120 leads/hour from LeadsQuotingFast*
