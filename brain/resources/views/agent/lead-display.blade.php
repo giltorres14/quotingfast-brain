@@ -22,6 +22,7 @@ $lead->trusted_form_cert_url = $lead->trusted_form_cert_url ?? null;
 $vehicles = isset($lead->vehicles) ? (is_string($lead->vehicles) ? json_decode($lead->vehicles, true) : $lead->vehicles) : [];
 $drivers = isset($lead->drivers) ? (is_string($lead->drivers) ? json_decode($lead->drivers, true) : $lead->drivers) : [];
 $current_policy = isset($lead->current_policy) ? (is_string($lead->current_policy) ? json_decode($lead->current_policy, true) : $lead->current_policy) : [];
+$meta = isset($lead->meta) ? (is_string($lead->meta) ? (json_decode($lead->meta, true) ?: []) : (is_array($lead->meta) ? $lead->meta : [])) : [];
 
 // Determine lead type
 // Phone formatter helper
@@ -156,6 +157,124 @@ $isEditMode = request()->get('mode') === 'edit';
                                 ?>
                             </dd>
                         </div>
+                    </dl>
+                </div>
+
+                <!-- Lead Information -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Lead Information</h3>
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Lead Type</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                    <?php echo strtolower($displayType) === 'auto' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'; ?>">
+                                    <?php echo $displayType; ?>
+                                </span>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">External Lead ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs">
+                                <?php echo htmlspecialchars($lead->external_lead_id); ?>
+                                <?php if (!empty($lead->external_lead_id)): ?>
+                                <button type="button" class="ml-2 text-[10px] px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->external_lead_id, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                                <?php endif; ?>
+                            </dd>
+                        </div>
+                        <?php if (!empty($lead->jangle_lead_id)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Jangle ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->jangle_lead_id); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->source)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Source</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->source); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->campaign_id)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Campaign</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->campaign_id); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->received_at)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Received</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->received_at); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                    </dl>
+                </div>
+
+                <!-- TCPA Compliance -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">TCPA Compliance</h3>
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">TCPA Consent</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php echo ($lead->tcpa_compliant ?? ($meta['tcpa_compliant'] ?? false)) ? '✅ Yes' : '❌ No'; ?>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Opt-in Date</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php 
+                                $optIn = $lead->opt_in_date ?? ($meta['opt_in_date'] ?? ($meta['originally_created'] ?? null));
+                                echo htmlspecialchars($optIn ?: 'N/A');
+                                ?>
+                            </dd>
+                        </div>
+                        <?php 
+                        $trusted = $lead->trusted_form_cert_url ?? ($meta['trusted_form_cert_url'] ?? null);
+                        if (!empty($trusted)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">TrustedForm Certificate</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <a href="<?php echo htmlspecialchars($trusted); ?>" 
+                                   target="_blank" 
+                                   class="text-blue-600 hover:underline">
+                                    View Certificate
+                                </a>
+                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($trusted, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                            </dd>
+                        </div>
+                        <?php endif; ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">LeadiD Code</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php 
+                                $leadIdCode = $lead->leadid_token ?? ($meta['leadid_token'] ?? ($meta['lead_id_code'] ?? null));
+                                echo htmlspecialchars($leadIdCode ?: 'N/A');
+                            ?></dd>
+                        </div>
+                        <?php 
+                        $landing = $lead->landing_page_url ?? ($meta['landing_page_url'] ?? null);
+                        if (!empty($landing)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Landing Page</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <a href="<?php echo htmlspecialchars($landing); ?>" target="_blank" class="text-blue-600 hover:underline text-xs break-all"><?php echo htmlspecialchars($landing); ?></a>
+                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($landing, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                            </dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php 
+                        $tcpaText = $lead->tcpa_text ?? ($meta['tcpa_consent_text'] ?? null);
+                        if (!empty($tcpaText)): ?>
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">TCPA Text</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <details>
+                                    <summary class="text-blue-700 cursor-pointer inline-flex items-center">View consent text</summary>
+                                    <div class="bg-gray-50 p-2 rounded text-xs mt-2"><?php echo nl2br(htmlspecialchars($tcpaText)); ?></div>
+                                    <button type="button" class="mt-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($tcpaText, ENT_QUOTES); ?>'); this.textContent='✓ Copied'; setTimeout(()=>this.textContent='📋 Copy',1500)">📋 Copy</button>
+                                </details>
+                            </dd>
+                        </div>
+                        <?php endif; ?>
                     </dl>
                 </div>
 
@@ -616,147 +735,11 @@ $isEditMode = request()->get('mode') === 'edit';
                 </div>
                 <?php endif; ?>
 
-                <!-- Lead Metadata -->
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h3 class="text-lg font-semibold mb-4">Lead Information</h3>
-                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Lead Type</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full 
-                                    <?php echo strtolower($displayType) === 'auto' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'; ?>">
-                                    <?php echo $displayType; ?>
-                                </span>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">External Lead ID</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs">
-                                <?php echo htmlspecialchars($lead->external_lead_id); ?>
-                                <?php if (!empty($lead->external_lead_id)): ?>
-                                <button type="button" class="ml-2 text-[10px] px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->external_lead_id, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
-                                <?php endif; ?>
-                            </dd>
-                        </div>
-                        <?php if (!empty($lead->jangle_lead_id)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Jangle ID</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->jangle_lead_id); ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($lead->source)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Source</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->source); ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($lead->campaign_id)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Campaign</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->campaign_id); ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($lead->received_at)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Received</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->received_at); ?></dd>
-                        </div>
-                        <?php endif; ?>
-                    </dl>
-                </div>
+                <!-- removed duplicate Lead Information section: now rendered above per spec -->
 
-                <!-- TCPA Compliance -->
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h3 class="text-lg font-semibold mb-4">TCPA Compliance</h3>
-                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">TCPA Consent</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <?php echo ($lead->tcpa_compliant ?? ($lead->meta['tcpa_compliant'] ?? false)) ? '✅ Yes' : '❌ No'; ?>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Opt-in Date</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <?php 
-                                $optIn = $lead->opt_in_date ?? ($lead->meta['opt_in_date'] ?? null);
-                                echo htmlspecialchars($optIn ?: 'N/A');
-                                ?>
-                            </dd>
-                        </div>
-                        <?php 
-                        $trusted = $lead->trusted_form_cert_url ?? ($lead->meta['trusted_form_cert_url'] ?? null);
-                        if (!empty($trusted)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">TrustedForm Certificate</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <a href="<?php echo htmlspecialchars($trusted); ?>" 
-                                   target="_blank" 
-                                   class="text-blue-600 hover:underline">
-                                    View Certificate
-                                </a>
-                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($trusted, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
-                            </dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($lead->leadid_token) || !empty($lead->meta['leadid_token'])): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">LeadiD Token</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php echo htmlspecialchars(substr(($lead->leadid_token ?? $lead->meta['leadid_token']), 0, 20) . '...'); ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php 
-                        $tcpaText = $lead->tcpa_text ?? ($lead->meta['tcpa_consent_text'] ?? null);
-                        if (!empty($tcpaText)): ?>
-                        <div class="sm:col-span-2">
-                            <dt class="text-sm font-medium text-gray-500">TCPA Text</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <details>
-                                    <summary class="text-blue-700 cursor-pointer inline-flex items-center">View consent text</summary>
-                                    <div class="bg-gray-50 p-2 rounded text-xs mt-2"><?php echo nl2br(htmlspecialchars($tcpaText)); ?></div>
-                                    <button type="button" class="mt-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($tcpaText, ENT_QUOTES); ?>'); this.textContent='✓ Copied'; setTimeout(()=>this.textContent='📋 Copy',1500)">📋 Copy</button>
-                                </details>
-                            </dd>
-                        </div>
-                        <?php endif; ?>
-                    </dl>
-                </div>
+                <!-- removed duplicate TCPA section: now rendered above per spec -->
 
-                <!-- Technical Details -->
-                <?php if (!empty($lead->ip_address) || !empty($lead->user_agent)): ?>
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h3 class="text-lg font-semibold mb-4">Technical Details</h3>
-                    <dl class="space-y-2">
-                        <?php if (!empty($lead->ip_address)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">IP Address</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-mono"><?php echo htmlspecialchars($lead->ip_address); ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($lead->user_agent)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">User Agent</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <div class="bg-gray-50 p-2 rounded text-xs break-all"><?php echo htmlspecialchars($lead->user_agent); ?></div>
-                            </dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($lead->landing_page_url)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Landing Page</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <a href="<?php echo htmlspecialchars($lead->landing_page_url); ?>" 
-                                   target="_blank" 
-                                   class="text-blue-600 hover:underline text-xs break-all">
-                                    <?php echo htmlspecialchars($lead->landing_page_url); ?>
-                                </a>
-                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->landing_page_url, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
-                            </dd>
-                        </div>
-                        <?php endif; ?>
-                    </dl>
-                </div>
-                <?php endif; ?>
+                <!-- removed Technical Details for ordering cleanliness; can re-add later if needed -->
             </div>
         <?php endif; ?>
     </div>
