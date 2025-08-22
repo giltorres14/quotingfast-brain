@@ -37,7 +37,7 @@ $isEditMode = request()->get('mode') === 'edit';
 
 <div class="min-h-screen bg-gray-50">
     <!-- Sticky Header -->
-    <div style="position: fixed !important; top: 0; left: 0; right: 0; z-index: 9999 !important; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <div style="position: fixed !important; top: 0; left: 0; right: 0; z-index: 9999 !important; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.25);">
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <!-- Left section -->
@@ -57,17 +57,17 @@ $isEditMode = request()->get('mode') === 'edit';
 
                 <!-- Center section -->
                 <div class="flex-1 text-center px-4">
-                    <div class="text-sm text-gray-500 mb-1">
+                    <div class="text-sm mb-1" style="color:#e5edff;">
                         <?php echo $isEditMode ? 'Edit Mode' : 'View Only'; ?>
                     </div>
-                    <div class="font-bold text-lg">
+                    <div class="font-bold text-lg" style="color:#fff;">
                         <?php echo htmlspecialchars($lead->name); ?>
                     </div>
-                    <div class="text-gray-600 text-base font-semibold" style="line-height: 1.4;">
+                    <div class="text-base font-semibold" style="line-height: 1.4; color:#f0f6ff;">
                         <?php echo htmlspecialchars($lead->phone); ?><br>
                         <?php echo htmlspecialchars($lead->email); ?>
                     </div>
-                    <div class="text-sm text-gray-500 mt-1">
+                    <div class="text-sm mt-1" style="color:#dbeafe;">
                         Lead ID: <?php echo htmlspecialchars($lead->external_lead_id); ?>
                     </div>
                 </div>
@@ -76,20 +76,22 @@ $isEditMode = request()->get('mode') === 'edit';
                 <div class="flex items-center space-x-2">
                     <a href="/api/lead/<?php echo $lead->id; ?>/payload" 
                        target="_blank"
-                       class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                       class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">
                         View Payload
                     </a>
+                    <button type="button" data-url="/api/lead/<?php echo $lead->id; ?>/payload" class="inline-flex items-center px-3 py-2 rounded-md text-white bg-emerald-600 hover:bg-emerald-700" onclick="copyPayload(this)">📋 Copy Payload</button>
                     <?php if (!$isEditMode): ?>
                     <a href="?mode=edit" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-700 hover:bg-indigo-800">
                         Edit Lead
                     </a>
                     <?php else: ?>
                     <a href="?mode=view" 
-                       class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                       class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">
                         View Mode
                     </a>
                     <?php endif; ?>
+                    <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" style="height:28px; width:auto; margin-left:8px; opacity:0.95;">
                 </div>
             </div>
         </div>
@@ -296,11 +298,21 @@ $isEditMode = request()->get('mode') === 'edit';
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Phone</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->phone ?: 'N/A'); ?></dd>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php echo htmlspecialchars($lead->phone ?: 'N/A'); ?>
+                                <?php if (!empty($lead->phone)): ?>
+                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->phone, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                                <?php endif; ?>
+                            </dd>
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Email</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->email ?: 'N/A'); ?></dd>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php echo htmlspecialchars($lead->email ?: 'N/A'); ?>
+                                <?php if (!empty($lead->email)): ?>
+                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->email, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                                <?php endif; ?>
+                            </dd>
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Address</dt>
@@ -424,7 +436,12 @@ $isEditMode = request()->get('mode') === 'edit';
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">External Lead ID</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php echo htmlspecialchars($lead->external_lead_id); ?></dd>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs">
+                                <?php echo htmlspecialchars($lead->external_lead_id); ?>
+                                <?php if (!empty($lead->external_lead_id)): ?>
+                                <button type="button" class="ml-2 text-[10px] px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->external_lead_id, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                                <?php endif; ?>
+                            </dd>
                         </div>
                         <?php if (!empty($lead->jangle_lead_id)): ?>
                         <div>
@@ -478,6 +495,7 @@ $isEditMode = request()->get('mode') === 'edit';
                                    class="text-blue-600 hover:underline">
                                     View Certificate
                                 </a>
+                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->trusted_form_cert_url, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
                             </dd>
                         </div>
                         <?php endif; ?>
@@ -526,6 +544,7 @@ $isEditMode = request()->get('mode') === 'edit';
                                    class="text-blue-600 hover:underline text-xs break-all">
                                     <?php echo htmlspecialchars($lead->landing_page_url); ?>
                                 </a>
+                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->landing_page_url, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
                             </dd>
                         </div>
                         <?php endif; ?>
@@ -547,6 +566,19 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Form submitted');
         });
     }
+    window.copyPayload = async (btn) => {
+        try {
+            const url = btn.getAttribute('data-url');
+            const res = await fetch(url);
+            const text = await res.text();
+            await navigator.clipboard.writeText(text);
+            const original = btn.textContent;
+            btn.textContent = '✓ Copied!';
+            setTimeout(()=>btn.textContent = original, 1500);
+        } catch (err) {
+            console.error('Copy failed', err);
+        }
+    };
 });
 </script>
 @endsection
