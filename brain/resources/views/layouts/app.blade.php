@@ -10,6 +10,9 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
+    <!-- Tailwind CSS (CDN) for utility classes used across views -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
         * {
             margin: 0;
