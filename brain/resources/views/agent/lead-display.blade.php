@@ -71,16 +71,15 @@
             overflow-x: hidden;
             width: 100%;
             max-width: 900px;
-            margin: 0 auto;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
             padding: 15px 20px;
             border-radius: 8px;
-            position: fixed;
-            top: 0;
+            position: fixed !important;
+            top: 0 !important;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 2000;
+            z-index: 9999 !important;
             box-sizing: border-box;
             box-shadow: 0 4px 16px rgba(0,0,0,0.25);
             height: auto;
@@ -89,7 +88,8 @@
         
         /* Add padding to body to account for fixed header */
         body {
-            padding-top: 150px; /* Space for sticky header with contact info */
+            padding-top: 120px; /* Space for sticky header with contact info */
+            position: relative;
         }
         
         .header-logo {
@@ -917,7 +917,7 @@
             <a href="/leads" class="back-button" style="position: absolute; left: 12px; top: 12px; color: white; text-decoration: none; font-weight: 600; font-size: 14px; display: {{ $isIframe ? 'none' : 'block' }}; z-index: 100;">← Back to Leads</a>
             
             <!-- Lead Type Avatar Circle -->
-            <div style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%);">
+            <div style="position: absolute; left: 20px; bottom: 15px;">
                 <div style="
                     width: 70px; 
                     height: 70px; 
@@ -944,10 +944,10 @@
                     <div style="font-size: 12px; opacity: 0.9; margin-bottom: 2px;">(Edit Mode)</div>
                 @endif
                 <h1 style="margin: 0 0 8px 0; font-size: 22px; font-weight: 600;">{{ $lead->name }}</h1>
-                <div class="meta" style="font-size: 13px; opacity: 0.95; line-height: 1.5; text-align: center;">
-                    <div>{{ $lead->address }}, {{ $lead->city }}, {{ $lead->state }} {{ $lead->zip_code }}</div>
-                    <div>{{ $lead->email ?: 'No email' }}</div>
-                    <div>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</div>
+                <div class="meta" style="font-size: 14px; font-weight: 600; line-height: 1.6; text-align: center;">
+                    <div style="font-weight: bold;">{{ $lead->address }}, {{ $lead->city }}, {{ $lead->state }} {{ $lead->zip_code }}</div>
+                    <div style="font-weight: bold;">{{ $lead->email ?: 'No email' }}</div>
+                    <div style="font-weight: bold;">Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</div>
                 </div>
             </div>
             
