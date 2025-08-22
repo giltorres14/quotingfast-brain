@@ -76,6 +76,30 @@ Route::get('/test-deployment', function() {
     ]);
 });
 
+// Simple UI healthcheck - validates core views render and DB reachable
+Route::get('/health/ui', function() {
+    $checks = [
+        'db' => false,
+        'views' => [
+            'layouts.app' => view()->exists('layouts.app'),
+            'agent.lead-display' => view()->exists('agent.lead-display'),
+            'leads.index-new' => view()->exists('leads.index-new'),
+            'admin.simple-dashboard' => view()->exists('admin.simple-dashboard'),
+        ],
+        'http' => []
+    ];
+    try {
+        $cnt = \DB::table('leads')->count();
+        $checks['db'] = $cnt >= 0;
+    } catch (\Exception $e) {
+        return response()->json(['ok' => false, 'error' => 'db', 'message' => $e->getMessage(), 'checks' => $checks], 500);
+    }
+    // Perform lightweight render checks
+    try { view('agent.lead-display', ['lead' => (object)['id' => 0, 'name' => 'Healthcheck']])->render(); } catch (\Throwable $t) { return response()->json(['ok' => false, 'error' => 'agent.lead-display', 'message' => $t->getMessage()], 500); }
+    try { view('leads.index-new', ['leads' => collect(), 'statuses' => collect(), 'sources' => collect(), 'states' => collect(), 'search' => '', 'status' => '', 'source' => '', 'state_filter' => '', 'vici_status' => '', 'isTestMode' => true])->render(); } catch (\Throwable $t) { return response()->json(['ok' => false, 'error' => 'leads.index-new', 'message' => $t->getMessage()], 500); }
+    return response()->json(['ok' => true, 'checks' => $checks]);
+});
+
 // Clear cache route
 Route::get('/clear-cache-emergency', function() {
     Artisan::call('view:clear');

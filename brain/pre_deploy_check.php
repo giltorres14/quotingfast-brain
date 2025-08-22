@@ -51,9 +51,14 @@ foreach ($bladeFiles as $file) {
         $errors[] = "Unbalanced @if/@endif in $file (if: $ifCount, endif: $endifCount)";
     }
     
-    // Check for @if inside JavaScript functions (common error)
-    if (preg_match('/function\s+\w+\s*\([^)]*\)\s*\{[^}]*@if/s', $content)) {
-        $warnings[] = "Found @if inside JavaScript function in $file - may cause Blade parsing issues";
+    // Check for @if anywhere inside <script> tags (STRICT - treat as error)
+    if (preg_match('/<script[^>]*>[\s\S]*?@if[\s\S]*?<\/script>/i', $content)) {
+        $errors[] = "Blade @if/@endif found inside <script> in $file - this will break compilation";
+    } else {
+        // Also warn when @if appears inside any typical JS function block
+        if (preg_match('/function\s+\w+\s*\([^)]*\)\s*\{[\s\S]*?@if[\s\S]*?\}/', $content)) {
+            $warnings[] = "Found @if inside JavaScript function in $file - may cause Blade parsing issues";
+        }
     }
     
     // Check for undefined variable access patterns
