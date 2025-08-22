@@ -130,7 +130,161 @@ $isEditMode = request()->get('mode') === 'edit';
             <!-- Edit Mode - Show questions first under top header -->
             <div class="bg-white shadow rounded-lg p-6">
                 <h2 class="text-2xl font-bold mb-6">Qualify Lead - Top 13 Questions</h2>
-                <!-- existing form moved up intact -->
+                <form method="POST" action="/agent/lead/<?php echo $lead->id; ?>/qualify" id="qualificationFormTop">
+                    <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
+                    <div class="space-y-6">
+                        <!-- Question 1: Ready to speak -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">1. Are you ready to speak with an agent about auto insurance?</label>
+                            <select name="ready_to_speak" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 2: Shopping for rates -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">2. Are you shopping for better rates?</label>
+                            <select name="shopping_for_rates" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 3: Currently insured (drives conditional fields) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">3. Do you currently have auto insurance?</label>
+                            <select id="currently_insured_top" name="currently_insured" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Conditional insured fields -->
+                        <div id="insuredFieldsTop" class="space-y-4" style="display:none;">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">4. Who is your current insurance provider?</label>
+                                <input type="text" name="current_insurance_company" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Enter company name">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Policy Expiration Date</label>
+                                <input type="date" name="policy_expiration_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Current Monthly Premium</label>
+                                <input type="number" step="0.01" name="current_premium" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g. 125.00">
+                            </div>
+                        </div>
+
+                        <!-- Question 5: Number of vehicles -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">5. How many vehicles need insurance?</label>
+                            <select name="num_vehicles" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5+">5 or more</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 6: Number of drivers -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">6. How many drivers will be on the policy?</label>
+                            <select name="num_drivers" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5+">5 or more</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 7: Valid license -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">7. Do all drivers have valid licenses?</label>
+                            <select name="valid_licenses" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 8: DUI/DWI -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">8. Any DUI/DWI in the last 5 years?</label>
+                            <select name="dui_dwi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 9: SR-22 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">9. Do you need SR-22 filing?</label>
+                            <select name="sr22_required" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 10: Homeowner -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">10. Do you own your home?</label>
+                            <select name="homeowner" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 11: Continuous coverage -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">11. Have you had continuous coverage for the last 6 months?</label>
+                            <select name="continuous_coverage" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 12: Best time to call -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">12. Best time to reach you?</label>
+                            <select name="best_time_to_call" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="morning">Morning (9am-12pm)</option>
+                                <option value="afternoon">Afternoon (12pm-5pm)</option>
+                                <option value="evening">Evening (5pm-8pm)</option>
+                                <option value="anytime">Anytime</option>
+                            </select>
+                        </div>
+
+                        <!-- Question 13: Transfer to Allstate -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">13. Would you like to speak with an Allstate agent now?</label>
+                            <select name="transfer_to_allstate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes - Transfer Now</option>
+                                <option value="later">Maybe Later</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+
+                        <!-- Submit buttons -->
+                        <div class="flex justify-between pt-6">
+                            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Save Qualification</button>
+                            <a href="?mode=view" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400">Cancel</a>
+                        </div>
+                    </div>
+                </form>
             </div>
 
             <!-- Edit Mode - Show lead snapshot under the questions -->
@@ -303,9 +457,9 @@ $isEditMode = request()->get('mode') === 'edit';
                 <div class="bg-white shadow rounded-lg p-6">
                     <h3 class="text-lg font-semibold mb-4">Enrichment</h3>
                     <div class="flex flex-wrap gap-2">
-                        <a href="/test/ringba-send/<?php echo urlencode($lead->id); ?>" class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Send to RingBA (Basic)</a>
-                        <a href="/test/ringba-send-qualified/<?php echo urlencode($lead->id); ?>" class="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">Send Qualified</a>
-                        <a href="/test/ringba-decision/<?php echo urlencode($lead->id); ?>" class="px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-700">Decision Test</a>
+                        <a href="/test/ringba-send-qualified/<?php echo urlencode($lead->id); ?>?status=insured" class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Insured</a>
+                        <a href="/test/ringba-send-qualified/<?php echo urlencode($lead->id); ?>?status=uninsured" class="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">Uninsured</a>
+                        <a href="/test/ringba-decision/<?php echo urlencode($lead->id); ?>/home" class="px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-700">Home</a>
                     </div>
                 </div>
 
@@ -423,10 +577,9 @@ $isEditMode = request()->get('mode') === 'edit';
                 <?php endif; ?>
             </div>
 
-            <!-- Edit Mode - Qualification Form (moved above) -->
+            <!-- Edit Mode - Qualification Form (legacy block retained but hidden) -->
             <div class="bg-white shadow rounded-lg p-6 hidden">
                 <h2 class="text-2xl font-bold mb-6">Qualify Lead - Top 13 Questions</h2>
-                
                 <form method="POST" action="/agent/lead/<?php echo $lead->id; ?>/qualify" id="qualificationForm">
                     <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
                     
@@ -961,6 +1114,17 @@ $isEditMode = request()->get('mode') === 'edit';
 <script>
 // Simple JavaScript for form handling
 document.addEventListener('DOMContentLoaded', function() {
+    // Conditional fields for insured flow
+    const insuredSelect = document.getElementById('currently_insured_top');
+    const insuredFields = document.getElementById('insuredFieldsTop');
+    if (insuredSelect && insuredFields) {
+        const toggleInsured = () => {
+            insuredFields.style.display = insuredSelect.value === 'yes' ? '' : 'none';
+        };
+        insuredSelect.addEventListener('change', toggleInsured);
+        toggleInsured();
+    }
+
     const form = document.getElementById('qualificationForm');
     if (form) {
         form.addEventListener('submit', function(e) {
