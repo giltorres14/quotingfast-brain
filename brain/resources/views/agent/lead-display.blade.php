@@ -922,8 +922,16 @@
                     $leadType = strtolower($lead->type ?? 'auto');
                     // Check if we have vehicles to determine if it's auto
                     if ($leadType === 'unknown' || !$lead->type) {
-                        if (isset($lead->vehicles) && !empty(json_decode($lead->vehicles, true))) {
-                            $leadType = 'auto';
+                        // Check if we have vehicles - handle both array and string formats
+                        if (isset($lead->vehicles)) {
+                            $hasVehicles = false;
+                            if (is_array($lead->vehicles)) {
+                                $hasVehicles = !empty($lead->vehicles);
+                            } elseif (is_string($lead->vehicles)) {
+                                $decoded = json_decode($lead->vehicles, true);
+                                $hasVehicles = !empty($decoded);
+                            }
+                            $leadType = $hasVehicles ? 'auto' : 'auto'; // Default to auto
                         } else {
                             $leadType = 'auto'; // Default to auto
                         }
@@ -990,7 +998,6 @@
         
         <!-- Ringba Qualification Form -->
         @if(!isset($mode) || $mode === 'agent' || $mode === 'edit')
-        @if(isset($mode) && ($mode === 'edit' || $mode === 'agent'))
         <div class="qualification-form">
             <div class="qualification-header section-title qualification">
                 🎯 Lead Qualification - Top 13 Questions
@@ -1096,9 +1103,13 @@
                         $vehicleCount = 0;
                         if (isset($lead->vehicles)) {
                             // Handle both array and string formats (cumulative learning)
-                            $vehicles = is_array($lead->vehicles) ? $lead->vehicles : json_decode($lead->vehicles, true);
-                            if (is_array($vehicles)) {
-                                $vehicleCount = count($vehicles);
+                            if (is_array($lead->vehicles)) {
+                                $vehicleCount = count($lead->vehicles);
+                            } elseif (is_string($lead->vehicles) && !empty($lead->vehicles)) {
+                                $vehicles = json_decode($lead->vehicles, true);
+                                if (is_array($vehicles)) {
+                                    $vehicleCount = count($vehicles);
+                                }
                             }
                         }
                     @endphp
@@ -1800,6 +1811,7 @@
                 </div>
             </div>
         </div>
+        @endif
         @endif
 
         <!-- Call Metrics removed from agent view - admin only data -->
