@@ -99,22 +99,24 @@ $isEditMode = request()->get('mode') === 'edit';
 
                 <!-- Right section -->
                 <div class="flex items-center space-x-2">
-                    <a href="/api/lead/<?php echo $lead->id; ?>/payload" 
-                       target="_blank"
-                       class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">
-                        View Payload
-                    </a>
-                    <button type="button" data-url="/api/lead/<?php echo $lead->id; ?>/payload" class="inline-flex items-center px-3 py-2 rounded-md text-white bg-emerald-600 hover:bg-emerald-700" onclick="copyPayload(this)">📋 Copy Payload</button>
-                    <?php if (!$isEditMode): ?>
-                    <a href="?mode=edit" 
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-700 hover:bg-indigo-800">
-                        Edit Lead
-                    </a>
-                    <?php else: ?>
-                    <a href="?mode=view" 
-                       class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">
-                        View Mode
-                    </a>
+                    <?php if (empty($isIframe)): ?>
+                        <a href="/api/lead/<?php echo $lead->id; ?>/payload" 
+                           target="_blank"
+                           class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">
+                            View Payload
+                        </a>
+                        <button type="button" data-url="/api/lead/<?php echo $lead->id; ?>/payload" class="inline-flex items-center px-3 py-2 rounded-md text-white bg-emerald-600 hover:bg-emerald-700" onclick="copyPayload(this)">📋 Copy Payload</button>
+                        <?php if (!$isEditMode): ?>
+                        <a href="?mode=edit" 
+                           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-700 hover:bg-indigo-800">
+                            Edit Lead
+                        </a>
+                        <?php else: ?>
+                        <a href="?mode=view" 
+                           class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">
+                            View Mode
+                        </a>
+                        <?php endif; ?>
                     <?php endif; ?>
                     <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" style="height:28px; width:auto; margin-left:8px; opacity:0.95;">
                 </div>
@@ -125,7 +127,13 @@ $isEditMode = request()->get('mode') === 'edit';
     <!-- Main Content -->
     <div class="container mx-auto px-4" style="padding-top: 120px;">
         <?php if ($isEditMode): ?>
-            <!-- Edit Mode - Show lead snapshot above the form -->
+            <!-- Edit Mode - Show questions first under top header -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h2 class="text-2xl font-bold mb-6">Qualify Lead - Top 13 Questions</h2>
+                <!-- existing form moved up intact -->
+            </div>
+
+            <!-- Edit Mode - Show lead snapshot under the questions -->
             <div class="space-y-6 mb-6">
                 <!-- Contact Information (same as view) -->
                 <div class="bg-white shadow rounded-lg p-6">
@@ -160,8 +168,8 @@ $isEditMode = request()->get('mode') === 'edit';
                     </dl>
                 </div>
 
-                <!-- Lead Information -->
-                <div class="bg-white shadow rounded-lg p-6">
+                <!-- Lead Information (edit mode: partially hidden via CSS) -->
+                <div class="bg-white shadow rounded-lg p-6 <?php echo $isEditMode ? 'edit-condensed' : ''; ?>">
                     <h3 class="text-lg font-semibold mb-4">Lead Information</h3>
                     <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
                         <div>
@@ -188,29 +196,31 @@ $isEditMode = request()->get('mode') === 'edit';
                             <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->jangle_lead_id); ?></dd>
                         </div>
                         <?php endif; ?>
-                        <?php if (!empty($lead->source)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Source</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->source); ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($lead->campaign_id)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Campaign</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->campaign_id); ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($lead->received_at)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Received</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->received_at); ?></dd>
-                        </div>
+                        <?php if (!$isEditMode): ?>
+                            <?php if (!empty($lead->source)): ?>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Source</dt>
+                                <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->source); ?></dd>
+                            </div>
+                            <?php endif; ?>
+                            <?php if (!empty($lead->campaign_id)): ?>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Campaign</dt>
+                                <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->campaign_id); ?></dd>
+                            </div>
+                            <?php endif; ?>
+                            <?php if (!empty($lead->received_at)): ?>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Received</dt>
+                                <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->received_at); ?></dd>
+                            </div>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </dl>
                 </div>
 
                 <!-- TCPA Compliance -->
-                <div class="bg-white shadow rounded-lg p-6">
+                <div class="bg-white shadow rounded-lg p-6 <?php echo $isEditMode ? 'edit-condensed' : ''; ?>">
                     <h3 class="text-lg font-semibold mb-4">TCPA Compliance</h3>
                     <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
                         <div>
@@ -223,59 +233,80 @@ $isEditMode = request()->get('mode') === 'edit';
                             <dt class="text-sm font-medium text-gray-500">Opt-in Date</dt>
                             <dd class="mt-1 text-sm text-gray-900">
                                 <?php 
-                                $optIn = $lead->opt_in_date ?? ($meta['opt_in_date'] ?? ($meta['originally_created'] ?? null));
-                                echo htmlspecialchars($optIn ?: 'N/A');
+                                $optInRaw = $lead->opt_in_date ?? ($meta['opt_in_date'] ?? ($meta['originally_created'] ?? null));
+                                $optInFmt = $optInRaw;
+                                if (!empty($optInRaw)) {
+                                    try {
+                                        $dt = new DateTime($optInRaw);
+                                        $optInFmt = $dt->format('m-d-Y');
+                                    } catch (Exception $e) {
+                                        $optInFmt = $optInRaw;
+                                    }
+                                }
+                                echo htmlspecialchars($optInFmt ?: 'N/A');
                                 ?>
                             </dd>
                         </div>
-                        <?php 
-                        $trusted = $lead->trusted_form_cert_url ?? ($meta['trusted_form_cert_url'] ?? null);
-                        if (!empty($trusted)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">TrustedForm Certificate</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <a href="<?php echo htmlspecialchars($trusted); ?>" 
-                                   target="_blank" 
-                                   class="text-blue-600 hover:underline">
-                                    View Certificate
-                                </a>
-                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($trusted, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
-                            </dd>
-                        </div>
-                        <?php endif; ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">LeadiD Code</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php 
-                                $leadIdCode = $lead->leadid_token ?? ($meta['leadid_token'] ?? ($meta['lead_id_code'] ?? null));
-                                echo htmlspecialchars($leadIdCode ?: 'N/A');
-                            ?></dd>
-                        </div>
-                        <?php 
-                        $landing = $lead->landing_page_url ?? ($meta['landing_page_url'] ?? null);
-                        if (!empty($landing)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Landing Page</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <a href="<?php echo htmlspecialchars($landing); ?>" target="_blank" class="text-blue-600 hover:underline text-xs break-all"><?php echo htmlspecialchars($landing); ?></a>
-                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($landing, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
-                            </dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php 
-                        $tcpaText = $lead->tcpa_text ?? ($meta['tcpa_consent_text'] ?? null);
-                        if (!empty($tcpaText)): ?>
-                        <div class="sm:col-span-2">
-                            <dt class="text-sm font-medium text-gray-500">TCPA Text</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <details>
-                                    <summary class="text-blue-700 cursor-pointer inline-flex items-center">View consent text</summary>
-                                    <div class="bg-gray-50 p-2 rounded text-xs mt-2"><?php echo nl2br(htmlspecialchars($tcpaText)); ?></div>
-                                    <button type="button" class="mt-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($tcpaText, ENT_QUOTES); ?>'); this.textContent='✓ Copied'; setTimeout(()=>this.textContent='📋 Copy',1500)">📋 Copy</button>
-                                </details>
-                            </dd>
-                        </div>
+                        <?php if (!$isEditMode): ?>
+                            <?php 
+                            $trusted = $lead->trusted_form_cert_url ?? ($meta['trusted_form_cert_url'] ?? null);
+                            if (!empty($trusted)): ?>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">TrustedForm Certificate</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    <a href="<?php echo htmlspecialchars($trusted); ?>" 
+                                       target="_blank" 
+                                       class="text-blue-600 hover:underline">
+                                        View Certificate
+                                    </a>
+                                    <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($trusted, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                                </dd>
+                            </div>
+                            <?php endif; ?>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">LeadiD Code</dt>
+                                <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php 
+                                    $leadIdCode = $lead->leadid_token ?? ($meta['leadid_token'] ?? ($meta['lead_id_code'] ?? null));
+                                    echo htmlspecialchars($leadIdCode ?: 'N/A');
+                                ?></dd>
+                            </div>
+                            <?php 
+                            $landing = $lead->landing_page_url ?? ($meta['landing_page_url'] ?? null);
+                            if (!empty($landing)): ?>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Landing Page</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    <a href="<?php echo htmlspecialchars($landing); ?>" target="_blank" class="text-blue-600 hover:underline text-xs break-all"><?php echo htmlspecialchars($landing); ?></a>
+                                    <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($landing, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                                </dd>
+                            </div>
+                            <?php endif; ?>
+                            <?php 
+                            $tcpaText = $lead->tcpa_text ?? ($meta['tcpa_consent_text'] ?? null);
+                            if (!empty($tcpaText)): ?>
+                            <div class="sm:col-span-2">
+                                <dt class="text-sm font-medium text-gray-500">TCPA Text</dt>
+                                <dd class="mt-1 text-sm text-gray-900">
+                                    <details>
+                                        <summary class="text-blue-700 cursor-pointer inline-flex items-center">View consent text</summary>
+                                        <div class="bg-gray-50 p-2 rounded text-xs mt-2"><?php echo nl2br(htmlspecialchars($tcpaText)); ?></div>
+                                        <button type="button" class="mt-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($tcpaText, ENT_QUOTES); ?>'); this.textContent='✓ Copied'; setTimeout(()=>this.textContent='📋 Copy',1500)">📋 Copy</button>
+                                    </details>
+                                </dd>
+                            </div>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </dl>
+                </div>
+
+                <!-- Enrichment buttons (RingBA) -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Enrichment</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="/test/ringba-send/<?php echo urlencode($lead->id); ?>" class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Send to RingBA (Basic)</a>
+                        <a href="/test/ringba-send-qualified/<?php echo urlencode($lead->id); ?>" class="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">Send Qualified</a>
+                        <a href="/test/ringba-decision/<?php echo urlencode($lead->id); ?>" class="px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-700">Decision Test</a>
+                    </div>
                 </div>
 
                 <?php if (!empty($vehicles)): ?>
@@ -392,8 +423,8 @@ $isEditMode = request()->get('mode') === 'edit';
                 <?php endif; ?>
             </div>
 
-            <!-- Edit Mode - Qualification Form -->
-            <div class="bg-white shadow rounded-lg p-6">
+            <!-- Edit Mode - Qualification Form (moved above) -->
+            <div class="bg-white shadow rounded-lg p-6 hidden">
                 <h2 class="text-2xl font-bold mb-6">Qualify Lead - Top 13 Questions</h2>
                 
                 <form method="POST" action="/agent/lead/<?php echo $lead->id; ?>/qualify" id="qualificationForm">
