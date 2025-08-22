@@ -74,27 +74,23 @@
             margin: 0 auto;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
-            padding: 12px 16px;
+            padding: 15px 20px;
             border-radius: 8px;
             margin-bottom: 12px;
-            text-align: center;
             position: fixed;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 2000;
             box-sizing: border-box;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
             height: auto;
-            min-height: 80px;
+            min-height: 120px;
         }
         
         /* Add padding to body to account for fixed header */
         body {
-            padding-top: 120px; /* Reduced for smaller header */
+            padding-top: 150px; /* Space for sticky header with contact info */
         }
         
         .header-logo {
@@ -916,76 +912,93 @@
             </div>
             <div id="debug-log"></div>
         </div>
-        <!-- Header - Agent View (No Admin Data) -->
-        <div class="header" style="position: relative;">
-            <!-- Back button shows when NOT in edit mode -->
-            <a href="/leads" class="back-button" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: white; text-decoration: none; font-weight: 600; font-size: 14px; display: {{ $isIframe ? 'none' : 'block' }};">← Back to Leads</a>
+        <!-- Header - Sticky with Contact Info -->
+        <div class="header" style="position: relative; display: block;">
+            <!-- Back button -->
+            @if(!$isIframe)
+            <a href="/leads" class="back-button" style="position: absolute; left: 12px; top: 12px; color: white; text-decoration: none; font-weight: 600; font-size: 14px; z-index: 100;">← Back to Leads</a>
+            @endif
             
-            <!-- Lead Type Badge -->
-            <div style="margin-right: 15px;">
-                <div style="
-                    width: 60px; 
-                    height: 60px; 
-                    border-radius: 50%; 
-                    display: flex; 
-                    align-items: center; 
-                    justify-content: center; 
-                    font-weight: 700; 
-                    font-size: 14px; 
-                    color: white;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-                    background: {{ $lead->type === 'auto' ? 'linear-gradient(135deg, #667eea 0%, #3B82F6 100%)' : ($lead->type === 'home' ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)') }};
-                    border: 2px solid white;
-                ">
-                    {{ $lead->type === 'auto' ? 'AUTO' : ($lead->type === 'home' ? 'HOME' : strtoupper(substr($lead->type ?? 'N/A', 0, 4))) }}
-                </div>
-            </div>
-            
-            <!-- Centered Content -->
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 0 20px;">
-                <h1 style="margin: 0; font-size: 20px; font-weight: 600;">{{ $lead->name }} 
-                    @if(isset($mode) && $mode === 'view')
-                        <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
-                    @elseif(isset($mode) && $mode === 'edit')
-                        <span style="font-size: 14px; opacity: 0.8;">(Edit Mode)</span>
-                    @endif
-                </h1>
-                @php
-                    $vendorName = $lead->vendor_name;
-                    if (!$vendorName && $lead->payload) {
-                        $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
-                        $vendorName = $payload['vendor_name'] ?? $payload['meta']['vendor_name'] ?? $payload['source'] ?? null;
-                    }
-                @endphp
-                @if($vendorName)
-                    <div style="margin-top: 8px;">
-                        <span style="
-                            background: #6b7280;
-                            color: white;
-                            padding: 4px 12px;
-                            border-radius: 20px;
-                            font-size: 12px;
-                            font-weight: 600;
-                            text-transform: uppercase;
-                            letter-spacing: 0.5px;
-                            display: inline-block;
-                        ">
-                            {{ $vendorName === 'LeadsQuotingFast' || $vendorName === 'LEADSQUOTINGFAST' ? 'LQF' : $vendorName }}
-                        </span>
+            <!-- Main Header Content -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <!-- Lead Type Badge -->
+                <div style="flex-shrink: 0;">
+                    <div style="
+                        width: 60px; 
+                        height: 60px; 
+                        border-radius: 50%; 
+                        display: flex; 
+                        align-items: center; 
+                        justify-content: center; 
+                        font-weight: 700; 
+                        font-size: 14px; 
+                        color: white;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                        background: {{ $lead->type === 'auto' ? 'linear-gradient(135deg, #667eea 0%, #3B82F6 100%)' : ($lead->type === 'home' ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)') }};
+                        border: 2px solid white;
+                    ">
+                        {{ $lead->type === 'auto' ? 'AUTO' : ($lead->type === 'home' ? 'HOME' : strtoupper(substr($lead->type ?? 'N/A', 0, 4))) }}
                     </div>
-                @endif
+                </div>
+                
+                <!-- Lead Name and Vendor -->
+                <div style="flex: 1; text-align: center; padding: 0 20px;">
+                    <h1 style="margin: 0; font-size: 22px; font-weight: 600; color: white;">
+                        {{ $lead->name }} 
+                        @if(isset($mode) && $mode === 'view')
+                            <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
+                        @elseif(isset($mode) && $mode === 'edit')
+                            <span style="font-size: 14px; opacity: 0.8;">(Edit Mode)</span>
+                        @endif
+                    </h1>
+                    @php
+                        $vendorName = $lead->vendor_name;
+                        if (!$vendorName && $lead->payload) {
+                            $payload = is_string($lead->payload) ? json_decode($lead->payload, true) : $lead->payload;
+                            $vendorName = $payload['vendor_name'] ?? $payload['meta']['vendor_name'] ?? $payload['source'] ?? null;
+                        }
+                    @endphp
+                    @if($vendorName)
+                        <div style="margin-top: 5px;">
+                            <span style="
+                                background: rgba(255,255,255,0.2);
+                                color: white;
+                                padding: 3px 10px;
+                                border-radius: 15px;
+                                font-size: 11px;
+                                font-weight: 600;
+                                text-transform: uppercase;
+                                letter-spacing: 0.5px;
+                                display: inline-block;
+                            ">
+                                {{ $vendorName === 'LeadsQuotingFast' || $vendorName === 'LEADSQUOTINGFAST' ? 'LQF' : $vendorName }}
+                            </span>
+                        </div>
+                    @endif
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="flex-shrink: 0; display: flex; gap: 8px;">
+                    @if(isset($mode) && $mode === 'view')
+                        <button onclick="showPayload()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; white-space: nowrap;">📦 View Payload</button>
+                        <a href="/agent/lead/{{ $lead->id }}?mode=edit" style="background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block; white-space: nowrap;">✏️ Edit Lead</a>
+                    @elseif(isset($mode) && $mode === 'edit')
+                        <button onclick="showPayload()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; white-space: nowrap;">📦 View Payload</button>
+                        <button onclick="saveAllLeadData()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; white-space: nowrap;">💾 Save Lead</button>
+                    @endif
                 </div>
             </div>
             
-            <!-- Action Buttons in Header -->
-            <div style="display: flex; gap: 8px; margin-left: 20px;">
-                @if(isset($mode) && $mode === 'view')
-                    <button onclick="showPayload()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">📦 View Payload</button>
-                    <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-secondary" style="background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none;">✏️ Edit Lead</a>
-                @elseif(isset($mode) && $mode === 'edit')
-                    <button onclick="showPayload()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">📦 View Payload</button>
-                    <button onclick="saveAllLeadData()" class="btn btn-primary" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">💾 Save Lead</button>
-                @endif
+            <!-- Contact Info Row -->
+            <div style="background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: white;">
+                <div style="display: flex; gap: 20px;">
+                    <span>📞 {{ preg_replace('/(\d{3})(\d{3})(\d{4})/', '($1) $2-$3', preg_replace('/[^0-9]/', '', $lead->phone)) }}</span>
+                    <span>✉️ {{ $lead->email ?: 'No email' }}</span>
+                </div>
+                <div style="display: flex; gap: 20px;">
+                    <span>📍 {{ $lead->address }}, {{ $lead->city }}, {{ $lead->state }} {{ $lead->zip_code }}</span>
+                    <span style="opacity: 0.8;">ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
+                </div>
             </div>
         </div>
         
