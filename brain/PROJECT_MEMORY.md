@@ -27,14 +27,14 @@
 ---
 
 ## 🎯 CURRENT PROJECT STATUS
-Last Updated: 2025-08-11 12:00 EST
+Last Updated: 2025-08-22 22:15 EST
 
-### **COMPLETED TODAY**
-1. ✅ **Lead Migration System** - CSV import with duplicate detection
-2. ✅ **Vici Integration** - Update vendor_lead_code via DB/API
-3. ✅ **Duplicate Detection** - Time-based strategy on webhook
-4. ✅ **Docker Cache Fix** - Permanent solution with cumulative learning
-5. ✅ **UI Fixes** - Save button position, sticky sections
+### **COMPLETED THIS SESSION**
+1. ✅ Agent View finalized (sticky header, full address, phone format, ordered panels)
+2. ✅ Agent Edit updated with canonical Top 13 + conditional insured fields
+3. ✅ TCPA panel enriched (TrustedForm, Opt-in mm‑dd‑yyyy, Landing page, LeadiD, consent text)
+4. ✅ Enrichment buttons standardized: Insured / Uninsured / Home
+5. ✅ Tailwind CDN added to layout; Blade-in-JS removed
 
 ### **ACTIVE ISSUES**
 1. **RingBA → Allstate Testing** - Using /marco endpoint with workarounds
@@ -212,24 +212,26 @@ LeadsQuotingFast → Brain → Vici → Agent Qualification → RingBA Enrichmen
 
 ---
 
-## 📋 AGENT QUALIFICATION QUESTIONS (TOP 12)
+## 📋 AGENT QUALIFICATION QUESTIONS (TOP 13 - Canonical)
 
-1. Date of Birth
-2. Gender  
-3. Marital Status
-4. Currently Insured (Yes/No)
-5. Current Insurance Company
-6. Policy Expiration Date
-7. Current Monthly Premium
-8. Desired Coverage Type (REMOVED - defaults to STANDARD)
-9. Deductible Preference
-10. Credit Score Range
-11. Home Ownership Status
-12. Years Licensed
-13. Accidents/Violations (Last 5 years)
-14. DUI Conviction
-15. SR22 Required
-16. Best Time to Call
+1) Date of Birth (dob)
+2) Gender (gender)
+3) Marital Status (marital_status)
+4) Currently Insured (currently_insured)
+   - If yes: Current Insurance Company (current_insurance_company), Policy Expiration Date (policy_expiration_date), Current Monthly Premium (current_premium)
+5) Deductible Preference (deductible_preference)
+6) Credit Score Range (credit_score_range)
+7) Home Ownership Status (home_ownership)
+8) Years Licensed (years_licensed)
+9) Accidents/Violations in last 5 years (accidents_violations)
+10) DUI Conviction (dui_conviction)
+11) SR‑22 Required (sr22_required)
+12) Best Time to Call (best_time_to_call)
+13) Shopping for Better Rates (shopping_for_rates)
+
+Notes:
+- Opt‑in date displays as mm‑dd‑yyyy; falls back to meta.originally_created.
+- Enrichment buttons map to RingBA test endpoints; finalize parameter map next.
 
 ---
 

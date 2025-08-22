@@ -129,93 +129,65 @@ $isEditMode = request()->get('mode') === 'edit';
         <?php if ($isEditMode): ?>
             <!-- Edit Mode - Show questions first under top header -->
             <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-2xl font-bold mb-6">Qualify Lead - Top 13 Questions</h2>
+                <h2 class="text-2xl font-bold mb-6">Agent Qualification Questions</h2>
                 <form method="POST" action="/agent/lead/<?php echo $lead->id; ?>/qualify" id="qualificationFormTop">
                     <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
                     <div class="space-y-6">
-                        <!-- 1. Date of Birth -->
+                        <!-- 1. Are you currently insured? -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">1. Date of Birth</label>
-                            <input type="date" name="dob" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                        </div>
-
-                        <!-- 2. Gender -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">2. Gender</label>
-                            <select name="gender" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="">Select...</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                            </select>
-                        </div>
-
-                        <!-- 3. Marital Status -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">3. Marital Status</label>
-                            <select name="marital_status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="">Select...</option>
-                                <option value="single">Single</option>
-                                <option value="married">Married</option>
-                                <option value="divorced">Divorced</option>
-                                <option value="separated">Separated</option>
-                                <option value="widowed">Widowed</option>
-                            </select>
-                        </div>
-
-                        <!-- 4. Currently Insured (drives conditional fields) -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">4. Do you currently have auto insurance?</label>
-                            <select id="currently_insured_top" name="currently_insured" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">1. Are you currently insured?</label>
+                            <select id="currently_insured" name="currently_insured" onchange="toggleInsuranceQuestions()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
                             </select>
+                            
+                            <!-- Conditional insurance questions -->
+                            <div id="insurance_questions" style="display: none; margin-top: 12px; padding-left: 20px; border-left: 3px solid #3b82f6;">
+                                <div style="margin-bottom: 12px;">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">1B. Who is your current provider?</label>
+                                    <select name="current_provider" id="current_provider" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                        <option value="">Select...</option>
+                                        <option value="state_farm">State Farm</option>
+                                        <option value="geico">GEICO</option>
+                                        <option value="progressive">Progressive</option>
+                                        <option value="allstate">Allstate</option>
+                                        <option value="farmers">Farmers</option>
+                                        <option value="usaa">USAA</option>
+                                        <option value="liberty_mutual">Liberty Mutual</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">1C. How long have you been continuously insured?</label>
+                                    <select name="insurance_duration" id="insurance_duration" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                        <option value="">Select...</option>
+                                        <option value="under_6_months">Under 6 months</option>
+                                        <option value="6_months_1_year">6 months - 1 year</option>
+                                        <option value="1_3_years">1-3 years</option>
+                                        <option value="over_3_years">Over 3 years</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Conditional insured fields (show only if Currently Insured = Yes) -->
-                        <div id="insuredFieldsTop" class="space-y-4" style="display:none;">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Current Insurance Company</label>
-                                <input type="text" name="current_insurance_company" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Enter company name">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Policy Expiration Date</label>
-                                <input type="date" name="policy_expiration_date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Current Monthly Premium</label>
-                                <input type="number" step="0.01" name="current_premium" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g. 125.00">
-                            </div>
-                        </div>
-
-                        <!-- 5. Deductible Preference -->
+                        <!-- 2. How many cars are you going to need a quote for? -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">5. Deductible Preference</label>
-                            <select name="deductible_preference" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">2. How many cars are you going to need a quote for?</label>
+                            <select name="num_vehicles" id="num_vehicles" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
-                                <option value="500">$500</option>
-                                <option value="1000">$1,000</option>
-                                <option value="1500">$1,500</option>
+                                <option value="1">1 Vehicle</option>
+                                <option value="2">2 Vehicles</option>
+                                <option value="3">3 Vehicles</option>
+                                <option value="4">4+ Vehicles</option>
                             </select>
                         </div>
 
-                        <!-- 6. Credit Score Range -->
+                        <!-- 3. Do you own or rent your home? -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">6. Credit Score Range</label>
-                            <select name="credit_score_range" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="">Select...</option>
-                                <option value="excellent">Excellent (750+)</option>
-                                <option value="good">Good (700-749)</option>
-                                <option value="fair">Fair (650-699)</option>
-                                <option value="poor">Poor (600-649)</option>
-                                <option value="subprime">Subprime (&lt;600)</option>
-                            </select>
-                        </div>
-
-                        <!-- 7. Home Ownership Status -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">7. Home Ownership Status</label>
-                            <select name="home_ownership" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">3. Do you own or rent your home?</label>
+                            <select name="home_status" id="home_status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
                                 <option value="own">Own</option>
                                 <option value="rent">Rent</option>
@@ -223,61 +195,76 @@ $isEditMode = request()->get('mode') === 'edit';
                             </select>
                         </div>
 
-                        <!-- 8. Years Licensed -->
+                        <!-- 4. DUI or SR22? -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">8. Years Licensed</label>
-                            <input type="number" name="years_licensed" min="0" max="60" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g. 10">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">4. DUI or SR22?</label>
+                            <select name="dui_sr22" id="dui_sr22" onchange="toggleDUIQuestions()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="no">No</option>
+                                <option value="dui_only">DUI Only</option>
+                                <option value="sr22_only">SR22 Only</option>
+                                <option value="both">Both</option>
+                            </select>
+                            
+                            <!-- Conditional DUI timeframe question -->
+                            <div id="dui_questions" style="display: none; margin-top: 12px; padding-left: 20px; border-left: 3px solid #3b82f6;">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">4B. If DUI – How long ago?</label>
+                                <select name="dui_timeframe" id="dui_timeframe" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                    <option value="">Select...</option>
+                                    <option value="1">Under 1 year</option>
+                                    <option value="2">1–3 years</option>
+                                    <option value="3">Over 3 years</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <!-- 9. Accidents/Violations (Last 5 years) -->
+                        <!-- 5. State -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">9. Any accidents or violations in the last 5 years?</label>
-                            <select name="accidents_violations" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">5. State</label>
+                            <select name="state" id="state" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select State...</option>
+                                <?php
+                                $states = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC'];
+                                foreach ($states as $state) {
+                                    $selected = ($lead->state ?? '') == $state ? 'selected' : '';
+                                    echo "<option value=\"$state\" $selected>$state</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <!-- 6. ZIP Code -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">6. ZIP Code</label>
+                            <input type="text" name="zip_code" id="zip_code" value="<?php echo htmlspecialchars($lead->zip_code ?? ''); ?>" 
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                                   placeholder="Enter ZIP code">
+                        </div>
+
+                        <!-- Agent Script Section -->
+                        <div style="background: #f3f4f6; padding: 15px; margin: 20px 0; border-radius: 8px; border: 1px solid #d1d5db; font-style: italic; color: #4b5563;">
+                            <strong>📝 Agent Script:</strong><br>
+                            "Let me go ahead and see who has the better rates in your area based on what we have. Oh ok, it looks like Allstate has the better rates in that area."
+                        </div>
+
+                        <!-- 7. Have you received a quote from Allstate in the last 2 months? -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">7. Have you received a quote from Allstate in the last 2 months?</label>
+                            <select name="allstate_quote" id="allstate_quote" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
                             </select>
                         </div>
 
-                        <!-- 10. DUI Conviction -->
+                        <!-- 8. Ready to speak with an agent now? -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">10. Any DUI conviction?</label>
-                            <select name="dui_conviction" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">8. Ready to speak with an agent now?</label>
+                            <select name="ready_to_speak" id="ready_to_speak" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
-                            </select>
-                        </div>
-
-                        <!-- 11. SR-22 Required -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">11. Do you require an SR-22?</label>
-                            <select name="sr22_required" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-
-                        <!-- 12. Best Time to Call -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">12. Best time to reach you?</label>
-                            <select name="best_time_to_call" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="">Select...</option>
-                                <option value="morning">Morning (9am-12pm)</option>
-                                <option value="afternoon">Afternoon (12pm-5pm)</option>
-                                <option value="evening">Evening (5pm-8pm)</option>
-                                <option value="anytime">Anytime</option>
-                            </select>
-                        </div>
-
-                        <!-- 13. Currently shopping for better rates (kept for routing hints) -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">13. Are you shopping for better rates?</label>
-                            <select name="shopping_for_rates" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="maybe">Maybe</option>
                             </select>
                         </div>
 
@@ -460,9 +447,15 @@ $isEditMode = request()->get('mode') === 'edit';
                 <div class="bg-white shadow rounded-lg p-6">
                     <h3 class="text-lg font-semibold mb-4">Enrichment</h3>
                     <div class="flex flex-wrap gap-2">
-                        <a href="/test/ringba-send-qualified/<?php echo urlencode($lead->id); ?>?status=insured" class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Insured</a>
-                        <a href="/test/ringba-send-qualified/<?php echo urlencode($lead->id); ?>?status=uninsured" class="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">Uninsured</a>
-                        <a href="/test/ringba-decision/<?php echo urlencode($lead->id); ?>/home" class="px-4 py-2 rounded bg-amber-600 text-white hover:bg-amber-700">Home</a>
+                        <button type="button" onclick="enrichLead('insured')" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 flex items-center">
+                            🛡️ Insured
+                        </button>
+                        <button type="button" onclick="enrichLead('uninsured')" class="px-4 py-2 rounded bg-yellow-600 text-white hover:bg-yellow-700 flex items-center">
+                            ⚠️ Uninsured
+                        </button>
+                        <button type="button" onclick="enrichLead('homeowner')" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center">
+                            🏠 Homeowner
+                        </button>
                     </div>
                 </div>
 
@@ -1115,26 +1108,199 @@ $isEditMode = request()->get('mode') === 'edit';
 </div>
 
 <script>
-// Simple JavaScript for form handling
-document.addEventListener('DOMContentLoaded', function() {
-    // Conditional fields for insured flow
-    const insuredSelect = document.getElementById('currently_insured_top');
-    const insuredFields = document.getElementById('insuredFieldsTop');
-    if (insuredSelect && insuredFields) {
-        const toggleInsured = () => {
-            insuredFields.style.display = insuredSelect.value === 'yes' ? '' : 'none';
-        };
-        insuredSelect.addEventListener('change', toggleInsured);
-        toggleInsured();
+// Get lead ID from PHP
+const leadId = '<?php echo $lead->id; ?>';
+
+// Toggle insurance questions based on currently insured selection
+function toggleInsuranceQuestions() {
+    const insured = document.getElementById('currently_insured').value;
+    const insuranceQuestions = document.getElementById('insurance_questions');
+    
+    if (insured === 'yes') {
+        insuranceQuestions.style.display = 'block';
+    } else {
+        insuranceQuestions.style.display = 'none';
+    }
+}
+
+// Toggle DUI questions based on DUI/SR22 selection
+function toggleDUIQuestions() {
+    const duiSr22 = document.getElementById('dui_sr22').value;
+    const duiQuestions = document.getElementById('dui_questions');
+    
+    if (duiSr22 === 'dui_only' || duiSr22 === 'both') {
+        duiQuestions.style.display = 'block';
+    } else {
+        duiQuestions.style.display = 'none';
+    }
+}
+
+// Get form data for enrichment
+function getFormData() {
+    const data = {
+        phone: '<?php echo $lead->phone ?? ''; ?>',
+        first_name: '<?php echo $lead->first_name ?? ''; ?>',
+        last_name: '<?php echo $lead->last_name ?? ''; ?>',
+        email: '<?php echo $lead->email ?? ''; ?>',
+        address: '<?php echo $lead->address ?? ''; ?>',
+        city: '<?php echo $lead->city ?? ''; ?>',
+        state: document.getElementById('state')?.value || '<?php echo $lead->state ?? ''; ?>',
+        zip_code: document.getElementById('zip_code')?.value || '<?php echo $lead->zip_code ?? ''; ?>',
+        currently_insured: document.getElementById('currently_insured')?.value || '',
+        current_provider: document.getElementById('current_provider')?.value || '',
+        insurance_duration: document.getElementById('insurance_duration')?.value || '',
+        num_vehicles: document.getElementById('num_vehicles')?.value || '',
+        home_status: document.getElementById('home_status')?.value || '',
+        dui_sr22: document.getElementById('dui_sr22')?.value || '',
+        dui_timeframe: document.getElementById('dui_timeframe')?.value || '',
+        allstate_quote: document.getElementById('allstate_quote')?.value || '',
+        ready_to_speak: document.getElementById('ready_to_speak')?.value || ''
+    };
+    return data;
+}
+
+// Enrich lead function for RingBA
+async function enrichLead(type) {
+    // Validate based on type
+    if (type === 'insured') {
+        const currentlyInsured = document.getElementById('currently_insured')?.value || '';
+        if (!currentlyInsured || currentlyInsured.toLowerCase() === 'no') {
+            alert('❌ Requirement error\n\nYou clicked INSURED, but "Currently insured" is set to No.\n\nUpdate it to Yes or use the UNINSURED enrichment.');
+            return;
+        }
+    }
+    if (type === 'uninsured') {
+        const currentlyInsured = document.getElementById('currently_insured')?.value || '';
+        if (currentlyInsured.toLowerCase() === 'yes') {
+            alert('❌ Requirement error\n\nYou clicked UNINSURED, but "Currently insured" is set to Yes.\n\nChange it to No or use the INSURED enrichment.');
+            return;
+        }
+    }
+    
+    const data = getFormData();
+    
+    // RingBA enrichment base URLs
+    const enrichmentBase = {
+        insured: 'https://display.ringba.com/enrich/2674154334576444838',
+        uninsured: 'https://display.ringba.com/enrich/2676487329580844084',
+        homeowner: 'https://display.ringba.com/enrich/2717035800150673197'
+    };
+    
+    const baseURL = enrichmentBase[type];
+    if (!baseURL) {
+        alert('Invalid enrichment type');
+        return;
     }
 
-    const form = document.getElementById('qualificationForm');
+    // Helper functions for data mapping
+    const yn = (v) => (/^(y|yes|true|1)$/i.test(`${v}`) ? 'true' : 'false');
+    const mapContinuous = (v) => {
+        switch(v) {
+            case 'under_6_months': return 5;
+            case '6_months_1_year': return 6;
+            case '1_3_years': return 12;
+            case 'over_3_years': return 24;
+            default: return 0;
+        }
+    };
+    const digits = (p) => (p || '').replace(/[^0-9]/g, '');
+    const mapResidence = (v) => (v === 'own' ? 'own' : 'rent');
+    const isAllstateCustomer = () => {
+        const provider = (data.current_provider || '').toLowerCase().trim();
+        return provider.includes('allstate') ? 'true' : 'false';
+    };
+
+    // Build query parameters based on type
+    let orderedPairs = [];
+    
+    if (type === 'insured') {
+        orderedPairs = [
+            ['primary_phone', digits(data.phone)],
+            ['currently_insured', 'true'],
+            ['current_insurance_company', data.current_provider || ''],
+            ['allstate', isAllstateCustomer()],
+            ['continuous_coverage', mapContinuous(data.insurance_duration)],
+            ['valid_license', 'true'],
+            ['num_vehicles', data.num_vehicles || ''],
+            ['dui', (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
+            ['requires_sr22', (data.dui_sr22 === 'sr22_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
+            ['state', data.state || ''],
+            ['zip_code', data.zip_code || ''],
+            ['first_name', data.first_name || ''],
+            ['last_name', data.last_name || ''],
+            ['email', data.email || ''],
+            ['residence_status', mapResidence(data.home_status)],
+            ['tcpa_compliant', 'true'],
+            ['external_id', leadId || ''],
+            ['received_quote', yn(data.allstate_quote)],
+            ['ready_to_talk', yn(data.ready_to_speak)]
+        ];
+    } else if (type === 'uninsured') {
+        orderedPairs = [
+            ['primary_phone', digits(data.phone)],
+            ['currently_insured', 'false'],
+            ['current_insurance_company', ''],
+            ['allstate', 'false'],
+            ['continuous_coverage', '0'],
+            ['valid_license', 'true'],
+            ['num_vehicles', data.num_vehicles || ''],
+            ['dui', (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
+            ['requires_sr22', (data.dui_sr22 === 'sr22_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
+            ['state', data.state || ''],
+            ['zip_code', data.zip_code || ''],
+            ['first_name', data.first_name || ''],
+            ['last_name', data.last_name || ''],
+            ['email', data.email || ''],
+            ['residence_status', mapResidence(data.home_status)],
+            ['tcpa_compliant', 'true'],
+            ['external_id', leadId || ''],
+            ['received_quote', yn(data.allstate_quote)],
+            ['ready_to_talk', yn(data.ready_to_speak)]
+        ];
+    } else if (type === 'homeowner') {
+        orderedPairs = [
+            ['callerid', digits(data.phone)],
+            ['homeowner', 'Y'],
+            ['allstate', isAllstateCustomer()],
+            ['address', data.address || ''],
+            ['city', data.city || ''],
+            ['state_name', data.state || ''],
+            ['zip_code', data.zip_code || ''],
+            ['first_name', data.first_name || ''],
+            ['last_name', data.last_name || ''],
+            ['email', data.email || '']
+        ];
+    }
+    
+    // Build query string
+    const qs = orderedPairs
+        .filter(([_, v]) => v !== undefined && v !== null && `${v}`.length > 0)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&');
+    
+    const enrichmentURL = `${baseURL}?${qs}`;
+    
+    // Open in new window
+    const popup = window.open(enrichmentURL, '_blank');
+    if (!popup) {
+        alert('Please allow popups for this site to use enrichment features.');
+    }
+}
+
+// Simple JavaScript for form handling
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize conditional fields on page load
+    toggleInsuranceQuestions();
+    toggleDUIQuestions();
+
+    const form = document.getElementById('qualificationFormTop');
     if (form) {
         form.addEventListener('submit', function(e) {
             // Add any validation here if needed
             console.log('Form submitted');
         });
     }
+    
     window.copyPayload = async (btn) => {
         try {
             const url = btn.getAttribute('data-url');

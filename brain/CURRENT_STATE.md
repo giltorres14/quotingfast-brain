@@ -1,12 +1,39 @@
 # Brain System Current State
-**Last Updated:** December 19, 2024 - Late Night/Early Morning Session
+**Last Updated:** August 22, 2025 - Evening Session
 
-## 🚨 RESOLVED ISSUE
-**Lead View/Edit Pages - 500 Error**
-- **Error:** "syntax error, unexpected token 'endif'"
-- **Root Cause:** @if/@endif directives inside JavaScript blocks
-- **Solution:** Complete rewrite with NO Blade directives, pure PHP only
-- **Status:** Clean version deployed, testing in progress
+## ✅ Recent Accomplishments
+
+### Lead View Page (Agent)
+- Implemented sticky top panel with full address and phone formatted as `(xxx) xxx-xxxx`
+- Restored layout and sections in this exact order:
+  1) Top Panel (sticky)
+  2) Lead Information
+  3) TCPA Compliance
+  4) Drivers
+  5) Vehicles
+  6) Current Insurance Policy
+- Drivers/Vehicles show all available data with expandable “More details” blocks
+- TCPA panel enriched with:
+  - `trusted_form_cert_url` (with copy),
+  - Opt-in Date (uses `opt_in_date` or meta `originally_created`, shown as mm-dd-yyyy),
+  - Landing Page URL (with copy),
+  - LeadiD/lead_id_code when available,
+  - Consent text in collapsible view with copy button
+
+### Lead Edit Page (Agent / Iframe)
+- Top 13 Questions appear directly under the header (no scrolling needed)
+- Canonical question order aligned with project docs; conditional fields show when “Currently Insured = Yes”
+- In iframe view, header actions (Back, View Payload, Copy Payload, View Mode) are hidden
+- Lead Information: only Lead Type and External Lead ID visible in edit mode
+- TCPA Compliance: only TCPA Consent and Opt‑in Date visible in edit mode
+- Added Enrichment buttons after the questions: `Insured`, `Uninsured`, `Home` (hooked to RingBA test endpoints)
+- Opt-in date formatted as `mm-dd-yyyy`
+
+### Stability/Styling
+- Converted Blade conditionals inside JS to pure PHP (prevents compilation errors)
+- Added Tailwind via CDN in `layouts/app.blade.php` so utility classes render without local build
+
+## 📊 System Status
 
 ## 📊 System Status
 
@@ -15,33 +42,27 @@
 - **Database:** 242,891+ leads in PostgreSQL
 - **Import Script:** Fixed to read Vertical column for lead type
 
-### ❌ Not Working
-- **Lead Display Pages:** `/agent/lead/{id}` throwing Blade compilation error
-- **View/Edit/Payload Buttons:** All returning 500 error
+### ❌ Not Working / Pending
+- Health endpoints `/health` and `/health/ui` availability in production is still inconsistent
+- Final RingBA parameter payloads (Insured/Uninsured/Home variants) need confirmation
 
 ### ⚠️ Pending Issues
 - **Lead Types:** Many showing "unknown" - need migration
 - **ViciDial Sync:** Lists 6018-6026 need matching
 - **Bulk Import:** LQF CSV ready but not imported
 
-## 🔧 Tonight's Work Log
-
-### Blade Template Fixes (Multiple Iterations)
-1. **Initial Issue:** Unbalanced @if/@endif (82 vs 80)
-2. **Multiple Fix Attempts:** Various balancing attempts failed
-3. **Root Cause Found:** @if/@endif inside <script> blocks at lines 879, 881, 4358
-4. **Cache Issue:** Server not clearing compiled views despite fixes
-5. **Final Solution:** Complete rewrite with NO Blade directives
-   - Removed ALL @if/@endif
-   - Used pure PHP <?php ?> for conditionals
-   - No Blade inside JavaScript
-   - Clean, simple, maintainable
+## 🔧 This Session’s Work Log (Aug 22, 2025)
+- Restored and finalized Agent view page sections and styling
+- Rebuilt Agent edit page to display canonical Top 13 with conditional insured fields
+- Hid header action buttons in iframe mode; removed inline edit affordances elsewhere
+- Enriched TCPA panel and ensured mm‑dd‑yyyy formatting for Opt‑in
+- Replaced enrichment buttons with `Insured` / `Uninsured` / `Home` hooks
+- Injected Tailwind CDN; removed reliance on Blade-in-JS patterns
 
 ### Files Modified
-- `resources/views/agent/lead-display.blade.php` - Multiple Blade fixes
-- `routes/web.php` - PDO queries for stability
-- `import_lqf_bulk.php` - Fixed Vertical column reading
-- `Dockerfile.render` - CACHE_BUST incremented to 17
+- `resources/views/agent/lead-display.blade.php` (major UI + logic updates)
+- `resources/views/layouts/app.blade.php` (Tailwind CDN)
+- `routes/web.php` (lead view route stability, qualification save, RingBA test hooks)
 
 ## 🛠️ Debug Tools Available
 ```bash
