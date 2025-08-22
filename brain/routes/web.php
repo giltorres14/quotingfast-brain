@@ -3707,6 +3707,25 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
     }
 });
 
+// Human-readable payload viewer with copy button
+Route::get('/lead/{id}/payload-view', function ($id) {
+    try {
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+        $stmt = $pdo->prepare("SELECT * FROM leads WHERE id = :id OR external_lead_id = :id2 LIMIT 1");
+        $stmt->execute([':id' => $id, ':id2' => $id]);
+        $lead = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    } catch (Exception $e) {
+        $lead = [];
+    }
+    $payload = $lead ?: [];
+    $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    return response("<!doctype html><html><head><meta charset=\"utf-8\"><title>Lead Payload</title><style>body{font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f8fafc;color:#0f172a;margin:0} .wrap{max-width:960px;margin:24px auto;padding:16px} pre{background:#0f172a;color:#e2e8f0;padding:16px;border-radius:8px;overflow:auto} .bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px} button{background:#059669;color:#fff;border:none;border-radius:6px;padding:8px 12px;cursor:pointer} button:hover{background:#047857}</style></head><body><div class=\"wrap\"><div class=\"bar\"><h1 style=\"margin:0;font-size:18px\">Lead Payload</h1><button id=\"copyBtn\">📋 Copy</button></div><pre id=\"payload\">" . htmlspecialchars($json) . "</pre></div><script>document.getElementById('copyBtn').addEventListener('click',async()=>{try{const t=document.getElementById('payload').innerText;await navigator.clipboard.writeText(t);const b=document.getElementById('copyBtn');const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1500)}catch(e){alert('Copy failed')}});</script></body></html>", 200)->header('Content-Type', 'text/html');
+});
+
 // Match the edit form action in agent/lead view
 Route::post('/agent/lead/{leadId}/qualify', function (Request $request, $leadId) {
     try {
