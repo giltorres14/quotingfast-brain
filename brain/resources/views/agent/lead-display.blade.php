@@ -376,6 +376,83 @@ $isEditMode = request()->get('mode') === 'edit';
                 </div>
                 <?php endif; ?>
 
+                <!-- Current Insurance Policy -->
+                <?php if (!empty($current_policy)): ?>
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Current Insurance Policy</h3>
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <?php if (!empty($current_policy['company'])): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Insurance Company</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($current_policy['company']); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($current_policy['expiration_date'])): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Expiration Date</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($current_policy['expiration_date']); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($current_policy['coverage_type'])): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Coverage Type</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($current_policy['coverage_type']); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($current_policy['monthly_premium'])): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Monthly Premium</dt>
+                            <dd class="mt-1 text-sm text-gray-900">$<?php echo htmlspecialchars($current_policy['monthly_premium']); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                    </dl>
+                </div>
+                <?php endif; ?>
+
+                <!-- Lead Metadata -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Lead Information</h3>
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Lead Type</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                    <?php echo strtolower($displayType) === 'auto' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'; ?>">
+                                    <?php echo $displayType; ?>
+                                </span>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">External Lead ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php echo htmlspecialchars($lead->external_lead_id); ?></dd>
+                        </div>
+                        <?php if (!empty($lead->jangle_lead_id)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Jangle ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->jangle_lead_id); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->source)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Source</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->source); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->campaign_id)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Campaign</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->campaign_id); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->received_at)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Received</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->received_at); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                    </dl>
+                </div>
+
                 <!-- TCPA Compliance -->
                 <div class="bg-white shadow rounded-lg p-6">
                     <h3 class="text-lg font-semibold mb-4">TCPA Compliance</h3>
@@ -394,7 +471,7 @@ $isEditMode = request()->get('mode') === 'edit';
                         </div>
                         <?php if (!empty($lead->trusted_form_cert_url)): ?>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">TrustedForm</dt>
+                            <dt class="text-sm font-medium text-gray-500">TrustedForm Certificate</dt>
                             <dd class="mt-1 text-sm text-gray-900">
                                 <a href="<?php echo htmlspecialchars($lead->trusted_form_cert_url); ?>" 
                                    target="_blank" 
@@ -404,8 +481,57 @@ $isEditMode = request()->get('mode') === 'edit';
                             </dd>
                         </div>
                         <?php endif; ?>
+                        <?php if (!empty($lead->leadid_token)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">LeadiD Token</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php echo htmlspecialchars(substr($lead->leadid_token, 0, 20) . '...'); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->tcpa_text)): ?>
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">TCPA Text</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <div class="bg-gray-50 p-2 rounded text-xs"><?php echo htmlspecialchars($lead->tcpa_text); ?></div>
+                            </dd>
+                        </div>
+                        <?php endif; ?>
                     </dl>
                 </div>
+
+                <!-- Technical Details -->
+                <?php if (!empty($lead->ip_address) || !empty($lead->user_agent)): ?>
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Technical Details</h3>
+                    <dl class="space-y-2">
+                        <?php if (!empty($lead->ip_address)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">IP Address</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono"><?php echo htmlspecialchars($lead->ip_address); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->user_agent)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">User Agent</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <div class="bg-gray-50 p-2 rounded text-xs break-all"><?php echo htmlspecialchars($lead->user_agent); ?></div>
+                            </dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->landing_page_url)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Landing Page</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <a href="<?php echo htmlspecialchars($lead->landing_page_url); ?>" 
+                                   target="_blank" 
+                                   class="text-blue-600 hover:underline text-xs break-all">
+                                    <?php echo htmlspecialchars($lead->landing_page_url); ?>
+                                </a>
+                            </dd>
+                        </div>
+                        <?php endif; ?>
+                    </dl>
+                </div>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
