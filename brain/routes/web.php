@@ -3707,6 +3707,52 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
     }
 });
 
+// Match the edit form action in agent/lead view
+Route::post('/agent/lead/{leadId}/qualify', function (Request $request, $leadId) {
+    try {
+        $data = $request->except(['_token']);
+        // Persist to a simple table or meta column for now
+        $lead = \App\Models\Lead::findOrFail($leadId);
+        $meta = json_decode($lead->meta ?? '{}', true) ?: [];
+        $meta['qualification'] = array_merge($meta['qualification'] ?? [], $data, [
+            'saved_at' => now()->toISOString()
+        ]);
+        $lead->meta = json_encode($meta);
+        $lead->save();
+        return redirect('/agent/lead/' . $leadId . '?mode=view');
+    } catch (\Throwable $t) {
+        return response()->json(['success' => false, 'error' => $t->getMessage()], 500);
+    }
+});
+
+// Payload endpoint used by View Payload button
+Route::get('/api/lead/{id}/payload', function ($id) {
+    try {
+        $lead = \DB::table('leads')->where('id', $id)->orWhere('external_lead_id', $id)->first();
+        if (!$lead) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+        $drivers = is_string($lead->drivers ?? null) ? json_decode($lead->drivers, true) : ($lead->drivers ?? []);
+        $vehicles = is_string($lead->vehicles ?? null) ? json_decode($lead->vehicles, true) : ($lead->vehicles ?? []);
+        $current_policy = is_string($lead->current_policy ?? null) ? json_decode($lead->current_policy, true) : ($lead->current_policy ?? []);
+        $payload = [
+            'id' => $lead->id,
+            'external_lead_id' => $lead->external_lead_id,
+            'name' => $lead->name,
+            'phone' => $lead->phone,
+            'email' => $lead->email,
+            'type' => $lead->type,
+            'drivers' => $drivers ?: [],
+            'vehicles' => $vehicles ?: [],
+            'current_policy' => $current_policy ?: [],
+            'meta' => json_decode($lead->meta ?? '{}', true) ?: [],
+        ];
+        return response()->json($payload, 200, [], JSON_PRETTY_PRINT);
+    } catch (\Throwable $t) {
+        return response()->json(['error' => $t->getMessage()], 500);
+    }
+});
+
 // API endpoint for transfer button
 Route::post('/api/transfer/{leadId}', function ($leadId) {
     try {
