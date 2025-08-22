@@ -98,7 +98,12 @@ Route::get('/health/ui', function() {
     try { view('agent.lead-display', ['lead' => (object)['id' => 0, 'name' => 'Healthcheck']])->render(); } catch (\Throwable $t) { return response()->json(['ok' => false, 'error' => 'agent.lead-display', 'message' => $t->getMessage()], 500); }
     try { view('leads.index-new', ['leads' => collect(), 'statuses' => collect(), 'sources' => collect(), 'states' => collect(), 'search' => '', 'status' => '', 'source' => '', 'state_filter' => '', 'vici_status' => '', 'isTestMode' => true])->render(); } catch (\Throwable $t) { return response()->json(['ok' => false, 'error' => 'leads.index-new', 'message' => $t->getMessage()], 500); }
     return response()->json(['ok' => true, 'checks' => $checks]);
-});
+})->withoutMiddleware('*');
+
+// Basic health endpoint
+Route::get('/health', function() {
+    return response()->json(['ok' => true, 'time' => now()->toISOString()]);
+})->withoutMiddleware('*');
 
 // Clear cache route
 Route::get('/clear-cache-emergency', function() {
