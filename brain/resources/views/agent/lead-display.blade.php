@@ -74,22 +74,27 @@
             margin: 0 auto;
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
-            padding: 8px 12px; /* Even more reduced padding for less height */
+            padding: 12px 16px;
             border-radius: 8px;
             margin-bottom: 12px;
             text-align: center;
-            position: fixed; /* Changed to fixed for better sticky behavior */
-            top: 0;
+            position: fixed;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 2000;
             box-sizing: border-box;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: auto;
+            min-height: 80px;
         }
         
         /* Add padding to body to account for fixed header */
         body {
-            padding-top: 180px; /* Adjust based on header height */
+            padding-top: 120px; /* Reduced for smaller header */
         }
         
         .header-logo {
@@ -916,30 +921,29 @@
             <!-- Back button shows when NOT in edit mode -->
             <a href="/leads" class="back-button" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: white; text-decoration: none; font-weight: 600; font-size: 14px; display: {{ $isIframe ? 'none' : 'block' }};">← Back to Leads</a>
             
-            <!-- Lead Type Avatar Circle - Smaller and Well-positioned -->
-            <div style="position: absolute; left: 30px; top: 50%; transform: translateY(-50%); z-index: 50;">
+            <!-- Lead Type Badge -->
+            <div style="margin-right: 15px;">
                 <div style="
-                    width: 120px; 
-                    height: 120px; 
+                    width: 60px; 
+                    height: 60px; 
                     border-radius: 50%; 
                     display: flex; 
                     align-items: center; 
                     justify-content: center; 
-                    font-weight: 900; 
-                    font-size: 32px; 
+                    font-weight: 700; 
+                    font-size: 14px; 
                     color: white;
-                    box-shadow: 0 8px 24px rgba(0,0,0,0.2), 0 0 0 4px rgba(255,255,255,0.3);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
                     background: {{ $lead->type === 'auto' ? 'linear-gradient(135deg, #667eea 0%, #3B82F6 100%)' : ($lead->type === 'home' ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)') }};
-                    border: 3px solid white;
+                    border: 2px solid white;
                 ">
                     {{ $lead->type === 'auto' ? 'AUTO' : ($lead->type === 'home' ? 'HOME' : strtoupper(substr($lead->type ?? 'N/A', 0, 4))) }}
                 </div>
             </div>
             
-            <!-- Centered Content with Address and Phone -->
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px 150px;">
-                <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" class="logo-image" style="height: 180px; width:auto; margin-bottom: 10px;">
-                <h1 style="margin: 10px 0; text-align: center;">{{ $lead->name }} 
+            <!-- Centered Content -->
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 0 20px;">
+                <h1 style="margin: 0; font-size: 20px; font-weight: 600;">{{ $lead->name }} 
                     @if(isset($mode) && $mode === 'view')
                         <span style="font-size: 14px; opacity: 0.8;">(View Only)</span>
                     @elseif(isset($mode) && $mode === 'edit')
@@ -970,16 +974,11 @@
                         </span>
                     </div>
                 @endif
-                <div class="meta" style="font-size: 12px; opacity: 0.9; margin-top: 5px;">
-            <span>{{ $lead->address }}, {{ $lead->city }}, {{ $lead->state }} {{ $lead->zip_code }}</span><br>
-            <span>{{ $lead->email ?: 'No email' }}</span><br>
-            <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
-        </div>
                 </div>
             </div>
             
             <!-- Action Buttons in Header -->
-            <div style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; margin-left: 20px;">
                 @if(isset($mode) && $mode === 'view')
                     <button onclick="showPayload()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">📦 View Payload</button>
                     <a href="/agent/lead/{{ $lead->id }}?mode=edit" class="btn btn-secondary" style="background: #f59e0b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none;">✏️ Edit Lead</a>
@@ -1005,7 +1004,6 @@
         
         <!-- Ringba Qualification Form -->
         @if(!isset($mode) || $mode === 'agent' || $mode === 'edit')
-        <!-- Lead Qualification section removed per request -->
         @if(isset($mode) && ($mode === 'edit' || $mode === 'agent'))
         <div class="qualification-form">
             <div class="qualification-header section-title qualification">
@@ -1313,40 +1311,47 @@
         @endif {{-- End @if(isset($mode) && ($mode === 'edit' || $mode === 'agent')) --}}
         @endif {{-- End @if(!isset($mode) || $mode === 'agent' || $mode === 'edit') --}}
 
-        <!-- Contact Information with Save Button -->
-        <div class="info-value">
-                        @php
-                            if ($lead->phone) {
-                                $phone = preg_replace('/[^0-9]/', '', $lead->phone);
-                                if (strlen($phone) == 10) {
-                                    $formatted_phone = '(' . substr($phone, 0, 3) . ')' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+        <!-- Contact Information Section -->
+        <div class="section-content">
+            <div class="section-header">
+                <h3 class="section-title">📞 Contact Information</h3>
+            </div>
+            <div class="contact-section" style="display: flex; gap: 40px;">
+                <div class="contact-left" style="flex: 1;">
+                    <div class="info-item" id="contact-phone">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">
+                            @php
+                                if ($lead->phone) {
+                                    $phone = preg_replace('/[^0-9]/', '', $lead->phone);
+                                    if (strlen($phone) == 10) {
+                                        $formatted_phone = '(' . substr($phone, 0, 3) . ')' . substr($phone, 3, 3) . '-' . substr($phone, 6);
+                                    } else {
+                                        $formatted_phone = $lead->phone;
+                                    }
                                 } else {
-                                    $formatted_phone = $lead->phone;
+                                    $formatted_phone = 'Not provided';
                                 }
-                            } else {
-                                $formatted_phone = 'Not provided';
-                            }
-                        @endphp
-                        {{ $formatted_phone }}
+                            @endphp
+                            {{ $formatted_phone }}
+                        </div>
                     </div>
-                </div>
                     <div class="info-item" id="contact-email">
-                    <div class="info-label">Email</div>
-                    <div class="info-value">{{ $lead->email ?: 'Not provided' }}</div>
-                </div>
-                </div>
-                <div class="contact-right">
-                    <div class="info-item" id="contact-address">
-                    <div class="info-label">Address</div>
-                    <div class="info-value">{{ $lead->address ?: 'Not provided' }}</div>
-                </div>
-                    <div class="info-item" id="contact-location">
-                    <div class="info-label">City, State ZIP</div>
-                    <div class="info-value">
-                        {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ $lead->email ?: 'Not provided' }}</div>
                     </div>
                 </div>
-
+                <div class="contact-right" style="flex: 1;">
+                    <div class="info-item" id="contact-address">
+                        <div class="info-label">Address</div>
+                        <div class="info-value">{{ $lead->address ?: 'Not provided' }}</div>
+                    </div>
+                    <div class="info-item" id="contact-location">
+                        <div class="info-label">City, State ZIP</div>
+                        <div class="info-value">
+                            {{ trim(($lead->city ?? '') . ', ' . ($lead->state ?? '') . ' ' . ($lead->zip_code ?? '')) ?: 'Not provided' }}
+                        </div>
+                    </div>
                 </div>
             </div>
             
