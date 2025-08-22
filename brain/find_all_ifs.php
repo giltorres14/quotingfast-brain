@@ -56,3 +56,4 @@ $ifCount = substr_count($file, '@if');
 $endifCount = substr_count($file, '@endif');
 echo "\nDirect count: @if: $ifCount, @endif: $endifCount, Diff: " . ($ifCount - $endifCount) . "\n";
 
+

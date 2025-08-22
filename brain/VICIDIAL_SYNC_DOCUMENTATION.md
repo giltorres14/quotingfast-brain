@@ -169,3 +169,4 @@ printf "1\n" | php sync_vici_direct.php
 4. **Verify** the sync is complete
 5. **Set up automated sync** for future updates
 
+

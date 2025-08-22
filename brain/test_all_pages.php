@@ -186,3 +186,4 @@ if (!$criticalWorking) {
 }
 
 echo "\n";
+

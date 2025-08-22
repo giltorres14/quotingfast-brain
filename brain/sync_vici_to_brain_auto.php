@@ -383,3 +383,4 @@ try {
     echo "3. Check database credentials\n";
 }
 
+

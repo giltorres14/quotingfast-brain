@@ -135,3 +135,4 @@ echo "2. Wait for deployment (60-90 seconds)\n";
 echo "3. Test the page\n";
 echo "\nIf issues persist, restore from backup:\n";
 echo "  cp $backupPath $bladePath\n";
+
