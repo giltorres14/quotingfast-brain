@@ -287,7 +287,7 @@ $isEditMode = request()->get('mode') === 'edit';
             </div>
         <?php else: ?>
             <!-- View Mode - Display All Information -->
-            <div class="space-y-6">
+            <div class="space-y-6" id="leadSections">
                 <!-- Contact Information -->
                 <div class="bg-white shadow rounded-lg p-6">
                     <h3 class="text-lg font-semibold mb-4">Contact Information</h3>
@@ -333,7 +333,7 @@ $isEditMode = request()->get('mode') === 'edit';
 
                 <?php if (!empty($vehicles)): ?>
                 <!-- Vehicles Section -->
-                <div class="bg-white shadow rounded-lg p-6">
+                <div class="bg-white shadow rounded-lg p-6" data-section="vehicles">
                     <h3 class="text-lg font-semibold mb-4">Vehicles</h3>
                     <div class="space-y-4">
                         <?php foreach ($vehicles as $vehicle): ?>
@@ -362,7 +362,7 @@ $isEditMode = request()->get('mode') === 'edit';
 
                 <?php if (!empty($drivers)): ?>
                 <!-- Drivers Section -->
-                <div class="bg-white shadow rounded-lg p-6">
+                <div class="bg-white shadow rounded-lg p-6" data-section="drivers">
                     <h3 class="text-lg font-semibold mb-4">Drivers</h3>
                     <div class="space-y-4">
                         <?php foreach ($drivers as $driver): ?>
