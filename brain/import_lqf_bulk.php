@@ -81,6 +81,7 @@ try {
             zip_code,
             ip_address,
             source,
+            type,
             status,
             tcpa_compliant,
             tcpa_consent_text,
@@ -116,6 +117,7 @@ try {
             :zip_code,
             :ip_address,
             :source,
+            :type,
             :status,
             :tcpa_compliant,
             :tcpa_consent_text,
@@ -159,6 +161,7 @@ try {
         try {
             // Extract data from CSV columns
             $leadId = $row[$columnMap['Lead ID']] ?? '';
+            $vertical = strtolower($row[$columnMap['Vertical']] ?? 'auto'); // Column C - Type (Auto/Home)
             $firstName = $row[$columnMap['First Name']] ?? '';
             $lastName = $row[$columnMap['Last Name']] ?? '';
             $email = $row[$columnMap['Email']] ?? '';
@@ -231,11 +234,14 @@ try {
                 ':zip_code' => $zipCode,
                 ':ip_address' => $ipAddress,
                 ':source' => 'LQF_Bulk_Import',
+                ':type' => $vertical,
                 ':status' => 'imported',
                 ':tcpa_compliant' => (strtolower($tcpa) === 'yes' || $tcpa === '1'),
                 ':tcpa_consent_text' => $tcpaText,
                 ':trusted_form_cert' => $trustedForm,
                 ':leadid_code' => $leadidCode,
+                ':user_agent' => $row[$columnMap['User Agent']] ?? '',
+                ':landing_page_url' => $row[$columnMap['Landing Page URL']] ?? '',
                 ':drivers' => $drivers,
                 ':vehicles' => $vehicles,
                 ':current_policy' => $currentPolicy,
