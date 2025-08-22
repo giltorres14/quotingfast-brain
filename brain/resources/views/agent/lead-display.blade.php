@@ -975,7 +975,6 @@
             <span>{{ $lead->email ?: 'No email' }}</span><br>
             <span>Lead ID: {{ $lead->external_lead_id ?? $lead->id }}</span>
         </div>
-                    @endif
                 </div>
             </div>
             
@@ -1311,8 +1310,8 @@
                 </button>
             </div>
         </div>
-        @endif {{-- End @if(false) which disables the qualification form --}}
-        @endif {{-- End outer condition that excludes view mode --}}
+        @endif {{-- End @if(isset($mode) && ($mode === 'edit' || $mode === 'agent')) --}}
+        @endif {{-- End @if(!isset($mode) || $mode === 'agent' || $mode === 'edit') --}}
 
         <!-- Contact Information with Save Button -->
         <div class="info-value">
