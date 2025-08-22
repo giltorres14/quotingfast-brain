@@ -582,6 +582,188 @@ $isEditMode = request()->get('mode') === 'edit';
             <div class="space-y-6" id="leadSections">
                 <!-- Contact Information removed (now in top panel) -->
 
+                <!-- Lead Information -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">Lead Information</h3>
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Lead Type</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <span class="px-2 py-1 text-xs font-medium rounded-full 
+                                    <?php echo strtolower($displayType) === 'auto' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'; ?>">
+                                    <?php echo $displayType; ?>
+                                </span>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">External Lead ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs">
+                                <?php echo htmlspecialchars($lead->external_lead_id); ?>
+                                <?php if (!empty($lead->external_lead_id)): ?>
+                                <button type="button" class="ml-2 text-[10px] px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->external_lead_id, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                                <?php endif; ?>
+                            </dd>
+                        </div>
+                        <?php if (!empty($lead->jangle_lead_id)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Jangle ID</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->jangle_lead_id); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->source)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Source</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->source); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->campaign_id)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Campaign</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->campaign_id); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($lead->received_at)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Received</dt>
+                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->received_at); ?></dd>
+                        </div>
+                        <?php endif; ?>
+                    </dl>
+                </div>
+
+                <!-- TCPA Compliance -->
+                <div class="bg-white shadow rounded-lg p-6">
+                    <h3 class="text-lg font-semibold mb-4">TCPA Compliance</h3>
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">TCPA Consent</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php echo ($lead->tcpa_compliant ?? ($meta['tcpa_compliant'] ?? false)) ? '✅ Yes' : '❌ No'; ?>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Opt-in Date</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php 
+                                $optIn = $lead->opt_in_date ?? ($meta['opt_in_date'] ?? ($meta['originally_created'] ?? null));
+                                echo htmlspecialchars($optIn ?: 'N/A');
+                                ?>
+                            </dd>
+                        </div>
+                        <?php 
+                        $trusted = $lead->trusted_form_cert_url ?? ($meta['trusted_form_cert_url'] ?? null);
+                        if (!empty($trusted)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">TrustedForm Certificate</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <a href="<?php echo htmlspecialchars($trusted); ?>" 
+                                   target="_blank" 
+                                   class="text-blue-600 hover:underline">
+                                    View Certificate
+                                </a>
+                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($trusted, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                            </dd>
+                        </div>
+                        <?php endif; ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">LeadiD Code</dt>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php 
+                                $leadIdCode = $lead->leadid_token ?? ($meta['leadid_token'] ?? ($meta['lead_id_code'] ?? null));
+                                echo htmlspecialchars($leadIdCode ?: 'N/A');
+                            ?></dd>
+                        </div>
+                        <?php 
+                        $landing = $lead->landing_page_url ?? ($meta['landing_page_url'] ?? null);
+                        if (!empty($landing)): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Landing Page</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <a href="<?php echo htmlspecialchars($landing); ?>" target="_blank" class="text-blue-600 hover:underline text-xs break-all"><?php echo htmlspecialchars($landing); ?></a>
+                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($landing, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                            </dd>
+                        </div>
+                        <?php endif; ?>
+                        <?php 
+                        $tcpaText = $lead->tcpa_text ?? ($meta['tcpa_consent_text'] ?? null);
+                        if (!empty($tcpaText)): ?>
+                        <div class="sm:col-span-2">
+                            <dt class="text-sm font-medium text-gray-500">TCPA Text</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <details>
+                                    <summary class="text-blue-700 cursor-pointer inline-flex items-center">View consent text</summary>
+                                    <div class="bg-gray-50 p-2 rounded text-xs mt-2"><?php echo nl2br(htmlspecialchars($tcpaText)); ?></div>
+                                    <button type="button" class="mt-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($tcpaText, ENT_QUOTES); ?>'); this.textContent='✓ Copied'; setTimeout(()=>this.textContent='📋 Copy',1500)">📋 Copy</button>
+                                </details>
+                            </dd>
+                        </div>
+                        <?php endif; ?>
+                    </dl>
+                </div>
+
+                <?php if (!empty($drivers)): ?>
+                <!-- Drivers Section -->
+                <div class="bg-white shadow rounded-lg p-6" data-section="drivers">
+                    <h3 class="text-lg font-semibold mb-4">Drivers</h3>
+                    <div class="space-y-4">
+                        <?php foreach ($drivers as $driver): ?>
+                        <div class="border-l-4 border-green-500 pl-4">
+                            <p class="font-medium">
+                                <?php 
+                                $driverName = trim(
+                                    ($driver['first_name'] ?? '') . ' ' . 
+                                    ($driver['last_name'] ?? '')
+                                );
+                                echo htmlspecialchars($driverName ?: 'Driver');
+                                ?>
+                            </p>
+                            <?php if (!empty($driver['license_status'])): ?>
+                            <p class="text-sm text-gray-600">License: <?php echo htmlspecialchars($driver['license_status']); ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($driver['dob']) || !empty($driver['birth_date'])): ?>
+                            <p class="text-sm text-gray-600">DOB: <?php echo htmlspecialchars($driver['dob'] ?? $driver['birth_date']); ?></p>
+                            <?php endif; ?>
+                            <details class="mt-2">
+                                <summary class="text-sm text-green-700 cursor-pointer">More details</summary>
+                                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                                    <?php 
+                                    $driverDetails = [
+                                        'relationship' => 'Relationship',
+                                        'gender' => 'Gender',
+                                        'marital_status' => 'Marital Status',
+                                        'license_state' => 'License State',
+                                        'license_status' => 'License Status',
+                                        'age_licensed' => 'Age Licensed',
+                                        'requires_sr22' => 'Requires SR-22',
+                                        'education' => 'Education',
+                                        'occupation' => 'Occupation',
+                                        'months_at_residence' => 'Months at Residence',
+                                        'license_ever_suspended' => 'License Ever Suspended'
+                                    ];
+                                    foreach ($driverDetails as $key => $label) {
+                                        if (isset($driver[$key]) && $driver[$key] !== '' && $driver[$key] !== null) {
+                                            $val = is_bool($driver[$key]) ? ($driver[$key] ? 'Yes' : 'No') : $driver[$key];
+                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . htmlspecialchars((string)$val) . '</div>';
+                                        }
+                                    }
+                                    $counts = [
+                                        'tickets' => 'Tickets',
+                                        'accidents' => 'Accidents',
+                                        'claims' => 'Claims'
+                                    ];
+                                    foreach ($counts as $k => $label) {
+                                        if (isset($driver[$k]) && is_array($driver[$k])) {
+                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . count($driver[$k]) . '</div>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </details>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <?php if (!empty($vehicles)): ?>
                 <!-- Vehicles Section -->
                 <div class="bg-white shadow rounded-lg p-6" data-section="vehicles">
