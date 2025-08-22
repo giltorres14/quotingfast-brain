@@ -51,9 +51,9 @@ $isEditMode = request()->get('mode') === 'edit';
     <!-- Sticky Header -->
     <div style="position: fixed !important; top: 0; left: 0; right: 0; z-index: 9999 !important; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.25);">
         <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
+            <div class="flex items-start justify-between">
                 <!-- Left section -->
-                <div class="flex items-center space-x-4">
+                <div class="flex flex-col items-start space-y-2">
                     <?php if (empty($isIframe)): ?>
                     <a href="/leads" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50" style="display:inline-flex; align-items:center; color:#4b5563; background:#fff; border:1px solid #d1d5db; border-radius:6px; padding:6px 8px;">
                         <svg width="16" height="16" style="margin-right:8px; flex-shrink:0; color:#4b5563; display:inline-block;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,6 @@ $isEditMode = request()->get('mode') === 'edit';
                         Back to Leads
                     </a>
                     <?php endif; ?>
-                    
                     <!-- Avatar -->
                     <div class="h-16 w-16 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg" style="margin-top: 8px;">
                         <?php echo substr($displayType, 0, 4); ?>
@@ -82,7 +81,6 @@ $isEditMode = request()->get('mode') === 'edit';
                         <?php echo htmlspecialchars($lead->email); ?>
                     </div>
                     <div class="text-sm mt-1" style="color:#dbeafe;">
-                        Lead ID: <?php echo htmlspecialchars($lead->external_lead_id); ?>
                         <?php 
                         $addressPartsTop = array_filter([
                             $lead->address,
@@ -90,35 +88,33 @@ $isEditMode = request()->get('mode') === 'edit';
                             $lead->state,
                             $lead->zip
                         ]);
-                        if (!empty($addressPartsTop)) {
-                            echo ' • ' . htmlspecialchars(implode(', ', $addressPartsTop));
-                        }
+                        echo !empty($addressPartsTop) ? htmlspecialchars(implode(', ', $addressPartsTop)) : '';
                         ?>
                     </div>
+                    <div class="text-sm" style="color:#dbeafe;">Lead ID: <?php echo htmlspecialchars($lead->external_lead_id); ?></div>
                 </div>
 
                 <!-- Right section -->
                 <div class="flex items-center space-x-2">
                     <?php if (empty($isIframe)): ?>
-                        <a href="/api/lead/<?php echo $lead->id; ?>/payload" 
+                        <a href="/lead/<?php echo $lead->id; ?>/payload-view" 
                            target="_blank"
                            class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">
                             View Payload
                         </a>
-                        <button type="button" data-url="/api/lead/<?php echo $lead->id; ?>/payload" class="inline-flex items-center px-3 py-2 rounded-md text-white bg-emerald-600 hover:bg-emerald-700" onclick="copyPayload(this)">📋 Copy Payload</button>
                         <?php if (!$isEditMode): ?>
                         <a href="?mode=edit" 
                            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-700 hover:bg-indigo-800">
                             Edit Lead
                         </a>
                         <?php else: ?>
+                        <button type="button" onclick="document.getElementById('qualificationFormTop')?.submit();" class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">Save</button>
                         <a href="?mode=view" 
                            class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">
                             View Mode
                         </a>
                         <?php endif; ?>
                     <?php endif; ?>
-                    <img src="https://quotingfast.com/whitelogo" alt="QuotingFast" style="height:28px; width:auto; margin-left:8px; opacity:0.95;">
                 </div>
             </div>
         </div>
@@ -269,18 +265,27 @@ $isEditMode = request()->get('mode') === 'edit';
                         </div>
 
                         <!-- Submit buttons -->
-                        <div class="flex justify-between pt-6">
-                            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Save Qualification</button>
-                            <a href="?mode=view" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400">Cancel</a>
+                        <div class="flex justify-end pt-6">
+                            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Save</button>
                         </div>
                     </div>
                 </form>
             </div>
 
-            <!-- Edit Mode - Show lead snapshot under the questions -->
+            <!-- Enrichment buttons (moved under questions and centered) -->
+            <div class="bg-white shadow rounded-lg p-6 mt-6">
+                <h3 class="text-lg font-semibold mb-4 text-center">Enrichment</h3>
+                <div class="flex flex-wrap gap-3 justify-center">
+                    <button type="button" onclick="enrichLead('insured')" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 flex items-center">🛡️ Insured</button>
+                    <button type="button" onclick="enrichLead('uninsured')" class="px-4 py-2 rounded bg-yellow-600 text-white hover:bg-yellow-700 flex items-center">⚠️ Uninsured</button>
+                    <button type="button" onclick="enrichLead('homeowner')" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center">🏠 Homeowner</button>
+                </div>
+            </div>
+
+            <!-- Edit Mode - Panels under questions per requested order -->
             <div class="space-y-6 mb-6">
-                <!-- Contact Information (same as view) -->
-                <div class="bg-white shadow rounded-lg p-6">
+                <!-- Contact Information (hide in edit unless needed) -->
+                <div class="bg-white shadow rounded-lg p-6 <?php echo $isEditMode ? 'hidden' : ''; ?>">
                     <h3 class="text-lg font-semibold mb-4">Contact Information</h3>
                     <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
                         <div>
@@ -443,77 +448,7 @@ $isEditMode = request()->get('mode') === 'edit';
                     </dl>
                 </div>
 
-                <!-- Enrichment buttons (RingBA) -->
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h3 class="text-lg font-semibold mb-4">Enrichment</h3>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="enrichLead('insured')" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 flex items-center">
-                            🛡️ Insured
-                        </button>
-                        <button type="button" onclick="enrichLead('uninsured')" class="px-4 py-2 rounded bg-yellow-600 text-white hover:bg-yellow-700 flex items-center">
-                            ⚠️ Uninsured
-                        </button>
-                        <button type="button" onclick="enrichLead('homeowner')" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center">
-                            🏠 Homeowner
-                        </button>
-                    </div>
-                </div>
-
-                <?php if (!empty($vehicles)): ?>
-                <div class="bg-white shadow rounded-lg p-6" data-section="vehicles-edit">
-                    <h3 class="text-lg font-semibold mb-4">Vehicles</h3>
-                    <div class="space-y-4">
-                        <?php foreach ($vehicles as $vehicle): ?>
-                        <div class="border-l-4 border-blue-500 pl-4">
-                            <p class="font-medium">
-                                <?php 
-                                $vehicleDesc = array_filter([
-                                    $vehicle['year'] ?? '',
-                                    $vehicle['make'] ?? '',
-                                    $vehicle['model'] ?? ''
-                                ]);
-                                echo htmlspecialchars(implode(' ', $vehicleDesc) ?: 'Vehicle');
-                                ?>
-                            </p>
-                            <?php if (!empty($vehicle['vin'])): ?>
-                            <p class="text-sm text-gray-600">VIN: <?php echo htmlspecialchars($vehicle['vin']); ?></p>
-                            <?php endif; ?>
-                            <?php if (!empty($vehicle['primary_use'])): ?>
-                            <p class="text-sm text-gray-600">Use: <?php echo htmlspecialchars($vehicle['primary_use']); ?></p>
-                            <?php endif; ?>
-                            <details class="mt-2">
-                                <summary class="text-sm text-blue-700 cursor-pointer">More details</summary>
-                                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
-                                    <?php 
-                                    $vehicleDetails = [
-                                        'ownership' => 'Ownership',
-                                        'annual_miles' => 'Annual Miles',
-                                        'weekly_commute_days' => 'Commute Days/Week',
-                                        'one_way_distance' => 'One-way Commute (mi)',
-                                        'garage' => 'Garage Type',
-                                        'alarm' => 'Alarm',
-                                        'rental' => 'Rental',
-                                        'towing' => 'Towing',
-                                        'collision_deductible' => 'Collision Deductible',
-                                        'comprehensive_deductible' => 'Comprehensive Deductible',
-                                        'submodel' => 'Trim/Submodel',
-                                        'salvaged' => 'Salvaged'
-                                    ];
-                                    foreach ($vehicleDetails as $key => $label) {
-                                        if (isset($vehicle[$key]) && $vehicle[$key] !== '' && $vehicle[$key] !== null) {
-                                            $val = is_bool($vehicle[$key]) ? ($vehicle[$key] ? 'Yes' : 'No') : $vehicle[$key];
-                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . htmlspecialchars((string)$val) . '</div>';
-                                        }
-                                    }
-                                    ?>
-                                </div>
-                            </details>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-
+                <!-- Drivers first, then Vehicles -->
                 <?php if (!empty($drivers)): ?>
                 <div class="bg-white shadow rounded-lg p-6" data-section="drivers-edit">
                     <h3 class="text-lg font-semibold mb-4">Drivers</h3>
@@ -561,6 +496,61 @@ $isEditMode = request()->get('mode') === 'edit';
                                     foreach ($counts as $k => $label) {
                                         if (isset($driver[$k]) && is_array($driver[$k])) {
                                             echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . count($driver[$k]) . '</div>';
+                                        }
+                                    }
+                                    ?>
+                                </div>
+                            </details>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <?php if (!empty($vehicles)): ?>
+                <div class="bg-white shadow rounded-lg p-6" data-section="vehicles-edit">
+                    <h3 class="text-lg font-semibold mb-4">Vehicles</h3>
+                    <div class="space-y-4">
+                        <?php foreach ($vehicles as $vehicle): ?>
+                        <div class="border-l-4 border-blue-500 pl-4">
+                            <p class="font-medium">
+                                <?php 
+                                $vehicleDesc = array_filter([
+                                    $vehicle['year'] ?? '',
+                                    $vehicle['make'] ?? '',
+                                    $vehicle['model'] ?? ''
+                                ]);
+                                echo htmlspecialchars(implode(' ', $vehicleDesc) ?: 'Vehicle');
+                                ?>
+                            </p>
+                            <?php if (!empty($vehicle['vin'])): ?>
+                            <p class="text-sm text-gray-600">VIN: <?php echo htmlspecialchars($vehicle['vin']); ?></p>
+                            <?php endif; ?>
+                            <?php if (!empty($vehicle['primary_use'])): ?>
+                            <p class="text-sm text-gray-600">Use: <?php echo htmlspecialchars($vehicle['primary_use']); ?></p>
+                            <?php endif; ?>
+                            <details class="mt-2">
+                                <summary class="text-sm text-blue-700 cursor-pointer">More details</summary>
+                                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
+                                    <?php 
+                                    $vehicleDetails = [
+                                        'ownership' => 'Ownership',
+                                        'annual_miles' => 'Annual Miles',
+                                        'weekly_commute_days' => 'Commute Days/Week',
+                                        'one_way_distance' => 'One-way Commute (mi)',
+                                        'garage' => 'Garage Type',
+                                        'alarm' => 'Alarm',
+                                        'rental' => 'Rental',
+                                        'towing' => 'Towing',
+                                        'collision_deductible' => 'Collision Deductible',
+                                        'comprehensive_deductible' => 'Comprehensive Deductible',
+                                        'submodel' => 'Trim/Submodel',
+                                        'salvaged' => 'Salvaged'
+                                    ];
+                                    foreach ($vehicleDetails as $key => $label) {
+                                        if (isset($vehicle[$key]) && $vehicle[$key] !== '' && $vehicle[$key] !== null) {
+                                            $val = is_bool($vehicle[$key]) ? ($vehicle[$key] ? 'Yes' : 'No') : $vehicle[$key];
+                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . htmlspecialchars((string)$val) . '</div>';
                                         }
                                     }
                                     ?>
