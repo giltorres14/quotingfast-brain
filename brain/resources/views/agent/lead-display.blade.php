@@ -1570,6 +1570,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- TCPA Compliance Section -->
         @if(!isset($mode) || $mode !== 'edit')
@@ -1811,7 +1812,6 @@
                 </div>
             </div>
         </div>
-        @endif
         @endif
 
         <!-- Call Metrics removed from agent view - admin only data -->
