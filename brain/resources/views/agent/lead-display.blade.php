@@ -11,7 +11,7 @@ $lead->email = $lead->email ?? '';
 $lead->address = $lead->address ?? '';
 $lead->city = $lead->city ?? '';
 $lead->state = $lead->state ?? '';
-$lead->zip = $lead->zip ?? '';
+$lead->zip = $lead->zip ?? ($lead->zip_code ?? '');
 $lead->external_lead_id = $lead->external_lead_id ?? $lead->id;
 $lead->type = $lead->type ?? 'unknown';
 $lead->tcpa_compliant = $lead->tcpa_compliant ?? false;
@@ -24,6 +24,17 @@ $drivers = isset($lead->drivers) ? (is_string($lead->drivers) ? json_decode($lea
 $current_policy = isset($lead->current_policy) ? (is_string($lead->current_policy) ? json_decode($lead->current_policy, true) : $lead->current_policy) : [];
 
 // Determine lead type
+// Phone formatter helper
+if (!function_exists('formatPhoneForDisplay')) {
+    function formatPhoneForDisplay($phone) {
+        $digits = preg_replace('/\D+/', '', (string)$phone);
+        if (strlen($digits) === 10) {
+            return sprintf('(%.3s) %.3s-%.4s', $digits, substr($digits, 3, 3), substr($digits, 6));
+        }
+        return $phone ?: 'N/A';
+    }
+}
+
 $displayType = 'AUTO';
 if (!empty($lead->type) && strtolower($lead->type) !== 'unknown') {
     $displayType = strtoupper($lead->type);
@@ -66,11 +77,22 @@ $isEditMode = request()->get('mode') === 'edit';
                         <?php echo htmlspecialchars($lead->name); ?>
                     </div>
                     <div class="text-base font-semibold" style="line-height: 1.4; color:#f0f6ff;">
-                        <?php echo htmlspecialchars($lead->phone); ?><br>
+                        <?php echo htmlspecialchars(formatPhoneForDisplay($lead->phone)); ?><br>
                         <?php echo htmlspecialchars($lead->email); ?>
                     </div>
                     <div class="text-sm mt-1" style="color:#dbeafe;">
                         Lead ID: <?php echo htmlspecialchars($lead->external_lead_id); ?>
+                        <?php 
+                        $addressPartsTop = array_filter([
+                            $lead->address,
+                            $lead->city,
+                            $lead->state,
+                            $lead->zip
+                        ]);
+                        if (!empty($addressPartsTop)) {
+                            echo ' • ' . htmlspecialchars(implode(', ', $addressPartsTop));
+                        }
+                        ?>
                     </div>
                 </div>
 
@@ -439,48 +461,7 @@ $isEditMode = request()->get('mode') === 'edit';
         <?php else: ?>
             <!-- View Mode - Display All Information -->
             <div class="space-y-6" id="leadSections">
-                <!-- Contact Information -->
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h3 class="text-lg font-semibold mb-4">Contact Information</h3>
-                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Name</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->name); ?></dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Phone</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <?php echo htmlspecialchars($lead->phone ?: 'N/A'); ?>
-                                <?php if (!empty($lead->phone)): ?>
-                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->phone, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
-                                <?php endif; ?>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Email</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <?php echo htmlspecialchars($lead->email ?: 'N/A'); ?>
-                                <?php if (!empty($lead->email)): ?>
-                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->email, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
-                                <?php endif; ?>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Address</dt>
-                            <dd class="mt-1 text-sm text-gray-900">
-                                <?php 
-                                $addressParts = array_filter([
-                                    $lead->address,
-                                    $lead->city,
-                                    $lead->state,
-                                    $lead->zip ?? $lead->zip_code ?? null,
-                                ]);
-                                echo htmlspecialchars(implode(', ', $addressParts) ?: 'N/A');
-                                ?>
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
+                <!-- Contact Information removed (now in top panel) -->
 
                 <?php if (!empty($vehicles)): ?>
                 <!-- Vehicles Section -->
@@ -691,39 +672,50 @@ $isEditMode = request()->get('mode') === 'edit';
                         <div>
                             <dt class="text-sm font-medium text-gray-500">TCPA Consent</dt>
                             <dd class="mt-1 text-sm text-gray-900">
-                                <?php echo $lead->tcpa_compliant ? '✅ Yes' : '❌ No'; ?>
+                                <?php echo ($lead->tcpa_compliant ?? ($lead->meta['tcpa_compliant'] ?? false)) ? '✅ Yes' : '❌ No'; ?>
                             </dd>
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Opt-in Date</dt>
                             <dd class="mt-1 text-sm text-gray-900">
-                                <?php echo htmlspecialchars($lead->opt_in_date ?: 'N/A'); ?>
+                                <?php 
+                                $optIn = $lead->opt_in_date ?? ($lead->meta['opt_in_date'] ?? null);
+                                echo htmlspecialchars($optIn ?: 'N/A');
+                                ?>
                             </dd>
                         </div>
-                        <?php if (!empty($lead->trusted_form_cert_url)): ?>
+                        <?php 
+                        $trusted = $lead->trusted_form_cert_url ?? ($lead->meta['trusted_form_cert_url'] ?? null);
+                        if (!empty($trusted)): ?>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">TrustedForm Certificate</dt>
                             <dd class="mt-1 text-sm text-gray-900">
-                                <a href="<?php echo htmlspecialchars($lead->trusted_form_cert_url); ?>" 
+                                <a href="<?php echo htmlspecialchars($trusted); ?>" 
                                    target="_blank" 
                                    class="text-blue-600 hover:underline">
                                     View Certificate
                                 </a>
-                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($lead->trusted_form_cert_url, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
+                                <button type="button" class="ml-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($trusted, ENT_QUOTES); ?>'); this.textContent='✓'; setTimeout(()=>this.textContent='📋',1500)">📋</button>
                             </dd>
                         </div>
                         <?php endif; ?>
-                        <?php if (!empty($lead->leadid_token)): ?>
+                        <?php if (!empty($lead->leadid_token) || !empty($lead->meta['leadid_token'])): ?>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">LeadiD Token</dt>
-                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php echo htmlspecialchars(substr($lead->leadid_token, 0, 20) . '...'); ?></dd>
+                            <dd class="mt-1 text-sm text-gray-900 font-mono text-xs"><?php echo htmlspecialchars(substr(($lead->leadid_token ?? $lead->meta['leadid_token']), 0, 20) . '...'); ?></dd>
                         </div>
                         <?php endif; ?>
-                        <?php if (!empty($lead->tcpa_text)): ?>
+                        <?php 
+                        $tcpaText = $lead->tcpa_text ?? ($lead->meta['tcpa_consent_text'] ?? null);
+                        if (!empty($tcpaText)): ?>
                         <div class="sm:col-span-2">
                             <dt class="text-sm font-medium text-gray-500">TCPA Text</dt>
                             <dd class="mt-1 text-sm text-gray-900">
-                                <div class="bg-gray-50 p-2 rounded text-xs"><?php echo htmlspecialchars($lead->tcpa_text); ?></div>
+                                <details>
+                                    <summary class="text-blue-700 cursor-pointer inline-flex items-center">View consent text</summary>
+                                    <div class="bg-gray-50 p-2 rounded text-xs mt-2"><?php echo nl2br(htmlspecialchars($tcpaText)); ?></div>
+                                    <button type="button" class="mt-2 text-xs px-2 py-0.5 rounded bg-green-600 text-white" onclick="navigator.clipboard.writeText('<?php echo htmlspecialchars($tcpaText, ENT_QUOTES); ?>'); this.textContent='✓ Copied'; setTimeout(()=>this.textContent='📋 Copy',1500)">📋 Copy</button>
+                                </details>
                             </dd>
                         </div>
                         <?php endif; ?>
