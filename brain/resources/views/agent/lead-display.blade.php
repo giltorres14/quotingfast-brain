@@ -133,29 +133,38 @@ $isEditMode = request()->get('mode') === 'edit';
                 <form method="POST" action="/agent/lead/<?php echo $lead->id; ?>/qualify" id="qualificationFormTop">
                     <input type="hidden" name="_token" value="<?php echo csrf_token(); ?>">
                     <div class="space-y-6">
-                        <!-- Question 1: Ready to speak -->
+                        <!-- 1. Date of Birth -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">1. Are you ready to speak with an agent about auto insurance?</label>
-                            <select name="ready_to_speak" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">1. Date of Birth</label>
+                            <input type="date" name="dob" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        </div>
+
+                        <!-- 2. Gender -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">2. Gender</label>
+                            <select name="gender" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
                             </select>
                         </div>
 
-                        <!-- Question 2: Shopping for rates -->
+                        <!-- 3. Marital Status -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">2. Are you shopping for better rates?</label>
-                            <select name="shopping_for_rates" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">3. Marital Status</label>
+                            <select name="marital_status" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
+                                <option value="single">Single</option>
+                                <option value="married">Married</option>
+                                <option value="divorced">Divorced</option>
+                                <option value="separated">Separated</option>
+                                <option value="widowed">Widowed</option>
                             </select>
                         </div>
 
-                        <!-- Question 3: Currently insured (drives conditional fields) -->
+                        <!-- 4. Currently Insured (drives conditional fields) -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">3. Do you currently have auto insurance?</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">4. Do you currently have auto insurance?</label>
                             <select id="currently_insured_top" name="currently_insured" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
@@ -163,10 +172,10 @@ $isEditMode = request()->get('mode') === 'edit';
                             </select>
                         </div>
 
-                        <!-- Conditional insured fields -->
+                        <!-- Conditional insured fields (show only if Currently Insured = Yes) -->
                         <div id="insuredFieldsTop" class="space-y-4" style="display:none;">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">4. Who is your current insurance provider?</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Current Insurance Company</label>
                                 <input type="text" name="current_insurance_company" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Enter company name">
                             </div>
                             <div>
@@ -179,55 +188,70 @@ $isEditMode = request()->get('mode') === 'edit';
                             </div>
                         </div>
 
-                        <!-- Question 5: Number of vehicles -->
+                        <!-- 5. Deductible Preference -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">5. How many vehicles need insurance?</label>
-                            <select name="num_vehicles" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">5. Deductible Preference</label>
+                            <select name="deductible_preference" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5+">5 or more</option>
+                                <option value="500">$500</option>
+                                <option value="1000">$1,000</option>
+                                <option value="1500">$1,500</option>
                             </select>
                         </div>
 
-                        <!-- Question 6: Number of drivers -->
+                        <!-- 6. Credit Score Range -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">6. How many drivers will be on the policy?</label>
-                            <select name="num_drivers" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">6. Credit Score Range</label>
+                            <select name="credit_score_range" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5+">5 or more</option>
+                                <option value="excellent">Excellent (750+)</option>
+                                <option value="good">Good (700-749)</option>
+                                <option value="fair">Fair (650-699)</option>
+                                <option value="poor">Poor (600-649)</option>
+                                <option value="subprime">Subprime (&lt;600)</option>
                             </select>
                         </div>
 
-                        <!-- Question 7: Valid license -->
+                        <!-- 7. Home Ownership Status -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">7. Do all drivers have valid licenses?</label>
-                            <select name="valid_licenses" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">7. Home Ownership Status</label>
+                            <select name="home_ownership" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option value="">Select...</option>
+                                <option value="own">Own</option>
+                                <option value="rent">Rent</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <!-- 8. Years Licensed -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">8. Years Licensed</label>
+                            <input type="number" name="years_licensed" min="0" max="60" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g. 10">
+                        </div>
+
+                        <!-- 9. Accidents/Violations (Last 5 years) -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">9. Any accidents or violations in the last 5 years?</label>
+                            <select name="accidents_violations" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
                             </select>
                         </div>
 
-                        <!-- Question 8: DUI/DWI -->
+                        <!-- 10. DUI Conviction -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">8. Any DUI/DWI in the last 5 years?</label>
-                            <select name="dui_dwi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">10. Any DUI conviction?</label>
+                            <select name="dui_conviction" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
                                 <option value="no">No</option>
                             </select>
                         </div>
 
-                        <!-- Question 9: SR-22 -->
+                        <!-- 11. SR-22 Required -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">9. Do you need SR-22 filing?</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">11. Do you require an SR-22?</label>
                             <select name="sr22_required" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
                                 <option value="yes">Yes</option>
@@ -235,27 +259,7 @@ $isEditMode = request()->get('mode') === 'edit';
                             </select>
                         </div>
 
-                        <!-- Question 10: Homeowner -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">10. Do you own your home?</label>
-                            <select name="homeowner" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-
-                        <!-- Question 11: Continuous coverage -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">11. Have you had continuous coverage for the last 6 months?</label>
-                            <select name="continuous_coverage" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="">Select...</option>
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-
-                        <!-- Question 12: Best time to call -->
+                        <!-- 12. Best Time to Call -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">12. Best time to reach you?</label>
                             <select name="best_time_to_call" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
@@ -267,13 +271,12 @@ $isEditMode = request()->get('mode') === 'edit';
                             </select>
                         </div>
 
-                        <!-- Question 13: Transfer to Allstate -->
+                        <!-- 13. Currently shopping for better rates (kept for routing hints) -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">13. Would you like to speak with an Allstate agent now?</label>
-                            <select name="transfer_to_allstate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">13. Are you shopping for better rates?</label>
+                            <select name="shopping_for_rates" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Select...</option>
-                                <option value="yes">Yes - Transfer Now</option>
-                                <option value="later">Maybe Later</option>
+                                <option value="yes">Yes</option>
                                 <option value="no">No</option>
                             </select>
                         </div>
