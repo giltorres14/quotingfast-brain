@@ -215,3 +215,4 @@ if (empty($errors)) {
     echo "❌ DO NOT DEPLOY - Critical errors must be fixed\n";
     exit(1);
 }
+

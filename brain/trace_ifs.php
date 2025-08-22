@@ -41,3 +41,4 @@ if (!empty($stack)) {
 } else {
     echo "All @if statements are properly closed.\n";
 }
+

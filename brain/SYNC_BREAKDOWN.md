@@ -96,3 +96,4 @@ The ~125,800 leads remaining in List 0 after sync are leads that:
 2. Decide what to do with remaining List 0 leads
 3. Export synced leads if needed for ViciDial import
 4. Set up regular sync schedule
+

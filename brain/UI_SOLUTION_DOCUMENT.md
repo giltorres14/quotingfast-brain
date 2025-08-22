@@ -141,3 +141,4 @@ We need to redistribute the 227K leads in List 0 and configure the AUTODIAL camp
 Stop fighting the UI. The data layer works. Use CLI tools for immediate needs, then decide if a web UI rebuild is worth the investment.
 
 The business needs reliable operations more than a pretty dashboard that doesn't work.
+

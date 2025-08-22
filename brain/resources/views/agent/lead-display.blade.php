@@ -876,9 +876,9 @@
             }
             
             // Add edit mode class if in edit mode
-            @if(isset($mode) && ($mode === 'edit' || $mode === 'agent'))
+            <?php if(isset($mode) && ($mode === 'edit' || $mode === 'agent')): ?>
                 document.body.classList.add('edit-mode');
-            @endif
+<?php endif; ?>
             
             // Trigger insurance questions if currently insured
             if (document.getElementById("currently_insured") && document.getElementById("currently_insured").value === "yes") {
@@ -4355,7 +4355,7 @@
         }
         
         // View Payload function
-        const leadPayload = @if(isset($lead->payload)) @json($lead->payload) @else null @endif;
+        const leadPayload = <?php echo isset($lead->payload) ? json_encode($lead->payload) : 'null'; ?>;
         
         function viewPayload() {
             if (leadPayload) {

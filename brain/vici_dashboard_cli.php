@@ -118,3 +118,4 @@ try {
     echo "❌ Database Error: " . $e->getMessage() . "\n\n";
     echo "Trying alternative connection...\n";
 }
+

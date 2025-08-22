@@ -338,3 +338,4 @@ try {
     echo "2. Check ViciDial credentials\n";
     echo "3. Verify network connectivity\n";
 }
+

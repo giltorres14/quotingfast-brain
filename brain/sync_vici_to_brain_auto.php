@@ -382,3 +382,4 @@ try {
     echo "2. Make sure you have SSH access to the ViciDial server\n";
     echo "3. Check database credentials\n";
 }
+
