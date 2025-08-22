@@ -88,7 +88,7 @@
         
         /* Add padding to body to account for fixed header */
         body {
-            padding-top: 120px; /* Space for sticky header with contact info */
+            padding-top: 140px; /* Increased space to prevent overlap */
             position: relative;
         }
         
@@ -918,6 +918,18 @@
             
             <!-- Lead Type Avatar Circle -->
             <div style="position: absolute; left: 20px; bottom: 15px;">
+                @php
+                    $leadType = strtolower($lead->type ?? 'auto');
+                    // Check if we have vehicles to determine if it's auto
+                    if ($leadType === 'unknown' || !$lead->type) {
+                        if (isset($lead->vehicles) && !empty(json_decode($lead->vehicles, true))) {
+                            $leadType = 'auto';
+                        } else {
+                            $leadType = 'auto'; // Default to auto
+                        }
+                    }
+                    $displayType = strtoupper($leadType);
+                @endphp
                 <div style="
                     width: 70px; 
                     height: 70px; 
@@ -929,10 +941,10 @@
                     font-size: 14px; 
                     color: white;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-                    background: {{ $lead->type === 'auto' ? 'linear-gradient(135deg, #667eea 0%, #3B82F6 100%)' : ($lead->type === 'home' ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)') }};
+                    background: {{ $leadType === 'auto' ? 'linear-gradient(135deg, #667eea 0%, #3B82F6 100%)' : ($leadType === 'home' ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)') }};
                     border: 3px solid white;
                 ">
-                    {{ strtoupper($lead->type ?? 'auto') }}
+                    {{ $displayType }}
                 </div>
             </div>
             
@@ -1819,7 +1831,7 @@
         @endphp
         
         <!-- Drivers Section (Auto Insurance Only) -->
-        @if($lead->type === 'auto' && $drivers && count($drivers) > 0)
+        @if(($lead->type === 'auto' || $lead->type === 'unknown' || !$lead->type) && $drivers && count($drivers) > 0)
         <div class="section">
             <div class="section-title drivers">👤 Drivers ({{ count($drivers) }}) 
                 @if(!isset($mode) || $mode !== 'view')
@@ -2065,7 +2077,8 @@
         <!-- Vehicles (Auto Insurance) OR Properties (Home Insurance) -->
         @php
             // Use database lead type as primary source of truth
-            $isAutoLead = ($lead->type === 'auto');
+            // If type is unknown or not set, check if we have vehicles data to determine if it's auto
+            $isAutoLead = ($lead->type === 'auto' || $lead->type === 'unknown' || (!$lead->type && isset($vehicles) && count($vehicles) > 0));
             $isHomeLead = ($lead->type === 'home');
             $vehicles = null;
             $properties = null;
