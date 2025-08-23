@@ -633,6 +633,29 @@ $isEditMode = request()->get('mode') === 'edit';
                     </div>
                 </div>
                 <?php endif; ?>
+
+                <!-- Current Insurance Policy (editable, always visible in edit) -->
+                <div class="bg-white shadow rounded-lg p-6" data-section="current-policy-edit">
+                    <h3 class="text-lg font-semibold mb-4">Current Insurance Policy</h3>
+                    <div id="currentPolicyEdit" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Insurance Company</label>
+                            <input type="text" name="current_policy[company]" value="<?php echo htmlspecialchars($current_policy['company'] ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g., GEICO">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Coverage Type</label>
+                            <input type="text" name="current_policy[coverage_type]" value="<?php echo htmlspecialchars($current_policy['coverage_type'] ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="State Minimum / Full Coverage">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Expiration Date</label>
+                            <input type="date" name="current_policy[expiration_date]" value="<?php echo htmlspecialchars($current_policy['expiration_date'] ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Monthly Premium</label>
+                            <input type="number" step="0.01" name="current_policy[monthly_premium]" value="<?php echo htmlspecialchars($current_policy['monthly_premium'] ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g., 125">
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Edit Mode - Qualification Form (legacy block retained but hidden) -->
@@ -1142,6 +1165,10 @@ async function saveQualification(){
     if(!formEl){ return; }
     try {
         const formData = new FormData(formEl);
+        // Include inline edit sections (drivers, vehicles, current policy)
+        document.querySelectorAll('[name^="drivers["]').forEach(el=>formData.append(el.getAttribute('name'), el.value));
+        document.querySelectorAll('[name^="vehicles["]').forEach(el=>formData.append(el.getAttribute('name'), el.value));
+        document.querySelectorAll('[name^="current_policy["]').forEach(el=>formData.append(el.getAttribute('name'), el.value));
         formData.append('as_json', '1');
         const resp = await fetch(formEl.action, { method: 'POST', body: formData });
         if(!resp.ok){
