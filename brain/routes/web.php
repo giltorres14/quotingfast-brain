@@ -3813,12 +3813,20 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
         foreach (['name','phone','email','address','city','state','zip','zip_code','type'] as $f) {
             if (!empty($l[$f])) { $score++; }
         }
-        $drivers = json_decode($l['drivers'] ?? '[]', true) ?: [];
-        $vehicles = json_decode($l['vehicles'] ?? '[]', true) ?: [];
-        $current = json_decode($l['current_policy'] ?? '[]', true) ?: [];
-        $score += count($drivers) * 2;
-        $score += count($vehicles) * 2;
-        if (is_array($current)) { $score += count(array_filter($current, fn($v)=>$v!==null && $v!=='') ); }
+        $toArray = function($v) {
+            if (is_array($v)) { return $v; }
+            if (is_string($v)) {
+                $d = json_decode($v, true);
+                return is_array($d) ? $d : [];
+            }
+            return [];
+        };
+        $drivers = $toArray($l['drivers'] ?? []);
+        $vehicles = $toArray($l['vehicles'] ?? []);
+        $current = $toArray($l['current_policy'] ?? []);
+        $score += (is_countable($drivers) ? count($drivers) : 0) * 2;
+        $score += (is_countable($vehicles) ? count($vehicles) : 0) * 2;
+        if (is_array($current)) { $score += count(array_filter($current, fn($v)=>$v!==null && $v!=='')); }
         return $score;
     };
 
