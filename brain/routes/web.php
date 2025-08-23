@@ -3974,8 +3974,9 @@ Route::get('/admin/lead-duplicates', function (\Illuminate\Http\Request $request
     return app(\Illuminate\Routing\Router::class)->dispatch(\Illuminate\Http\Request::create('/duplicates', 'GET', $params));
 });
 
-// Admin: Cleanup all duplicates by keeping the highest scoring record per phone/email group
-Route::post('/admin/duplicates/cleanup-all', function (\Illuminate\Http\Request $request) {
+// Cleanup all duplicates by keeping the highest scoring record per phone/email group
+// Exposed outside /admin to avoid Filament shadowing; protected by admin_key
+Route::post('/duplicates/cleanup-all', function (\Illuminate\Http\Request $request) {
     // Auth or temporary admin key
     $adminActionsKey = env('ADMIN_ACTION_KEY', 'QF-ADMIN-KEY-2025');
     if (!auth()->check() && !hash_equals($adminActionsKey, (string)$request->input('admin_key'))) {
@@ -4103,6 +4104,13 @@ Route::post('/admin/duplicates/cleanup-all', function (\Illuminate\Http\Request 
         'keepers' => count($keepIds),
         'deleted' => $deleted,
     ]);
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+// Convenience GET trigger (same logic) for automation tools
+Route::get('/duplicates/cleanup-all', function (\Illuminate\Http\Request $request) {
+    $request->setMethod('POST');
+    return app(\Illuminate\Routing\Router::class)
+        ->dispatch(\Illuminate\Http\Request::create('/duplicates/cleanup-all', 'POST', $request->all()));
 });
 
 // Match the edit form action in agent/lead view
