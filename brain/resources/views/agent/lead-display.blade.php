@@ -119,7 +119,7 @@ $isEditMode = request()->get('mode') === 'edit';
                             View Mode
                         </a>
                         <div class="mt-6 self-end">
-                            <button type="button" onclick="document.getElementById('qualificationFormTop')?.submit();" class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">Save</button>
+                            <button type="button" onclick="saveQualification()" class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">Save</button>
                         </div>
                         <?php endif; ?>
                     <?php endif; ?>
@@ -549,6 +549,19 @@ $isEditMode = request()->get('mode') === 'edit';
                         </div>
                         <?php endforeach; ?>
                     </div>
+                    <!-- Edit toggle and inputs -->
+                    <div class="mt-4">
+                        <button type="button" class="text-sm text-blue-700 underline" onclick="toggleEditSection('driversEditForm')">Edit</button>
+                        <div id="driversEditForm" class="mt-3 hidden">
+                            <?php foreach ($drivers as $idx => $driver): ?>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                                <input type="text" name="drivers[<?php echo $idx; ?>][first_name]" value="<?php echo htmlspecialchars($driver['first_name'] ?? ''); ?>" class="border rounded px-2 py-1" placeholder="First name">
+                                <input type="text" name="drivers[<?php echo $idx; ?>][last_name]" value="<?php echo htmlspecialchars($driver['last_name'] ?? ''); ?>" class="border rounded px-2 py-1" placeholder="Last name">
+                                <input type="text" name="drivers[<?php echo $idx; ?>][license_status]" value="<?php echo htmlspecialchars($driver['license_status'] ?? ''); ?>" class="border rounded px-2 py-1" placeholder="License status">
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
                 <?php endif; ?>
 
@@ -603,6 +616,20 @@ $isEditMode = request()->get('mode') === 'edit';
                             </details>
                         </div>
                         <?php endforeach; ?>
+                    </div>
+                    <!-- Edit toggle and inputs -->
+                    <div class="mt-4">
+                        <button type="button" class="text-sm text-blue-700 underline" onclick="toggleEditSection('vehiclesEditForm')">Edit</button>
+                        <div id="vehiclesEditForm" class="mt-3 hidden">
+                            <?php foreach ($vehicles as $idx => $vehicle): ?>
+                            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-3">
+                                <input type="text" name="vehicles[<?php echo $idx; ?>][year]" value="<?php echo htmlspecialchars($vehicle['year'] ?? ''); ?>" class="border rounded px-2 py-1" placeholder="Year">
+                                <input type="text" name="vehicles[<?php echo $idx; ?>][make]" value="<?php echo htmlspecialchars($vehicle['make'] ?? ''); ?>" class="border rounded px-2 py-1" placeholder="Make">
+                                <input type="text" name="vehicles[<?php echo $idx; ?>][model]" value="<?php echo htmlspecialchars($vehicle['model'] ?? ''); ?>" class="border rounded px-2 py-1" placeholder="Model">
+                                <input type="text" name="vehicles[<?php echo $idx; ?>][vin]" value="<?php echo htmlspecialchars($vehicle['vin'] ?? ''); ?>" class="border rounded px-2 py-1" placeholder="VIN">
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -1047,37 +1074,51 @@ $isEditMode = request()->get('mode') === 'edit';
                 <?php endif; ?>
 
                 <!-- Current Insurance Policy -->
-                <?php if (!empty($current_policy)): ?>
                 <div class="bg-white shadow rounded-lg p-6">
                     <h3 class="text-lg font-semibold mb-4">Current Insurance Policy</h3>
-                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
-                        <?php if (!empty($current_policy['company'])): ?>
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2 <?php echo $isEditMode ? '' : (empty($current_policy) ? 'hidden' : ''); ?>">
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Insurance Company</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($current_policy['company']); ?></dd>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php if ($isEditMode): ?>
+                                    <input type="text" name="current_policy[company]" value="<?php echo htmlspecialchars($current_policy['company'] ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g., GEICO">
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars($current_policy['company'] ?? ''); ?>
+                                <?php endif; ?>
+                            </dd>
                         </div>
-                        <?php endif; ?>
-                        <?php if (!empty($current_policy['expiration_date'])): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Expiration Date</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($current_policy['expiration_date']); ?></dd>
-                        </div>
-                        <?php endif; ?>
-                        <?php if (!empty($current_policy['coverage_type'])): ?>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Coverage Type</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($current_policy['coverage_type']); ?></dd>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php if ($isEditMode): ?>
+                                    <input type="text" name="current_policy[coverage_type]" value="<?php echo htmlspecialchars($current_policy['coverage_type'] ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="State Minimum / Full Coverage">
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars($current_policy['coverage_type'] ?? ''); ?>
+                                <?php endif; ?>
+                            </dd>
                         </div>
-                        <?php endif; ?>
-                        <?php if (!empty($current_policy['monthly_premium'])): ?>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Expiration Date</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php if ($isEditMode): ?>
+                                    <input type="date" name="current_policy[expiration_date]" value="<?php echo htmlspecialchars($current_policy['expiration_date'] ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <?php else: ?>
+                                    <?php echo htmlspecialchars($current_policy['expiration_date'] ?? ''); ?>
+                                <?php endif; ?>
+                            </dd>
+                        </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Monthly Premium</dt>
-                            <dd class="mt-1 text-sm text-gray-900">$<?php echo htmlspecialchars($current_policy['monthly_premium']); ?></dd>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <?php if ($isEditMode): ?>
+                                    <input type="number" step="0.01" name="current_policy[monthly_premium]" value="<?php echo htmlspecialchars($current_policy['monthly_premium'] ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="e.g., 125">
+                                <?php else: ?>
+                                    <?php echo isset($current_policy['monthly_premium']) ? '$' . htmlspecialchars($current_policy['monthly_premium']) : ''; ?>
+                                <?php endif; ?>
+                            </dd>
                         </div>
-                        <?php endif; ?>
                     </dl>
                 </div>
-                <?php endif; ?>
 
                 <!-- removed duplicate Lead Information section: now rendered above per spec -->
 
@@ -1090,6 +1131,29 @@ $isEditMode = request()->get('mode') === 'edit';
 </div>
 
 <script>
+function toggleEditSection(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.classList.toggle('hidden');
+}
+
+async function saveQualification(){
+    const formEl = document.getElementById('qualificationFormTop');
+    if(!formEl){ return; }
+    try {
+        const formData = new FormData(formEl);
+        formData.append('as_json', '1');
+        const resp = await fetch(formEl.action, { method: 'POST', body: formData });
+        if(!resp.ok){
+            const err = await resp.text();
+            alert('Save failed: ' + err);
+            return;
+        }
+        alert('Saved');
+    } catch(e){
+        alert('Save error: ' + (e?.message || e));
+    }
+}
 <?php
 // Compute defaults for Allstate-required fields from primary driver/payload
 $primaryDriver = [];
