@@ -287,6 +287,9 @@
                             <a href="/admin/campaigns" class="dropdown-item">
                                 <span class="icon">🎯</span>Campaigns
                             </a>
+                            <a href="/admin/lead-duplicates" class="dropdown-item">
+                                <span class="icon">🧩</span>Duplicate Finder
+                            </a>
                         </div>
                         <div class="dropdown-section">
                             <div class="dropdown-title">Import & Export</div>
