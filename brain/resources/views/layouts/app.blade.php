@@ -329,6 +329,7 @@
             <a href="/admin/vendor-management" class="sub-nav-item {{ request()->is('admin/vendor-management') ? 'active' : '' }}">Sources/Vendors</a>
             <a href="/campaigns/directory" class="sub-nav-item {{ request()->is('campaigns/directory') ? 'active' : '' }}">Campaigns</a>
             <a href="/leads/reports" class="sub-nav-item {{ request()->is('leads/reports') ? 'active' : '' }}">Reports</a>
+            <a href="/admin/lead-duplicates" class="sub-nav-item {{ request()->is('admin/lead-duplicates') ? 'active' : '' }}">Duplicates</a>
         </div>
     </div>
     @endif
