@@ -3784,8 +3784,8 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
             return response("<!doctype html><html><body><h1>Duplicates route OK</h1></body></html>", 200)
                 ->header('Content-Type', 'text/html');
         }
-        // Show admin controls only when coming from admin alias or explicitly enabled
-        $isAdminMode = ($request->get('admin') === '1');
+        // Show admin controls if authenticated, or when explicitly enabled via flag
+        $isAdminMode = (auth()->check() || $request->get('admin') === '1');
 
     // Strategy: Find groups by normalized phone or normalized email
     $limitGroups = (int)($request->get('limit', 100));
