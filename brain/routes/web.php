@@ -3422,7 +3422,7 @@ Route::get('/leads', function (Request $request) {
 // Avoid redirecting special tools paths like 'duplicates'
 Route::get('/leads/{id}', function ($id) {
     if ($id === 'duplicates') {
-        return redirect('/leads/duplicates');
+        return redirect('/duplicates');
     }
     return redirect('/agent/lead/' . $id . '?mode=view');
 });
@@ -3730,7 +3730,8 @@ Route::get('/lead/{id}/payload-view', function ($id) {
 });
 
 // Lead Duplicates (preview-only listing) – mapped under /leads to avoid Filament /admin routing conflicts
-Route::get('/leads/duplicates', function (\Illuminate\Http\Request $request) {
+// Public-friendly path for duplicates page
+Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
     // Access control minimal guard (optionally expand later)
     // if (!auth()->check()) { abort(403); }
 
