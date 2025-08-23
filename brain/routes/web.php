@@ -3726,21 +3726,196 @@ Route::get('/lead/{id}/payload-view', function ($id) {
     return response("<!doctype html><html><head><meta charset=\"utf-8\"><title>Lead Payload</title><style>body{font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f8fafc;color:#0f172a;margin:0} .wrap{max-width:960px;margin:24px auto;padding:16px} pre{background:#0f172a;color:#e2e8f0;padding:16px;border-radius:8px;overflow:auto} .bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px} button{background:#059669;color:#fff;border:none;border-radius:6px;padding:8px 12px;cursor:pointer} button:hover{background:#047857}</style></head><body><div class=\"wrap\"><div class=\"bar\"><h1 style=\"margin:0;font-size:18px\">Lead Payload</h1><button id=\"copyBtn\">📋 Copy</button></div><pre id=\"payload\">" . htmlspecialchars($json) . "</pre></div><script>document.getElementById('copyBtn').addEventListener('click',async()=>{try{const t=document.getElementById('payload').innerText;await navigator.clipboard.writeText(t);const b=document.getElementById('copyBtn');const o=b.textContent;b.textContent='✓ Copied';setTimeout(()=>b.textContent=o,1500)}catch(e){alert('Copy failed')}});</script></body></html>", 200)->header('Content-Type', 'text/html');
 });
 
+// Lead Duplicates (preview-only listing) – mapped under /leads to avoid Filament /admin routing conflicts
+Route::get('/leads/duplicates', function (\Illuminate\Http\Request $request) {
+    // Access control minimal guard (optionally expand later)
+    // if (!auth()->check()) { abort(403); }
+
+    // Strategy: Find groups by normalized phone or normalized email
+    $limitGroups = (int)($request->get('limit', 100));
+    $limitGroups = max(10, min($limitGroups, 500));
+
+    $pdo = new PDO(
+        'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+        'brain_user',
+        'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+    );
+
+    // Helper: get duplicate keys by phone
+    $dupPhoneKeys = [];
+    $sqlPhone = "SELECT REGEXP_REPLACE(COALESCE(phone,''),'[^0-9]','','g') AS nphone, COUNT(*)
+                 FROM leads
+                 WHERE COALESCE(phone,'') <> ''
+                 GROUP BY nphone HAVING COUNT(*) > 1
+                 ORDER BY COUNT(*) DESC LIMIT :lim";
+    $stmt = $pdo->prepare($sqlPhone);
+    $stmt->bindValue(':lim', $limitGroups, PDO::PARAM_INT);
+    $stmt->execute();
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        if (!empty($row['nphone'])) { $dupPhoneKeys[] = $row['nphone']; }
+    }
+
+    // Helper: get duplicate keys by email
+    $dupEmailKeys = [];
+    $sqlEmail = "SELECT LOWER(TRIM(email)) AS nemail, COUNT(*)
+                 FROM leads
+                 WHERE COALESCE(email,'') <> ''
+                 GROUP BY nemail HAVING COUNT(*) > 1
+                 ORDER BY COUNT(*) DESC LIMIT :lim";
+    $stmt2 = $pdo->prepare($sqlEmail);
+    $stmt2->bindValue(':lim', $limitGroups, PDO::PARAM_INT);
+    $stmt2->execute();
+    while ($row = $stmt2->fetch(PDO::FETCH_ASSOC)) {
+        if (!empty($row['nemail'])) { $dupEmailKeys[] = $row['nemail']; }
+    }
+
+    // Fetch leads for those duplicate keys
+    $groups = [];
+    if (!empty($dupPhoneKeys)) {
+        $in = str_repeat('?,', count($dupPhoneKeys) - 1) . '?';
+        $sql = "SELECT *, REGEXP_REPLACE(COALESCE(phone,''),'[^0-9]','','g') AS nphone, LOWER(TRIM(email)) AS nemail FROM leads
+                WHERE REGEXP_REPLACE(COALESCE(phone,''),'[^0-9]','','g') IN ($in)";
+        $stmt3 = $pdo->prepare($sql);
+        $stmt3->execute($dupPhoneKeys);
+        while ($lead = $stmt3->fetch(PDO::FETCH_ASSOC)) {
+            $key = 'phone:' . ($lead['nphone'] ?? '');
+            $groups[$key]['by'] = 'phone';
+            $groups[$key]['key'] = $lead['nphone'] ?? '';
+            $groups[$key]['leads'][] = $lead;
+        }
+    }
+    if (!empty($dupEmailKeys)) {
+        $in = str_repeat('?,', count($dupEmailKeys) - 1) . '?';
+        $sql = "SELECT *, LOWER(TRIM(email)) AS nemail, REGEXP_REPLACE(COALESCE(phone,''),'[^0-9]','','g') AS nphone FROM leads
+                WHERE LOWER(TRIM(email)) IN ($in)";
+        $stmt4 = $pdo->prepare($sql);
+        $stmt4->execute($dupEmailKeys);
+        while ($lead = $stmt4->fetch(PDO::FETCH_ASSOC)) {
+            $key = 'email:' . ($lead['nemail'] ?? '');
+            $groups[$key]['by'] = 'email';
+            $groups[$key]['key'] = $lead['nemail'] ?? '';
+            $groups[$key]['leads'][] = $lead;
+        }
+    }
+
+    // Compute a simple detail score per lead
+    $scoreLead = function(array $l): int {
+        $score = 0;
+        foreach (['name','phone','email','address','city','state','zip','zip_code','type'] as $f) {
+            if (!empty($l[$f])) { $score++; }
+        }
+        $drivers = json_decode($l['drivers'] ?? '[]', true) ?: [];
+        $vehicles = json_decode($l['vehicles'] ?? '[]', true) ?: [];
+        $current = json_decode($l['current_policy'] ?? '[]', true) ?: [];
+        $score += count($drivers) * 2;
+        $score += count($vehicles) * 2;
+        if (is_array($current)) { $score += count(array_filter($current, fn($v)=>$v!==null && $v!=='') ); }
+        return $score;
+    };
+
+    // Prepare view data
+    $prepared = [];
+    foreach ($groups as $gk => $g) {
+        $leads = $g['leads'] ?? [];
+        if (count($leads) < 2) { continue; }
+        // Attach scores
+        foreach ($leads as &$l) { $l['_score'] = $scoreLead($l); }
+        // Sort by score desc
+        usort($leads, function($a,$b){ return ($b['_score'] <=> $a['_score']); });
+        $prepared[] = [
+            'group_by' => $g['by'],
+            'key' => $g['key'],
+            'leads' => $leads,
+        ];
+    }
+
+    // Render minimal blade-less HTML to avoid Blade-in-script issues
+    $html = "<!doctype html><html><head><meta charset=\"utf-8\"><title>Lead Duplicates (Preview)</title>
+    <style>body{font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#f8fafc;color:#0f172a;margin:0;padding:24px}
+    .wrap{max-width:1100px;margin:0 auto}
+    .group{background:#fff;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:16px}
+    .group h2{margin:0;padding:12px 16px;background:#f1f5f9;border-bottom:1px solid #e5e7eb;font-size:14px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid #f3f4f6;font-size:13px;text-align:left}
+    .score{font-weight:600;color:#047857}
+    .hint{color:#6b7280;font-size:12px;margin-bottom:12px}
+    </style></head><body><div class=\"wrap\">";
+    $html .= "<h1 style=\"margin:0 0 8px 0;\">Lead Duplicates (Preview)</h1><div class=hint>Read-only: identifies duplicate groups by phone/email and shows a detail score. Keeper is the highest score.</div>";
+    foreach ($prepared as $grp) {
+        $html .= "<div class=group><h2>Group by " . htmlspecialchars($grp['group_by']) . ": " . htmlspecialchars($grp['key']) . "</h2><div style=\"overflow:auto\"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>City/State</th><th>Type</th><th>Score</th></tr></thead><tbody>";
+        foreach ($grp['leads'] as $l) {
+            $html .= "<tr><td>#" . htmlspecialchars((string)$l['id']) . "</td><td>" . htmlspecialchars($l['name'] ?? '') . "</td><td>" . htmlspecialchars($l['phone'] ?? '') . "</td><td>" . htmlspecialchars($l['email'] ?? '') . "</td><td>" . htmlspecialchars(($l['city'] ?? '') . (isset($l['state']) && $l['state'] ? ', ' : '') . ($l['state'] ?? '')) . "</td><td>" . htmlspecialchars($l['type'] ?? '') . "</td><td class=score>" . htmlspecialchars((string)$l['_score']) . "</td></tr>";
+        }
+        $html .= "</tbody></table></div></div>";
+    }
+    if (empty($prepared)) {
+        $html .= "<div class=\"hint\">No duplicate groups found in the scanned sample.</div>";
+    }
+    $html .= "</div></body></html>";
+    return response($html, 200)->header('Content-Type', 'text/html');
+});
+
+// Optional alias (may be shadowed by Filament). If it resolves, it will serve the same content.
+Route::get('/admin/lead-duplicates', function (\Illuminate\Http\Request $request) {
+    return app(\Illuminate\Routing\Router::class)->dispatch(\Illuminate\Http\Request::create('/leads/duplicates', 'GET', $request->all()));
+});
+
 // Match the edit form action in agent/lead view
 Route::post('/agent/lead/{leadId}/qualify', function (Request $request, $leadId) {
     try {
         $data = $request->except(['_token']);
-        // Persist to a simple table or meta column for now
         $lead = \App\Models\Lead::findOrFail($leadId);
+
+        // Update top-level lead columns if provided
+        $lead->name = isset($data['name']) ? trim((string)$data['name']) : $lead->name;
+        $lead->email = isset($data['email']) ? trim((string)$data['email']) : $lead->email;
+        if (isset($data['phone'])) {
+            $digits = preg_replace('/\D+/', '', (string)$data['phone']);
+            $lead->phone = $digits;
+        }
+        $lead->address = isset($data['address']) ? trim((string)$data['address']) : $lead->address;
+        $lead->city = isset($data['city']) ? trim((string)$data['city']) : $lead->city;
+        $lead->state = isset($data['state']) ? trim((string)$data['state']) : $lead->state;
+        // zip_code may be stored as zip or zip_code depending on schema
+        if (isset($data['zip_code'])) {
+            if (\Schema::hasColumn('leads', 'zip_code')) {
+                $lead->zip_code = trim((string)$data['zip_code']);
+            } else {
+                $lead->zip = trim((string)$data['zip_code']);
+            }
+        }
+        if (isset($data['type'])) {
+            $lead->type = trim((string)$data['type']);
+        }
+
+        // Update nested JSON columns if present in request
+        if ($request->has('drivers')) {
+            $lead->drivers = json_encode($request->input('drivers'));
+        }
+        if ($request->has('vehicles')) {
+            $lead->vehicles = json_encode($request->input('vehicles'));
+        }
+        if ($request->has('current_policy')) {
+            $lead->current_policy = json_encode($request->input('current_policy'));
+        }
+
+        // Persist Top Questions answers in meta.qualification
         $meta = json_decode($lead->meta ?? '{}', true) ?: [];
         $meta['qualification'] = array_merge($meta['qualification'] ?? [], $data, [
             'saved_at' => now()->toISOString()
         ]);
         $lead->meta = json_encode($meta);
         $lead->save();
+
+        if ($request->boolean('as_json') || $request->ajax()) {
+            return response()->json(['success' => true]);
+        }
         return redirect('/agent/lead/' . $leadId . '?mode=view');
     } catch (\Throwable $t) {
-        return response()->json(['success' => false, 'error' => $t->getMessage()], 500);
+        if ($request->boolean('as_json') || $request->ajax()) {
+            return response()->json(['success' => false, 'error' => $t->getMessage()], 500);
+        }
+        return back()->withErrors(['error' => $t->getMessage()]);
     }
 });
 
