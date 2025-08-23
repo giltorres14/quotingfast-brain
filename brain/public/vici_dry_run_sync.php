@@ -38,9 +38,9 @@ try {
         if ($em !== '') { $brainEmailToId[$em] = $row['external_lead_id']; }
     }
 
-    // Vici (MySQL over SSH)
-    $sshHost = '37.27.138.222';
-    $sshPort = 11845;
+    // Vici (MySQL over SSH) - allow override via query
+    $sshHost = isset($_GET['ssh_host']) ? trim($_GET['ssh_host']) : '162.241.97.210';
+    $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 22;
     $sshUser = 'root';
     $sshPass = 'Monster@2213@!';
     $mysqlUser = 'Superman';

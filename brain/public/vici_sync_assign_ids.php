@@ -47,8 +47,8 @@ try {
     }
 
     // Vici (MySQL over SSH)
-    $sshHost = '37.27.138.222';
-    $sshPort = 11845;
+    $sshHost = isset($_GET['ssh_host']) ? trim($_GET['ssh_host']) : '162.241.97.210';
+    $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 22;
     $sshUser = 'root';
     $sshPass = 'Monster@2213@!';
     $mysqlUser = 'Superman';
@@ -78,8 +78,8 @@ try {
         'lists' => $listIds,
         'scanned' => 0,
         'matched_phone' => 0,
-        'matched_email' => 0,
-        'matched_both' => 0,
+        'matched_email' => 0, // kept for report compatibility (unused in phone-only mode)
+        'matched_both' => 0,  // kept for report compatibility (unused in phone-only mode)
         'updated' => 0,
         'skipped_already_set' => 0,
         'unmatched' => 0,
@@ -110,19 +110,11 @@ try {
     foreach ($rows as $r) {
         $p10 = $normalizePhone10($r['phone']);
         $em  = $normalizeEmail($r['email']);
-        $eidPhone = ($p10 !== '' && isset($brainPhoneToId[$p10])) ? $brainPhoneToId[$p10] : null;
-        $eidEmail = ($em !== '' && isset($brainEmailToId[$em])) ? $brainEmailToId[$em] : null;
-
-        $eid = $eidPhone ?: $eidEmail; // prefer phone
-        if ($eidPhone && $eidEmail && $eidPhone !== $eidEmail) {
-            // conflict: prefer phone; could log
-        }
+        $eid = ($p10 !== '' && isset($brainPhoneToId[$p10])) ? $brainPhoneToId[$p10] : null; // PHONE-ONLY
 
         if ($eid) {
             if ($eid === '0' || strlen($eid) !== 13) { continue; }
-            if ($eidPhone && $eidEmail) { $results['matched_both']++; }
-            elseif ($eidPhone) { $results['matched_phone']++; }
-            else { $results['matched_email']++; }
+            $results['matched_phone']++;
 
             if ($isDryRun) {
                 if (count($results['samples']['updated']) < 5) {

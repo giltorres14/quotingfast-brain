@@ -8,8 +8,8 @@ try {
     $list = isset($_GET['list']) ? (int)$_GET['list'] : 6026;
     $limit = isset($_GET['limit']) ? max(1,(int)$_GET['limit']) : 50;
 
-    $sshHost = '37.27.138.222';
-    $sshPort = 11845;
+    $sshHost = isset($_GET['ssh_host']) ? trim($_GET['ssh_host']) : '162.241.97.210';
+    $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 22;
     $sshUser = 'root';
     $sshPass = 'Monster@2213@!';
     $mysqlUser = 'Superman';
