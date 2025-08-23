@@ -838,7 +838,7 @@
 </body>
 </html>
 
-<head>
+<!-- Removed duplicated second HTML document to avoid Blade compilation issues -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vici Call Reports - QuotingFast Brain</title>
@@ -1675,5 +1675,6 @@
     </script>
 </body>
 </html>
+
 
 

@@ -447,10 +447,11 @@
         border-color: #4A90E2;
     }
 </style>
+<!-- Provide initial period safely -->
+<script id="leads-dashboard-config" type="application/json">{"current_period":"{{ $stats["current_period"] ?? 'today' }}"}</script>
 <script>
-    // Get current period from URL or default to today
-    const urlParams = new URLSearchParams(window.location.search);
-    let currentPeriod = urlParams.get('period') || '{{ $stats["current_period"] ?? "today" }}';
+    const cfg = JSON.parse(document.getElementById('leads-dashboard-config')?.textContent || '{}');
+    let currentPeriod = (new URLSearchParams(window.location.search)).get('period') || cfg.current_period || 'today';
     
     // Initialize correct button on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -478,53 +479,12 @@
             }
         });
         
-        // Show loading state
-        document.querySelectorAll('.stat-value').forEach(el => {
-            el.textContent = 'Loading...';
-        });
-        
-        // Reload page with new period
-        window.location.href = '/leads?period=' + period;
-    }
-        });
-        
-        // Hide custom date range if not custom
-        if (period !== 'custom') {
-            document.getElementById('customDateRange').style.display = 'none';
-        }
-        
-        currentPeriod = period;
-        
-        // Calculate dates based on period
-        const now = new Date();
-        let startDate, endDate, label;
-        
-        switch(period) {
-            case 'today':
-                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-                label = "Today's";
-                break;
-            case 'yesterday':
-                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                label = "Yesterday's";
-                break;
-            case 'last7':
-                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-                label = "Last 7 Days";
-                break;
-            case 'last30':
-                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
-                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-                label = "Last 30 Days";
-                break;
-            default:
-                return;
-        }
-        
-        fetchStats(startDate, endDate, label);
+        // Reload page with new period (server calculates stats)
+        const url = new URL(window.location);
+        url.searchParams.set('period', period);
+        url.searchParams.delete('date_from');
+        url.searchParams.delete('date_to');
+        window.location.href = url.toString();
     }
     
     function showCustomDatePicker() {
@@ -1490,6 +1450,8 @@
     }
 </script>
 @endsection
+
+
 
 
 

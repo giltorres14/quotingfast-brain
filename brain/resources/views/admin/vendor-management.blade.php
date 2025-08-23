@@ -373,9 +373,12 @@
     </div>
 @endsection
 
+<!-- Embed vendors JSON for JS to read without Blade inside JS -->
+<script id="vendors-data" type="application/json">{!! json_encode($vendors ?? []) !!}</script>
+
 @section('scripts')
 <script>
-    let vendors = @json($vendors ?? []);
+    const vendors = JSON.parse(document.getElementById('vendors-data')?.textContent || '[]');
     
     function showAddVendorModal() {
         document.getElementById('modalTitle').textContent = 'Add New Vendor';
@@ -914,6 +917,7 @@
     });
 </script>
 @endsection
+
 
 
 
