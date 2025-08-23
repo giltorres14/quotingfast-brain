@@ -18,7 +18,7 @@ urls=(
   "$BASE/agent/lead/491801?mode=edit&cb=$(date +%s)"
   "$BASE/leads?cb=$(date +%s)"
   "$BASE/admin?cb=$(date +%s)"
-  "$BASE/admin/lead-duplicates?cb=$(date +%s)"
+  "$BASE/duplicates?cb=$(date +%s)"
 )
 
 for u in "${urls[@]}"; do

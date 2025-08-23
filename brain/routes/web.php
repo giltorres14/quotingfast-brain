@@ -3879,7 +3879,7 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
 
 // Optional alias (may be shadowed by Filament). If it resolves, it will serve the same content.
 Route::get('/admin/lead-duplicates', function (\Illuminate\Http\Request $request) {
-    return app(\Illuminate\Routing\Router::class)->dispatch(\Illuminate\Http\Request::create('/leads/duplicates', 'GET', $request->all()));
+    return app(\Illuminate\Routing\Router::class)->dispatch(\Illuminate\Http\Request::create('/duplicates', 'GET', $request->all()));
 });
 
 // Match the edit form action in agent/lead view
