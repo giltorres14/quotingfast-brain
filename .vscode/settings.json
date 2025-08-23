@@ -1,4 +1,14 @@
 {
+  "tailwindCSS.files.exclude": [
+    "**/vendor/**",
+    "**/node_modules/**",
+    "**/storage/**",
+    "**/public/**"
+  ],
+  "tailwindCSS.root": "brain"
+}
+
+{
     "eslint.workingDirectories": [
         "./apps/ui", 
         "./apps/platform"

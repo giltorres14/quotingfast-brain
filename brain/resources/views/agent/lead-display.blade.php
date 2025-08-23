@@ -80,22 +80,28 @@ $isEditMode = request()->get('mode') === 'edit';
                         <?php echo htmlspecialchars(formatPhoneForDisplay($lead->phone)); ?><br>
                         <?php echo htmlspecialchars($lead->email); ?>
                     </div>
+                    <?php 
+                    $streetLine = trim((string)($lead->address ?? ''));
+                    $cityStateZip = trim(implode(', ', array_filter([
+                        $lead->city ?? '',
+                        $lead->state ?? ''
+                    ])) . ' ' . ($lead->zip ?? ''));
+                    ?>
+                    <?php if (!empty($streetLine)): ?>
                     <div class="text-sm mt-1" style="color:#dbeafe;">
-                        <?php 
-                        $addressPartsTop = array_filter([
-                            $lead->address,
-                            $lead->city,
-                            $lead->state,
-                            $lead->zip
-                        ]);
-                        echo !empty($addressPartsTop) ? htmlspecialchars(implode(', ', $addressPartsTop)) : '';
-                        ?>
+                        <?php echo htmlspecialchars($streetLine); ?>
                     </div>
+                    <?php endif; ?>
+                    <?php if (trim($cityStateZip) !== ''): ?>
+                    <div class="text-sm" style="color:#dbeafe;">
+                        <?php echo htmlspecialchars(trim($cityStateZip)); ?>
+                    </div>
+                    <?php endif; ?>
                     <div class="text-sm" style="color:#dbeafe;">Lead ID: <?php echo htmlspecialchars($lead->external_lead_id); ?></div>
                 </div>
 
                 <!-- Right section -->
-                <div class="flex items-center space-x-2">
+                <div class="flex flex-col items-end space-y-2">
                     <?php if (empty($isIframe)): ?>
                         <a href="/lead/<?php echo $lead->id; ?>/payload-view" 
                            target="_blank"
@@ -108,11 +114,13 @@ $isEditMode = request()->get('mode') === 'edit';
                             Edit Lead
                         </a>
                         <?php else: ?>
-                        <button type="button" onclick="document.getElementById('qualificationFormTop')?.submit();" class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">Save</button>
                         <a href="?mode=view" 
                            class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">
                             View Mode
                         </a>
+                        <div class="mt-6 self-end">
+                            <button type="button" onclick="document.getElementById('qualificationFormTop')?.submit();" class="inline-flex items-center px-4 py-2 border border-white/30 shadow-sm text-sm font-medium rounded-md text-indigo-900 bg-white hover:bg-indigo-50">Save</button>
+                        </div>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
@@ -262,6 +270,43 @@ $isEditMode = request()->get('mode') === 'edit';
                                 <option value="no">No</option>
                                 <option value="maybe">Maybe</option>
                             </select>
+                        </div>
+
+                        <!-- Lead Details (editable in edit mode) -->
+                        <div class="bg-gray-50 border border-gray-200 rounded-md p-4">
+                            <h4 class="text-md font-semibold mb-3">Lead Details</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input type="text" name="name" value="<?php echo htmlspecialchars($lead->name ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="John Doe">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input type="email" name="email" value="<?php echo htmlspecialchars($lead->email ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="name@example.com">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                    <input type="text" name="phone" value="<?php echo htmlspecialchars($lead->phone ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="(555) 555-5555">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                    <input type="text" name="address" value="<?php echo htmlspecialchars($lead->address ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="123 Main St">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                    <input type="text" name="city" value="<?php echo htmlspecialchars($lead->city ?? ''); ?>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="Tampa">
+                                </div>
+                                <!-- State and ZIP already captured by Questions 5 and 6 (state, zip_code) -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Lead Type</label>
+                                    <select name="type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                        <?php $t = strtolower($lead->type ?? ''); ?>
+                                        <option value="auto" <?php echo $t === 'auto' ? 'selected' : ''; ?>>Auto</option>
+                                        <option value="home" <?php echo $t === 'home' ? 'selected' : ''; ?>>Home</option>
+                                        <option value="unknown" <?php echo ($t === 'unknown' || !$t) ? 'selected' : ''; ?>>Unknown</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Submit buttons -->
@@ -815,8 +860,17 @@ $isEditMode = request()->get('mode') === 'edit';
                             <dt class="text-sm font-medium text-gray-500">Opt-in Date</dt>
                             <dd class="mt-1 text-sm text-gray-900">
                                 <?php 
-                                $optIn = $lead->opt_in_date ?? ($meta['opt_in_date'] ?? ($meta['originally_created'] ?? null));
-                                echo htmlspecialchars($optIn ?: 'N/A');
+                                $optInRaw = $lead->opt_in_date ?? ($meta['opt_in_date'] ?? ($meta['originally_created'] ?? null));
+                                $optInFmt = $optInRaw;
+                                if (!empty($optInRaw)) {
+                                    try {
+                                        $dt = new DateTime($optInRaw);
+                                        $optInFmt = $dt->format('m-d-Y');
+                                    } catch (Exception $e) {
+                                        $optInFmt = $optInRaw;
+                                    }
+                                }
+                                echo htmlspecialchars($optInFmt ?: 'N/A');
                                 ?>
                             </dd>
                         </div>
@@ -870,69 +924,7 @@ $isEditMode = request()->get('mode') === 'edit';
                     </dl>
                 </div>
 
-                <?php if (!empty($drivers)): ?>
-                <!-- Drivers Section -->
-                <div class="bg-white shadow rounded-lg p-6" data-section="drivers">
-                    <h3 class="text-lg font-semibold mb-4">Drivers</h3>
-                    <div class="space-y-4">
-                        <?php foreach ($drivers as $driver): ?>
-                        <div class="border-l-4 border-green-500 pl-4">
-                            <p class="font-medium">
-                                <?php 
-                                $driverName = trim(
-                                    ($driver['first_name'] ?? '') . ' ' . 
-                                    ($driver['last_name'] ?? '')
-                                );
-                                echo htmlspecialchars($driverName ?: 'Driver');
-                                ?>
-                            </p>
-                            <?php if (!empty($driver['license_status'])): ?>
-                            <p class="text-sm text-gray-600">License: <?php echo htmlspecialchars($driver['license_status']); ?></p>
-                            <?php endif; ?>
-                            <?php if (!empty($driver['dob']) || !empty($driver['birth_date'])): ?>
-                            <p class="text-sm text-gray-600">DOB: <?php echo htmlspecialchars($driver['dob'] ?? $driver['birth_date']); ?></p>
-                            <?php endif; ?>
-                            <details class="mt-2">
-                                <summary class="text-sm text-green-700 cursor-pointer">More details</summary>
-                                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-700">
-                                    <?php 
-                                    $driverDetails = [
-                                        'relationship' => 'Relationship',
-                                        'gender' => 'Gender',
-                                        'marital_status' => 'Marital Status',
-                                        'license_state' => 'License State',
-                                        'license_status' => 'License Status',
-                                        'age_licensed' => 'Age Licensed',
-                                        'requires_sr22' => 'Requires SR-22',
-                                        'education' => 'Education',
-                                        'occupation' => 'Occupation',
-                                        'months_at_residence' => 'Months at Residence',
-                                        'license_ever_suspended' => 'License Ever Suspended'
-                                    ];
-                                    foreach ($driverDetails as $key => $label) {
-                                        if (isset($driver[$key]) && $driver[$key] !== '' && $driver[$key] !== null) {
-                                            $val = is_bool($driver[$key]) ? ($driver[$key] ? 'Yes' : 'No') : $driver[$key];
-                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . htmlspecialchars((string)$val) . '</div>';
-                                        }
-                                    }
-                                    $counts = [
-                                        'tickets' => 'Tickets',
-                                        'accidents' => 'Accidents',
-                                        'claims' => 'Claims'
-                                    ];
-                                    foreach ($counts as $k => $label) {
-                                        if (isset($driver[$k]) && is_array($driver[$k])) {
-                                            echo '<div><span class="text-gray-500">' . htmlspecialchars($label) . ':</span> ' . count($driver[$k]) . '</div>';
-                                        }
-                                    }
-                                    ?>
-                                </div>
-                            </details>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <?php endif; ?>
+                
 
                 <?php if (!empty($vehicles)): ?>
                 <!-- Vehicles Section -->
@@ -1186,6 +1178,24 @@ async function enrichLead(type) {
     }
     
     const data = getFormData();
+
+    // Save first, then enrich
+    try {
+        const formEl = document.getElementById('qualificationFormTop');
+        if (formEl) {
+            const formData = new FormData(formEl);
+            formData.append('as_json', '1');
+            const resp = await fetch(formEl.action, { method: 'POST', body: formData });
+            if (!resp.ok) {
+                const err = await resp.text();
+                alert('Save failed before enrichment: ' + err);
+                return;
+            }
+        }
+    } catch (e) {
+        alert('Could not save before enrichment: ' + (e?.message || e));
+        return;
+    }
     
     // RingBA enrichment base URLs
     const enrichmentBase = {
