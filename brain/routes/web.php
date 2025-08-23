@@ -3732,8 +3732,9 @@ Route::get('/lead/{id}/payload-view', function ($id) {
 // Lead Duplicates (preview-only listing) – mapped under /leads to avoid Filament /admin routing conflicts
 // Public-friendly path for duplicates page
 Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
-    // Access control minimal guard (optionally expand later)
-    // if (!auth()->check()) { abort(403); }
+    try {
+        // Access control minimal guard (optionally expand later)
+        // if (!auth()->check()) { abort(403); }
 
     // Strategy: Find groups by normalized phone or normalized email
     $limitGroups = (int)($request->get('limit', 100));
@@ -3857,6 +3858,11 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
     }
     $html .= "</div></body></html>";
     return response($html, 200)->header('Content-Type', 'text/html');
+    } catch (\Throwable $e) {
+        $msg = htmlspecialchars($e->getMessage() . "\n" . $e->getFile() . ':' . $e->getLine());
+        return response("<!doctype html><html><body><pre>Duplicates page error:\n$msg</pre></body></html>", 200)
+            ->header('Content-Type', 'text/html');
+    }
 });
 
 // Optional alias (may be shadowed by Filament). If it resolves, it will serve the same content.
