@@ -7,7 +7,8 @@ header('Content-Type: application/json');
 
 try {
     // Params
-    $listsParam = isset($_GET['lists']) ? trim($_GET['lists']) : '6018,6019,6020,6021,6022,6023,6024,6025,6026';
+    $listsParam = isset($_GET['lists']) ? trim($_GET['lists']) : '';
+    $campaignParam = isset($_GET['campaign']) ? trim($_GET['campaign']) : '';
     $limit = isset($_GET['limit']) ? max(100, (int)$_GET['limit']) : 5000;
 
     // Normalize helpers
@@ -62,13 +63,27 @@ try {
     };
 
     // Prepare list filter
-    $listIds = array_filter(array_map('trim', explode(',', $listsParam)), fn($v)=>$v !== '');
+    $listIds = [];
+    if ($campaignParam !== '') {
+        // Fetch lists for campaign(s)
+        $camps = array_filter(array_map('trim', explode(',', $campaignParam)), fn($v)=>$v!=='');
+        $campCsv = "'" . implode("','", array_map(fn($c)=>str_replace("'","''", $c), $camps)) . "'";
+        $listQuery = sprintf("SELECT list_id FROM vicidial_lists WHERE campaign_id IN (%s)", $campCsv);
+        $outLists = $execMysql($listQuery);
+        $linesL = array_values(array_filter(array_map('trim', explode("\n", $outLists))));
+        for ($i=1; $i<count($linesL); $i++) {
+            $lid = trim($linesL[$i]);
+            if ($lid !== '') { $listIds[] = $lid; }
+        }
+    } else {
+        $listIds = array_filter(array_map('trim', explode(',', $listsParam)), fn($v)=>$v !== '');
+    }
     $listCsv = implode(',', array_map('intval', $listIds));
     if ($listCsv === '') { $listCsv = '0'; }
 
     // Fetch Vici candidates
     $q = sprintf(
-        "SELECT lead_id, list_id, phone_number, email, vendor_lead_code FROM vicidial_list WHERE vendor_lead_code IS NULL AND list_id IN (%s) LIMIT %d",
+        "SELECT lead_id, list_id, phone_number, email, vendor_lead_code FROM vicidial_list WHERE list_id IN (%s) LIMIT %d",
         $listCsv,
         $limit
     );
