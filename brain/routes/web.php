@@ -35,7 +35,7 @@ Route::post('/admin/duplicates/delete', function (\Illuminate\Http\Request $requ
     } catch (\Throwable $e) {
         return back()->withErrors(['error' => $e->getMessage()]);
     }
-});
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Admin-only: keep one, delete others in the group
 Route::post('/admin/duplicates/delete-group', function (\Illuminate\Http\Request $request) {
@@ -64,7 +64,7 @@ Route::post('/admin/duplicates/delete-group', function (\Illuminate\Http\Request
     } catch (\Throwable $e) {
         return back()->withErrors(['error' => $e->getMessage()]);
     }
-});
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Vici Update Route
 Route::post('/vici-update/execute', 'App\Http\Controllers\ViciUpdateController@executeUpdate')->withoutMiddleware(['web', 'csrf']);
