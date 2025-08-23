@@ -313,7 +313,11 @@
 <!-- Per Page Selector (moved here between search and leads) -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
     <div style="font-size: 0.875rem; color: #6b7280;">
-        Showing {{ $leads->count() }} of {{ $leads->total() ?? $leads->count() }} leads
+        @php
+            $shown = method_exists($leads, 'count') ? $leads->count() : (is_countable($leads) ? count($leads) : 0);
+            $total = method_exists($leads, 'total') ? $leads->total() : $shown;
+        @endphp
+        Showing {{ $shown }} of {{ $total }} leads
     </div>
     <form method="GET" action="/leads" style="display: flex; align-items: center; gap: 0.5rem;">
         @foreach(request()->except('per_page') as $key => $value)
@@ -448,7 +452,7 @@
     }
 </style>
 <!-- Provide initial period safely -->
-<script id="leads-dashboard-config" type="application/json">{"current_period":"{{ $stats["current_period"] ?? 'today' }}"}</script>
+<script id="leads-dashboard-config" type="application/json">{"current_period":"{{ isset($stats['current_period']) ? $stats['current_period'] : 'today' }}"}</script>
 <script>
     const cfg = JSON.parse(document.getElementById('leads-dashboard-config')?.textContent || '{}');
     let currentPeriod = (new URLSearchParams(window.location.search)).get('period') || cfg.current_period || 'today';
