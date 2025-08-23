@@ -3733,6 +3733,10 @@ Route::get('/lead/{id}/payload-view', function ($id) {
 // Public-friendly path for duplicates page
 Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
     try {
+        if ($request->get('debug') === '1') {
+            return response("<!doctype html><html><body><h1>Duplicates route OK</h1></body></html>", 200)
+                ->header('Content-Type', 'text/html');
+        }
         // Access control minimal guard (optionally expand later)
         // if (!auth()->check()) { abort(403); }
 
