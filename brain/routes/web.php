@@ -3419,8 +3419,11 @@ Route::get('/leads', function (Request $request) {
 });
 
 // Individual lead view route - redirect to agent view
+// Avoid redirecting special tools paths like 'duplicates'
 Route::get('/leads/{id}', function ($id) {
-    // Simply redirect to the agent lead view in view mode
+    if ($id === 'duplicates') {
+        return redirect('/leads/duplicates');
+    }
     return redirect('/agent/lead/' . $id . '?mode=view');
 });
 
