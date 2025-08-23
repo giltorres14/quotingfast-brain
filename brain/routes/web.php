@@ -17,6 +17,53 @@ Route::prefix('vici-proxy')->withoutMiddleware(['web'])->group(function () {
     Route::post('/run-export', 'App\Http\Controllers\ViciProxyController@runExportScript')->withoutMiddleware(['web', 'csrf']);
 });
 
+// Admin-only delete a single lead (with CSRF). Requires auth.
+Route::post('/admin/duplicates/delete', function (\Illuminate\Http\Request $request) {
+    if (!auth()->check()) { return redirect('/login'); }
+    $id = (int)$request->input('id');
+    if ($id <= 0) { return back()->withErrors(['error' => 'Invalid lead id']); }
+    try {
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+        $stmt = $pdo->prepare('DELETE FROM leads WHERE id = :id');
+        $stmt->execute([':id' => $id]);
+        return back()->with('status', 'Lead #' . $id . ' deleted');
+    } catch (\Throwable $e) {
+        return back()->withErrors(['error' => $e->getMessage()]);
+    }
+});
+
+// Admin-only: keep one, delete others in the group
+Route::post('/admin/duplicates/delete-group', function (\Illuminate\Http\Request $request) {
+    if (!auth()->check()) { return redirect('/login'); }
+    $groupBy = (string)$request->input('group_by');
+    $key = (string)$request->input('key');
+    $keepId = (int)$request->input('keep_id');
+    if (!$groupBy || !$key || $keepId <= 0) { return back()->withErrors(['error' => 'Invalid parameters']); }
+    try {
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+        if ($groupBy === 'phone') {
+            $sql = "DELETE FROM leads WHERE id <> :keep AND REGEXP_REPLACE(COALESCE(phone,''),'[^0-9]','','g') = :k";
+        } elseif ($groupBy === 'email') {
+            $sql = "DELETE FROM leads WHERE id <> :keep AND LOWER(TRIM(email)) = :k";
+        } else {
+            return back()->withErrors(['error' => 'Unsupported group_by']);
+        }
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':keep' => $keepId, ':k' => $key]);
+        return back()->with('status', 'Duplicates removed for ' . $groupBy . ' ' . $key);
+    } catch (\Throwable $e) {
+        return back()->withErrors(['error' => $e->getMessage()]);
+    }
+});
+
 // Vici Update Route
 Route::post('/vici-update/execute', 'App\Http\Controllers\ViciUpdateController@executeUpdate')->withoutMiddleware(['web', 'csrf']);
 use App\Models\LeadQueue;
@@ -3737,8 +3784,8 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
             return response("<!doctype html><html><body><h1>Duplicates route OK</h1></body></html>", 200)
                 ->header('Content-Type', 'text/html');
         }
-        // Access control minimal guard (optionally expand later)
-        // if (!auth()->check()) { abort(403); }
+        // Show admin controls only when coming from admin alias or explicitly enabled
+        $isAdminMode = ($request->get('admin') === '1');
 
     // Strategy: Find groups by normalized phone or normalized email
     $limitGroups = (int)($request->get('limit', 100));
@@ -3856,12 +3903,44 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
     th,td{padding:10px;border-bottom:1px solid #f3f4f6;font-size:13px;text-align:left}
     .score{font-weight:600;color:#047857}
     .hint{color:#6b7280;font-size:12px;margin-bottom:12px}
+    .actions{white-space:nowrap}
+    .btn-danger{background:#dc2626;color:#fff;border:none;border-radius:6px;padding:6px 10px;cursor:pointer}
+    .btn-danger:hover{background:#b91c1c}
+    .btn-warning{background:#f59e0b;color:#111827;border:none;border-radius:6px;padding:8px 12px;cursor:pointer}
+    .btn-warning:hover{background:#d97706}
     </style></head><body><div class=\"wrap\">";
-    $html .= "<h1 style=\"margin:0 0 8px 0;\">Lead Duplicates (Preview)</h1><div class=hint>Read-only: identifies duplicate groups by phone/email and shows a detail score. Keeper is the highest score.</div>";
+    $html .= "<h1 style=\"margin:0 0 8px 0;\">Lead Duplicates" . ($isAdminMode ? " <span style=\"font-size:12px;color:#6b7280\">(Admin)</span>" : " (Preview)") . "</h1>";
+    if ($isAdminMode) {
+        $html .= "<div class=hint>Admin: Use 'Keep best, delete others' to remove duplicates in a group. Or delete individual leads below. Actions are irreversible.</div>";
+    } else {
+        $html .= "<div class=hint>Read-only: identifies duplicate groups by phone/email and shows a detail score. Keeper is the highest score.</div>";
+    }
     foreach ($prepared as $grp) {
-        $html .= "<div class=group><h2>Group by " . htmlspecialchars($grp['group_by']) . ": " . htmlspecialchars($grp['key']) . "</h2><div style=\"overflow:auto\"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>City/State</th><th>Type</th><th>Score</th></tr></thead><tbody>";
+        // Determine the best (first item after sort)
+        $bestId = isset($grp['leads'][0]['id']) ? (int)$grp['leads'][0]['id'] : null;
+        $html .= "<div class=group><h2>Group by " . htmlspecialchars($grp['group_by']) . ": " . htmlspecialchars($grp['key']) . "";
+        if ($isAdminMode && $bestId) {
+            $html .= "<span style=\"float:right;\">";
+            $html .= "<form method=\"POST\" action=\"/admin/duplicates/delete-group\" style=\"display:inline\" onsubmit=\"return confirm('Keep #" . htmlspecialchars((string)$bestId) . " and delete all others in this group?');\">";
+            $html .= "<input type=\"hidden\" name=\"_token\" value=\"" . htmlspecialchars(csrf_token()) . "\">";
+            $html .= "<input type=\"hidden\" name=\"group_by\" value=\"" . htmlspecialchars($grp['group_by']) . "\">";
+            $html .= "<input type=\"hidden\" name=\"key\" value=\"" . htmlspecialchars($grp['key']) . "\">";
+            $html .= "<input type=\"hidden\" name=\"keep_id\" value=\"" . htmlspecialchars((string)$bestId) . "\">";
+            $html .= "<button class=\"btn-warning\">Keep best, delete others</button></form>";
+            $html .= "</span>";
+        }
+        $html .= "</h2><div style=\"overflow:auto\"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>City/State</th><th>Type</th><th>Score</th>" . ($isAdminMode ? "<th>Actions</th>" : "") . "</tr></thead><tbody>";
         foreach ($grp['leads'] as $l) {
-            $html .= "<tr><td>#" . htmlspecialchars((string)$l['id']) . "</td><td>" . htmlspecialchars($l['name'] ?? '') . "</td><td>" . htmlspecialchars($l['phone'] ?? '') . "</td><td>" . htmlspecialchars($l['email'] ?? '') . "</td><td>" . htmlspecialchars(($l['city'] ?? '') . (isset($l['state']) && $l['state'] ? ', ' : '') . ($l['state'] ?? '')) . "</td><td>" . htmlspecialchars($l['type'] ?? '') . "</td><td class=score>" . htmlspecialchars((string)$l['_score']) . "</td></tr>";
+            $html .= "<tr><td>#" . htmlspecialchars((string)$l['id']) . "</td><td>" . htmlspecialchars($l['name'] ?? '') . "</td><td>" . htmlspecialchars($l['phone'] ?? '') . "</td><td>" . htmlspecialchars($l['email'] ?? '') . "</td><td>" . htmlspecialchars(($l['city'] ?? '') . (isset($l['state']) && $l['state'] ? ', ' : '') . ($l['state'] ?? '')) . "</td><td>" . htmlspecialchars($l['type'] ?? '') . "</td><td class=score>" . htmlspecialchars((string)$l['_score']) . "</td>";
+            if ($isAdminMode) {
+                $html .= "<td class=\"actions\">";
+                $html .= "<form method=\"POST\" action=\"/admin/duplicates/delete\" style=\"display:inline\" onsubmit=\"return confirm('Delete lead #" . htmlspecialchars((string)$l['id']) . "?');\">";
+                $html .= "<input type=\"hidden\" name=\"_token\" value=\"" . htmlspecialchars(csrf_token()) . "\">";
+                $html .= "<input type=\"hidden\" name=\"id\" value=\"" . htmlspecialchars((string)$l['id']) . "\">";
+                $html .= "<button class=\"btn-danger\">Delete</button></form>";
+                $html .= "</td>";
+            }
+            $html .= "</tr>";
         }
         $html .= "</tbody></table></div></div>";
     }
@@ -3879,7 +3958,12 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
 
 // Optional alias (may be shadowed by Filament). If it resolves, it will serve the same content.
 Route::get('/admin/lead-duplicates', function (\Illuminate\Http\Request $request) {
-    return app(\Illuminate\Routing\Router::class)->dispatch(\Illuminate\Http\Request::create('/duplicates', 'GET', $request->all()));
+    // Enforce auth for admin path
+    if (!auth()->check()) {
+        return redirect('/login');
+    }
+    $params = array_merge($request->all(), ['admin' => '1']);
+    return app(\Illuminate\Routing\Router::class)->dispatch(\Illuminate\Http\Request::create('/duplicates', 'GET', $params));
 });
 
 // Match the edit form action in agent/lead view
