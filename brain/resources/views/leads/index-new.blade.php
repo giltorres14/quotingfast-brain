@@ -314,10 +314,10 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
     <div style="font-size: 0.875rem; color: #6b7280;">
         @php
-            $shown = method_exists($leads, 'count') ? $leads->count() : (is_countable($leads) ? count($leads) : 0);
-            $total = method_exists($leads, 'total') ? $leads->total() : $shown;
+            $shown2 = method_exists($leads, 'count') ? $leads->count() : (is_countable($leads) ? count($leads) : 0);
+            $total2 = method_exists($leads, 'total') ? $leads->total() : $shown2;
         @endphp
-        Showing {{ $shown }} of {{ $total }} leads
+        Showing {{ $shown2 }} of {{ $total2 }} leads
     </div>
     <form method="GET" action="/leads" style="display: flex; align-items: center; gap: 0.5rem;">
         @foreach(request()->except('per_page') as $key => $value)
@@ -1023,7 +1023,11 @@
 <!-- Per Page Selector (moved here between search and leads) -->
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
     <div style="font-size: 0.875rem; color: #6b7280;">
-        Showing {{ $leads->count() }} of {{ $leads->total() ?? $leads->count() }} leads
+        @php
+            $shown2 = method_exists($leads, 'count') ? $leads->count() : (is_countable($leads) ? count($leads) : 0);
+            $total2 = method_exists($leads, 'total') ? $leads->total() : $shown2;
+        @endphp
+        Showing {{ $shown2 }} of {{ $total2 }} leads
     </div>
     <form method="GET" action="/leads" style="display: flex; align-items: center; gap: 0.5rem;">
         @foreach(request()->except('per_page') as $key => $value)
@@ -1454,6 +1458,7 @@
     }
 </script>
 @endsection
+
 
 
 
