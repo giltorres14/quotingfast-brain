@@ -423,7 +423,8 @@
 </div>
 
 <!-- Pagination -->
-@if(method_exists($leads, 'links'))
+@php $hasPaginator = is_object($leads) && method_exists($leads, 'links'); @endphp
+@if($hasPaginator)
     <div class="pagination">
         {{ $leads->appends(request()->query())->links() }}
     </div>
@@ -1133,7 +1134,8 @@
 </div>
 
 <!-- Pagination -->
-@if(method_exists($leads, 'links'))
+@php $hasPaginator2 = is_object($leads) && method_exists($leads, 'links'); @endphp
+@if($hasPaginator2)
     <div class="pagination">
         {{ $leads->appends(request()->query())->links() }}
     </div>
