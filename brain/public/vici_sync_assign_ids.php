@@ -51,18 +51,28 @@ try {
     $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 11845;
     $sshUser = 'root';
     $sshPass = 'Monster@2213@!';
-    $mysqlUser = 'cron';
-    $mysqlPass = '1234';
-    $mysqlDb   = 'asterisk';  // Try asterisk DB instead
+    $mysqlUser = 'root';
+    $mysqlPass = '';  // No password for root
+    $mysqlDb   = 'Q6hdjl67GRigMofv';  // Primary DB
 
     $execMysql = function (string $query) use ($sshHost,$sshPort,$sshUser,$sshPass,$mysqlUser,$mysqlPass,$mysqlDb): string {
-        $mysql = sprintf(
-            'mysql -h localhost -u %s -p%s %s -e %s 2>&1',
-            escapeshellarg($mysqlUser),
-            escapeshellarg($mysqlPass),
-            escapeshellarg($mysqlDb),
-            escapeshellarg($query)
-        );
+        // Build mysql command with or without password
+        if ($mysqlPass === '') {
+            $mysql = sprintf(
+                'mysql -h localhost -u %s %s -e %s 2>&1',
+                escapeshellarg($mysqlUser),
+                escapeshellarg($mysqlDb),
+                escapeshellarg($query)
+            );
+        } else {
+            $mysql = sprintf(
+                'mysql -h localhost -u %s -p%s %s -e %s 2>&1',
+                escapeshellarg($mysqlUser),
+                escapeshellarg($mysqlPass),
+                escapeshellarg($mysqlDb),
+                escapeshellarg($query)
+            );
+        }
         $ssh = sprintf(
             'sshpass -p %s ssh -p %d -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s %s 2>&1',
             escapeshellarg($sshPass), $sshPort, escapeshellarg($sshUser), escapeshellarg($sshHost), escapeshellarg($mysql)
