@@ -45,7 +45,7 @@ try {
     $sshPass = 'Monster@2213@!';
     $mysqlUser = 'cron';
     $mysqlPass = '1234';
-    $mysqlDb   = 'Q6hdjl67GRigMofv';  // Primary DB with vicidial tables
+    $mysqlDb   = 'asterisk';  // Try asterisk DB instead
 
     $execMysql = function (string $query) use ($sshHost,$sshPort,$sshUser,$sshPass,$mysqlUser,$mysqlPass,$mysqlDb): string {
         $mysql = sprintf(
