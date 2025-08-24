@@ -64,16 +64,7 @@ try {
         return (string)shell_exec($ssh);
     };
 
-    // 1) Create temp table on Vici
-    $execMysql('DROP TABLE IF EXISTS brain_phone_map');
-    $create = "CREATE TABLE brain_phone_map (
-        phone10 VARCHAR(10) NOT NULL PRIMARY KEY,
-        external_id VARCHAR(13) NOT NULL
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-    $outCreate = $execMysql($create);
-    if (stripos($outCreate, 'ERROR') !== false) { throw new Exception('Create map table failed: ' . $outCreate); }
-
-    // 2) Stream Brain phones into the temp table in chunks
+    // 1) Build phone->external_id map from Brain (deduped)
     $inserted = 0; $rowsSeen = 0; $distinctPhones = [];
     $stmt = $pg->query("SELECT external_lead_id, phone FROM leads WHERE external_lead_id IS NOT NULL AND LENGTH(external_lead_id)=13 AND phone IS NOT NULL");
     $batch = [];
@@ -83,57 +74,53 @@ try {
         if ($p10 === '') { continue; }
         $eid = trim($r['external_lead_id']);
         $distinctPhones[$p10] = $eid; // dedupe latest wins
-        if (count($distinctPhones) >= $chunkSize) {
-            $vals = [];
-            foreach ($distinctPhones as $ph=>$ex) {
-                $vals[] = "('" . addslashes($ph) . "','" . addslashes($ex) . "')";
-            }
-            $ins = 'INSERT INTO brain_phone_map (phone10, external_id) VALUES ' . implode(',', $vals) . ' ON DUPLICATE KEY UPDATE external_id=VALUES(external_id)';
-            $out = $execMysql($ins);
-            if (stripos($out, 'ERROR') !== false) { throw new Exception('Insert chunk failed: ' . $out); }
-            $inserted += count($vals);
-            $distinctPhones = [];
-        }
     }
-    if (!empty($distinctPhones)) {
-        $vals = [];
-        foreach ($distinctPhones as $ph=>$ex) { $vals[] = "('" . addslashes($ph) . "','" . addslashes($ex) . "')"; }
-        $ins = 'INSERT INTO brain_phone_map (phone10, external_id) VALUES ' . implode(',', $vals) . ' ON DUPLICATE KEY UPDATE external_id=VALUES(external_id)';
-        $out = $execMysql($ins);
-        if (stripos($out, 'ERROR') !== false) { throw new Exception('Insert final chunk failed: ' . $out); }
-        $inserted += count($vals);
-    }
+    $inserted = count($distinctPhones);
 
-    // 3) Dry-run counts
+    // 2) Dry-run count and optional update using UNION ALL subquery chunks (no CREATE privilege needed)
+    $phonePairs = [];
+    foreach ($distinctPhones as $ph=>$ex) { $phonePairs[] = [$ph, $ex]; }
+    $totalMatches = 0;
+    $totalUpdated = 0;
     $whereNull = $onlyNull ? " AND (v.vendor_lead_code IS NULL OR v.vendor_lead_code='')" : '';
-    $countSql = sprintf(
-        "SELECT COUNT(*) AS c FROM vicidial_list v JOIN brain_phone_map b ON RIGHT(v.phone_number,10)=b.phone10 WHERE v.list_id IN (%s)%s",
-        $listCsv,
-        $whereNull
-    );
-    $outCnt = $execMysql($countSql);
-    $lines = array_values(array_filter(array_map('trim', explode("\n", $outCnt))));
-    $matchCount = 0; if (isset($lines[1])) { $matchCount = (int)trim($lines[1]); }
-
-    $updated = 0; $updatePreview = '';
-    if ($commit) {
-        $updateSql = sprintf(
-            "UPDATE vicidial_list v JOIN brain_phone_map b ON RIGHT(v.phone_number,10)=b.phone10 SET v.vendor_lead_code=b.external_id WHERE v.list_id IN (%s)%s %s",
-            $listCsv,
-            $whereNull,
-            $limitUpdates > 0 ? ('LIMIT ' . (int)$limitUpdates) : ''
-        );
-        $outUpd = $execMysql($updateSql . '; SELECT ROW_COUNT() AS updated;');
-        // Parse last numeric in output
-        $parts = array_values(array_filter(array_map('trim', explode("\n", $outUpd))));
-        for ($i=count($parts)-1; $i>=0; $i--) {
-            if (is_numeric($parts[$i])) { $updated = (int)$parts[$i]; break; }
+    for ($i = 0; $i < count($phonePairs); $i += $chunkSize) {
+        $slice = array_slice($phonePairs, $i, $chunkSize);
+        // Build derived table as UNION ALL
+        $parts = [];
+        foreach ($slice as $pair) {
+            $ph = addslashes($pair[0]);
+            $ex = addslashes($pair[1]);
+            $parts[] = "SELECT '$ph' AS phone10, '$ex' AS external_id";
         }
-        $updatePreview = $outUpd;
+        $derived = '(' . implode(' UNION ALL ', $parts) . ') AS b';
+        // Count matches for this chunk
+        $countSql = sprintf(
+            "SELECT COUNT(*) AS c FROM vicidial_list v JOIN %s ON RIGHT(v.phone_number,10)=b.phone10 WHERE v.list_id IN (%s)%s",
+            $derived,
+            $listCsv,
+            $whereNull
+        );
+        $outCnt = $execMysql($countSql);
+        $lines = array_values(array_filter(array_map('trim', explode("\n", $outCnt))));
+        if (isset($lines[1]) && is_numeric($lines[1])) { $totalMatches += (int)$lines[1]; }
+        if ($commit) {
+            $updSql = sprintf(
+                "UPDATE vicidial_list v JOIN %s ON RIGHT(v.phone_number,10)=b.phone10 SET v.vendor_lead_code=b.external_id WHERE v.list_id IN (%s)%s",
+                $derived,
+                $listCsv,
+                $whereNull
+            );
+            if ($limitUpdates > 0) { $updSql .= ' LIMIT ' . (int)$limitUpdates; }
+            $outUpd = $execMysql($updSql . '; SELECT ROW_COUNT() AS updated;');
+            $partsOut = array_values(array_filter(array_map('trim', explode("\n", $outUpd))));
+            for ($k=count($partsOut)-1; $k>=0; $k--) {
+                if (is_numeric($partsOut[$k])) { $totalUpdated += (int)$partsOut[$k]; break; }
+            }
+        }
     }
 
-    // 4) Cleanup temp table
-    $execMysql('DROP TABLE IF EXISTS brain_phone_map');
+    $matchCount = $totalMatches;
+    $updated = $totalUpdated;
 
     $elapsed = round(microtime(true) - $startedAt, 3);
     echo json_encode([
