@@ -83,6 +83,7 @@ try {
     $totalMatches = 0;
     $totalUpdated = 0;
     $whereNull = $onlyNull ? " AND (v.vendor_lead_code IS NULL OR v.vendor_lead_code='')" : '';
+    $remainingLimit = $limitUpdates > 0 ? $limitUpdates : 0;
     for ($i = 0; $i < count($phonePairs); $i += $chunkSize) {
         $slice = array_slice($phonePairs, $i, $chunkSize);
         // Build derived table as UNION ALL
@@ -110,11 +111,15 @@ try {
                 $listCsv,
                 $whereNull
             );
-            if ($limitUpdates > 0) { $updSql .= ' LIMIT ' . (int)$limitUpdates; }
+            if ($remainingLimit > 0) { $updSql .= ' LIMIT ' . (int)$remainingLimit; }
             $outUpd = $execMysql($updSql . '; SELECT ROW_COUNT() AS updated;');
             $partsOut = array_values(array_filter(array_map('trim', explode("\n", $outUpd))));
             for ($k=count($partsOut)-1; $k>=0; $k--) {
                 if (is_numeric($partsOut[$k])) { $totalUpdated += (int)$partsOut[$k]; break; }
+            }
+            if ($remainingLimit > 0) {
+                $remainingLimit -= $totalUpdated;
+                if ($remainingLimit <= 0) { break; }
             }
         }
     }
