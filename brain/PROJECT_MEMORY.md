@@ -1,5 +1,5 @@
 # 🧠 BRAIN PROJECT MEMORY
-## Living Documentation System - Last Updated: 2025-08-22 23:30 EST
+## Living Documentation System - Last Updated: 2025-08-24 23:30 EST
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## 🎯 PROJECT STATUS SUMMARY
 
-### **TODAY'S ACHIEVEMENTS (Aug 22, 2025)**
+### **TODAY'S ACHIEVEMENTS (Aug 24, 2025)**
 1. ✅ **Agent UI Completely Restored**
    - View page with all lead data, expandable sections
    - Edit page with 8 qualification questions (not 13)
@@ -40,6 +40,17 @@
    - Three enrichment paths configured
    - Parameter mapping for Allstate compatibility
    - Validation logic for insured/uninsured states
+4. ✅ **Duplicate Handling & Tools**
+   - Added `/duplicates` (preview) and `/admin/lead-duplicates` (admin)
+   - Bulk cleanup endpoint `/duplicates/cleanup-all` (admin_key protected)
+   - Implemented keep-best by detail score; 58,533 duplicates removed
+   - Fixed 500s by guarding `count()` with `is_countable()` and array casting
+
+5. ✅ **ViciDial Sync Tooling (Prep)**
+   - `public/vici_dry_run_sync.php` (no writes) and `public/vici_sync_assign_ids.php` (writer, default dry-run)
+   - `public/test_vici_debug.php` to inspect normalization
+   - Removed the "only empty vendor_lead_code" filter from reporting
+   - Lists discovery for `AUTODIAL` supported
 
 ---
 
@@ -122,11 +133,10 @@ LeadsQuotingFast → Brain → ViciDial (auto-dial) → Agent Qualification
 - `dui`/`requires_sr22`: Based on DUI/SR22 selection
 - All parameters URL-encoded and validated
 
-### **3. VICIDIAL** (Currently Bypassed)
-- Server: `philli.callix.ai`
-- API User: `UploadAPI`
-- Target List: 101
-- Status: ⚠️ PAUSED for testing
+### **3. VICIDIAL** (Database access prep; dialing temporarily bypassed)
+- Dialer API: `philli.callix.ai` (`non_agent_api.php`, user: `UploadAPI`)
+- MySQL/SSH Host for DB reads: `162.241.97.210` (lists, `vicidial_list`)
+- Status: 🧪 Need working MySQL credentials to enable read/write sync
 
 ---
 
@@ -136,11 +146,12 @@ LeadsQuotingFast → Brain → ViciDial (auto-dial) → Agent Qualification
 - `resources/views/agent/lead-display.blade.php` - Main agent UI (view/edit modes)
 - `resources/views/layouts/app.blade.php` - Base layout with Tailwind CDN
 
-### **Routes:**
-- `routes/web.php` - All application routes
-  - `/api-webhook` - LQF webhook handler
-  - `/agent/lead/{id}` - Agent interface
-  - `/test/ringba-*` - Test endpoints
+### **Routes & Public Endpoints:**
+- `/api-webhook` - LQF webhook handler
+- `/agent/lead/{id}` - Agent interface
+- `/duplicates`, `/admin/lead-duplicates`, `/duplicates/cleanup-all`
+- `/lead/{id}/payload-view`
+- `/test/ringba-*`, `/test_vici_debug.php`, `/vici_dry_run_sync.php`, `/vici_sync_assign_ids.php`
 
 ### **Services:**
 - `app/Services/AllstateCallTransferService.php` - Allstate API

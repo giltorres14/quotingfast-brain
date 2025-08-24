@@ -475,3 +475,7 @@ if ($ifCount === $endifCount && $sectionCount === $endsectionCount) {
     echo "❌ Blade directives are not balanced!\n";
 }
 
+
+
+
+

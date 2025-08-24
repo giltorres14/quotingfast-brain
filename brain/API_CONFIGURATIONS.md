@@ -1,5 +1,5 @@
 # 🔗 API CONFIGURATIONS REGISTRY
-## Centralized API Management - Updated: 2025-08-09 13:15 EST
+## Centralized API Management - Updated: 2025-08-24 23:30 EST
 
 ---
 
@@ -131,10 +131,15 @@ VICI_API_PASS=RENDER_SECRET   # actual value saved in Render: ZL8aY2MuQM (Admin,
 - Login/version probe: `GET /test/vici-login`
 - Server egress IP: `GET /server-egress-ip` (for Vici whitelist)
 
+### **Database Access (Reads/Writes)**
+- SSH/MySQL Host: `162.241.97.210`
+- Purpose: Read `vicidial_list`, write `vendor_lead_code = external_lead_id`
+- Status: Pending valid MySQL credentials
+
 ### **Integration Status**
-- **Current**: 🧪 TEMPORARILY BYPASSED for Allstate testing
+- **Current**: 🧪 API path OK previously; DB access pending
 - **Normal Flow**: LeadsQuotingFast → Brain → Vici → Agent Qualification
-- **Restore After**: Allstate API testing complete
+- **Restore After**: Allstate API testing complete / DB creds obtained
 
 ---
 
@@ -194,11 +199,11 @@ DB_DATABASE=database/database.sqlite
 ### **Production (Render)**
 ```env
 DB_CONNECTION=pgsql
-DB_HOST=dpg-d277kvk9c44c7388bpg0-a
+DB_HOST=dpg-d277kvk9c44c7388opg0-a
 DB_PORT=5432
 DB_DATABASE=brain_production
 DB_USERNAME=brain_user
-DB_PASSWORD=KoK8TYXZ6PShPKi8LTSdhHQQsCrnzcCQ
+DB_PASSWORD=KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ
 ```
 
 ---

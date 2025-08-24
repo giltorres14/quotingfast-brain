@@ -375,3 +375,7 @@ echo "\n🚀 RECOMMENDED ACTION:\n";
 echo "   php emergency_apply_fix.php\n";
 echo "\nThis will backup current file and apply the clean version.\n";
 
+
+
+
+

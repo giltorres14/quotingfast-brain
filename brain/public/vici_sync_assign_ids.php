@@ -47,8 +47,8 @@ try {
     }
 
     // Vici (MySQL over SSH)
-    $sshHost = isset($_GET['ssh_host']) ? trim($_GET['ssh_host']) : '162.241.97.210';
-    $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 22;
+    $sshHost = isset($_GET['ssh_host']) ? trim($_GET['ssh_host']) : '37.27.138.222';
+    $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 11845;
     $sshUser = 'root';
     $sshPass = 'Monster@2213@!';
     $mysqlUser = 'Superman';

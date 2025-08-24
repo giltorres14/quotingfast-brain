@@ -1,10 +1,10 @@
 # Brain System Current State
-**Last Updated:** August 22, 2025 - 11:30 PM EST
+**Last Updated:** August 24, 2025 - 11:30 PM EST
 
 ## 🎯 System Overview
 The Brain system is a lead management platform that receives, qualifies, and routes insurance leads from LeadsQuotingFast (LQF) to various buyers including Allstate via RingBA.
 
-## ✅ Recent Accomplishments (Aug 22, 2025)
+## ✅ Recent Accomplishments (Aug 24, 2025)
 
 ### Agent Lead View/Edit Pages - FULLY RESTORED
 1. **View Page** (`/agent/lead/{id}?mode=view`)
@@ -28,6 +28,23 @@ The Brain system is a lead management platform that receives, qualifies, and rou
    - In iframe mode: hides Back/View Payload/Copy buttons
    - Minimal Lead Info (Type, External ID) and TCPA (Consent, Opt-in date) shown
 
+3. **Duplicate Handling & Tools**
+   - New pages/endpoints:
+     - `/duplicates` (preview) and `/admin/lead-duplicates` (admin alias)
+     - Bulk cleanup: `/duplicates/cleanup-all` (GET/POST, admin_key protected)
+   - "Keep best, delete others" implemented by detail score; 58,533 duplicates removed
+   - CSRF disabled for duplicate delete endpoints to allow admin_key automation
+   - Fixed 500 on `/duplicates` by guarding `count()` with `is_countable()` and array casting
+
+4. **ViciDial Sync Prep**
+   - Added public tooling (dry-run by default):
+     - `public/vici_dry_run_sync.php` – scans Vici leads, reports Brain matches
+     - `public/vici_sync_assign_ids.php` – writes `vendor_lead_code = external_lead_id`
+     - `public/test_vici_debug.php` – shows normalization of sample phones
+   - Correct Vici host for SSH/MySQL set to `162.241.97.210` (lists discovery for AUTODIAL)
+   - Removed the "only empty vendor_lead_code" filter in reporting paths
+   - Pending: working MySQL credentials for host to enable reads/writes
+
 ### Technical Improvements
 - Removed all Blade directives from JavaScript (prevents compilation errors)
 - Added Tailwind CSS via CDN for consistent styling
@@ -42,12 +59,14 @@ The Brain system is a lead management platform that receives, qualifies, and rou
 - **UI Pages**: Agent view/edit pages fully functional
 - **Health Check**: `/health` endpoint returning 200 OK
 - **Deployment**: Render.com auto-deploy via GitHub push
+ - **Duplicates Dashboard**: `/duplicates` reachable; admin controls via `/admin/lead-duplicates`
 
 ### ⚠️ Pending Tasks
 - **Lead Type Migration**: Many leads still showing "unknown" instead of "auto"/"home"
 - **Bulk Import**: 111k+ LQF leads ready for import (CSV prepared)
 - **ViciDial Integration**: Currently bypassed for testing, needs restoration
 - **RingBA Production**: Test endpoints working, production config pending
+ - **Vici MySQL Credentials**: Awaiting valid credentials for `162.241.97.210` to complete sync
 
 ### ❌ Known Issues
 - Some Blade templates in admin pages have @if inside <script> tags (6 files)
@@ -82,9 +101,11 @@ LeadsQuotingFast → Brain → ViciDial → Agent Qualification → RingBA → A
 - **Lead Count**: 245,743+
 
 ### Files Modified Today
-- `resources/views/agent/lead-display.blade.php` - Complete UI overhaul
-- `resources/views/layouts/app.blade.php` - Tailwind CDN added
-- `routes/web.php` - Route stability improvements
+- `resources/views/agent/lead-display.blade.php` - UI order, header address, TCPA, iframe hides
+- `resources/views/layouts/app.blade.php` - Duplicates nav link
+- `routes/web.php` - `/duplicates` routes, admin alias, guards and error handling
+- `public/cleanup_duplicates.php` - Bulk duplicate cleanup (admin_key)
+- `public/vici_dry_run_sync.php`, `public/vici_sync_assign_ids.php`, `public/test_vici_debug.php`
 
 ## 📝 Agent Qualification Questions (Current Implementation)
 

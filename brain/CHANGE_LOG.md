@@ -1,11 +1,47 @@
 # 📝 CHANGE LOG & PROGRESS TRACKER
-## Comprehensive Change History - Updated: {{ date('Y-m-d H:i:s') }}
+## Comprehensive Change History - Updated: 2025-08-24 23:30:00
 
 ---
 
 ## 🎯 CURRENT SESSION CHANGES
 
-### **Date: 2025-08-11** *(Latest Session)*
+### **Date: 2025-08-24** *(Latest Session)*
+**Focus**: Agent UI polish, Duplicate cleanup tooling, Vici sync prep, docs updates
+
+#### **CHANGES MADE:**
+1. **Agent UI Adjustments**
+   - Header: full two-line address; phone formatted (xxx) xxx-xxxx
+   - Order enforcement: Lead Info → TCPA → Drivers → Vehicles → Current Policy
+   - Iframe mode: hides Back/View Payload/Copy/View Mode buttons
+   - Edit page: questions on top; minimal Lead Info/TCPA visible; Save in header
+
+2. **TCPA Enhancements**
+   - Show `trusted_form_cert_url`, `opt_in_date` (mm-dd-yyyy), `landing_page_url`, `leadid_code`
+   - Collapsible consent text; copy buttons for key fields
+
+3. **Duplicate Handling**
+   - Routes: `/duplicates`, `/admin/lead-duplicates`, `/duplicates/cleanup-all`
+   - Admin actions via `admin_key`; CSRF disabled for these endpoints
+   - "Keep best, delete others" logic by detail score; 58,533 deleted
+   - Fixed 500s by guarding `count()` and array casting decoded JSON
+
+4. **Vici Sync Tooling**
+   - `public/vici_dry_run_sync.php`, `public/vici_sync_assign_ids.php` (writer default dry-run)
+   - `public/test_vici_debug.php` for phone normalization samples
+   - Correct host set to `162.241.97.210`; dynamic AUTODIAL list discovery
+   - Reporting no longer filters to empty `vendor_lead_code`
+
+5. **Docs & Health**
+   - Updated CURRENT_STATE.md, PROJECT_MEMORY.md, API_CONFIGURATIONS.md
+   - Added duplicates links to layout; pre-deploy checks include duplicates pages
+
+#### **PENDING:**
+- Vici MySQL credentials for `162.241.97.210` to enable read/write
+- RingBA production config switch after validation
+
+---
+
+### **Date: 2025-08-11**
 **Focus**: Lead Migration System, Duplicate Detection, Docker Fixes
 
 #### **CHANGES MADE:**
