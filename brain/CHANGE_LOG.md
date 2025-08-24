@@ -36,7 +36,8 @@
    - Added duplicates links to layout; pre-deploy checks include duplicates pages
 
 #### **PENDING:**
-- Vici MySQL credentials for `162.241.97.210` to enable read/write
+- IP whitelist for Render servers to access Vici database
+- Database ready: YLtZX713f1r6uauf port 23964 (11M rows)
 - RingBA production config switch after validation
 
 ---

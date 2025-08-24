@@ -17,19 +17,19 @@ ssh -p 11845 root@37.27.138.222
 
 ### 2. Database Access
 ```bash
-# MySQL Databases
-Primary DB: Q6hdjl67GRigMofv (contains vicidial tables)
-Secondary DB: asterisk (older, might not have current data)
+# MySQL Database (PRODUCTION - 11M rows!)
+Database: YLtZX713f1r6uauf
+Port: 23964 (custom port, not 3306)
 
 # MySQL Credentials
-Username: cron
-Password: 1234
+Username: qUSDV7hoj5cM6OFh
+Password: dsHVMx9QqHtx5zNt
 
-# Direct MySQL Command
-mysql -h localhost -u cron -p'1234' Q6hdjl67GRigMofv
+# Direct MySQL Command (via SSH)
+mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf
 
-# Example Query
-mysql -h localhost -u cron -p'1234' Q6hdjl67GRigMofv -e "SELECT * FROM vicidial_campaigns WHERE campaign_id = 'AUTODIAL'"
+# Example Query (ALWAYS USE LIMIT!)
+mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "SELECT * FROM vicidial_campaigns WHERE campaign_id = 'AUTODIAL'"
 ```
 
 ### 3. Via Brain Proxy (Render)
@@ -53,10 +53,10 @@ curl -X POST https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute \
 'vicidial' => [
     'driver' => 'mysql',
     'host' => '37.27.138.222',
-    'port' => '3306',
-    'database' => 'Q6hdjl67GRigMofv',
-    'username' => 'cron',
-    'password' => '1234',
+    'port' => '23964',  // Custom port!
+    'database' => 'YLtZX713f1r6uauf',  // 11M rows!
+    'username' => 'qUSDV7hoj5cM6OFh',
+    'password' => 'dsHVMx9QqHtx5zNt',
     'charset' => 'utf8mb4',
     'collation' => 'utf8mb4_unicode_ci',
     'prefix' => '',
@@ -95,7 +95,7 @@ curl -X POST https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute \
 
 ### Issue 2: Wrong Database
 **Symptom:** Tables not found or old data
-**Solution:** Use `Q6hdjl67GRigMofv` not `asterisk`
+**Solution:** Use `YLtZX713f1r6uauf` with port 23964
 
 ### Issue 3: Proxy Returns "Test connection"
 **Symptom:** Proxy responds but doesn't execute command
@@ -127,7 +127,7 @@ curl -X POST https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute \
 
 ### Check Campaign Settings
 ```bash
-mysql -h localhost -u cron -p'1234' Q6hdjl67GRigMofv -e "
+mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "
 SELECT campaign_id, dial_method, hopper_level, list_order_mix, 
        next_agent_call, lead_filter_id 
 FROM vicidial_campaigns 
@@ -136,16 +136,16 @@ WHERE campaign_id = 'AUTODIAL'"
 
 ### Check List Configuration
 ```bash
-mysql -h localhost -u cron -p'1234' Q6hdjl67GRigMofv -e "
+mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "
 SELECT list_id, list_name, active, campaign_id, reset_time 
 FROM vicidial_lists 
 WHERE campaign_id = 'AUTODIAL' 
 ORDER BY list_id"
 ```
 
-### Check Lead Counts by List
+### Check Lead Counts by List (USE LIMIT!)
 ```bash
-mysql -h localhost -u cron -p'1234' Q6hdjl67GRigMofv -e "
+mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "
 SELECT list_id, 
        COUNT(*) as total,
        SUM(CASE WHEN called_since_last_reset = 'N' THEN 1 ELSE 0 END) as ready
@@ -154,14 +154,15 @@ WHERE list_id IN (101,102,103,104,106,107,108,109,111,150,151,152,153)
 GROUP BY list_id"
 ```
 
-### Mark Leads Ready to Call
+### Mark Leads Ready to Call (CAREFUL - 11M rows!)
 ```bash
-mysql -h localhost -u cron -p'1234' Q6hdjl67GRigMofv -e "
+mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "
 UPDATE vicidial_list 
 SET called_since_last_reset = 'N'
 WHERE list_id = 101 
 AND status NOT IN ('XFER','XFERA','DNC','DNCL','DNQ')
-AND call_count < 5"
+AND call_count < 5
+LIMIT 1000"  # Always use LIMIT for updates!
 ```
 
 ## 🚀 DEPLOYMENT CHECKLIST
@@ -184,7 +185,7 @@ AND call_count < 5"
 
 - **ViciDial Server:** 37.27.138.222:11845
 - **Brain Application:** https://quotingfast-brain-ohio.onrender.com
-- **Database:** Q6hdjl67GRigMofv (primary), asterisk (legacy)
+- **Database:** YLtZX713f1r6uauf (11M rows, port 23964)
 
 ---
 

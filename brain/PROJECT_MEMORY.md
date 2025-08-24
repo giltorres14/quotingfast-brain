@@ -133,10 +133,12 @@ LeadsQuotingFast → Brain → ViciDial (auto-dial) → Agent Qualification
 - `dui`/`requires_sr22`: Based on DUI/SR22 selection
 - All parameters URL-encoded and validated
 
-### **3. VICIDIAL** (Database access prep; dialing temporarily bypassed)
+### **3. VICIDIAL** (Database access ready; dialing temporarily bypassed)
 - Dialer API: `philli.callix.ai` (`non_agent_api.php`, user: `UploadAPI`)
-- MySQL/SSH Host for DB reads: `162.241.97.210` (lists, `vicidial_list`)
-- Status: 🧪 Need working MySQL credentials to enable read/write sync
+- MySQL/SSH Host: `37.27.138.222` port `11845`
+- Database: `YLtZX713f1r6uauf` port `23964` (11M rows in vicidial_list!)
+- Credentials: `qUSDV7hoj5cM6OFh` / `dsHVMx9QqHtx5zNt`
+- Status: ✅ Credentials ready, awaiting IP whitelist
 
 ---
 
