@@ -92,27 +92,37 @@ try {
         'samples' => [ 'updated' => [], 'unmatched' => [] ],
     ];
 
-    // Pull candidates in one page (limit param)
-    // Removed vendor_lead_code IS NULL filter to allow updating all leads
-    $q = sprintf(
-        "SELECT lead_id, list_id, phone_number, email, vendor_lead_code FROM vicidial_list WHERE list_id IN (%s) LIMIT %d",
-        $listCsv, $limit
-    );
-    $out = $execMysql($q);
-    $lines = array_values(array_filter(array_map('trim', explode("\n", $out))));
-    $rows = [];
-    for ($i=1; $i<count($lines); $i++) {
-        $cols = preg_split('/\t/', $lines[$i]);
-        if (count($cols) < 5) continue;
-        $rows[] = [
-            'lead_id' => (int)$cols[0],
-            'list_id' => (int)$cols[1],
-            'phone' => $cols[2],
-            'email' => $cols[3],
-            'vendor_lead_code' => trim($cols[4]),
-        ];
+    // BULK JOIN MODE: create temp map and update via JOIN to avoid stdout caps
+    $execMysql('DROP TABLE IF EXISTS brain_phone_map');
+    $create = "CREATE TABLE brain_phone_map ( phone10 VARCHAR(10) NOT NULL PRIMARY KEY, external_id VARCHAR(13) NOT NULL ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+    $execMysql($create);
+    // Insert in chunks
+    $chunk = 2000; $buffer = [];
+    foreach ($brainPhoneToId as $ph=>$eid) {
+        $buffer[] = "('" . addslashes($ph) . "','" . addslashes($eid) . "')";
+        if (count($buffer) >= $chunk) {
+            $execMysql('INSERT INTO brain_phone_map (phone10, external_id) VALUES ' . implode(',', $buffer) . ' ON DUPLICATE KEY UPDATE external_id=VALUES(external_id)');
+            $buffer = [];
+        }
     }
-    $results['scanned'] = count($rows);
+    if (!empty($buffer)) {
+        $execMysql('INSERT INTO brain_phone_map (phone10, external_id) VALUES ' . implode(',', $buffer) . ' ON DUPLICATE KEY UPDATE external_id=VALUES(external_id)');
+    }
+    // Count matches and optionally update
+    $whereNull = '';
+    $qCount = sprintf("SELECT COUNT(*) AS c FROM vicidial_list v JOIN brain_phone_map b ON RIGHT(v.phone_number,10)=b.phone10 WHERE v.list_id IN (%s)%s", $listCsv, $whereNull);
+    $outC = $execMysql($qCount);
+    $parts = array_values(array_filter(array_map('trim', explode("\n", $outC))));
+    $count = 0; if (isset($parts[1])) { $count = (int)trim($parts[1]); }
+    $results['scanned'] = $count; // report matches as scanned in this mode
+    if (!$isDryRun) {
+        $qUpd = sprintf("UPDATE vicidial_list v JOIN brain_phone_map b ON RIGHT(v.phone_number,10)=b.phone10 SET v.vendor_lead_code=b.external_id WHERE v.list_id IN (%s)", $listCsv);
+        $execMysql($qUpd);
+        $results['updated'] = $count;
+    } else {
+        $results['updated'] = 0;
+    }
+    $execMysql('DROP TABLE IF EXISTS brain_phone_map');
 
     foreach ($rows as $r) {
         // Skip if already has a vendor_lead_code

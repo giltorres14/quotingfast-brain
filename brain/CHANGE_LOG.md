@@ -1,11 +1,22 @@
 # 📝 CHANGE LOG & PROGRESS TRACKER
-## Comprehensive Change History - Updated: 2025-08-24 23:30:00
+## Comprehensive Change History - Updated: 2025-08-25 04:15:00
 
 ---
 
 ## 🎯 CURRENT SESSION CHANGES
 
-### **Date: 2025-08-24** *(Latest Session)*
+### **Date: 2025-08-25** *(Latest Session)*
+**Focus**: ViciDial sync critical issue - only scanning 826 of 21,220+ leads
+
+#### **Critical Discovery**
+- ViciDial lists 6018-6026 contain 21,220 leads (verified via check_list_counts.php)
+- List 6018 alone has 5,893 leads (user screenshot confirmed)
+- vici_dry_run_sync.php only retrieving 826 leads total
+- Connection working with correct credentials (Port 20540, DB YLtZX713f1r6uauf)
+- Issue appears to be query/buffer limitation in MySQL over SSH
+- Next step: Implement batch processing to handle large result sets
+
+### **Date: 2025-08-24**
 **Focus**: Agent UI polish, Duplicate cleanup tooling, Vici sync prep, docs updates
 
 #### **CHANGES MADE:**

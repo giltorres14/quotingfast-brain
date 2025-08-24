@@ -1,5 +1,5 @@
 # 🧠 BRAIN PROJECT MEMORY
-## Living Documentation System - Last Updated: 2025-08-24 23:30 EST
+## Living Documentation System - Last Updated: 2025-08-25 04:15 EST
 
 ---
 
@@ -46,8 +46,11 @@
    - Implemented keep-best by detail score; 58,533 duplicates removed
    - Fixed 500s by guarding `count()` with `is_countable()` and array casting
 
-5. ✅ **ViciDial Sync Tooling (Prep)**
-   - `public/vici_dry_run_sync.php` (no writes) and `public/vici_sync_assign_ids.php` (writer, default dry-run)
+5. ⚠️ **ViciDial Sync Tooling - CRITICAL ISSUE**
+   - `public/vici_dry_run_sync.php` (no writes) - ONLY SCANNING 826 OF 21,220+ LEADS
+   - `public/vici_sync_assign_ids.php` (writer, default dry-run)
+   - Issue: Query/buffer limitation preventing full data retrieval from ViciDial
+   - Connection working with correct credentials (Port 20540, DB YLtZX713f1r6uauf)
    - `public/test_vici_debug.php` to inspect normalization
    - Removed the "only empty vendor_lead_code" filter from reporting
    - Lists discovery for `AUTODIAL` supported

@@ -66,10 +66,13 @@ The Brain system is a lead management platform that receives, qualifies, and rou
 - **Bulk Import**: 111k+ LQF leads ready for import (CSV prepared)
 - **ViciDial Integration**: Currently bypassed for testing, needs restoration
 - **RingBA Production**: Test endpoints working, production config pending
-- **Vici Sync**: Production credentials ready, awaiting IP whitelist for Render servers
+- **Vici Sync**: CRITICAL ISSUE - Script only scanning 826 leads instead of 21,220+
   - DB: YLtZX713f1r6uauf (11M rows in vicidial_list)
-  - Port: 23964, User: qUSDV7hoj5cM6OFh
-  - Scripts updated with safety limits to prevent full table scans
+  - Port: 20540 (corrected), User: qUSDV7hoj5cM6OFh
+  - Connection working but query returning limited results
+  - List 6018 alone has 5,893 leads (user confirmed)
+  - Lists 6018-6026 total: 21,220 leads (verified via check_list_counts.php)
+  - vici_dry_run_sync.php only returns 826 - investigating buffer/query limits
 
 ### ❌ Known Issues
 - Some Blade templates in admin pages have @if inside <script> tags (6 files)

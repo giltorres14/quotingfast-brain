@@ -1,9 +1,31 @@
 # 🔄 Brain to ViciDial Integration Documentation
-*Last Updated: December 2024*
+*Last Updated: August 25, 2025 - 04:15 AM EST*
 
-## ✅ Integration Status: COMPLETE
+## ⚠️ Integration Status: CRITICAL ISSUE WITH SYNC
 
-The Brain system now automatically pushes all incoming leads to ViciDial List 101 for immediate calling.
+The Brain system pushes leads to ViciDial, but sync back is failing - only retrieving 826 of 21,220+ leads from ViciDial.
+
+## 🚨 CRITICAL SYNC ISSUE (Aug 25, 2025)
+
+### Problem
+- ViciDial lists 6018-6026 contain 21,220 leads (verified)
+- List 6018 alone has 5,893 leads (user confirmed via screenshot)
+- `vici_dry_run_sync.php` only retrieving 826 leads total
+- Connection working with correct credentials:
+  - SSH: 37.27.138.222:11845 (root/Monster@2213@!)
+  - MySQL: localhost:20540 (wS3Vtb7rJgAGePi5/hkj7uAlV9wp9zOMr)
+  - Database: YLtZX713f1r6uauf
+
+### Root Cause
+- Query/buffer limitation when fetching large datasets over SSH
+- MySQL command output being truncated
+- Need to implement batch processing with OFFSET/LIMIT
+
+### Next Steps
+1. Implement batch processing in vici_dry_run_sync.php
+2. Process leads in chunks of 1000-2000 rows
+3. Aggregate results across all batches
+4. Test with full 21,220+ lead dataset
 
 ## 📊 Lead Flow Architecture
 
