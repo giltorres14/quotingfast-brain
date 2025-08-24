@@ -51,9 +51,10 @@ try {
     $mysqlPort = 23964;  // Custom port
 
     $execMysql = function (string $query) use ($sshHost,$sshPort,$sshUser,$sshPass,$mysqlUser,$mysqlPass,$mysqlDb,$mysqlPort): string {
-        // Build mysql command - try without port first
+        // Build mysql command with host IP and port
         $mysql = sprintf(
-            'mysql -h 127.0.0.1 -u %s -p%s %s -e %s 2>&1',
+            'mysql -h 37.27.138.222 -P %d -u %s -p%s %s -e %s 2>&1',
+            $mysqlPort,
             escapeshellarg($mysqlUser),
             escapeshellarg($mysqlPass),
             escapeshellarg($mysqlDb),
