@@ -12,9 +12,9 @@ try {
     $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 11845;
     $sshUser = 'root';
     $sshPass = 'Monster@2213@!';
-    $mysqlUser = 'Superman';
-    $mysqlPass = '8ZDWGAAQRD';
-    $mysqlDb   = 'asterisk';
+    $mysqlUser = 'cron';
+    $mysqlPass = '1234';
+    $mysqlDb   = 'Q6hdjl67GRigMofv';  // Primary DB with vicidial tables
 
     $execMysql = function (string $query) use ($sshHost,$sshPort,$sshUser,$sshPass,$mysqlUser,$mysqlPass,$mysqlDb): string {
         $mysql = sprintf(
