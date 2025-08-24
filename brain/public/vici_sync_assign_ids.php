@@ -98,8 +98,9 @@ try {
     ];
 
     // Pull candidates in one page (limit param)
+    // Removed vendor_lead_code IS NULL filter to allow updating all leads
     $q = sprintf(
-        "SELECT lead_id, list_id, phone_number, email, vendor_lead_code FROM vicidial_list WHERE vendor_lead_code IS NULL AND list_id IN (%s) LIMIT %d",
+        "SELECT lead_id, list_id, phone_number, email, vendor_lead_code FROM vicidial_list WHERE list_id IN (%s) LIMIT %d",
         $listCsv, $limit
     );
     $out = $execMysql($q);
@@ -113,11 +114,18 @@ try {
             'list_id' => (int)$cols[1],
             'phone' => $cols[2],
             'email' => $cols[3],
+            'vendor_lead_code' => trim($cols[4]),
         ];
     }
     $results['scanned'] = count($rows);
 
     foreach ($rows as $r) {
+        // Skip if already has a vendor_lead_code
+        if (!empty($r['vendor_lead_code']) && $r['vendor_lead_code'] !== 'NULL') {
+            $results['skipped_already_set']++;
+            continue;
+        }
+        
         $p10 = $normalizePhone10($r['phone']);
         $em  = $normalizeEmail($r['email']);
         $eid = ($p10 !== '' && isset($brainPhoneToId[$p10])) ? $brainPhoneToId[$p10] : null; // PHONE-ONLY
