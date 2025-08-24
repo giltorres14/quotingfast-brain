@@ -131,10 +131,15 @@ VICI_API_PASS=RENDER_SECRET   # actual value saved in Render: ZL8aY2MuQM (Admin,
 - Login/version probe: `GET /test/vici-login`
 - Server egress IP: `GET /server-egress-ip` (for Vici whitelist)
 
-### **Database Access (Reads/Writes)**
-- SSH/MySQL Host: `162.241.97.210`
-- Purpose: Read `vicidial_list`, write `vendor_lead_code = external_lead_id`
-- Status: Pending valid MySQL credentials
+### **Database Access (Production - 11M rows!)**
+- SSH Host: `37.27.138.222` Port: `11845`
+- MySQL Database: `YLtZX713f1r6uauf`
+- MySQL Port: `23964` (custom port, not 3306)
+- MySQL User: `qUSDV7hoj5cM6OFh`
+- MySQL Pass: `dsHVMx9QqHtx5zNt`
+- Table: `vicidial_list` (11 MILLION rows - always use LIMIT!)
+- Purpose: Read leads, write `vendor_lead_code = external_lead_id`
+- Status: Credentials ready, awaiting IP whitelist for Render servers
 
 ### **Integration Status**
 - **Current**: 🧪 API path OK previously; DB access pending

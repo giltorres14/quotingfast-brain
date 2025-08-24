@@ -9,7 +9,8 @@ try {
     // Params
     $listsParam = isset($_GET['lists']) ? trim($_GET['lists']) : '';
     $campaignParam = isset($_GET['campaign']) ? trim($_GET['campaign']) : '';
-    $limit = isset($_GET['limit']) ? max(100, (int)$_GET['limit']) : 5000;
+    // SAFETY: Max limit 10000 to prevent overloading 11M row table
+    $limit = isset($_GET['limit']) ? min(10000, max(100, (int)$_GET['limit'])) : 5000;
 
     // Normalize helpers
     $normalizePhone10 = function (?string $raw): string {
@@ -38,33 +39,27 @@ try {
         if ($em !== '') { $brainEmailToId[$em] = $row['external_lead_id']; }
     }
 
-    // Vici (MySQL over SSH) - allow override via query
+    // Vici (MySQL over SSH) - PRODUCTION CREDENTIALS
+    // WARNING: vicidial_list has 11 MILLION rows - always use LIMIT!
     $sshHost = isset($_GET['ssh_host']) ? trim($_GET['ssh_host']) : '37.27.138.222';
     $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 11845;
     $sshUser = 'root';
     $sshPass = 'Monster@2213@!';
-    $mysqlUser = 'root';
-    $mysqlPass = '';  // No password for root
-    $mysqlDb   = 'Q6hdjl67GRigMofv';  // Primary DB
+    $mysqlUser = 'qUSDV7hoj5cM6OFh';  // Production user
+    $mysqlPass = 'dsHVMx9QqHtx5zNt';  // Production password
+    $mysqlDb   = 'YLtZX713f1r6uauf';  // Production DB (11M rows!)
+    $mysqlPort = 23964;  // Custom port
 
-    $execMysql = function (string $query) use ($sshHost,$sshPort,$sshUser,$sshPass,$mysqlUser,$mysqlPass,$mysqlDb): string {
-        // Build mysql command with or without password
-        if ($mysqlPass === '') {
-            $mysql = sprintf(
-                'mysql -h localhost -u %s %s -e %s 2>&1',
-                escapeshellarg($mysqlUser),
-                escapeshellarg($mysqlDb),
-                escapeshellarg($query)
-            );
-        } else {
-            $mysql = sprintf(
-                'mysql -h localhost -u %s -p%s %s -e %s 2>&1',
-                escapeshellarg($mysqlUser),
-                escapeshellarg($mysqlPass),
-                escapeshellarg($mysqlDb),
-                escapeshellarg($query)
-            );
-        }
+    $execMysql = function (string $query) use ($sshHost,$sshPort,$sshUser,$sshPass,$mysqlUser,$mysqlPass,$mysqlDb,$mysqlPort): string {
+        // Build mysql command with custom port
+        $mysql = sprintf(
+            'mysql -h localhost -P %d -u %s -p%s %s -e %s 2>&1',
+            $mysqlPort,
+            escapeshellarg($mysqlUser),
+            escapeshellarg($mysqlPass),
+            escapeshellarg($mysqlDb),
+            escapeshellarg($query)
+        );
         $ssh = sprintf(
             'sshpass -p %s ssh -p %d -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s %s 2>&1',
             escapeshellarg($sshPass), $sshPort, escapeshellarg($sshUser), escapeshellarg($sshHost), escapeshellarg($mysql)

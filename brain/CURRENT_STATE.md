@@ -66,7 +66,10 @@ The Brain system is a lead management platform that receives, qualifies, and rou
 - **Bulk Import**: 111k+ LQF leads ready for import (CSV prepared)
 - **ViciDial Integration**: Currently bypassed for testing, needs restoration
 - **RingBA Production**: Test endpoints working, production config pending
- - **Vici MySQL Credentials**: Awaiting valid credentials for `162.241.97.210` to complete sync
+- **Vici Sync**: Production credentials ready, awaiting IP whitelist for Render servers
+  - DB: YLtZX713f1r6uauf (11M rows in vicidial_list)
+  - Port: 23964, User: qUSDV7hoj5cM6OFh
+  - Scripts updated with safety limits to prevent full table scans
 
 ### ❌ Known Issues
 - Some Blade templates in admin pages have @if inside <script> tags (6 files)

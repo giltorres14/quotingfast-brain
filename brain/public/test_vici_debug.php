@@ -6,34 +6,29 @@ header('Content-Type: application/json');
 
 try {
     $list = isset($_GET['list']) ? (int)$_GET['list'] : 6026;
-    $limit = isset($_GET['limit']) ? max(1,(int)$_GET['limit']) : 50;
+    // SAFETY: Max limit 100 for debug tool
+    $limit = isset($_GET['limit']) ? min(100, max(1,(int)$_GET['limit'])) : 50;
 
+    // PRODUCTION CREDENTIALS - 11M rows, use with caution!
     $sshHost = isset($_GET['ssh_host']) ? trim($_GET['ssh_host']) : '37.27.138.222';
     $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 11845;
     $sshUser = 'root';
     $sshPass = 'Monster@2213@!';
-    $mysqlUser = 'root';
-    $mysqlPass = '';  // No password for root
-    $mysqlDb   = 'Q6hdjl67GRigMofv';  // Primary DB
+    $mysqlUser = 'qUSDV7hoj5cM6OFh';  // Production user
+    $mysqlPass = 'dsHVMx9QqHtx5zNt';  // Production password
+    $mysqlDb   = 'YLtZX713f1r6uauf';  // Production DB (11M rows!)
+    $mysqlPort = 23964;  // Custom port
 
-    $execMysql = function (string $query) use ($sshHost,$sshPort,$sshUser,$sshPass,$mysqlUser,$mysqlPass,$mysqlDb): string {
-        // Build mysql command with or without password
-        if ($mysqlPass === '') {
-            $mysql = sprintf(
-                'mysql -h localhost -u %s %s -e %s 2>&1',
-                escapeshellarg($mysqlUser),
-                escapeshellarg($mysqlDb),
-                escapeshellarg($query)
-            );
-        } else {
-            $mysql = sprintf(
-                'mysql -h localhost -u %s -p%s %s -e %s 2>&1',
-                escapeshellarg($mysqlUser),
-                escapeshellarg($mysqlPass),
-                escapeshellarg($mysqlDb),
-                escapeshellarg($query)
-            );
-        }
+    $execMysql = function (string $query) use ($sshHost,$sshPort,$sshUser,$sshPass,$mysqlUser,$mysqlPass,$mysqlDb,$mysqlPort): string {
+        // Build mysql command with custom port
+        $mysql = sprintf(
+            'mysql -h localhost -P %d -u %s -p%s %s -e %s 2>&1',
+            $mysqlPort,
+            escapeshellarg($mysqlUser),
+            escapeshellarg($mysqlPass),
+            escapeshellarg($mysqlDb),
+            escapeshellarg($query)
+        );
         $ssh = sprintf(
             'sshpass -p %s ssh -p %d -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s %s 2>&1',
             escapeshellarg($sshPass), $sshPort, escapeshellarg($sshUser), escapeshellarg($sshHost), escapeshellarg($mysql)
