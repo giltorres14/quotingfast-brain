@@ -14,15 +14,15 @@ try {
     $sshPort = isset($_GET['ssh_port']) ? (int)$_GET['ssh_port'] : 11845;
     $sshUser = 'root';
     $sshPass = 'Monster@2213@!';
-    $mysqlUser = 'qUSDV7hoj5cM6OFh';  // Production user
-    $mysqlPass = 'dsHVMx9QqHtx5zNt';  // Production password
-    $mysqlDb   = 'YLtZX713f1r6uauf';  // Production DB (11M rows!)
-    $mysqlPort = 23964;  // Custom port
+    $mysqlUser = 'wS3Vtb7rJgAGePi5';  // Cron user
+    $mysqlPass = 'hkj7uAlV9wp9zOMr';  // Cron password
+    $mysqlDb   = 'Q6hdjl67GRigMofv';  // Asterisk DB (11M rows!)
+    $mysqlPort = 20540;  // Custom port
 
     $execMysql = function (string $query) use ($sshHost,$sshPort,$sshUser,$sshPass,$mysqlUser,$mysqlPass,$mysqlDb,$mysqlPort): string {
-        // Build mysql command with host IP and port
+        // Build mysql command with localhost and custom port
         $mysql = sprintf(
-            'mysql -h 37.27.138.222 -P %d -u %s -p%s %s -e %s 2>&1',
+            'mysql -h localhost -P %d -u %s -p%s %s -e %s 2>&1',
             $mysqlPort,
             escapeshellarg($mysqlUser),
             escapeshellarg($mysqlPass),
