@@ -1164,6 +1164,38 @@ async function saveQualification(){
     const formEl = document.getElementById('qualificationFormTop');
     if(!formEl){ return; }
     try {
+        // 1) Persist contact fields (first/last/phone/email/address/city/state/zip) before qualification
+        try {
+            const pick = (sel, fallback='') => {
+                const el = document.querySelector(sel);
+                return (el && (el.value ?? el.textContent)) ? (el.value ?? el.textContent) : fallback;
+            };
+            const contactPayload = {
+                first_name: pick('input[name="first_name"]', '<?php echo $lead->first_name ?? '';?>'),
+                last_name:  pick('input[name="last_name"]',  '<?php echo $lead->last_name ?? '';?>'),
+                phone:      pick('input[name="phone"]',      '<?php echo $lead->phone ?? '';?>'),
+                email:      pick('input[name="email"]',      '<?php echo $lead->email ?? '';?>'),
+                address:    pick('input[name="address"]',    '<?php echo $lead->address ?? '';?>'),
+                city:       pick('input[name="city"]',       '<?php echo $lead->city ?? '';?>'),
+                state:      (document.getElementById('state')?.value || pick('input[name="state"]', '<?php echo $lead->state ?? '';?>')),
+                zip_code:   (document.getElementById('zip_code')?.value || pick('input[name="zip_code"]', '<?php echo $lead->zip_code ?? '';?>')),
+            };
+            const respContact = await fetch(`/agent/lead/${leadId}/contact-with-vici-sync`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(contactPayload)
+            });
+            if (!respContact.ok) {
+                const errTxt = await respContact.text();
+                alert('Save failed (contact): ' + errTxt);
+                return;
+            }
+        } catch (e) {
+            alert('Save error (contact): ' + (e?.message || e));
+            return;
+        }
+
+        // 2) Persist qualification and sub-sections
         const formData = new FormData(formEl);
         // Include inline edit sections (drivers, vehicles, current policy)
         document.querySelectorAll('[name^="drivers["]').forEach(el=>formData.append(el.getAttribute('name'), el.value));
