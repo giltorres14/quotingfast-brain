@@ -58,7 +58,7 @@ try {
             escapeshellarg($query)
         );
         $ssh = sprintf(
-            'sshpass -p %s ssh -T -p %d -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s %s 2>&1',
+            'sshpass -p %s ssh -T -p %d -o ServerAliveInterval=20 -o ServerAliveCountMax=9 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null %s@%s %s 2>&1',
             escapeshellarg($sshPass), $sshPort, escapeshellarg($sshUser), escapeshellarg($sshHost), escapeshellarg($mysql)
         );
         return (string)shell_exec($ssh);
@@ -106,7 +106,7 @@ try {
         if (isset($lines[1]) && is_numeric($lines[1])) { $totalMatches += (int)$lines[1]; }
         if ($commit) {
             $updSql = sprintf(
-                "UPDATE vicidial_list v JOIN %s ON RIGHT(v.phone_number,10)=b.phone10 SET v.vendor_lead_code=b.external_id WHERE v.list_id IN (%s)%s",
+                "UPDATE vicidial_list v JOIN %s ON RIGHT(v.phone_number,10)=b.phone10 SET v.vendor_lead_code=b.external_id WHERE v.list_id IN (%s)%s AND (v.vendor_lead_code IS NULL OR v.vendor_lead_code <> b.external_id)",
                 $derived,
                 $listCsv,
                 $whereNull

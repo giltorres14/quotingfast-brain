@@ -3482,6 +3482,67 @@ Route::get('/leads/{id}/edit', function ($id) {
     return redirect('/agent/lead/' . $id . '?mode=edit');
 });
 
+// Safety route: allow /agent/lead without an ID (fallback to phone or capture)
+Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
+    $mode = $request->get('mode', 'agent');
+    $isIframe = $request->get('iframe') || $request->get('agent');
+    view()->share('isIframe', $isIframe);
+
+    // If vendor_lead_code or lead_id are present as query params, redirect to canonical path
+    $idParam = $request->get('vendor_lead_code') ?? $request->get('lead_id');
+    if (!empty($idParam)) {
+        $qs = $request->query(); unset($qs['vendor_lead_code'], $qs['lead_id']);
+        $query = http_build_query($qs);
+        $url = '/agent/lead/' . urlencode($idParam) . ($query ? ('?' . $query) : '');
+        return redirect($url);
+    }
+
+    // Phone-based lookup
+    $phoneParam = $request->get('phone') ?? $request->get('phone_number');
+    try {
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+
+        if (!empty($phoneParam)) {
+            $p10 = preg_replace('/\D+/', '', (string)$phoneParam);
+            if (strlen($p10) > 10) { $p10 = substr($p10, -10); }
+            if (!empty($p10)) {
+                $stmt = $pdo->prepare("SELECT external_lead_id, id FROM leads WHERE RIGHT(regexp_replace(COALESCE(phone,''),'[^0-9]','','g'),10) = :p10 LIMIT 1");
+                $stmt->execute([':p10' => $p10]);
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($row && !empty($row['external_lead_id'])) {
+                    // Redirect to canonical path with existing query string
+                    $qs = $request->query(); $query = http_build_query($qs);
+                    $url = '/agent/lead/' . urlencode($row['external_lead_id']) . ($query ? ('?' . $query) : '');
+                    return redirect($url);
+                }
+            }
+        }
+    } catch (Exception $e) {
+        // fall through to capture view
+    }
+
+    // Show capture with prefill
+    return response()->view('agent.lead-not-found', [
+        'leadId' => $idParam ?? 'UNKNOWN',
+        'prefill' => [
+            'first_name' => $request->get('first_name') ?? $request->get('fname') ?? '',
+            'last_name' => $request->get('last_name') ?? $request->get('lname') ?? '',
+            'phone' => $phoneParam ?? '',
+            'email' => $request->get('email') ?? '',
+            'address' => $request->get('address') ?? $request->get('address1') ?? '',
+            'city' => $request->get('city') ?? '',
+            'state' => $request->get('state') ?? '',
+            'zip' => $request->get('zip') ?? $request->get('zipcode') ?? '',
+            'notes' => $request->get('notes') ?? $request->get('comments') ?? ''
+        ],
+        'captureUrl' => url('/agent/lead/capture'),
+    ]);
+});
+
 // Agent iframe endpoint - displays full lead data with transfer button
 Route::get('/agent/lead/{leadId}', function ($leadId) {
     $mode = request()->get('mode', 'agent'); // 'agent', 'view', or 'edit'
@@ -3619,11 +3680,41 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
 
         // Handle different scenarios
         if (!$lead && !$isTestLead) {
-            // Real lead not found - show "Lead Not Found" page
+            // Optional fallback: try phone-based lookup if provided
+            $phoneParam = request()->get('phone') ?? request()->get('phone_number') ?? null;
+            if ($phoneParam) {
+                try {
+                    $p10 = preg_replace('/\D+/', '', (string)$phoneParam);
+                    if (strlen($p10) > 10) { $p10 = substr($p10, -10); }
+                    if (!empty($p10)) {
+                        $stmt = $pdo->prepare("SELECT * FROM leads WHERE RIGHT(regexp_replace(COALESCE(phone,''),'[^0-9]','','g'),10) = :p10 LIMIT 1");
+                        $stmt->execute([':p10' => $p10]);
+                        $byPhone = $stmt->fetch(PDO::FETCH_ASSOC);
+                        if ($byPhone && !empty($byPhone['external_lead_id'])) {
+                            // Redirect to the matched lead in iframe edit mode
+                            return redirect('/agent/lead/' . $byPhone['external_lead_id'] . '?iframe=1&mode=edit');
+                        }
+                    }
+                } catch (Exception $e) {
+                    // Ignore and fall through to capture form
+                }
+            }
+
+            // Real lead not found - show "Lead Not Found / Capture" page with prefill from Vici params
             return response()->view('agent.lead-not-found', [
                 'leadId' => $leadId,
-                'apiBase' => url('/api'),
-                'transferUrl' => url("/api/transfer/{$leadId}")
+                'prefill' => [
+                    'first_name' => request()->get('first_name') ?? request()->get('fname') ?? '',
+                    'last_name' => request()->get('last_name') ?? request()->get('lname') ?? '',
+                    'phone' => $phoneParam ?? '',
+                    'email' => request()->get('email') ?? '',
+                    'address' => request()->get('address') ?? request()->get('address1') ?? '',
+                    'city' => request()->get('city') ?? '',
+                    'state' => request()->get('state') ?? '',
+                    'zip' => request()->get('zip') ?? request()->get('zipcode') ?? '',
+                    'notes' => request()->get('notes') ?? request()->get('comments') ?? ''
+                ],
+                'captureUrl' => url('/agent/lead/capture'),
             ]);
         } elseif (!$lead && $isTestLead) {
             // Test lead - create mock data for testing
@@ -3756,6 +3847,55 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             'error' => $e->getMessage(),
             'leadId' => $leadId
         ]);
+    }
+});
+
+// Capture endpoint: create Brain lead and redirect to iframe edit
+Route::post('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
+    try {
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $first = trim((string)$request->input('first_name', ''));
+        $last = trim((string)$request->input('last_name', ''));
+        $name = trim($first . ' ' . $last);
+        $phone = trim((string)$request->input('phone', ''));
+        $email = trim((string)$request->input('email', ''));
+        $address = trim((string)$request->input('address', ''));
+        $city = trim((string)$request->input('city', ''));
+        $state = trim((string)$request->input('state', ''));
+        $zip = trim((string)$request->input('zip_code', $request->input('zip', '')));
+        $notes = trim((string)$request->input('notes', ''));
+        $extId = $request->input('external_lead_id');
+        if (empty($extId)) { $extId = (string) round(microtime(true) * 1000); }
+
+        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, 'auto', 'vicidial-iframe-capture', :meta, NOW(), NOW()) ON CONFLICT (external_lead_id) DO NOTHING");
+        $meta = json_encode(['notes' => $notes]);
+        $stmt->execute([
+            ':eid' => $extId,
+            ':name' => $name,
+            ':first' => $first,
+            ':last' => $last,
+            ':phone' => $phone,
+            ':email' => $email,
+            ':addr' => $address,
+            ':city' => $city,
+            ':state' => $state,
+            ':zip' => $zip,
+            ':meta' => $meta,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'redirect' => url('/agent/lead/' . $extId . '?iframe=1&mode=edit'),
+            'external_lead_id' => $extId,
+        ]);
+    } catch (Throwable $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
     }
 });
 

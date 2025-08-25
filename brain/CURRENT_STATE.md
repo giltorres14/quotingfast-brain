@@ -67,8 +67,11 @@ The Brain system is a lead management platform that receives, qualifies, and rou
 - **ViciDial Integration**: Currently bypassed for testing, needs restoration
 - **RingBA Production**: Test endpoints working, production config pending
 - **Vici Sync**: CRITICAL ISSUE - Script only scanning 826 leads instead of 21,220+
-  - DB: YLtZX713f1r6uauf (11M rows in vicidial_list)
-  - Port: 20540 (corrected), User: qUSDV7hoj5cM6OFh
+  - DB: Q6hdjl67GRigMofv (11M rows in vicidial_list)
+  - Port: 20540, User: wS3Vtb7rJgAGePi5
+  - **⚠️ CRITICAL**: ViciDial access REQUIRES whitelisted IP!
+  - **Render Server IPs**: 52.15.118.168 (current), 3.129.111.220 (documented), 3.134.238.10 (allowed)
+  - **Access Methods**: SSH (37.27.138.222:11845) or API (philli.callix.ai)
   - Connection working but query returning limited results
   - List 6018 alone has 5,893 leads (user confirmed)
   - Lists 6018-6026 total: 21,220 leads (verified via check_list_counts.php)

@@ -79,10 +79,17 @@ try {
     }
     $results['scanned_first_n_pages'] = $scanned;
 
+    // How many have a 13-digit vendor_lead_code now
+    $q13 = sprintf("SELECT COUNT(*) AS c FROM vicidial_list WHERE list_id IN (%s) AND vendor_lead_code REGEXP '^[0-9]{13}$'", $listCsv);
+    $raw13 = $execMysql($q13);
+    $lines = array_values(array_filter(array_map('trim', explode("\n", $raw13))));
+    $results['totals']['vendor_lead_code_13_digit'] = (isset($lines[1]) ? (int)trim($lines[1]) : -1);
+
     echo json_encode($results, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 } catch (Throwable $e) {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()], JSON_PRETTY_PRINT);
 }
+
 
 

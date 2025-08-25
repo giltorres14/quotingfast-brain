@@ -174,3 +174,4 @@ printf "1\n" | php sync_vici_direct.php
 
 
 
+

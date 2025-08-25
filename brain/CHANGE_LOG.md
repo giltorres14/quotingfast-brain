@@ -15,6 +15,7 @@
 - Connection working with correct credentials (Port 20540, DB YLtZX713f1r6uauf)
 - Issue appears to be query/buffer limitation in MySQL over SSH
 - Next step: Implement batch processing to handle large result sets
+ - Docs updated to explicitly require Vici access from whitelisted IPs only (3.134.238.10, 3.129.111.220, 52.15.118.168)
 
 ### **Date: 2025-08-24**
 **Focus**: Agent UI polish, Duplicate cleanup tooling, Vici sync prep, docs updates

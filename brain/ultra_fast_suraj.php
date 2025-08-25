@@ -221,3 +221,5 @@ echo "Total imported: $totalImported\n";
 echo "Time: " . round((time() - $startTime) / 60, 1) . " minutes\n";
 
 
+
+

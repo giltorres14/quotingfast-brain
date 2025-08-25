@@ -1,3 +1,111 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lead Not Found</title>
+    <style>
+        body{font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:#0f172a;color:#e2e8f0;margin:0}
+        .wrap{max-width:900px;margin:0 auto;padding:16px}
+        .card{background:#111827;border:1px solid #1f2937;border-radius:10px;padding:16px}
+        .row{display:flex;gap:12px;flex-wrap:wrap}
+        .col{flex:1 1 260px}
+        label{display:block;margin:6px 0 4px;color:#94a3b8;font-size:12px}
+        input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0b1220;color:#e2e8f0}
+        button{background:#059669;color:#fff;border:none;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:600}
+        button:hover{background:#047857}
+        .muted{color:#94a3b8;font-size:13px}
+    </style>
+    <script>
+        async function createLead(e){
+            e.preventDefault();
+            const f = e.target;
+            const payload = {
+                external_lead_id: '{{ $leadId }}',
+                first_name: f.first_name.value.trim(),
+                last_name: f.last_name.value.trim(),
+                phone: f.phone.value.trim(),
+                email: f.email.value.trim(),
+                address: f.address.value.trim(),
+                city: f.city.value.trim(),
+                state: f.state.value.trim(),
+                zip_code: f.zip.value.trim(),
+                notes: f.notes.value.trim(),
+                source: 'vicidial-iframe-capture'
+            };
+            const res = await fetch('{{ $captureUrl }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data && data.redirect) { window.location.href = data.redirect; return; }
+            alert(data.error || 'Failed to create lead');
+        }
+    </script>
+    </head>
+<body>
+    <div class="wrap">
+        <div class="card">
+            <h2 style="margin:0 0 8px">Lead Not Found</h2>
+            <p class="muted">No lead matched ID <strong>{{ $leadId }}</strong>. Create it now with the details from Vici.</p>
+            <form onsubmit="createLead(event)">
+                <div class="row">
+                    <div class="col">
+                        <label>First name</label>
+                        <input name="first_name" value="{{ $prefill['first_name'] ?? '' }}">
+                    </div>
+                    <div class="col">
+                        <label>Last name</label>
+                        <input name="last_name" value="{{ $prefill['last_name'] ?? '' }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Phone</label>
+                        <input name="phone" value="{{ $prefill['phone'] ?? '' }}">
+                    </div>
+                    <div class="col">
+                        <label>Email</label>
+                        <input name="email" value="{{ $prefill['email'] ?? '' }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Address</label>
+                        <input name="address" value="{{ $prefill['address'] ?? '' }}">
+                    </div>
+                    <div class="col">
+                        <label>City</label>
+                        <input name="city" value="{{ $prefill['city'] ?? '' }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>State</label>
+                        <input name="state" value="{{ $prefill['state'] ?? '' }}">
+                    </div>
+                    <div class="col">
+                        <label>ZIP</label>
+                        <input name="zip" value="{{ $prefill['zip'] ?? '' }}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="3">{{ $prefill['notes'] ?? '' }}</textarea>
+                    </div>
+                </div>
+                <div style="margin-top:12px">
+                    <button type="submit">Create Lead and Continue</button>
+                </div>
+                <p class="muted" style="margin-top:10px">This will create a Brain lead with external_lead_id = {{ $leadId }} and open the edit page in iframe mode.</p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

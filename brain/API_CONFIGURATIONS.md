@@ -123,6 +123,7 @@ VICI_API_PASS=RENDER_SECRET   # actual value saved in Render: ZL8aY2MuQM (Admin,
 - Non-Agent API returns plain text. Success/failure is parsed from body; common failure: `ERROR: Login incorrect, please try again: |||BAD|` (bad credentials).
 - Firewall auth script available at `https://{VICI_SERVER}:26793/92RG8UJYTW.php` (used automatically for whitelisting).
 - Protocol fallback implemented: tries HTTPS first, then HTTP, and caches the working protocol for 24h.
+ - **IP Whitelist is required**: All DB and API calls must originate from one of: 3.134.238.10, 3.129.111.220, 52.15.118.168.
 
 ### **Testing Endpoints**
 - Push test lead: `GET /test/vici/{leadId?}`
@@ -130,6 +131,7 @@ VICI_API_PASS=RENDER_SECRET   # actual value saved in Render: ZL8aY2MuQM (Admin,
 - DB connectivity probe: `GET /test/vici-db`
 - Login/version probe: `GET /test/vici-login`
 - Server egress IP: `GET /server-egress-ip` (for Vici whitelist)
+   - Current observed IP: 52.15.118.168
 
 ### **Database Access (Production - 11M rows!) - CONNECTED BUT ISSUE**
 - SSH Host: `37.27.138.222` Port: `11845`
@@ -141,6 +143,7 @@ VICI_API_PASS=RENDER_SECRET   # actual value saved in Render: ZL8aY2MuQM (Admin,
 - Table: `vicidial_list` (11 MILLION rows - always use LIMIT!)
 - Purpose: Read leads, write `vendor_lead_code = external_lead_id`
 - Status: Connected but only retrieving 826 of 21,220+ leads (query/buffer issue)
+ - **Note**: Connection only works when originating IP is whitelisted (see list above)
 
 ### **Integration Status**
 - **Current**: 🧪 API path OK previously; DB access pending

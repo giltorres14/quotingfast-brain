@@ -228,6 +228,7 @@ Add to ViciDial server crontab:
 - Local development uses mock mode
 - Production server uses direct DB or API
 - Whitelist Brain server IP: https://philli.callix.ai/vicidial/admin_ip_access.php
+- **Must originate from whitelisted IPs:** 3.134.238.10, 3.129.111.220, 52.15.118.168
 
 ## 📚 Related Documentation
 - [Lead Flow Documentation](LEAD_FLOW_DOCUMENTATION.md)

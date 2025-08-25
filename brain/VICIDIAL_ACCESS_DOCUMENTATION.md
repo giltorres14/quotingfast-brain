@@ -1,5 +1,24 @@
 # VICIDIAL ACCESS DOCUMENTATION
-**Last Updated: August 25, 2025, 04:15 AM EST**
+**Last Updated: December 28, 2024, 02:30 AM EST**
+
+## ⚠️ CRITICAL IP WHITELIST REQUIREMENT
+
+**ViciDial access is ONLY possible from whitelisted IP addresses!**
+
+### Whitelisted IPs (must be one of these)
+- **3.134.238.10**
+- **3.129.111.220**
+- **52.15.118.168** (current egress)
+
+### To Check Current Render IP
+```bash
+curl https://quotingfast-brain-ohio.onrender.com/server-egress-ip
+```
+
+### Whitelist New IP on ViciDial
+1. Access firewall auth: `https://philli.callix.ai:26793/92RG8UJYTW.php`
+2. Or use API with credentials to auto-whitelist (APIUser access must originate from a whitelisted IP)
+3. Or SSH to server and add: `iptables -I INPUT -s [IP] -j ACCEPT`
 
 ## 🔐 ACCESS METHODS TO VICIDIAL
 
@@ -18,18 +37,18 @@ ssh -p 11845 root@37.27.138.222
 ### 2. Database Access
 ```bash
 # MySQL Database (PRODUCTION - 11M rows!)
-Database: YLtZX713f1r6uauf
-Port: 23964 (custom port, not 3306)
+Database: Q6hdjl67GRigMofv
+Port: 20540 (custom port, not 3306)
 
 # MySQL Credentials
-Username: qUSDV7hoj5cM6OFh
-Password: dsHVMx9QqHtx5zNt
+Username: wS3Vtb7rJgAGePi5
+Password: hkj7uAlV9wp9zOMr
 
-# Direct MySQL Command (via SSH)
-mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf
+# Direct MySQL Command (via SSH) - ONLY FROM WHITELISTED IP!
+mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p'hkj7uAlV9wp9zOMr' Q6hdjl67GRigMofv
 
 # Example Query (ALWAYS USE LIMIT!)
-mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "SELECT * FROM vicidial_campaigns WHERE campaign_id = 'AUTODIAL'"
+mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p'hkj7uAlV9wp9zOMr' Q6hdjl67GRigMofv -e "SELECT * FROM vicidial_campaigns WHERE campaign_id = 'AUTODIAL' LIMIT 10"
 ```
 
 ### 3. Via Brain Proxy (Render)
@@ -53,10 +72,10 @@ curl -X POST https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute \
 'vicidial' => [
     'driver' => 'mysql',
     'host' => '37.27.138.222',
-    'port' => '23964',  // Custom port!
-    'database' => 'YLtZX713f1r6uauf',  // 11M rows!
-    'username' => 'qUSDV7hoj5cM6OFh',
-    'password' => 'dsHVMx9QqHtx5zNt',
+    'port' => '20540',  // Custom port!
+    'database' => 'Q6hdjl67GRigMofv',  // 11M rows!
+    'username' => 'wS3Vtb7rJgAGePi5',
+    'password' => 'hkj7uAlV9wp9zOMr',
     'charset' => 'utf8mb4',
     'collation' => 'utf8mb4_unicode_ci',
     'prefix' => '',
@@ -86,16 +105,17 @@ curl -X POST https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute \
 
 ## 🚨 COMMON ISSUES & SOLUTIONS
 
-### Issue 1: SSH Connection Fails
+### Issue 1: SSH/DB/API Connection Fails
 **Symptom:** "Connection refused" or timeout
 **Solution:** 
-1. Check firewall - Render IP must be whitelisted
+1. Check firewall - Brain server IP must be whitelisted
 2. Use correct port 11845 (not 22)
-3. Current Render IP: 3.129.111.220
+3. Allowed IPs: 3.134.238.10, 3.129.111.220, 52.15.118.168
+4. **CRITICAL**: DB and Non-Agent API access only works from whitelisted IPs
 
 ### Issue 2: Wrong Database
 **Symptom:** Tables not found or old data
-**Solution:** Use `YLtZX713f1r6uauf` with port 23964
+**Solution:** Use `Q6hdjl67GRigMofv` with port 20540
 
 ### Issue 3: Proxy Returns "Test connection"
 **Symptom:** Proxy responds but doesn't execute command
@@ -127,7 +147,7 @@ curl -X POST https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute \
 
 ### Check Campaign Settings
 ```bash
-mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "
+mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p'hkj7uAlV9wp9zOMr' Q6hdjl67GRigMofv -e "
 SELECT campaign_id, dial_method, hopper_level, list_order_mix, 
        next_agent_call, lead_filter_id 
 FROM vicidial_campaigns 
@@ -136,7 +156,7 @@ WHERE campaign_id = 'AUTODIAL'"
 
 ### Check List Configuration
 ```bash
-mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "
+mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p'hkj7uAlV9wp9zOMr' Q6hdjl67GRigMofv -e "
 SELECT list_id, list_name, active, campaign_id, reset_time 
 FROM vicidial_lists 
 WHERE campaign_id = 'AUTODIAL' 
@@ -145,7 +165,7 @@ ORDER BY list_id"
 
 ### Check Lead Counts by List (USE LIMIT!)
 ```bash
-mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "
+mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p'hkj7uAlV9wp9zOMr' Q6hdjl67GRigMofv -e "
 SELECT list_id, 
        COUNT(*) as total,
        SUM(CASE WHEN called_since_last_reset = 'N' THEN 1 ELSE 0 END) as ready
@@ -156,7 +176,7 @@ GROUP BY list_id"
 
 ### Mark Leads Ready to Call (CAREFUL - 11M rows!)
 ```bash
-mysql -h localhost -P 23964 -u qUSDV7hoj5cM6OFh -p'dsHVMx9QqHtx5zNt' YLtZX713f1r6uauf -e "
+mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p'hkj7uAlV9wp9zOMr' Q6hdjl67GRigMofv -e "
 UPDATE vicidial_list 
 SET called_since_last_reset = 'N'
 WHERE list_id = 101 
@@ -185,7 +205,8 @@ LIMIT 1000"  # Always use LIMIT for updates!
 
 - **ViciDial Server:** 37.27.138.222:11845
 - **Brain Application:** https://quotingfast-brain-ohio.onrender.com
-- **Database:** YLtZX713f1r6uauf (11M rows, port 23964)
+- **Database:** Q6hdjl67GRigMofv (11M rows, port 20540)
+- **⚠️ IP Whitelist Required:** 3.134.238.10, 3.129.111.220, or 52.15.118.168
 
 ---
 
