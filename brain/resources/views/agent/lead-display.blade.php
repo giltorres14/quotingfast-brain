@@ -311,7 +311,7 @@ $isEditMode = request()->get('mode') === 'edit';
 
                         <!-- Submit buttons -->
                         <div class="flex justify-end pt-6">
-                            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Save</button>
+                            <button type="button" onclick="saveQualification()" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">Save</button>
                         </div>
                     </div>
                 </form>
