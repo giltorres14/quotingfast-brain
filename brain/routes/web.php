@@ -8198,6 +8198,28 @@ if (!function_exists('sendToViciList101')) {
 // Route to save lead qualification data
 Route::post('/agent/lead/{leadId}/qualification', function (Request $request, $leadId) {
     try {
+        // 0) Also persist core contact fields if they are present in this submission
+        try {
+            $lead = \App\Models\Lead::find($leadId);
+            if ($lead) {
+                $contact = [
+                    'first_name' => $request->input('first_name'),
+                    'last_name'  => $request->input('last_name'),
+                    'phone'      => $request->input('phone'),
+                    'email'      => $request->input('email'),
+                    'address'    => $request->input('address'),
+                    'city'       => $request->input('city'),
+                    'state'      => $request->input('state'),
+                    'zip_code'   => $request->input('zip_code'),
+                ];
+                $dirty = array_filter($contact, fn($v) => !is_null($v) && $v !== '');
+                if (!empty($dirty)) { $lead->update($dirty); }
+            }
+        } catch (\Throwable $t) {
+            // continue with qualification save even if contact update fails
+            \Log::warning('Contact update during qualification failed', ['lead_id' => $leadId, 'error' => $t->getMessage()]);
+        }
+
         $qualificationData = $request->all();
         
         // Add lead_id to the data
@@ -8230,7 +8252,7 @@ Route::post('/agent/lead/{leadId}/qualification', function (Request $request, $l
             'error' => 'Failed to save qualification data: ' . $e->getMessage()
         ], 500);
     }
-});
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Route to update lead contact information
 Route::put('/agent/lead/{leadId}/contact', function (Request $request, $leadId) {
@@ -8258,7 +8280,7 @@ Route::put('/agent/lead/{leadId}/contact', function (Request $request, $leadId) 
             'error' => 'Failed to update contact information: ' . $e->getMessage()
         ], 500);
     }
-});
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Enhanced route to update lead contact information with Vici sync
 Route::put('/agent/lead/{leadId}/contact-with-vici-sync', function (Request $request, $leadId) {
@@ -8343,7 +8365,7 @@ Route::put('/agent/lead/{leadId}/contact-with-vici-sync', function (Request $req
             'error' => 'Failed to update contact information: ' . $e->getMessage()
         ], 500);
     }
-});
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Route to add/update driver
 Route::post('/agent/lead/{leadId}/driver', function (Request $request, $leadId) {
