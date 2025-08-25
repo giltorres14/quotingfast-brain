@@ -317,13 +317,12 @@ $isEditMode = request()->get('mode') === 'edit';
                 </form>
             </div>
 
-            <!-- Enrichment buttons (moved under questions and centered) -->
+            <!-- Enrichment buttons (centered, larger, brighter) -->
             <div class="bg-white shadow rounded-lg p-6 mt-6">
-                <h3 class="text-lg font-semibold mb-4 text-center">Enrichment</h3>
-                <div class="flex flex-wrap gap-3 justify-center">
-                    <button type="button" onclick="enrichLead('insured')" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 flex items-center">🛡️ Insured</button>
-                    <button type="button" onclick="enrichLead('uninsured')" class="px-4 py-2 rounded bg-yellow-600 text-white hover:bg-yellow-700 flex items-center">⚠️ Uninsured</button>
-                    <button type="button" onclick="enrichLead('homeowner')" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 flex items-center">🏠 Homeowner</button>
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <button type="button" onclick="enrichLead('insured')" class="w-48 h-12 text-lg font-semibold rounded-md bg-blue-700 hover:bg-blue-800 text-white flex items-center justify-center gap-2 shadow">🛡️ <span>Insured</span></button>
+                    <button type="button" onclick="enrichLead('uninsured')" class="w-48 h-12 text-lg font-semibold rounded-md bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center gap-2 shadow">⚠️ <span>Uninsured</span></button>
+                    <button type="button" onclick="enrichLead('homeowner')" class="w-48 h-12 text-lg font-semibold rounded-md bg-green-700 hover:bg-green-800 text-white flex items-center justify-center gap-2 shadow">🏠 <span>Homeowner</span></button>
                 </div>
             </div>
 
@@ -1180,11 +1179,16 @@ async function saveQualification(){
                 state:      (document.getElementById('state')?.value || pick('input[name="state"]', '<?php echo $lead->state ?? '';?>')),
                 zip_code:   (document.getElementById('zip_code')?.value || pick('input[name="zip_code"]', '<?php echo $lead->zip_code ?? '';?>')),
             };
-            const respContact = await fetch(`/agent/lead/${leadId}/contact-with-vici-sync`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(contactPayload)
-            });
+            // Try CSRF-free GET first, fallback to JSON PUT
+            const qs = new URLSearchParams(contactPayload).toString();
+            let respContact = await fetch(`/api/lead/${leadId}/contact-save?` + qs, { method: 'GET' });
+            if (!respContact.ok) {
+                respContact = await fetch(`/api/lead/${leadId}/contact`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(contactPayload)
+                });
+            }
             if (!respContact.ok) {
                 const errTxt = await respContact.text();
                 alert('Save failed (contact): ' + errTxt);

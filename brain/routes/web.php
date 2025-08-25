@@ -8367,6 +8367,58 @@ Route::put('/agent/lead/{leadId}/contact-with-vici-sync', function (Request $req
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
+// CSRF-exempt API endpoint to save contact fields (used by blue Save button)
+Route::match(['post','put'],'/api/lead/{leadId}/contact', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+
+        $updatedData = [
+            'first_name' => $request->input('first_name', $lead->first_name),
+            'last_name'  => $request->input('last_name',  $lead->last_name),
+            'name'       => $request->input('name',       $lead->name),
+            'phone'      => $request->input('phone',      $lead->phone),
+            'email'      => $request->input('email',      $lead->email),
+            'address'    => $request->input('address',    $lead->address),
+            'city'       => $request->input('city',       $lead->city),
+            'state'      => $request->input('state',      $lead->state),
+            'zip_code'   => $request->input('zip_code',   $lead->zip_code),
+            'type'       => $request->input('type',       $lead->type),
+        ];
+
+        $lead->update($updatedData);
+
+        return response()->json(['success' => true, 'lead' => $lead]);
+    } catch (\Throwable $t) {
+        return response()->json(['success' => false, 'error' => $t->getMessage()], 500);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+// GET fallback (CSRF-free) to persist contact edits via query string
+Route::get('/api/lead/{leadId}/contact-save', function (Request $request, $leadId) {
+    try {
+        $lead = \App\Models\Lead::findOrFail($leadId);
+
+        $updatedData = [
+            'first_name' => $request->query('first_name', $lead->first_name),
+            'last_name'  => $request->query('last_name',  $lead->last_name),
+            'name'       => $request->query('name',       $lead->name),
+            'phone'      => $request->query('phone',      $lead->phone),
+            'email'      => $request->query('email',      $lead->email),
+            'address'    => $request->query('address',    $lead->address),
+            'city'       => $request->query('city',       $lead->city),
+            'state'      => $request->query('state',      $lead->state),
+            'zip_code'   => $request->query('zip_code',   $lead->zip_code),
+            'type'       => $request->query('type',       $lead->type),
+        ];
+
+        $lead->update($updatedData);
+
+        return response()->json(['success' => true, 'lead' => $lead]);
+    } catch (\Throwable $t) {
+        return response()->json(['success' => false, 'error' => $t->getMessage()], 500);
+    }
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
 // Route to add/update driver
 Route::post('/agent/lead/{leadId}/driver', function (Request $request, $leadId) {
     try {
