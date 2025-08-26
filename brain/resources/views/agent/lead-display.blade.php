@@ -1345,6 +1345,124 @@ async function enrichLead(type) {
         const provider = (data.current_provider || '').toLowerCase().trim();
         return provider.includes('allstate') ? 'true' : 'false';
     };
+    
+    // Allstate education mapping (from working AllstateCallTransferService)
+    const mapEducation = (v) => {
+        const edu = (v || '').toLowerCase().trim();
+        if (edu.includes('high school') || edu.includes('hs')) return 'HS';
+        if (edu.includes('some college') || edu.includes('sc')) return 'SCL';
+        if (edu.includes('college') || edu.includes('bachelor') || edu.includes('bdg')) return 'BDG';
+        if (edu.includes('associate') || edu.includes('adg')) return 'ADG';
+        if (edu.includes('master') || edu.includes('mdg')) return 'MDG';
+        if (edu.includes('doctor') || edu.includes('doc')) return 'DOC';
+        return 'BDG'; // default
+    };
+    
+    // Allstate occupation mapping (from working AllstateCallTransferService)
+    const mapOccupation = (v) => {
+        const occ = (v || '').toLowerCase().trim();
+        if (occ.includes('manager') || occ.includes('admin')) return 'ADMINMGMT';
+        if (occ.includes('marketing')) return 'MARKETING';
+        if (occ.includes('engineer')) return 'ENGINEEROTHER';
+        if (occ.includes('doctor') || occ.includes('physician')) return 'PHYSICIAN';
+        if (occ.includes('sales')) return 'SALES';
+        if (occ.includes('teacher') || occ.includes('education')) return 'EDUCATION';
+        if (occ.includes('student')) return 'STUDENT';
+        if (occ.includes('retired')) return 'RETIRED';
+        if (occ.includes('homemaker')) return 'HOMEMAKER';
+        if (occ.includes('unemployed')) return 'UNEMPLOYED';
+        return 'SUPERVISOR'; // default
+    };
+    
+    // Get vehicle data for Allstate (from working AllstateCallTransferService)
+    const getVehicleData = () => {
+        try {
+            const vehicles = <?php echo json_encode($vehicles ?? []); ?>;
+            if (vehicles && vehicles.length > 0) {
+                const v = vehicles[0];
+                return {
+                    year: v.year || '',
+                    make: v.make || '',
+                    model: v.model || '',
+                    trim: v.trim || '',
+                    vin: v.vin || '',
+                    leased: v.leased || false,
+                    primary_use: v.primary_use || 'pleasure',
+                    commute_days: v.commute_days || 5,
+                    commute_mileage: v.commute_mileage || 10,
+                    annual_mileage: v.annual_mileage || 12000,
+                    alarm: v.alarm || false,
+                    garage_type: v.garage_type || 'garage'
+                };
+            }
+        } catch (e) {}
+        return {
+            year: '', make: '', model: '', trim: '', vin: '', leased: false,
+            primary_use: 'pleasure', commute_days: 5, commute_mileage: 10,
+            annual_mileage: 12000, alarm: false, garage_type: 'garage'
+        };
+    };
+    
+    const vehicleData = getVehicleData();
+    
+    // Allstate education mapping
+    const mapEducation = (v) => {
+        const edu = (v || '').toLowerCase().trim();
+        if (edu.includes('high school') || edu.includes('hs')) return 'HS';
+        if (edu.includes('some college') || edu.includes('sc')) return 'SCL';
+        if (edu.includes('college') || edu.includes('bachelor') || edu.includes('bdg')) return 'BDG';
+        if (edu.includes('associate') || edu.includes('adg')) return 'ADG';
+        if (edu.includes('master') || edu.includes('mdg')) return 'MDG';
+        if (edu.includes('doctor') || edu.includes('doc')) return 'DOC';
+        return 'BDG'; // default
+    };
+    
+    // Allstate occupation mapping
+    const mapOccupation = (v) => {
+        const occ = (v || '').toLowerCase().trim();
+        if (occ.includes('manager') || occ.includes('admin')) return 'ADMINMGMT';
+        if (occ.includes('marketing')) return 'MARKETING';
+        if (occ.includes('engineer')) return 'ENGINEEROTHER';
+        if (occ.includes('doctor') || occ.includes('physician')) return 'PHYSICIAN';
+        if (occ.includes('sales')) return 'SALES';
+        if (occ.includes('teacher') || occ.includes('education')) return 'EDUCATION';
+        if (occ.includes('student')) return 'STUDENT';
+        if (occ.includes('retired')) return 'RETIRED';
+        if (occ.includes('homemaker')) return 'HOMEMAKER';
+        if (occ.includes('unemployed')) return 'UNEMPLOYED';
+        return 'SUPERVISOR'; // default
+    };
+    
+    // Get vehicle data for Allstate
+    const getVehicleData = () => {
+        try {
+            const vehicles = <?php echo json_encode($vehicles ?? []); ?>;
+            if (vehicles && vehicles.length > 0) {
+                const v = vehicles[0];
+                return {
+                    year: v.year || '',
+                    make: v.make || '',
+                    model: v.model || '',
+                    trim: v.trim || '',
+                    vin: v.vin || '',
+                    leased: v.leased || false,
+                    primary_use: v.primary_use || 'pleasure',
+                    commute_days: v.commute_days || 5,
+                    commute_mileage: v.commute_mileage || 10,
+                    annual_mileage: v.annual_mileage || 12000,
+                    alarm: v.alarm || false,
+                    garage_type: v.garage_type || 'garage'
+                };
+            }
+        } catch (e) {}
+        return {
+            year: '', make: '', model: '', trim: '', vin: '', leased: false,
+            primary_use: 'pleasure', commute_days: 5, commute_mileage: 10,
+            annual_mileage: 12000, alarm: false, garage_type: 'garage'
+        };
+    };
+    
+    const vehicleData = getVehicleData();
 
     // Build query parameters based on type - QUALIFICATION QUESTIONS FIRST
     let orderedPairs = [];
@@ -1390,7 +1508,27 @@ async function enrichLead(type) {
             ['tcpa_compliant', 'true'],
             ['external_id', externalLeadId || leadId || ''], // Use 13-digit external_lead_id first
             ['received_quote', yn(data.allstate_quote)],
-            ['ready_to_talk', yn(data.ready_to_speak)]
+            ['ready_to_talk', yn(data.ready_to_speak)],
+            // ADDITIONAL ALLSTATE PARAMETERS (from working AllstateCallTransferService)
+            ['edu_level', mapEducation(data.education || '')],
+            ['occupation', mapOccupation(data.occupation || '')],
+            ['tickets_and_accidents', (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
+            ['license_age', 16], // Default age when first licensed
+            ['years_employed', 5], // Default
+            ['years_at_residence', 3], // Default
+            // VEHICLE PARAMETERS (from working AllstateCallTransferService)
+            ['vehicle_year', vehicleData.year],
+            ['vehicle_make', vehicleData.make],
+            ['vehicle_model', vehicleData.model],
+            ['vehicle_trim', vehicleData.trim],
+            ['vehicle_vin', vehicleData.vin],
+            ['vehicle_leased', vehicleData.leased ? 'true' : 'false'],
+            ['vehicle_primary_use', vehicleData.primary_use],
+            ['vehicle_commute_days', vehicleData.commute_days],
+            ['vehicle_commute_mileage', vehicleData.commute_mileage],
+            ['vehicle_annual_mileage', vehicleData.annual_mileage],
+            ['vehicle_alarm', vehicleData.alarm ? 'true' : 'false'],
+            ['vehicle_garage_type', vehicleData.garage_type]
         ];
     } else if (type === 'uninsured') {
         orderedPairs = [

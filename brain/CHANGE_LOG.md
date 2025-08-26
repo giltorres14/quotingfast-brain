@@ -370,4 +370,21 @@
   - Duplicate queue page now accessible at `/admin/duplicates-incoming` ✅
   - Dashboard widget showing correctly ✅
 
+### 2025-08-26 — Insured Enrichment Button Fixes
+
+**Parameter and UI Improvements:**
+- **Issue**: Insured enrichment sending wrong external ID and redirecting to page instead of showing popup
+- **Root Cause**: Using internal lead ID instead of 13-digit external_lead_id, qualification questions not prioritized, popup redirect behavior
+- **Fix**: 
+  - Send 13-digit `external_lead_id` instead of internal `leadId`
+  - Prioritize qualification questions as first parameters (as requested)
+  - Replace popup redirect with simple toast notification
+- **Files Changed**:
+  - `brain/resources/views/agent/lead-display.blade.php` - Updated enrichLead function
+- **Parameter Order**: Qualification questions first, then lead data
+- **UI Change**: Toast notification instead of page redirect
+- **Test Results**: 
+  - All smoke test endpoints returning 200 OK ✅
+  - Enrichment buttons now show success/error toasts ✅
+
 
