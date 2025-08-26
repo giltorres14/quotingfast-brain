@@ -1220,6 +1220,7 @@ $defaultMarital = $primaryDriver['marital_status'] ?? null;
 
 // Get lead ID from PHP
 const leadId = '<?php echo $lead->id; ?>';
+const externalLeadId = '<?php echo $lead->external_lead_id ?? ""; ?>';
 const defaultDob = '<?php echo htmlspecialchars($defaultDob ?? "", ENT_QUOTES); ?>';
 const defaultGender = '<?php echo htmlspecialchars($defaultGender ?? "", ENT_QUOTES); ?>';
 const defaultMarital = '<?php echo htmlspecialchars($defaultMarital ?? "", ENT_QUOTES); ?>';
@@ -1345,22 +1346,30 @@ async function enrichLead(type) {
         return provider.includes('allstate') ? 'true' : 'false';
     };
 
-    // Build query parameters based on type
+    // Build query parameters based on type - QUALIFICATION QUESTIONS FIRST
     let orderedPairs = [];
     
     if (type === 'insured') {
         orderedPairs = [
-            ['callerid', digits(data.phone)],
+            // QUALIFICATION QUESTIONS FIRST (as requested)
             ['currently_insured', 'true'],
             ['current_insurance_company', data.current_provider || ''],
+            ['insurance_duration', data.insurance_duration || ''],
+            ['num_vehicles', data.num_vehicles || ''],
+            ['home_status', data.home_status || ''],
+            ['dui_sr22', data.dui_sr22 || ''],
+            ['dui_timeframe', data.dui_timeframe || ''],
+            ['state', data.state || ''],
+            ['zip_code', data.zip_code || ''],
+            ['allstate_quote', data.allstate_quote || ''],
+            ['ready_to_speak', data.ready_to_speak || ''],
+            // THEN LEAD DATA
+            ['callerid', digits(data.phone)],
             ['allstate', isAllstateCustomer()],
             ['continuous_coverage', mapContinuous(data.insurance_duration)],
             ['valid_license', 'true'],
-            ['num_vehicles', data.num_vehicles || ''],
             ['dui', (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
             ['requires_sr22', (data.dui_sr22 === 'sr22_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
-            ['state', data.state || ''],
-            ['zip_code', data.zip_code || ''],
             ['first_name', data.first_name || ''],
             ['last_name', data.last_name || ''],
             ['email', data.email || ''],
@@ -1379,44 +1388,65 @@ async function enrichLead(type) {
             })()],
             ['residence_status', mapResidence(data.home_status)],
             ['tcpa_compliant', 'true'],
-            ['external_id', leadId || ''],
+            ['external_id', externalLeadId || leadId || ''], // Use 13-digit external_lead_id first
             ['received_quote', yn(data.allstate_quote)],
             ['ready_to_talk', yn(data.ready_to_speak)]
         ];
     } else if (type === 'uninsured') {
         orderedPairs = [
-            ['callerid', digits(data.phone)],
+            // QUALIFICATION QUESTIONS FIRST (as requested)
             ['currently_insured', 'false'],
             ['current_insurance_company', ''],
+            ['insurance_duration', ''],
+            ['num_vehicles', data.num_vehicles || ''],
+            ['home_status', data.home_status || ''],
+            ['dui_sr22', data.dui_sr22 || ''],
+            ['dui_timeframe', data.dui_timeframe || ''],
+            ['state', data.state || ''],
+            ['zip_code', data.zip_code || ''],
+            ['allstate_quote', data.allstate_quote || ''],
+            ['ready_to_speak', data.ready_to_speak || ''],
+            // THEN LEAD DATA
+            ['callerid', digits(data.phone)],
             ['allstate', 'false'],
             ['continuous_coverage', '0'],
             ['valid_license', 'true'],
-            ['num_vehicles', data.num_vehicles || ''],
             ['dui', (data.dui_sr22 === 'dui_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
             ['requires_sr22', (data.dui_sr22 === 'sr22_only' || data.dui_sr22 === 'both') ? 'true' : 'false'],
-            ['state', data.state || ''],
-            ['zip_code', data.zip_code || ''],
             ['first_name', data.first_name || ''],
             ['last_name', data.last_name || ''],
             ['email', data.email || ''],
             ['residence_status', mapResidence(data.home_status)],
             ['tcpa_compliant', 'true'],
-            ['external_id', leadId || ''],
+            ['external_id', externalLeadId || leadId || ''], // Use 13-digit external_lead_id first
             ['received_quote', yn(data.allstate_quote)],
             ['ready_to_talk', yn(data.ready_to_speak)]
         ];
     } else if (type === 'homeowner') {
         orderedPairs = [
+            // QUALIFICATION QUESTIONS FIRST (as requested)
+            ['currently_insured', data.currently_insured || ''],
+            ['current_insurance_company', data.current_provider || ''],
+            ['insurance_duration', data.insurance_duration || ''],
+            ['num_vehicles', data.num_vehicles || ''],
+            ['home_status', data.home_status || ''],
+            ['dui_sr22', data.dui_sr22 || ''],
+            ['dui_timeframe', data.dui_timeframe || ''],
+            ['state', data.state || ''],
+            ['zip_code', data.zip_code || ''],
+            ['allstate_quote', data.allstate_quote || ''],
+            ['ready_to_speak', data.ready_to_speak || ''],
+            // THEN LEAD DATA
             ['callerid', digits(data.phone)],
             ['homeowner', 'Y'],
             ['allstate', isAllstateCustomer()],
             ['address', data.address || ''],
             ['city', data.city || ''],
             ['state_name', data.state || ''],
-            ['zip_code', data.zip_code || ''],
             ['first_name', data.first_name || ''],
             ['last_name', data.last_name || ''],
-            ['email', data.email || '']
+            ['email', data.email || ''],
+            ['external_id', externalLeadId || leadId || '']
         ];
     }
     
@@ -1428,10 +1458,22 @@ async function enrichLead(type) {
     
     const enrichmentURL = `${baseURL}?${qs}`;
     
-    // Open in new window
-    const popup = window.open(enrichmentURL, '_blank');
-    if (!popup) {
-        showToast('Please allow popups for enrichment features.', 'error');
+    // Send enrichment request via fetch instead of popup
+    try {
+        const response = await fetch(enrichmentURL, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showToast(`✅ ${type.charAt(0).toUpperCase() + type.slice(1)} enrichment successful!`, 'success');
+        } else {
+            showToast(`❌ ${type.charAt(0).toUpperCase() + type.slice(1)} enrichment failed`, 'error');
+        }
+    } catch (error) {
+        showToast(`❌ ${type.charAt(0).toUpperCase() + type.slice(1)} enrichment error: ${error.message}`, 'error');
     }
 }
 
