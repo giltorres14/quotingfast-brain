@@ -353,4 +353,21 @@
 - Fixed Unauthorized by including `admin_key` as hidden input in bulk/group/single delete forms.
 - Guidance: use `/duplicates?admin=1&admin_key=QF-ADMIN-KEY-2025` to reveal controls; bulk action keeps the highest-score lead per group and deletes the rest.
 
+### 2025-08-26 — Production Deployment Fixes
+
+**500 Server Error Resolution:**
+- **Issue**: `/admin/duplicates-incoming` page returning 500 Server Error
+- **Root Cause**: Stray `%` character at end of routes file causing syntax error
+- **Fix**: Removed stray character and deployed fix
+- **Secondary Issue**: Missing database tables in production PostgreSQL
+- **Root Cause**: Migrations ran against local SQLite but not production database
+- **Fix**: Created tables directly in production using PostgreSQL client
+- **Files Changed**:
+  - `brain/routes/web.php` - Fixed syntax error
+  - Production database - Created `duplicate_lead_queue` and `duplicate_lead_audit` tables
+- **Test Results**: 
+  - All smoke test endpoints returning 200 OK ✅
+  - Duplicate queue page now accessible at `/admin/duplicates-incoming` ✅
+  - Dashboard widget showing correctly ✅
+
 
