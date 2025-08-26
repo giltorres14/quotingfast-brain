@@ -4,7 +4,6 @@
 <script>
 // Define functions globally so they can be called from HTML
 function toggleInsuranceQuestions() {
-    alert('toggleInsuranceQuestions called!'); // Simple test to see if function is called
     const insured = document.getElementById('currently_insured').value;
     const insuranceQuestions = document.getElementById('insurance_questions');
     
@@ -16,7 +15,6 @@ function toggleInsuranceQuestions() {
 }
 
 function toggleDUIQuestions() {
-    alert('toggleDUIQuestions called!'); // Simple test to see if function is called
     const duiSr22 = document.getElementById('dui_sr22').value;
     const duiQuestions = document.getElementById('dui_questions');
     
