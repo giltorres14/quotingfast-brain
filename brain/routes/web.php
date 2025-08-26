@@ -4272,7 +4272,11 @@ Route::get('/duplicates/cleanup-all', function (\Illuminate\Http\Request $reques
 Route::post('/agent/lead/{leadId}/qualify', function (Request $request, $leadId) {
     try {
         $data = $request->except(['_token']);
-        $lead = \App\Models\Lead::findOrFail($leadId);
+        // Accept either internal numeric id or 13-digit external_lead_id
+        $lead = \App\Models\Lead::find($leadId);
+        if (!$lead) {
+            $lead = \App\Models\Lead::where('external_lead_id', (string)$leadId)->firstOrFail();
+        }
 
         // Update top-level lead columns if provided
         $lead->name = isset($data['name']) ? trim((string)$data['name']) : $lead->name;
@@ -4298,13 +4302,16 @@ Route::post('/agent/lead/{leadId}/qualify', function (Request $request, $leadId)
 
         // Update nested JSON columns if present in request
         if ($request->has('drivers')) {
-            $lead->drivers = json_encode($request->input('drivers'));
+            $driversInput = $request->input('drivers');
+            $lead->drivers = is_string($driversInput) ? (json_decode($driversInput, true) ?: []) : ($driversInput ?? []);
         }
         if ($request->has('vehicles')) {
-            $lead->vehicles = json_encode($request->input('vehicles'));
+            $vehiclesInput = $request->input('vehicles');
+            $lead->vehicles = is_string($vehiclesInput) ? (json_decode($vehiclesInput, true) ?: []) : ($vehiclesInput ?? []);
         }
         if ($request->has('current_policy')) {
-            $lead->current_policy = json_encode($request->input('current_policy'));
+            $policyInput = $request->input('current_policy');
+            $lead->current_policy = is_string($policyInput) ? (json_decode($policyInput, true) ?: []) : ($policyInput ?? []);
         }
 
         // Persist Top Questions answers in meta.qualification
