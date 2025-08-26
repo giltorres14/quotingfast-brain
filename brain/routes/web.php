@@ -4071,6 +4071,14 @@ Route::get('/admin/lead-duplicates', function (\Illuminate\Http\Request $request
 // NEW DUPLICATE QUEUE SYSTEM - Admin Interface
 Route::get('/admin/duplicates-incoming', function () {
     try {
+        // Test if model exists
+        if (!class_exists('\App\Models\DuplicateLeadQueue')) {
+            return response()->json(['error' => 'Model not found'], 500);
+        }
+        
+        // Test basic query
+        $count = \App\Models\DuplicateLeadQueue::count();
+        
         $duplicates = \App\Models\DuplicateLeadQueue::with('originalLead')
             ->where('status', 'pending')
             ->orderBy('created_at', 'desc')
