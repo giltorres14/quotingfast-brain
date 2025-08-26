@@ -4070,7 +4070,15 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
     </style></head><body><div class=\"wrap\">";
     $html .= "<h1 style=\"margin:0 0 8px 0;\">Lead Duplicates" . ($isAdminMode ? " <span style=\"font-size:12px;color:#6b7280\">(Admin)</span>" : " (Preview)") . "</h1>";
     if ($isAdminMode) {
-        $html .= "<div class=hint>Admin: Use 'Keep best, delete others' to remove duplicates in a group. Or delete individual leads below. Actions are irreversible.</div>";
+        $html .= "<div class=hint>Admin: Use 'Keep best, delete others' to remove duplicates in a group, or run a full bulk cleanup for all groups. Actions are irreversible.</div>";
+        // Top-level bulk cleanup button (posts to /duplicates/cleanup-all)
+        $html .= "<div style=\"margin:10px 0 18px 0;\">";
+        $html .= "<form method=\"POST\" action=\"/duplicates/cleanup-all\" style=\"display:inline\" onsubmit=\"return confirm('Run BULK cleanup across all duplicate groups?\\n\\nThis will delete non-keeper leads. This action cannot be undone.');\">";
+        $html .= "<input type=\"hidden\" name=\"_token\" value=\"" . htmlspecialchars(csrf_token()) . "\">";
+        $html .= "<input type=\"hidden\" name=\"admin_key\" value=\"" . htmlspecialchars((string)$request->get('admin_key')) . "\">";
+        $html .= "<button class=\"btn-danger\" style=\"padding:10px 14px;\">🧹 Bulk cleanup all duplicates</button>";
+        $html .= "</form>";
+        $html .= "</div>";
     } else {
         $html .= "<div class=hint>Read-only: identifies duplicate groups by phone/email and shows a detail score. Keeper is the highest score.</div>";
     }
