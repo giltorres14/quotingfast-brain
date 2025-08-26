@@ -1227,43 +1227,25 @@ const defaultMarital = '<?php echo htmlspecialchars($defaultMarital ?? "", ENT_Q
 
 // Toggle insurance questions based on currently insured selection
 function toggleInsuranceQuestions() {
-    try {
-        const insured = document.getElementById('currently_insured');
-        const insuranceQuestions = document.getElementById('insurance_questions');
-        
-        if (!insured || !insuranceQuestions) {
-            console.error('Required elements not found for insurance toggle');
-            return;
-        }
-        
-        if (insured.value === 'yes') {
-            insuranceQuestions.style.display = 'block';
-        } else {
-            insuranceQuestions.style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Error in toggleInsuranceQuestions:', error);
+    const insured = document.getElementById('currently_insured').value;
+    const insuranceQuestions = document.getElementById('insurance_questions');
+    
+    if (insured === 'yes') {
+        insuranceQuestions.style.display = 'block';
+    } else {
+        insuranceQuestions.style.display = 'none';
     }
 }
 
 // Toggle DUI questions based on DUI/SR22 selection
 function toggleDUIQuestions() {
-    try {
-        const duiSr22 = document.getElementById('dui_sr22');
-        const duiQuestions = document.getElementById('dui_questions');
-        
-        if (!duiSr22 || !duiQuestions) {
-            console.error('Required elements not found for DUI toggle');
-            return;
-        }
-        
-        if (duiSr22.value === 'dui_only' || duiSr22.value === 'both') {
-            duiQuestions.style.display = 'block';
-        } else {
-            duiQuestions.style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Error in toggleDUIQuestions:', error);
+    const duiSr22 = document.getElementById('dui_sr22').value;
+    const duiQuestions = document.getElementById('dui_questions');
+    
+    if (duiSr22 === 'dui_only' || duiSr22 === 'both') {
+        duiQuestions.style.display = 'block';
+    } else {
+        duiQuestions.style.display = 'none';
     }
 }
 
