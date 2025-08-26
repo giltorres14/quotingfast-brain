@@ -1,3 +1,12 @@
+// Simple endpoint to unlock admin mode via admin_key (session-scoped)
+Route::post('/admin/unlock', function (\Illuminate\Http\Request $request) {
+    $adminActionsKey = env('ADMIN_ACTION_KEY', 'QF-ADMIN-KEY-2025');
+    if (hash_equals($adminActionsKey, (string)$request->input('admin_key'))) {
+        session(['admin_mode' => true]);
+        return redirect('/duplicates');
+    }
+    return back()->withErrors(['error' => 'Invalid admin key']);
+});
 <?php
 
 use App\Helpers\timezone;
@@ -20,7 +29,7 @@ Route::prefix('vici-proxy')->withoutMiddleware(['web'])->group(function () {
 // Admin-only delete a single lead (with CSRF). Requires auth.
 Route::post('/admin/duplicates/delete', function (\Illuminate\Http\Request $request) {
     $adminActionsKey = env('ADMIN_ACTION_KEY', 'QF-ADMIN-KEY-2025');
-    if (!auth()->check() && !hash_equals($adminActionsKey, (string)$request->input('admin_key'))) { return redirect('/login'); }
+    if (!auth()->check() && !session('admin_mode') && !hash_equals($adminActionsKey, (string)$request->input('admin_key'))) { return redirect('/login'); }
     $id = (int)$request->input('id');
     if ($id <= 0) { return back()->withErrors(['error' => 'Invalid lead id']); }
     try {
@@ -40,7 +49,7 @@ Route::post('/admin/duplicates/delete', function (\Illuminate\Http\Request $requ
 // Admin-only: keep one, delete others in the group
 Route::post('/admin/duplicates/delete-group', function (\Illuminate\Http\Request $request) {
     $adminActionsKey = env('ADMIN_ACTION_KEY', 'QF-ADMIN-KEY-2025');
-    if (!auth()->check() && !hash_equals($adminActionsKey, (string)$request->input('admin_key'))) { return redirect('/login'); }
+    if (!auth()->check() && !session('admin_mode') && !hash_equals($adminActionsKey, (string)$request->input('admin_key'))) { return redirect('/login'); }
     $groupBy = (string)$request->input('group_by');
     $key = (string)$request->input('key');
     $keepId = (int)$request->input('keep_id');
@@ -3941,8 +3950,8 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
             return response("<!doctype html><html><body><h1>Duplicates route OK</h1></body></html>", 200)
                 ->header('Content-Type', 'text/html');
         }
-        // Show admin controls only when authenticated
-        $isAdminMode = auth()->check();
+        // Show admin controls when authenticated OR when temporary admin mode is enabled in session
+        $isAdminMode = auth()->check() || session('admin_mode');
 
     // Strategy: Find groups by normalized phone or normalized email
     $limitGroups = (int)($request->get('limit', 100));
@@ -4112,6 +4121,10 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
         $html .= "<div class=\"hint\">No duplicate groups found in the scanned sample.</div>";
     }
     $html .= "</div></body></html>";
+    // Add an inline 'Unlock Admin' form if not admin
+    if (!$isAdminMode) {
+        $html = str_replace('</h1>', '</h1><div class=hint><form method=\"POST\" action=\"/admin/unlock\" style=\"display:inline\"><input type=\"hidden\" name=\"_token\" value=\"' . htmlspecialchars(csrf_token()) . '\"><input name=\"admin_key\" placeholder=\"Admin key\" style=\"border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;margin-right:8px\"><button class=\"btn-warning\" style=\"padding:6px 10px\">Unlock Admin</button></form></div>', $html);
+    }
     return response($html, 200)->header('Content-Type', 'text/html');
     } catch (\Throwable $e) {
         $msg = htmlspecialchars($e->getMessage() . "\n" . $e->getFile() . ':' . $e->getLine());
