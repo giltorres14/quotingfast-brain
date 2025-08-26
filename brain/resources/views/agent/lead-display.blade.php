@@ -1301,14 +1301,14 @@ async function enrichLead(type) {
     if (type === 'insured') {
         const currentlyInsured = document.getElementById('currently_insured')?.value || '';
         if (!currentlyInsured || currentlyInsured.toLowerCase() === 'no') {
-            alert('❌ Requirement error\n\nYou clicked INSURED, but "Currently insured" is set to No.\n\nUpdate it to Yes or use the UNINSURED enrichment.');
+            showToast('❌ Requirement error: You clicked INSURED, but "Currently insured" is set to No. Update it to Yes or use the UNINSURED enrichment.', 'error');
             return;
         }
     }
     if (type === 'uninsured') {
         const currentlyInsured = document.getElementById('currently_insured')?.value || '';
         if (currentlyInsured.toLowerCase() === 'yes') {
-            alert('❌ Requirement error\n\nYou clicked UNINSURED, but "Currently insured" is set to Yes.\n\nChange it to No or use the INSURED enrichment.');
+            showToast('❌ Requirement error: You clicked UNINSURED, but "Currently insured" is set to Yes. Change it to No or use the INSURED enrichment.', 'error');
             return;
         }
     }
@@ -1324,12 +1324,12 @@ async function enrichLead(type) {
             const resp = await fetch(formEl.action, { method: 'POST', body: formData });
             if (!resp.ok) {
                 const err = await resp.text();
-                alert('Save failed before enrichment: ' + err);
+                showToast('Save failed before enrichment: ' + err, 'error');
                 return;
             }
         }
     } catch (e) {
-        alert('Could not save before enrichment: ' + (e?.message || e));
+        showToast('Could not save before enrichment: ' + (e?.message || e), 'error');
         return;
     }
     
