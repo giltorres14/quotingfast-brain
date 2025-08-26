@@ -1,3 +1,4 @@
+<?php
 // Simple endpoint to unlock admin mode via admin_key (session-scoped)
 Route::post('/admin/unlock', function (\Illuminate\Http\Request $request) {
     $adminActionsKey = env('ADMIN_ACTION_KEY', 'QF-ADMIN-KEY-2025');
@@ -7,7 +8,6 @@ Route::post('/admin/unlock', function (\Illuminate\Http\Request $request) {
     }
     return back()->withErrors(['error' => 'Invalid admin key']);
 });
-<?php
 
 use App\Helpers\timezone;
 
