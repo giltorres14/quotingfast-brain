@@ -14,6 +14,18 @@ class DuplicateLeadQueue extends Model
         'days_since_original', 'match_reason', 'status', 'decision_by', 'decision_at',
         'applied_at', 'applied_action'
     ];
+    
+    protected $casts = [
+        'original_received_at' => 'datetime',
+        'decision_at' => 'datetime',
+        'applied_at' => 'datetime',
+        'payload_json' => 'array'
+    ];
+    
+    public function originalLead()
+    {
+        return $this->belongsTo(Lead::class, 'original_lead_id');
+    }
 }
 
 

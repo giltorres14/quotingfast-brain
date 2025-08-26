@@ -38,13 +38,3 @@ return new class extends Migration
         });
     }
 };
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('leads', function (Blueprint $table) {
-            $table->dropColumn(['jangle_lead_id', 'leadid_code', 'trusted_form_cert', 'tcpa_consent_text']);
-        });
-    }
-};

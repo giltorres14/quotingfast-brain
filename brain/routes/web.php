@@ -1576,6 +1576,9 @@ Route::get('/leads-simple', function () {
             $sources = $leads->groupBy('source')->map->count();
             $states = $leads->groupBy('state')->map->count();
             
+            // Get pending duplicates count
+            $pendingDuplicates = \App\Models\DuplicateLeadQueue::where('status', 'pending')->count();
+            
             $html .= '<div class="stats">
                 <div class="stat-card">
                     <div class="stat-number">' . $totalLeads . '</div>
@@ -1592,6 +1595,11 @@ Route::get('/leads-simple', function () {
                 <div class="stat-card">
                     <div class="stat-number">' . $states->count() . '</div>
                     <div class="stat-label">States</div>
+                </div>
+                <div class="stat-card" style="' . ($pendingDuplicates > 0 ? 'border: 2px solid #ef4444;' : '') . '">
+                    <div class="stat-number" style="' . ($pendingDuplicates > 0 ? 'color: #ef4444;' : 'color: #10b981;') . '">' . $pendingDuplicates . '</div>
+                    <div class="stat-label">Pending Duplicates</div>
+                    ' . ($pendingDuplicates > 0 ? '<a href="/admin/duplicates-incoming" style="color: #ef4444; text-decoration: none; font-size: 0.8rem; margin-top: 0.5rem; display: block;">Review Now →</a>' : '') . '
                 </div>
             </div>
             
@@ -2311,98 +2319,65 @@ Route::post('/webhook.php', function (Request $request) {
         $lead = null;
         $externalLeadId = null;
         try {
-            // DUPLICATE DETECTION: Check if lead exists by phone number
+            // NEW DUPLICATE QUEUE SYSTEM - Phone-only matching
             $phone = $leadData['phone'];
             $existingLead = Lead::where('phone', $phone)->first();
             
             if ($existingLead) {
                 $daysSinceCreated = $existingLead->created_at->diffInDays(now());
                 
-                Log::info('🔍 Duplicate lead detected', [
+                Log::info('🔍 Duplicate lead detected - QUEUING', [
                     'phone' => $phone,
                     'existing_lead_id' => $existingLead->id,
                     'days_since_created' => $daysSinceCreated
                 ]);
                 
-                if ($daysSinceCreated <= 10) {
-                    // 10 days or less: Update existing lead
-                    // Track lead flow stage for duplicate
-                    $leadData['status'] = 'DUPLICATE_UPDATED';
-                    $leadData['meta'] = json_encode(array_merge(
-                        json_decode($leadData['meta'] ?? '{}', true),
-                        [
-                            'duplicate_action' => 'updated',
-                            'original_created_at' => $existingLead->created_at->toIso8601String(),
-                            'days_since_original' => $daysSinceCreated,
-                            'lead_flow_stage' => $existingLead->status ?? 'UNKNOWN'
-                        ]
-                    ));
-                    
-                    $existingLead->update($leadData);
-                    $lead = $existingLead;
-                    
-                    Log::info('✅ Updated existing lead (≤ 10 days old)', [
-                        'lead_id' => $lead->id,
-                        'phone' => $phone,
-                        'flow_stage' => $existingLead->status
-                    ]);
-                } elseif ($daysSinceCreated <= 90) {
-                    // 11-90 days: Create as re-engagement lead
-                    $leadData['status'] = 'RE_ENGAGEMENT';
-                    $leadData['meta'] = json_encode(array_merge(
-                        json_decode($leadData['meta'] ?? '{}', true),
-                        [
-                            're_engagement' => true,
-                            'original_lead_id' => $existingLead->id,
-                            'original_created_at' => $existingLead->created_at->toIso8601String(),
-                            'days_since_original' => $daysSinceCreated,
-                            'original_flow_stage' => $existingLead->status ?? 'UNKNOWN',
-                            'original_qualified' => $existingLead->qualified ?? false
-                        ]
-                    ));
-                    
-                    // Generate new external ID for re-engagement
-                    $externalLeadId = generateLeadId();
-                    $leadData['external_lead_id'] = $externalLeadId;
-                    
-        $lead = Lead::create($leadData);
-        
-                    Log::info('🔄 Created re-engagement lead (11-90 days old)', [
-                        'new_lead_id' => $lead->id,
-                        'original_lead_id' => $existingLead->id,
-                        'phone' => $phone,
-                        'days_since_original' => $daysSinceCreated
-                    ]);
-                } else {
-                    // Over 90 days: Treat as completely new lead
-                    $externalLeadId = generateLeadId();
-                    $leadData['external_lead_id'] = $externalLeadId;
-                    
-                    $lead = Lead::create($leadData);
-                    
-                    Log::info('🆕 Created new lead (> 90 days since last contact)', [
-                        'lead_id' => $lead->id,
-                        'phone' => $phone,
-                        'days_since_last' => $daysSinceCreated
-                    ]);
-                }
-            } else {
-                // No existing lead found - create new
-                // CRITICAL: Generate our ID BEFORE creating the lead
-                $externalLeadId = generateLeadId();
-                
-                // Force our generated ID into the lead data, overriding ANY incoming ID
-                $leadData['external_lead_id'] = $externalLeadId;
-                
-                Log::info('🔢 Creating lead with generated external_lead_id', [
-                    'generated_id' => $externalLeadId,
-                    'incoming_id' => $data['id'] ?? 'none',
-                    'incoming_external_id' => $data['external_lead_id'] ?? 'none',
-                    'will_use' => $externalLeadId
+                // Queue the duplicate for manual review
+                \App\Models\DuplicateLeadQueue::create([
+                    'phone_normalized' => $phone,
+                    'vendor' => 'leadsquotingfast',
+                    'source' => 'api-webhook',
+                    'payload_json' => json_encode($data),
+                    'ip' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'original_lead_id' => $existingLead->id,
+                    'original_external_lead_id' => $existingLead->external_lead_id,
+                    'original_received_at' => $existingLead->created_at,
+                    'days_since_original' => $daysSinceCreated,
+                    'match_reason' => 'phone',
+                    'status' => 'pending'
                 ]);
                 
-                $lead = Lead::create($leadData);
+                Log::info('📋 Duplicate lead queued for review', [
+                    'phone' => $phone,
+                    'original_lead_id' => $existingLead->id,
+                    'queue_status' => 'pending'
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Duplicate lead detected and queued for review',
+                    'status' => 'queued',
+                    'original_lead_id' => $existingLead->id,
+                    'days_since_original' => $daysSinceCreated
+                ]);
             }
+            
+            // No duplicate - create new lead
+            // CRITICAL: Generate our ID BEFORE creating the lead
+            $externalLeadId = generateLeadId();
+            
+            // Force our generated ID into the lead data, overriding ANY incoming ID
+            $leadData['external_lead_id'] = $externalLeadId;
+            
+            Log::info('🔢 Creating lead with generated external_lead_id', [
+                'generated_id' => $externalLeadId,
+                'incoming_id' => $data['id'] ?? 'none',
+                'incoming_external_id' => $data['external_lead_id'] ?? 'none',
+                'will_use' => $externalLeadId
+            ]);
+            
+            $lead = Lead::create($leadData);
             
             // Double-check and force update if somehow it got overridden (only for new leads)
             if ($externalLeadId && $lead->external_lead_id !== $externalLeadId) {
@@ -4088,6 +4063,190 @@ Route::get('/admin/lead-duplicates', function (\Illuminate\Http\Request $request
     }
     $params = array_merge($request->all(), ['admin' => '1', 'admin_key' => $request->get('admin_key')]);
     return app(\Illuminate\Routing\Router::class)->dispatch(\Illuminate\Http\Request::create('/duplicates', 'GET', $params));
+});
+
+// NEW DUPLICATE QUEUE SYSTEM - Admin Interface
+Route::get('/admin/duplicates-incoming', function () {
+    $duplicates = \App\Models\DuplicateLeadQueue::with('originalLead')
+        ->where('status', 'pending')
+        ->orderBy('created_at', 'desc')
+        ->paginate(50);
+    
+    return view('admin.duplicates-incoming', compact('duplicates'));
+})->name('admin.duplicates-incoming');
+
+// API endpoints for duplicate queue actions
+Route::post('/api/duplicates/reject', function (Request $request) {
+    $queueId = $request->input('queue_id');
+    $queue = \App\Models\DuplicateLeadQueue::find($queueId);
+    
+    if (!$queue) {
+        return response()->json(['success' => false, 'message' => 'Queue item not found']);
+    }
+    
+    $queue->update(['status' => 'rejected', 'decision_by' => 'admin', 'decision_at' => now()]);
+    
+    // Log the action
+    \App\Models\DuplicateLeadAudit::create([
+        'queue_id' => $queueId,
+        'action' => 'reject',
+        'actor' => 'admin',
+        'details_json' => json_encode(['reason' => 'Manual rejection'])
+    ]);
+    
+    return response()->json(['success' => true, 'message' => 'Duplicate rejected']);
+});
+
+Route::post('/api/duplicates/reengage', function (Request $request) {
+    $queueId = $request->input('queue_id');
+    $queue = \App\Models\DuplicateLeadQueue::find($queueId);
+    
+    if (!$queue) {
+        return response()->json(['success' => false, 'message' => 'Queue item not found']);
+    }
+    
+    // Create new lead from queue data
+    $payload = json_decode($queue->payload_json, true);
+    $contact = isset($payload['contact']) ? $payload['contact'] : $payload;
+    
+    $leadData = [
+        'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
+        'first_name' => $contact['first_name'] ?? null,
+        'last_name' => $contact['last_name'] ?? null,
+        'phone' => $contact['phone'] ?? 'Unknown',
+        'email' => $contact['email'] ?? null,
+        'address' => $contact['address'] ?? null,
+        'city' => $contact['city'] ?? null,
+        'state' => $contact['state'] ?? 'Unknown',
+        'zip_code' => $contact['zip_code'] ?? null,
+        'source' => 'leadsquotingfast',
+        'type' => 'auto',
+        'status' => 'RE_ENGAGEMENT',
+        'received_at' => now(),
+        'joined_at' => now(),
+        'tenant_id' => 1,
+        'external_lead_id' => \App\Models\Lead::generateExternalLeadId(),
+        'meta' => json_encode([
+            're_engagement' => true,
+            'original_lead_id' => $queue->original_lead_id,
+            'original_created_at' => $queue->original_received_at,
+            'days_since_original' => $queue->days_since_original,
+            'from_duplicate_queue' => true
+        ]),
+        'payload' => $queue->payload_json
+    ];
+    
+    $newLead = \App\Models\Lead::create($leadData);
+    
+    $queue->update([
+        'status' => 'reengaged',
+        'decision_by' => 'admin',
+        'decision_at' => now(),
+        'applied_at' => now(),
+        'applied_action' => 'reengage'
+    ]);
+    
+    // Log the action
+    \App\Models\DuplicateLeadAudit::create([
+        'queue_id' => $queueId,
+        'action' => 'reengage',
+        'actor' => 'admin',
+        'details_json' => json_encode(['new_lead_id' => $newLead->id])
+    ]);
+    
+    return response()->json(['success' => true, 'message' => 'Lead re-engaged', 'new_lead_id' => $newLead->id]);
+});
+
+Route::post('/api/duplicates/update-existing', function (Request $request) {
+    $queueId = $request->input('queue_id');
+    $queue = \App\Models\DuplicateLeadQueue::find($queueId);
+    
+    if (!$queue) {
+        return response()->json(['success' => false, 'message' => 'Queue item not found']);
+    }
+    
+    $originalLead = \App\Models\Lead::find($queue->original_lead_id);
+    if (!$originalLead) {
+        return response()->json(['success' => false, 'message' => 'Original lead not found']);
+    }
+    
+    // Update original lead with new data
+    $payload = json_decode($queue->payload_json, true);
+    $contact = isset($payload['contact']) ? $payload['contact'] : $payload;
+    
+    $updateData = [
+        'name' => trim(($contact['first_name'] ?? '') . ' ' . ($contact['last_name'] ?? '')) ?: 'Unknown',
+        'first_name' => $contact['first_name'] ?? null,
+        'last_name' => $contact['last_name'] ?? null,
+        'email' => $contact['email'] ?? null,
+        'address' => $contact['address'] ?? null,
+        'city' => $contact['city'] ?? null,
+        'state' => $contact['state'] ?? 'Unknown',
+        'zip_code' => $contact['zip_code'] ?? null,
+        'status' => 'DUPLICATE_UPDATED',
+        'meta' => json_encode(array_merge(
+            json_decode($originalLead->meta ?? '{}', true),
+            [
+                'duplicate_action' => 'updated',
+                'original_created_at' => $originalLead->created_at->toIso8601String(),
+                'days_since_original' => $queue->days_since_original,
+                'updated_from_queue' => true
+            ]
+        )),
+        'payload' => $queue->payload_json
+    ];
+    
+    $originalLead->update($updateData);
+    
+    $queue->update([
+        'status' => 'updated',
+        'decision_by' => 'admin',
+        'decision_at' => now(),
+        'applied_at' => now(),
+        'applied_action' => 'update-existing'
+    ]);
+    
+    // Log the action
+    \App\Models\DuplicateLeadAudit::create([
+        'queue_id' => $queueId,
+        'action' => 'update-existing',
+        'actor' => 'admin',
+        'details_json' => json_encode(['original_lead_id' => $originalLead->id])
+    ]);
+    
+    return response()->json(['success' => true, 'message' => 'Original lead updated', 'lead_id' => $originalLead->id]);
+});
+
+// Bulk actions
+Route::post('/api/duplicates/bulk-action', function (Request $request) {
+    $action = $request->input('action');
+    $queueIds = $request->input('queue_ids', []);
+    
+    if (empty($queueIds)) {
+        return response()->json(['success' => false, 'message' => 'No items selected']);
+    }
+    
+    $results = [];
+    foreach ($queueIds as $queueId) {
+        $queue = \App\Models\DuplicateLeadQueue::find($queueId);
+        if ($queue && $queue->status === 'pending') {
+            // Apply the same logic as individual actions
+            if ($action === 'reject') {
+                $queue->update(['status' => 'rejected', 'decision_by' => 'admin', 'decision_at' => now()]);
+                $results[] = ['id' => $queueId, 'status' => 'rejected'];
+            } elseif ($action === 'reengage') {
+                // Create new lead logic here (simplified for bulk)
+                $queue->update(['status' => 'reengaged', 'decision_by' => 'admin', 'decision_at' => now()]);
+                $results[] = ['id' => $queueId, 'status' => 'reengaged'];
+            } elseif ($action === 'update-existing') {
+                // Update existing lead logic here (simplified for bulk)
+                $queue->update(['status' => 'updated', 'decision_by' => 'admin', 'decision_at' => now()]);
+                $results[] = ['id' => $queueId, 'status' => 'updated'];
+            }
+        }
+    }
+    
+    return response()->json(['success' => true, 'message' => 'Bulk action completed', 'results' => $results]);
 });
 // Cleanup all duplicates by keeping the highest scoring record per phone/email group
 // Exposed outside /admin to avoid Filament shadowing; protected by admin_key
@@ -7333,85 +7492,60 @@ Route::post('/webhook/home', function (Request $request) {
     ];
     
     try {
-        // Check for duplicates
+        // NEW DUPLICATE QUEUE SYSTEM - Phone-only matching
         $existingLead = Lead::where('phone', $phone)->first();
         
         if ($existingLead) {
             $daysSinceCreated = $existingLead->created_at->diffInDays(now());
             
-            Log::info('🔍 Duplicate home lead detected', [
+            Log::info('🔍 Duplicate home lead detected - QUEUING', [
                 'phone' => $phone,
                 'existing_lead_id' => $existingLead->id,
                 'days_since_created' => $daysSinceCreated
             ]);
             
-            if ($daysSinceCreated <= 10) {
-                // Update existing lead
-                $leadData['status'] = 'DUPLICATE_UPDATED';
-                $leadData['meta'] = json_encode(array_merge(
-                    json_decode($leadData['meta'] ?? '{}', true),
-                    [
-                        'duplicate_action' => 'updated',
-                        'original_created_at' => $existingLead->created_at->toIso8601String(),
-                        'days_since_original' => $daysSinceCreated
-                    ]
-                ));
-                
-                $existingLead->update($leadData);
-                $lead = $existingLead;
-                
-                Log::info('✅ Updated existing home lead (≤ 10 days old)', [
-                    'lead_id' => $lead->id,
-                    'phone' => $phone
-                ]);
-            } elseif ($daysSinceCreated <= 90) {
-                // Create re-engagement lead
-                $leadData['status'] = 'RE_ENGAGEMENT';
-                $leadData['meta'] = json_encode(array_merge(
-                    json_decode($leadData['meta'] ?? '{}', true),
-                    [
-                        're_engagement' => true,
-                        'original_lead_id' => $existingLead->id,
-                        'original_created_at' => $existingLead->created_at->toIso8601String(),
-                        'days_since_original' => $daysSinceCreated
-                    ]
-                ));
-                
-                $externalLeadId = generateLeadId();
-                $leadData['external_lead_id'] = $externalLeadId;
-                
-                $lead = Lead::create($leadData);
-                
-                Log::info('🔄 Created re-engagement home lead (11-90 days old)', [
-                    'new_lead_id' => $lead->id,
-                    'original_lead_id' => $existingLead->id,
-                    'phone' => $phone
-                ]);
-            } else {
-                // Create new lead
-                $externalLeadId = generateLeadId();
-                $leadData['external_lead_id'] = $externalLeadId;
-                
-                $lead = Lead::create($leadData);
-                
-                Log::info('🆕 Created new home lead (> 90 days since last contact)', [
-                    'lead_id' => $lead->id,
-                    'phone' => $phone
-                ]);
-            }
-        } else {
-            // No existing lead - create new
-            $externalLeadId = generateLeadId();
-            $leadData['external_lead_id'] = $externalLeadId;
+            // Queue the duplicate for manual review
+            \App\Models\DuplicateLeadQueue::create([
+                'phone_normalized' => $phone,
+                'vendor' => 'leadsquotingfast',
+                'source' => 'home',
+                'payload_json' => json_encode($data),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'original_lead_id' => $existingLead->id,
+                'original_external_lead_id' => $existingLead->external_lead_id,
+                'original_received_at' => $existingLead->created_at,
+                'days_since_original' => $daysSinceCreated,
+                'match_reason' => 'phone',
+                'status' => 'pending'
+            ]);
             
-            $lead = Lead::create($leadData);
+            Log::info('📋 Duplicate home lead queued for review', [
+                'phone' => $phone,
+                'original_lead_id' => $existingLead->id,
+                'queue_status' => 'pending'
+            ]);
             
-            Log::info('🏠 New home insurance lead created', [
-                'lead_id' => $lead->id,
-                'external_lead_id' => $externalLeadId,
-                'properties_count' => json_decode($leadData['meta'], true)['properties_count'] ?? 0
+            return response()->json([
+                'success' => true,
+                'message' => 'Duplicate lead detected and queued for review',
+                'status' => 'queued',
+                'original_lead_id' => $existingLead->id,
+                'days_since_original' => $daysSinceCreated
             ]);
         }
+        
+        // No duplicate - create new lead
+        $externalLeadId = generateLeadId();
+        $leadData['external_lead_id'] = $externalLeadId;
+        
+        $lead = Lead::create($leadData);
+        
+        Log::info('🏠 New home insurance lead created', [
+            'lead_id' => $lead->id,
+            'external_lead_id' => $externalLeadId,
+            'properties_count' => json_decode($leadData['meta'], true)['properties_count'] ?? 0
+        ]);
         
         // Push home leads to Vici same as auto leads
         if ($lead && $lead->id) {
@@ -7536,85 +7670,60 @@ Route::post('/webhook/auto', function (Request $request) {
     ];
     
     try {
-        // Check for duplicates
+        // NEW DUPLICATE QUEUE SYSTEM - Phone-only matching
         $existingLead = Lead::where('phone', $phone)->first();
         
         if ($existingLead) {
             $daysSinceCreated = $existingLead->created_at->diffInDays(now());
             
-            Log::info('🔍 Duplicate auto lead detected', [
+            Log::info('🔍 Duplicate auto lead detected - QUEUING', [
                 'phone' => $phone,
                 'existing_lead_id' => $existingLead->id,
                 'days_since_created' => $daysSinceCreated
             ]);
             
-            if ($daysSinceCreated <= 10) {
-                // Update existing lead
-                $leadData['status'] = 'DUPLICATE_UPDATED';
-                $leadData['meta'] = json_encode(array_merge(
-                    json_decode($leadData['meta'] ?? '{}', true),
-                    [
-                        'duplicate_action' => 'updated',
-                        'original_created_at' => $existingLead->created_at->toIso8601String(),
-                        'days_since_original' => $daysSinceCreated
-                    ]
-                ));
-                
-                $existingLead->update($leadData);
-                $lead = $existingLead;
-                
-                Log::info('✅ Updated existing auto lead (≤ 10 days old)', [
-                    'lead_id' => $lead->id,
-                    'phone' => $phone
-                ]);
-            } elseif ($daysSinceCreated <= 90) {
-                // Create re-engagement lead
-                $leadData['status'] = 'RE_ENGAGEMENT';
-                $leadData['meta'] = json_encode(array_merge(
-                    json_decode($leadData['meta'] ?? '{}', true),
-                    [
-                        're_engagement' => true,
-                        'original_lead_id' => $existingLead->id,
-                        'original_created_at' => $existingLead->created_at->toIso8601String(),
-                        'days_since_original' => $daysSinceCreated
-                    ]
-                ));
-                
-                $externalLeadId = generateLeadId();
-                $leadData['external_lead_id'] = $externalLeadId;
-                
-                $lead = Lead::create($leadData);
-                
-                Log::info('🔄 Created re-engagement auto lead (11-90 days old)', [
-                    'new_lead_id' => $lead->id,
-                    'original_lead_id' => $existingLead->id,
-                    'phone' => $phone
-                ]);
-            } else {
-                // Create new lead
-                $externalLeadId = generateLeadId();
-                $leadData['external_lead_id'] = $externalLeadId;
-                
-                $lead = Lead::create($leadData);
-                
-                Log::info('🆕 Created new auto lead (> 90 days since last contact)', [
-                    'lead_id' => $lead->id,
-                    'phone' => $phone
-                ]);
-            }
-        } else {
-            // No existing lead - create new
-            $externalLeadId = generateLeadId();
-            $leadData['external_lead_id'] = $externalLeadId;
+            // Queue the duplicate for manual review
+            \App\Models\DuplicateLeadQueue::create([
+                'phone_normalized' => $phone,
+                'vendor' => 'leadsquotingfast',
+                'source' => 'auto',
+                'payload_json' => json_encode($data),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'original_lead_id' => $existingLead->id,
+                'original_external_lead_id' => $existingLead->external_lead_id,
+                'original_received_at' => $existingLead->created_at,
+                'days_since_original' => $daysSinceCreated,
+                'match_reason' => 'phone',
+                'status' => 'pending'
+            ]);
             
-            $lead = Lead::create($leadData);
+            Log::info('📋 Duplicate auto lead queued for review', [
+                'phone' => $phone,
+                'original_lead_id' => $existingLead->id,
+                'queue_status' => 'pending'
+            ]);
             
-            Log::info('🚗 New auto insurance lead created', [
-                'lead_id' => $lead->id,
-                'external_lead_id' => $externalLeadId,
-                'vehicles_count' => json_decode($leadData['meta'], true)['vehicles_count'] ?? 0
+            return response()->json([
+                'success' => true,
+                'message' => 'Duplicate lead detected and queued for review',
+                'status' => 'queued',
+                'original_lead_id' => $existingLead->id,
+                'days_since_original' => $daysSinceCreated
             ]);
         }
+        
+        // No duplicate - create new lead
+        $externalLeadId = generateLeadId();
+        $leadData['external_lead_id'] = $externalLeadId;
+        
+        $lead = Lead::create($leadData);
+        
+        Log::info('🚗 New auto insurance lead created', [
+            'lead_id' => $lead->id,
+            'external_lead_id' => $externalLeadId,
+            'vehicles_count' => json_decode($leadData['meta'], true)['vehicles_count'] ?? 0
+        ]);
         
         // Push auto leads to Vici
         if ($lead && $lead->id) {
