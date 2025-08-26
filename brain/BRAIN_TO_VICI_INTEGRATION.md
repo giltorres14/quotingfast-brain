@@ -1,3 +1,17 @@
+## Aug 26, 2025 – Status Update
+
+- Goal: Assign Brain 13-digit `external_lead_id` to Vici `vendor_lead_code` for selected lists.
+- Current approach: API-based updates via `/vicidial/non_agent_api.php` using UploadAPI credentials; ensure requests originate from whitelisted Render IPs.
+- Progress:
+  - Confirmed correct API path and credentials.
+  - Implemented batch updater with overwrite enabled and per-list targeting.
+  - Added automatic whitelist refresh before each batch.
+- Pending:
+  - Validate candidate selection across lists using server-side pagination and avoid CLI truncation.
+  - Continue incremental runs; track throughput and success rate.
+- Notes:
+  - Vici DB (MySQL) direct CREATE privileges are not available for cron user; use derived-table `UNION ALL` strategy if doing SQL-side joins.
+  - Always use LIMIT and WHERE; never scan `vicidial_list` without filters (11M rows).
 # 🔄 Brain to ViciDial Integration Documentation
 *Last Updated: August 25, 2025 - 04:15 AM EST*
 

@@ -1,3 +1,11 @@
+### Aug 26, 2025 – Deployment verification and UI save reliability
+
+- Added `/version` endpoint; confirmed `cache_bust=18` after deploy.
+- Fixed Render DB host/pass in `render.yaml`; deploys now correctly pick changes.
+- Smoke tests green: `/health`, `/health/ui`, `/test-deployment`, lead edit/view, contact-save.
+- Server fixes: qualification save treats `meta` as array; accepts internal or external ID; drivers/vehicles/current_policy accept arrays; fallback create when missing.
+- UI: replaced all blocking alerts with auto-dismiss toast notifications.
+- Note: ViciDial sync remains in progress; continue with API updates from whitelisted IPs. Ensure IPs 52.15.118.168, 3.129.111.220 are whitelisted for both SSH and API.
 # 🧠 BRAIN PROJECT MEMORY
 ## Living Documentation System - Last Updated: 2025-08-25 04:15 EST
 

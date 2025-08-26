@@ -1,3 +1,14 @@
+## 2025-08-26 (Ohio) – Stability + Save Fixes
+
+- Deploy hygiene: corrected Render DB host/pass in `render.yaml`; bumped `CACHE_BUST=18` in `brain/Dockerfile.render`.
+- Added `/version` endpoint to confirm running build and cache bust.
+- Smoke tests verified 200s for `/health`, `/health/ui`, `/test-deployment`, `/agent/lead/{id}` view/edit, and contact-save.
+- Fixed qualification save:
+  - Treat `meta` as array (avoid `json_decode` on arrays).
+  - Accept internal ID or 13-digit `external_lead_id`; fallback by phone; create lead if absent.
+  - Drivers/Vehicles/Current policy inputs saved as arrays if already decoded.
+- UX: replaced blocking `alert()` with auto-dismiss toast notifications for save success/errors.
+
 # 📝 CHANGE LOG & PROGRESS TRACKER
 ## Comprehensive Change History - Updated: 2025-08-25 04:15:00
 

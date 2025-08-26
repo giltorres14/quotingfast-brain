@@ -1,10 +1,22 @@
 # Brain System Current State
-**Last Updated:** August 24, 2025 - 11:30 PM EST
+**Last Updated:** August 26, 2025 - 9:10 PM EST
 
 ## 🎯 System Overview
 The Brain system is a lead management platform that receives, qualifies, and routes insurance leads from LeadsQuotingFast (LQF) to various buyers including Allstate via RingBA.
 
-## ✅ Recent Accomplishments (Aug 24, 2025)
+## ✅ Recent Accomplishments (Aug 26, 2025)
+
+### Deployment and Stability
+- Added `/version` endpoint to verify running build (shows `cache_bust=18`, Dockerfile path, timestamp)
+- Fixed Render config (`render.yaml`) DB host/password mismatch; deployments now stick
+- Bumped `brain/Dockerfile.render` `CACHE_BUST=18` to force rebuild
+- Smoke tests green post-deploy: `/health`, `/health/ui`, `/test-deployment`, `/agent/lead/{id}` (view/edit)
+
+### Agent UI Save Reliability
+- Fixed qualification save to treat `meta` as array (avoid `json_decode` on arrays)
+- Save route now accepts either internal ID or 13-digit `external_lead_id`; falls back to phone, creates if missing
+- Contact-save endpoints accept internal or external ID; CSRF-exempt GET retained for iframe safety
+- Replaced blocking `alert()` dialogs with non-blocking auto-dismiss toasts on success/errors
 
 ### Agent Lead View/Edit Pages - FULLY RESTORED
 1. **View Page** (`/agent/lead/{id}?mode=view`)
@@ -66,7 +78,7 @@ The Brain system is a lead management platform that receives, qualifies, and rou
 - **Bulk Import**: 111k+ LQF leads ready for import (CSV prepared)
 - **ViciDial Integration**: Currently bypassed for testing, needs restoration
 - **RingBA Production**: Test endpoints working, production config pending
-- **Vici Sync**: CRITICAL ISSUE - Script only scanning 826 leads instead of 21,220+
+- **Vici Sync**: CRITICAL ISSUE - Dry-run historically scanned 826 vs expected; batching and keyset pagination implemented, continuing validation with server-side TSV streaming
   - DB: Q6hdjl67GRigMofv (11M rows in vicidial_list)
   - Port: 20540, User: wS3Vtb7rJgAGePi5
   - **⚠️ CRITICAL**: ViciDial access REQUIRES whitelisted IP!
@@ -151,7 +163,7 @@ php clear_view_cache.php      # Clear compiled views
 git add -A
 git commit -m "Description of changes"
 git push origin main
-# Wait 2-3 minutes for Render deployment
+# Wait 2-3 minutes for Render deployment, then confirm at /version (expect `cache_bust=18`)
 ```
 
 ## 📋 Immediate Priorities
