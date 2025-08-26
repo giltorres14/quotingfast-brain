@@ -125,6 +125,21 @@ Route::get('/test-deployment', function() {
     ]);
 });
 
+// Build/version endpoint to confirm running commit and build time
+Route::get('/version', function() {
+    $version = [
+        'cache_bust' => '18',
+        'dockerfile' => 'brain/Dockerfile.render',
+        'app_url' => config('app.url'),
+        'ts' => now()->toISOString(),
+    ];
+    $depFile = base_path('DEPLOY_TRIGGER');
+    if (file_exists($depFile)) {
+        $version['deploy_trigger_mtime'] = date('c', filemtime($depFile));
+    }
+    return response()->json($version);
+})->withoutMiddleware('*');
+
 // Simple UI healthcheck - validates core views render and DB reachable
 Route::get('/health/ui', function() {
     $checks = [
@@ -8370,7 +8385,14 @@ Route::put('/agent/lead/{leadId}/contact-with-vici-sync', function (Request $req
 // CSRF-exempt API endpoint to save contact fields (used by blue Save button)
 Route::match(['post','put'],'/api/lead/{leadId}/contact', function (Request $request, $leadId) {
     try {
-        $lead = \App\Models\Lead::findOrFail($leadId);
+        // Accept internal id OR 13-digit external_lead_id
+        $lead = \App\Models\Lead::find($leadId);
+        if (!$lead) {
+            $lead = \App\Models\Lead::where('external_lead_id', (string)$leadId)->first();
+        }
+        if (!$lead) {
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException("Lead not found for id/external_id {$leadId}");
+        }
 
         $updatedData = [
             'first_name' => $request->input('first_name', $lead->first_name),
@@ -8396,7 +8418,14 @@ Route::match(['post','put'],'/api/lead/{leadId}/contact', function (Request $req
 // GET fallback (CSRF-free) to persist contact edits via query string
 Route::get('/api/lead/{leadId}/contact-save', function (Request $request, $leadId) {
     try {
-        $lead = \App\Models\Lead::findOrFail($leadId);
+        // Accept internal id OR 13-digit external_lead_id
+        $lead = \App\Models\Lead::find($leadId);
+        if (!$lead) {
+            $lead = \App\Models\Lead::where('external_lead_id', (string)$leadId)->first();
+        }
+        if (!$lead) {
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException("Lead not found for id/external_id {$leadId}");
+        }
 
         $updatedData = [
             'first_name' => $request->query('first_name', $lead->first_name),

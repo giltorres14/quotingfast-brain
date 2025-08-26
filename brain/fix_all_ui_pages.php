@@ -482,3 +482,4 @@ echo "Next step: Update routes/web.php with direct HTML responses.\n";
 
 
 
+
