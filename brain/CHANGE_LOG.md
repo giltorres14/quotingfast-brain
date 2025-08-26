@@ -332,6 +332,21 @@
   - Homeowner enrich (2717035800150673197) with `callerid=9548182888` ✅ Returns `{"status": "ok"}`
   - Insured/Uninsured enrich endpoints now use `callerid` instead of `primary_phone`
 
+**Complete Duplicate Monitoring System:**
+- **Real-time Detection**: Updated all webhooks (`/api-webhook`, `/webhook/auto`, `/webhook/home`) to queue duplicates instead of auto-processing
+- **Database Tables**: Created `duplicate_lead_queue` and `duplicate_lead_audit` tables
+- **Admin Interface**: Built `/admin/duplicates-incoming` page with bulk actions
+- **Dashboard Widget**: Added pending duplicates count to leads dashboard with "Review Now" link
+- **API Endpoints**: Implemented `/api/duplicates/reject`, `/api/duplicates/reengage`, `/api/duplicates/update-existing`, `/api/duplicates/bulk-action`
+- **Action Options**: Reject (delete), Re-engage (create new lead), Update Existing (modify original)
+- **Audit Trail**: All actions logged with timestamps and details
+- **Files Created/Modified**:
+  - `brain/database/migrations/2025_08_26_010000_create_duplicate_lead_queue_table.php`
+  - `brain/database/migrations/2025_08_26_010100_create_duplicate_lead_audit_table.php`
+  - `brain/app/Models/DuplicateLeadQueue.php` and `brain/app/Models/DuplicateLeadAudit.php`
+  - `brain/resources/views/admin/duplicates-incoming.blade.php`
+  - `brain/routes/web.php` - Updated webhook logic and added API endpoints
+
 **Duplicates UI + bulk cleanup reliability:**
 - Added Source and Received (created_at) columns to duplicates page.
 - Added admin-only Bulk cleanup button on `/duplicates`.

@@ -73,6 +73,7 @@ The Brain system is a lead management platform that receives, qualifies, and rou
 - **Deployment**: Render.com auto-deploy via GitHub push
 - **Duplicates Dashboard**: `/duplicates` reachable; admin controls via `/admin/lead-duplicates`
 - **Ringba Enrich Buttons**: ✅ Fixed "Bad Request" errors by using `callerid` instead of `primary_phone` parameter
+- **Duplicate Monitoring System**: ✅ Complete real-time duplicate detection and queueing system implemented
 
 ### ⚠️ Pending Tasks
 - **Lead Type Migration**: Many leads still showing "unknown" instead of "auto"/"home"
@@ -80,6 +81,14 @@ The Brain system is a lead management platform that receives, qualifies, and rou
 - **ViciDial Integration**: Currently bypassed for testing, needs restoration
 - **RingBA Production**: Test endpoints working, production config pending
 - **Vici Sync**: CRITICAL ISSUE - Dry-run historically scanned 826 vs expected; batching and keyset pagination implemented, continuing validation with server-side TSV streaming
+
+### ✅ NEW: Duplicate Monitoring System
+- **Real-time Detection**: All incoming leads checked for phone duplicates
+- **Queue Management**: `/admin/duplicates-incoming` - Review and act on duplicates
+- **Dashboard Widget**: Shows pending duplicates count with "Review Now" link
+- **Action Options**: Reject, Re-engage (new lead), Update Existing
+- **Bulk Actions**: Select multiple duplicates for batch processing
+- **Audit Trail**: All actions logged in `duplicate_lead_audit` table
   - DB: Q6hdjl67GRigMofv (11M rows in vicidial_list)
   - Port: 20540, User: wS3Vtb7rJgAGePi5
   - **⚠️ CRITICAL**: ViciDial access REQUIRES whitelisted IP!
