@@ -1,6 +1,32 @@
 @extends('layouts.app')
 
 @section('content')
+<script>
+// Define functions globally so they can be called from HTML
+function toggleInsuranceQuestions() {
+    alert('toggleInsuranceQuestions called!'); // Simple test to see if function is called
+    const insured = document.getElementById('currently_insured').value;
+    const insuranceQuestions = document.getElementById('insurance_questions');
+    
+    if (insured === 'yes') {
+        insuranceQuestions.style.display = 'block';
+    } else {
+        insuranceQuestions.style.display = 'none';
+    }
+}
+
+function toggleDUIQuestions() {
+    alert('toggleDUIQuestions called!'); // Simple test to see if function is called
+    const duiSr22 = document.getElementById('dui_sr22').value;
+    const duiQuestions = document.getElementById('dui_questions');
+    
+    if (duiSr22 === 'dui_only' || duiSr22 === 'both') {
+        duiQuestions.style.display = 'block';
+    } else {
+        duiQuestions.style.display = 'none';
+    }
+}
+</script>
 <?php
 // Initialize all variables to prevent undefined errors
 $lead = $lead ?? new stdClass();
@@ -1225,31 +1251,7 @@ const defaultDob = '<?php echo htmlspecialchars($defaultDob ?? "", ENT_QUOTES); 
 const defaultGender = '<?php echo htmlspecialchars($defaultGender ?? "", ENT_QUOTES); ?>';
 const defaultMarital = '<?php echo htmlspecialchars($defaultMarital ?? "", ENT_QUOTES); ?>';
 
-// Toggle insurance questions based on currently insured selection
-function toggleInsuranceQuestions() {
-    alert('toggleInsuranceQuestions called!'); // Simple test to see if function is called
-    const insured = document.getElementById('currently_insured').value;
-    const insuranceQuestions = document.getElementById('insurance_questions');
-    
-    if (insured === 'yes') {
-        insuranceQuestions.style.display = 'block';
-    } else {
-        insuranceQuestions.style.display = 'none';
-    }
-}
-
-// Toggle DUI questions based on DUI/SR22 selection
-function toggleDUIQuestions() {
-    alert('toggleDUIQuestions called!'); // Simple test to see if function is called
-    const duiSr22 = document.getElementById('dui_sr22').value;
-    const duiQuestions = document.getElementById('dui_questions');
-    
-    if (duiSr22 === 'dui_only' || duiSr22 === 'both') {
-        duiQuestions.style.display = 'block';
-    } else {
-        duiQuestions.style.display = 'none';
-    }
-}
+// Functions are now defined at the top of the page
 
 // Get form data for enrichment
 function getFormData() {
