@@ -1191,11 +1191,11 @@ async function saveQualification(){
             }
             if (!respContact.ok) {
                 const errTxt = await respContact.text();
-                alert('Save failed (contact): ' + errTxt);
+                showToast('Save failed (contact): ' + errTxt, 'error');
                 return;
             }
         } catch (e) {
-            alert('Save error (contact): ' + (e?.message || e));
+            showToast('Save error (contact): ' + (e?.message || e), 'error');
             return;
         }
 
@@ -1209,12 +1209,12 @@ async function saveQualification(){
         const resp = await fetch(formEl.action, { method: 'POST', body: formData });
         if(!resp.ok){
             const err = await resp.text();
-            alert('Save failed: ' + err);
+            showToast('Save failed: ' + err, 'error');
             return;
         }
-        alert('Saved');
+        showToast('Saved');
     } catch(e){
-        alert('Save error: ' + (e?.message || e));
+        showToast('Save error: ' + (e?.message || e), 'error');
     }
 }
 <?php
@@ -1441,12 +1441,25 @@ async function enrichLead(type) {
     // Open in new window
     const popup = window.open(enrichmentURL, '_blank');
     if (!popup) {
-        alert('Please allow popups for this site to use enrichment features.');
+        showToast('Please allow popups for enrichment features.', 'error');
     }
 }
 
 // Simple JavaScript for form handling
 document.addEventListener('DOMContentLoaded', function() {
+    // Toast container
+    if (!document.getElementById('toast-container')) {
+        const c = document.createElement('div');
+        c.id = 'toast-container';
+        c.style.position = 'fixed';
+        c.style.top = '90px';
+        c.style.right = '16px';
+        c.style.zIndex = '99999';
+        c.style.display = 'flex';
+        c.style.flexDirection = 'column';
+        c.style.gap = '8px';
+        document.body.appendChild(c);
+    }
     // Initialize conditional fields on page load
     toggleInsuranceQuestions();
     toggleDUIQuestions();
@@ -1473,5 +1486,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 });
+
+// Simple toast helper (auto-dismiss, non-blocking)
+function showToast(message, type = 'success') {
+    try {
+        const container = document.getElementById('toast-container') || (() => {
+            const c = document.createElement('div');
+            c.id = 'toast-container';
+            c.style.position = 'fixed';
+            c.style.top = '90px';
+            c.style.right = '16px';
+            c.style.zIndex = '99999';
+            c.style.display = 'flex';
+            c.style.flexDirection = 'column';
+            c.style.gap = '8px';
+            document.body.appendChild(c);
+            return c;
+        })();
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.padding = '10px 14px';
+        toast.style.borderRadius = '6px';
+        toast.style.color = '#fff';
+        toast.style.boxShadow = '0 6px 18px rgba(0,0,0,0.15)';
+        toast.style.fontSize = '14px';
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 150ms ease, transform 150ms ease';
+        toast.style.transform = 'translateY(-6px)';
+        const colors = type === 'error' ? ['#dc2626', '#991b1b'] : ['#16a34a', '#166534'];
+        toast.style.background = `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`;
+        container.appendChild(toast);
+        requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; });
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-6px)';
+            setTimeout(() => { toast.remove(); }, 200);
+        }, 2000);
+    } catch (_) { /* no-op */ }
+}
 </script>
 @endsection
