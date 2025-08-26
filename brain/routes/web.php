@@ -4094,9 +4094,11 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
             $html .= "<button class=\"btn-warning\">Keep best, delete others</button></form>";
             $html .= "</span>";
         }
-        $html .= "</h2><div style=\"overflow:auto\"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>City/State</th><th>Source</th><th>Type</th><th>Score</th>" . ($isAdminMode ? "<th>Actions</th>" : "") . "</tr></thead><tbody>";
+        $html .= "</h2><div style=\"overflow:auto\"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Email</th><th>City/State</th><th>Source</th><th>Received</th><th>Type</th><th>Score</th>" . ($isAdminMode ? "<th>Actions</th>" : "") . "</tr></thead><tbody>";
         foreach ($grp['leads'] as $l) {
-            $html .= "<tr><td>#" . htmlspecialchars((string)$l['id']) . "</td><td>" . htmlspecialchars($l['name'] ?? '') . "</td><td>" . htmlspecialchars($l['phone'] ?? '') . "</td><td>" . htmlspecialchars($l['email'] ?? '') . "</td><td>" . htmlspecialchars(($l['city'] ?? '') . (isset($l['state']) && $l['state'] ? ', ' : '') . ($l['state'] ?? '')) . "</td><td>" . htmlspecialchars($l['source'] ?? '') . "</td><td>" . htmlspecialchars($l['type'] ?? '') . "</td><td class=score>" . htmlspecialchars((string)$l['_score']) . "</td>";
+            $received = '';
+            if (!empty($l['created_at'])) { try { $received = (new \DateTime($l['created_at']))->format('Y-m-d H:i'); } catch (\Throwable $t) { $received = $l['created_at']; } }
+            $html .= "<tr><td>#" . htmlspecialchars((string)$l['id']) . "</td><td>" . htmlspecialchars($l['name'] ?? '') . "</td><td>" . htmlspecialchars($l['phone'] ?? '') . "</td><td>" . htmlspecialchars($l['email'] ?? '') . "</td><td>" . htmlspecialchars(($l['city'] ?? '') . (isset($l['state']) && $l['state'] ? ', ' : '') . ($l['state'] ?? '')) . "</td><td>" . htmlspecialchars($l['source'] ?? '') . "</td><td>" . htmlspecialchars($received) . "</td><td>" . htmlspecialchars($l['type'] ?? '') . "</td><td class=score>" . htmlspecialchars((string)$l['_score']) . "</td>";
             if ($isAdminMode) {
                 $html .= "<td class=\"actions\">";
                 $html .= "<form method=\"POST\" action=\"/admin/duplicates/delete\" style=\"display:inline\" onsubmit=\"return confirm('Delete lead #" . htmlspecialchars((string)$l['id']) . "?');\">";
