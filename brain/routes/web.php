@@ -3941,10 +3941,8 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
             return response("<!doctype html><html><body><h1>Duplicates route OK</h1></body></html>", 200)
                 ->header('Content-Type', 'text/html');
         }
-        // Show admin controls if authenticated, or when explicitly enabled via flag + secret key (temporary until auth UI exists)
-        $adminActionsKey = env('ADMIN_ACTION_KEY', 'QF-ADMIN-KEY-2025');
-        $hasAdminKey = hash_equals($adminActionsKey, (string)$request->get('admin_key'));
-        $isAdminMode = (auth()->check() || (($request->get('admin') === '1') && $hasAdminKey));
+        // Show admin controls only when authenticated
+        $isAdminMode = auth()->check();
 
     // Strategy: Find groups by normalized phone or normalized email
     $limitGroups = (int)($request->get('limit', 100));
@@ -4075,7 +4073,6 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
         $html .= "<div style=\"margin:10px 0 18px 0;\">";
         $html .= "<form method=\"POST\" action=\"/duplicates/cleanup-all\" style=\"display:inline\" onsubmit=\"return confirm('Run BULK cleanup across all duplicate groups?\\n\\nThis will delete non-keeper leads. This action cannot be undone.');\">";
         $html .= "<input type=\"hidden\" name=\"_token\" value=\"" . htmlspecialchars(csrf_token()) . "\">";
-        $html .= "<input type=\"hidden\" name=\"admin_key\" value=\"" . htmlspecialchars((string)$request->get('admin_key')) . "\">";
         $html .= "<button class=\"btn-danger\" style=\"padding:10px 14px;\">🧹 Bulk cleanup all duplicates</button>";
         $html .= "</form>";
         $html .= "</div>";
@@ -4092,7 +4089,6 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
             $html .= "<input type=\"hidden\" name=\"_token\" value=\"" . htmlspecialchars(csrf_token()) . "\">";
             $html .= "<input type=\"hidden\" name=\"group_by\" value=\"" . htmlspecialchars($grp['group_by']) . "\">";
             $html .= "<input type=\"hidden\" name=\"key\" value=\"" . htmlspecialchars($grp['key']) . "\">";
-            $html .= "<input type=\"hidden\" name=\"admin_key\" value=\"" . htmlspecialchars((string)$request->get('admin_key')) . "\">";
             $html .= "<input type=\"hidden\" name=\"keep_id\" value=\"" . htmlspecialchars((string)$bestId) . "\">";
             $html .= "<button class=\"btn-warning\">Keep best, delete others</button></form>";
             $html .= "</span>";
@@ -4104,7 +4100,6 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
                 $html .= "<td class=\"actions\">";
                 $html .= "<form method=\"POST\" action=\"/admin/duplicates/delete\" style=\"display:inline\" onsubmit=\"return confirm('Delete lead #" . htmlspecialchars((string)$l['id']) . "?');\">";
                 $html .= "<input type=\"hidden\" name=\"_token\" value=\"" . htmlspecialchars(csrf_token()) . "\">";
-                $html .= "<input type=\"hidden\" name=\"admin_key\" value=\"" . htmlspecialchars((string)$request->get('admin_key')) . "\">";
                 $html .= "<input type=\"hidden\" name=\"id\" value=\"" . htmlspecialchars((string)$l['id']) . "\">";
                 $html .= "<button class=\"btn-danger\">Delete</button></form>";
                 $html .= "</td>";
