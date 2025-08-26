@@ -97,7 +97,7 @@ $isEditMode = request()->get('mode') === 'edit';
                         <?php echo htmlspecialchars(trim($cityStateZip)); ?>
                     </div>
                     <?php endif; ?>
-                    <div class="text-sm" style="color:#dbeafe;">Lead ID: <?php echo htmlspecialchars($lead->external_lead_id); ?></div>
+                    <div class="text-sm" style="color:#dbeafe;">Vendor ID: <?php echo htmlspecialchars($lead->external_lead_id); ?></div>
                 </div>
 
                 <!-- Right section -->
@@ -375,7 +375,7 @@ $isEditMode = request()->get('mode') === 'edit';
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">External Lead ID</dt>
+                            <dt class="text-sm font-medium text-gray-500">Vendor ID</dt>
                             <dd class="mt-1 text-sm text-gray-900 font-mono text-xs">
                                 <?php echo htmlspecialchars($lead->external_lead_id); ?>
                                 <?php if (!empty($lead->external_lead_id)): ?>
@@ -383,12 +383,7 @@ $isEditMode = request()->get('mode') === 'edit';
                                 <?php endif; ?>
                             </dd>
                         </div>
-                        <?php if (!empty($lead->jangle_lead_id)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Jangle ID</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->jangle_lead_id); ?></dd>
-                        </div>
-                        <?php endif; ?>
+                        <?php /* Jangle ID hidden per request */ ?>
                         <?php if (!$isEditMode): ?>
                             <?php if (!empty($lead->source)): ?>
                             <div>
@@ -860,7 +855,7 @@ $isEditMode = request()->get('mode') === 'edit';
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-sm font-medium text-gray-500">External Lead ID</dt>
+                            <dt class="text-sm font-medium text-gray-500">Vendor ID</dt>
                             <dd class="mt-1 text-sm text-gray-900 font-mono text-xs">
                                 <?php echo htmlspecialchars($lead->external_lead_id); ?>
                                 <?php if (!empty($lead->external_lead_id)): ?>
@@ -868,12 +863,7 @@ $isEditMode = request()->get('mode') === 'edit';
                                 <?php endif; ?>
                             </dd>
                         </div>
-                        <?php if (!empty($lead->jangle_lead_id)): ?>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Jangle ID</dt>
-                            <dd class="mt-1 text-sm text-gray-900"><?php echo htmlspecialchars($lead->jangle_lead_id); ?></dd>
-                        </div>
-                        <?php endif; ?>
+                        <?php /* Jangle ID hidden per request */ ?>
                         <?php if (!empty($lead->source)): ?>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Source</dt>
@@ -1360,7 +1350,7 @@ async function enrichLead(type) {
     
     if (type === 'insured') {
         orderedPairs = [
-            ['primary_phone', digits(data.phone)],
+            ['callerid', digits(data.phone)],
             ['currently_insured', 'true'],
             ['current_insurance_company', data.current_provider || ''],
             ['allstate', isAllstateCustomer()],
@@ -1395,7 +1385,7 @@ async function enrichLead(type) {
         ];
     } else if (type === 'uninsured') {
         orderedPairs = [
-            ['primary_phone', digits(data.phone)],
+            ['callerid', digits(data.phone)],
             ['currently_insured', 'false'],
             ['current_insurance_company', ''],
             ['allstate', 'false'],
@@ -1463,6 +1453,33 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize conditional fields on page load
     toggleInsuranceQuestions();
     toggleDUIQuestions();
+
+    // Prefill logic based on Lead Details
+    try {
+        // Prefill currently insured and provider from Current Policy
+        const policyCompany = <?php echo json_encode($current_policy['company'] ?? null); ?>;
+        if (policyCompany && document.getElementById('currently_insured')) {
+            document.getElementById('currently_insured').value = 'yes';
+            toggleInsuranceQuestions();
+            const map = {
+                'state farm': 'state_farm', 'geico': 'geico', 'progressive': 'progressive', 'allstate': 'allstate', 'farmers': 'farmers', 'usaa': 'usaa', 'liberty': 'liberty_mutual'
+            };
+            const normalized = (policyCompany + '').toLowerCase();
+            let option = 'other';
+            for (const key in map) { if (normalized.includes(key)) { option = map[key]; break; } }
+            const providerSel = document.getElementById('current_provider');
+            if (providerSel) providerSel.value = option;
+        }
+
+        // Prefill number of vehicles from vehicles array
+        const vehiclesCount = <?php echo is_array($vehicles) ? count($vehicles) : 0; ?>;
+        if (vehiclesCount > 0) {
+            const vSel = document.getElementById('num_vehicles');
+            if (vSel) {
+                vSel.value = String(Math.min(vehiclesCount, 4));
+            }
+        }
+    } catch (e) { /* ignore */ }
 
     const form = document.getElementById('qualificationFormTop');
     if (form) {

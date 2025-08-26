@@ -23,8 +23,13 @@ class RingBAService
             // Select the right RingBA campaign URL
             $url = $this->selectRingBAUrl($lead, $qualificationData);
             
-            // Build the payload with all our intelligence
-            $payload = $this->buildPayload($lead, $qualificationData);
+                    // Build the payload with all our intelligence
+        $payload = $this->buildPayload($lead, $qualificationData);
+        
+        // For enrich endpoints, we need to use GET with query params, not POST with JSON
+        if (str_contains($url, '/enrich/')) {
+            return $this->sendEnrichRequest($url, $payload);
+        }
             
             Log::info('Sending lead to RingBA', [
                 'lead_id' => $lead->id,
@@ -313,5 +318,58 @@ class RingBAService
         ];
         
         return $timezones[$state] ?? 'America/New_York';
+    }
+    
+    /**
+     * Send enrich request with GET query parameters
+     */
+    private function sendEnrichRequest($url, $payload)
+    {
+        try {
+            // Convert payload to query string, using 'callerid' for phone
+            $queryParams = [];
+            foreach ($payload as $key => $value) {
+                if ($key === 'phone' || $key === 'primary_phone') {
+                    $queryParams['callerid'] = $value;
+                } else {
+                    $queryParams[$key] = $value;
+                }
+            }
+            
+            $queryString = http_build_query($queryParams);
+            $enrichUrl = $url . '?' . $queryString;
+            
+            Log::info('Sending enrich request', [
+                'url' => $enrichUrl,
+                'params' => $queryParams
+            ]);
+            
+            $response = Http::timeout(30)
+                ->withHeaders([
+                    'User-Agent' => 'QuotingFast-Brain/1.0'
+                ])
+                ->get($enrichUrl);
+            
+            Log::info('Enrich response received', [
+                'status_code' => $response->status(),
+                'response_body' => $response->body()
+            ]);
+            
+            return [
+                'success' => $response->successful(),
+                'status_code' => $response->status(),
+                'response' => $response->json(),
+                'url' => $enrichUrl
+            ];
+        } catch (\Exception $e) {
+            Log::error('RingBA enrich request failed', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
     }
 }
