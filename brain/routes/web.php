@@ -4272,10 +4272,34 @@ Route::get('/duplicates/cleanup-all', function (\Illuminate\Http\Request $reques
 Route::post('/agent/lead/{leadId}/qualify', function (Request $request, $leadId) {
     try {
         $data = $request->except(['_token']);
-        // Accept either internal numeric id or 13-digit external_lead_id
+        // Accept either internal numeric id or 13-digit external_lead_id; if not found, fallback to phone or create
         $lead = \App\Models\Lead::find($leadId);
         if (!$lead) {
-            $lead = \App\Models\Lead::where('external_lead_id', (string)$leadId)->firstOrFail();
+            $lead = \App\Models\Lead::where('external_lead_id', (string)$leadId)->first();
+        }
+        if (!$lead) {
+            // Try by phone if provided
+            if (!empty($data['phone'])) {
+                $digits = preg_replace('/\D+/', '', (string)$data['phone']);
+                $lead = \App\Models\Lead::whereRaw("REGEXP_REPLACE(COALESCE(phone,''),'[^0-9]','','g') = ?", [$digits])->latest('id')->first();
+            }
+        }
+        if (!$lead) {
+            // Create a new lead if still not found (iframe or manual fallback)
+            $lead = new \App\Models\Lead();
+            $lead->name = isset($data['name']) ? trim((string)$data['name']) : '';
+            $lead->email = isset($data['email']) ? trim((string)$data['email']) : null;
+            $lead->phone = isset($data['phone']) ? preg_replace('/\D+/', '', (string)$data['phone']) : null;
+            $lead->address = $data['address'] ?? null;
+            $lead->city = $data['city'] ?? null;
+            $lead->state = $data['state'] ?? null;
+            if (isset($data['zip_code'])) { $lead->zip_code = trim((string)$data['zip_code']); }
+            if (isset($data['type'])) { $lead->type = trim((string)$data['type']); }
+            // If route param looks like a valid 13-digit external id, assign it explicitly
+            if (is_numeric($leadId) && strlen((string)$leadId) === 13) {
+                $lead->external_lead_id = (string)$leadId;
+            }
+            $lead->save();
         }
 
         // Update top-level lead columns if provided
