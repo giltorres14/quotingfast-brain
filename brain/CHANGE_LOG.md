@@ -318,7 +318,21 @@
 *This change log is maintained to ensure no progress is lost and all team members can understand the current state and history of modifications.*
 
 
-### 2025-08-26 — Duplicates UI + bulk cleanup reliability
+### 2025-08-26 — Ringba Enrich Button Fix + Duplicates UI + bulk cleanup reliability
+
+**Ringba Enrich Button Fix:**
+- **Issue**: Insured and Uninsured enrich buttons returning "Bad Request" errors
+- **Root Cause**: Using `primary_phone` parameter instead of `callerid` for enrich endpoints
+- **Fix**: Updated `lead-display.blade.php` to use `callerid` for all enrich endpoints
+- **Files Changed**: 
+  - `brain/resources/views/agent/lead-display.blade.php` - Changed parameter from `primary_phone` to `callerid`
+  - `brain/app/Services/RingBAService.php` - Added `sendEnrichRequest()` method for proper enrich handling
+  - `brain/API_CONFIGURATIONS.md` - Documented correct parameter usage
+- **Test Results**: 
+  - Homeowner enrich (2717035800150673197) with `callerid=9548182888` ✅ Returns `{"status": "ok"}`
+  - Insured/Uninsured enrich endpoints now use `callerid` instead of `primary_phone`
+
+**Duplicates UI + bulk cleanup reliability:**
 - Added Source and Received (created_at) columns to duplicates page.
 - Added admin-only Bulk cleanup button on `/duplicates`.
 - Fixed Unauthorized by including `admin_key` as hidden input in bulk/group/single delete forms.

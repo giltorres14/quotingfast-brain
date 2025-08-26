@@ -71,7 +71,8 @@ The Brain system is a lead management platform that receives, qualifies, and rou
 - **UI Pages**: Agent view/edit pages fully functional
 - **Health Check**: `/health` endpoint returning 200 OK
 - **Deployment**: Render.com auto-deploy via GitHub push
- - **Duplicates Dashboard**: `/duplicates` reachable; admin controls via `/admin/lead-duplicates`
+- **Duplicates Dashboard**: `/duplicates` reachable; admin controls via `/admin/lead-duplicates`
+- **Ringba Enrich Buttons**: ✅ Fixed "Bad Request" errors by using `callerid` instead of `primary_phone` parameter
 
 ### ⚠️ Pending Tasks
 - **Lead Type Migration**: Many leads still showing "unknown" instead of "auto"/"home"

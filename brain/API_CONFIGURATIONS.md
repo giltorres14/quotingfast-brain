@@ -72,6 +72,22 @@ RINGBA_CAMPAIGN_ID=[TO_BE_CONFIGURED]
 - Post-qualification lead enrichment
 - Call outcome tracking
 
+### **Enrich Endpoints (CRITICAL - Parameter Names)**
+```php
+// Insured Enrich: https://display.ringba.com/enrich/2674154334576444838
+// Uninsured Enrich: https://display.ringba.com/enrich/2676487329580844084
+// Homeowner Enrich: https://display.ringba.com/enrich/2717035800150673197
+
+// CRITICAL: All enrich endpoints use 'callerid' parameter for phone number
+// NOT 'primary_phone' - this was causing "Bad Request" errors
+$params = [
+    'callerid' => $phone,  // Required for all enrich endpoints
+    'currently_insured' => 'true',  // For insured endpoint
+    'current_insurance_company' => $provider,
+    // ... other parameters
+];
+```
+
 ### **Confirmation Request → Allstate (Production)**
 ```
 URL: https://api.allstateleadmarketplace.com/v2/calls/post/[bid-id]
