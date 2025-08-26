@@ -1227,6 +1227,7 @@ const defaultMarital = '<?php echo htmlspecialchars($defaultMarital ?? "", ENT_Q
 
 // Toggle insurance questions based on currently insured selection
 function toggleInsuranceQuestions() {
+    alert('toggleInsuranceQuestions called!'); // Simple test to see if function is called
     const insured = document.getElementById('currently_insured').value;
     const insuranceQuestions = document.getElementById('insurance_questions');
     
@@ -1239,6 +1240,7 @@ function toggleInsuranceQuestions() {
 
 // Toggle DUI questions based on DUI/SR22 selection
 function toggleDUIQuestions() {
+    alert('toggleDUIQuestions called!'); // Simple test to see if function is called
     const duiSr22 = document.getElementById('dui_sr22').value;
     const duiQuestions = document.getElementById('dui_questions');
     
