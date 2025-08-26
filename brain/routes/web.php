@@ -472,7 +472,7 @@ Route::get('/meta-simple', function () {
     try {
         $lead = \DB::table('leads')->orderBy('id', 'desc')->first();
         if (!$lead) {
-            return response()->json(['error' => 'No leads'], 404);
+            return response()->json(['error' => 'No leads found']);
         }
         
         $meta = json_decode($lead->meta ?? '{}', true);
@@ -600,7 +600,6 @@ Route::get('/check-meta', function () {
     }
     return response()->json(['error' => 'No leads found'], 404);
 })->withoutMiddleware('*');
-
 // ABSOLUTE FIRST ROUTE - NO MIDDLEWARE AT ALL
 Route::match(['GET', 'POST'], '/api-webhook', function () {
     try {
@@ -1146,7 +1145,6 @@ Route::get('/test', function () {
         'timestamp' => now()->setTimezone('America/New_York')->toISOString()
     ]);
 });
-
 // Test Vici connection and update capability
 // DISABLED: Test route - use /admin/vici-reports instead
 /* Route::match(['get', 'post'], '/test-vici-connection', function(\Illuminate\Http\Request $request) {
@@ -1775,7 +1773,6 @@ Route::post('/test-lead-data', function (Request $request) {
         ], 500);
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
-
 // Lead cost reporting endpoints
 Route::get('/api/reports/cost/today', function () {
     try {
@@ -2187,7 +2184,6 @@ Route::post('/webhook/debug', function (Request $request) {
     ], 200, [], JSON_PRETTY_PRINT);
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 */
-
 // LeadsQuotingFast webhook endpoint (bypasses CSRF for external API calls)
 // TODO: Consolidate with /api-webhook - Currently kept for backward compatibility
 // This is a duplicate of /api-webhook but with slightly different logic
@@ -2805,7 +2801,6 @@ Route::post('/webhook/vici/disposition', [ViciCallWebhookController::class, 'han
     
 Route::post('/webhook/vici/realtime', [ViciCallWebhookController::class, 'handleRealTimeEvent'])
     ->name('webhook.vici.realtime');
-
 // Webhook endpoint for Vici dialer system (legacy)
 Route::post('/webhook/vici', function (Request $request) {
     try {
@@ -3112,47 +3107,6 @@ Route::get('/webhook/status', function () {
     ]);
 });
 
-// Vici database connection test endpoint
-// DISABLED: Test route - use /admin/vici-reports instead
-/*
-Route::get('/test/vici-db', function () {
-    try {
-        $host = '37.27.138.222';
-        $db = 'asterisk';
-        $user = 'Superman';
-        $pass = '8ZDWGAAQRD';
-        $port = 3306;
-        
-        $dsn = "mysql:host={$host};dbname={$db};port={$port};charset=utf8mb4";
-        $pdo = new PDO($dsn, $user, $pass, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_TIMEOUT => 10,
-        ]);
-        
-        // Test query
-        $stmt = $pdo->query("SELECT COUNT(*) as total FROM vicidial_list WHERE list_id = '101'");
-        $result = $stmt->fetch();
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Vici database connection successful',
-            'host' => $host,
-            'database' => $db,
-            'list_101_leads' => $result['total'],
-            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-        ]);
-    } catch (Exception $e) {
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage(),
-            'host' => $host ?? 'unknown',
-            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-        ], 500);
-    }
-});
-*/
-
 // Database connection test endpoint
 Route::get('/test/db', function () {
     try {
@@ -3174,7 +3128,6 @@ Route::get('/test/db', function () {
         ], 500);
     }
 });
-
 // Leads listing page - modern card-based view
 Route::get('/leads', function (Request $request) {
     try {
@@ -3556,7 +3509,6 @@ Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
         'captureUrl' => url('/agent/lead/capture'),
     ]);
 });
-
 // Agent iframe endpoint - displays full lead data with transfer button
 Route::get('/agent/lead/{leadId}', function ($leadId) {
     $mode = request()->get('mode', 'agent'); // 'agent', 'view', or 'edit'
@@ -4074,6 +4026,7 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
         $html .= "<div style=\"margin:10px 0 18px 0;\">";
         $html .= "<form method=\"POST\" action=\"/duplicates/cleanup-all\" style=\"display:inline\" onsubmit=\"return confirm('Run BULK cleanup across all duplicate groups?\\n\\nThis will delete non-keeper leads. This action cannot be undone.');\">";
         $html .= "<input type=\"hidden\" name=\"_token\" value=\"" . htmlspecialchars(csrf_token()) . "\">";
+        $html .= "<input type=\"hidden\" name=\"admin_key\" value=\"" . htmlspecialchars((string)$request->get('admin_key')) . "\">";
         $html .= "<button class=\"btn-danger\" style=\"padding:10px 14px;\">🧹 Bulk cleanup all duplicates</button>";
         $html .= "</form>";
         $html .= "</div>";
@@ -4090,6 +4043,7 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
             $html .= "<input type=\"hidden\" name=\"_token\" value=\"" . htmlspecialchars(csrf_token()) . "\">";
             $html .= "<input type=\"hidden\" name=\"group_by\" value=\"" . htmlspecialchars($grp['group_by']) . "\">";
             $html .= "<input type=\"hidden\" name=\"key\" value=\"" . htmlspecialchars($grp['key']) . "\">";
+            $html .= "<input type=\"hidden\" name=\"admin_key\" value=\"" . htmlspecialchars((string)$request->get('admin_key')) . "\">";
             $html .= "<input type=\"hidden\" name=\"keep_id\" value=\"" . htmlspecialchars((string)$bestId) . "\">";
             $html .= "<button class=\"btn-warning\">Keep best, delete others</button></form>";
             $html .= "</span>";
@@ -4103,6 +4057,7 @@ Route::get('/duplicates', function (\Illuminate\Http\Request $request) {
                 $html .= "<td class=\"actions\">";
                 $html .= "<form method=\"POST\" action=\"/admin/duplicates/delete\" style=\"display:inline\" onsubmit=\"return confirm('Delete lead #" . htmlspecialchars((string)$l['id']) . "?');\">";
                 $html .= "<input type=\"hidden\" name=\"_token\" value=\"" . htmlspecialchars(csrf_token()) . "\">";
+                $html .= "<input type=\"hidden\" name=\"admin_key\" value=\"" . htmlspecialchars((string)$request->get('admin_key')) . "\">";
                 $html .= "<input type=\"hidden\" name=\"id\" value=\"" . htmlspecialchars((string)$l['id']) . "\">";
                 $html .= "<button class=\"btn-danger\">Delete</button></form>";
                 $html .= "</td>";
@@ -4134,7 +4089,6 @@ Route::get('/admin/lead-duplicates', function (\Illuminate\Http\Request $request
     $params = array_merge($request->all(), ['admin' => '1', 'admin_key' => $request->get('admin_key')]);
     return app(\Illuminate\Routing\Router::class)->dispatch(\Illuminate\Http\Request::create('/duplicates', 'GET', $params));
 });
-
 // Cleanup all duplicates by keeping the highest scoring record per phone/email group
 // Exposed outside /admin to avoid Filament shadowing; protected by admin_key
 Route::post('/duplicates/cleanup-all', function (\Illuminate\Http\Request $request) {
@@ -4466,142 +4420,6 @@ Route::post('/api/transfer/{leadId}', function ($leadId) {
     }
 });
 
-// Test Vici lead push endpoint (using same function as webhook)
-// DISABLED: Test route - use /admin/vici-reports instead
-/*
-Route::get('/test/vici/{leadId?}', function (Request $request, $leadId = 1) {
-    try {
-        $lead = App\Models\Lead::find($leadId);
-
-        if (!$lead) {
-            return response()->json([
-                'success' => false,
-                'error' => "Lead #{$leadId} not found"
-            ], 404);
-        }
-
-        Log::info('Testing Vici lead push', [
-            'lead_id' => $lead->id,
-            'lead_name' => $lead->name,
-            'test_endpoint' => true
-        ]);
-
-        // Prepare lead data in the same format as webhook
-        $leadData = [
-            'first_name' => $lead->first_name ?? explode(' ', $lead->name)[0] ?? 'Unknown',
-            'last_name' => $lead->last_name ?? (count(explode(' ', $lead->name)) > 1 ? end(explode(' ', $lead->name)) : ''),
-            'phone' => $lead->phone,
-            'email' => $lead->email,
-            'address' => $lead->address,
-            'city' => $lead->city,
-            'state' => $lead->state,
-            'zip_code' => $lead->zip_code
-        ];
-
-        // Optional overrides via query params for testing credentials without changing env
-        $overrides = [];
-        if ($request->has('server')) { $overrides['server'] = $request->query('server'); }
-        if ($request->has('endpoint')) { $overrides['api_endpoint'] = $request->query('endpoint'); }
-        if ($request->has('user')) { $overrides['user'] = $request->query('user'); }
-        if ($request->has('pass')) { $overrides['pass'] = $request->query('pass'); }
-        if ($request->has('list_id')) { $overrides['list_id'] = (int)$request->query('list_id'); }
-        if ($request->has('source')) { $overrides['source'] = $request->query('source'); }
-
-        // Use the same function that works in the webhook
-        $viciResult = sendToViciList101($leadData, $lead->id, $overrides);
-
-        if ($viciResult) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Vici lead push test completed successfully',
-                'lead_id' => $lead->id,
-                'lead_name' => $lead->name,
-                'vici_result' => $viciResult,
-                'webhook_url' => url('/webhook/vici'),
-                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Vici lead push test failed',
-                'lead_id' => $lead->id,
-                'lead_name' => $lead->name,
-                'error' => 'Vici function returned null/false',
-                'vici_result' => $viciResult,
-                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-            ], 400);
-        }
-
-    } catch (Exception $e) {
-        Log::error('Vici lead push test error', [
-            'lead_id' => $leadId,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return response()->json([
-            'success' => false,
-            'error' => 'Internal Server Error: ' . $e->getMessage(),
-            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-        ], 500);
-    }
-});
-*/
-
-// Lightweight login probe to Vici (server-side) using version function
-// DISABLED: Test route - use /admin/vici-reports instead
-/*
-Route::get('/test/vici-login', function (Request $request) {
-    try {
-        $server = $request->query('server', env('VICI_SERVER', 'philli.callix.ai'));
-        $endpoint = $request->query('endpoint', env('VICI_API_ENDPOINT', '/vicidial/non_agent_api.php'));
-        $user = $request->query('user', env('VICI_API_USER', 'apiuser'));
-        $pass = $request->query('pass', env('VICI_API_PASS', ''));
-
-        $params = [
-            'source' => 'BRAIN_TEST',
-            'user' => $user,
-            'pass' => $pass,
-            'function' => 'version'
-        ];
-
-        $attempts = [];
-        $response = null;
-        foreach (['https', 'http'] as $proto) {
-            $url = $proto . "://{$server}{$endpoint}";
-            try {
-                $resp = Http::timeout(15)->get($url, $params);
-                $attempts[] = ['url' => $url, 'status' => $resp->status(), 'body_snippet' => substr($resp->body(), 0, 200)];
-                $response = $resp;
-                break;
-            } catch (Exception $ex) {
-                $attempts[] = ['url' => $url, 'error' => $ex->getMessage()];
-            }
-        }
-
-        if ($response) {
-            return response()->json([
-                'success' => true,
-                'status' => $response->status(),
-                'body' => $response->body(),
-                'attempts' => $attempts
-            ]);
-        }
-
-        return response()->json([
-            'success' => false,
-            'error' => 'Unable to reach Vici server',
-            'attempts' => $attempts
-        ], 502);
-    } catch (Exception $e) {
-        return response()->json([
-            'success' => false,
-            'error' => $e->getMessage()
-        ], 500);
-    }
-});
-*/
-
 // Reveal server egress IP (for Vici whitelisting)
 Route::get('/server-egress-ip', function () {
     try {
@@ -4611,94 +4429,6 @@ Route::get('/server-egress-ip', function () {
         return response()->json(['error' => $e->getMessage()], 500);
     }
 });
-
-// DISABLED: Test route - use /admin/allstate-testing instead
-/*
-Route::get('/test/allstate/connection', function () {
-    try {
-        // Allstate API configuration based on environment
-        $environment = env('ALLSTATE_API_ENV', 'testing');
-        
-        if ($environment === 'production') {
-            // Production credentials
-            $apiKey = env('ALLSTATE_API_KEY', 'YjkxNDQ2YWRlOWQzNzY1MGY5M2UzMDVjYmFmOGMyYzk6'); // Production token
-            $baseUrl = 'https://api.allstateleadmarketplace.com/v2';
-        } else {
-            // Testing credentials
-            $apiKey = env('ALLSTATE_API_KEY', 'cXVvdGluZy1mYXN0Og=='); // Testing token  
-            $baseUrl = 'https://int.allstateleadmarketplace.com/v2';
-        }
-
-        Log::info('Testing Allstate API connection with new token', [
-            'api_key' => substr($apiKey, 0, 10) . '...',
-            'base_url' => $baseUrl
-        ]);
-
-        // Test /ping endpoint with correct Basic Auth format and vertical parameter
-        $testVertical = request('vertical', 'auto-insurance'); // Allow testing different verticals
-        
-        $response = \Illuminate\Support\Facades\Http::timeout(30)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-                'Authorization' => 'Basic ' . $apiKey
-            ])
-            ->post($baseUrl . '/ping', [
-                'vertical' => $testVertical  // Required vertical parameter from Allstate docs
-            ]);
-            
-        $results = [
-            'ping' => [
-                'status' => $response->status(),
-                'body' => $response->body(),
-                'success' => $response->successful()
-            ]
-        ];
-
-        // We now use the correct Base64 encoded authorization format
-
-        if ($response->successful()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Allstate API connection successful',
-                'api_key' => substr($apiKey, 0, 10) . '...',
-                'environment' => env('ALLSTATE_API_ENV', 'testing'),
-                'base_url' => $baseUrl,
-                'working_endpoint' => $endpoint ?? 'unknown',
-                'auth_method' => 'Bearer Token',
-                'response' => $response->json(),
-                'all_endpoints_tested' => $results,
-                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Allstate API connection failed - all endpoints failed',
-                'api_key' => substr($apiKey, 0, 10) . '...',
-                'api_key_length' => strlen($apiKey),
-                'base_url' => $baseUrl,
-                'all_endpoints_tested' => $results,
-                'last_response_status' => $response->status(),
-                'last_response_body' => $response->body(),
-                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-            ], 500);
-        }
-
-    } catch (Exception $e) {
-        Log::error('Allstate API connection test failed', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return response()->json([
-            'success' => false,
-            'message' => 'Allstate API connection test failed',
-            'error' => $e->getMessage(),
-            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-        ], 500);
-    }
-});
-*/
 
 // CSV Lead Upload Portal - Admin only
 Route::get('/lead-upload', function () {
@@ -4712,7 +4442,6 @@ Route::get('/lead-upload', function () {
     
     return view('leads.upload', compact('recentUploads'));
 });
-
 // Process CSV Upload
 Route::post('/lead-upload/process', function (Request $request) {
     try {
@@ -5326,7 +5055,6 @@ Route::get('/buyer/documents/{documentId}/sign', function ($documentId) {
 
     return view('buyer.sign-document', compact('buyer', 'document'));
 });
-
 // Process Document Signature
 Route::post('/buyer/documents/{documentId}/signature', function ($documentId, Request $request) {
     $buyerId = session('buyer_id');
@@ -5954,7 +5682,6 @@ Route::post('/api/buyer/crm/config', function (Request $request) {
         ], 500);
     }
 });
-
 // Test CRM Connection API
 Route::post('/api/buyer/crm/test', function (Request $request) {
     $buyerId = session('buyer_id');
@@ -6601,7 +6328,6 @@ Route::get('/admin/allstate-testing', function () {
     
     return view('admin.allstate-testing', compact('testLogs', 'stats'));
 });
-
 // API endpoint to get test details (for modal)
 Route::get('/admin/allstate-testing/details/{logId}', function ($logId) {
     $log = \App\Models\AllstateTestLog::findOrFail($logId);
@@ -7252,7 +6978,6 @@ if (!function_exists('generateSampleLeads')) {
         ]));
     }
 }
-
 function generateSamplePayments($buyerId, $accountType = 'demo') {
     $paymentCount = $accountType === 'demo' ? 10 : ($accountType === 'realistic' ? 6 : 3);
     
@@ -7357,96 +7082,6 @@ Route::get('/admin/lead/{leadId}/update-type/{type}', function ($leadId, $type) 
         'redirect' => "/agent/lead/{$leadId}"
     ]);
 });
-
-// DISABLED: Test route - use /admin/allstate-testing instead
-/*
-Route::get('/test/allstate/{leadId?}', function ($leadId = 1) {
-    try {
-        // Try to get lead from database, fallback to mock data
-        $lead = null;
-    try {
-        $lead = App\Models\Lead::find($leadId);
-        } catch (Exception $dbError) {
-            Log::info('Database unavailable for Allstate test, using mock data');
-        }
-        
-        // If no lead found or database unavailable, create mock lead
-        if (!$lead) {
-            $lead = (object) [
-                'id' => 'ALLSTATE_TEST_' . $leadId,
-                'name' => 'Test AllstateUser',
-                'first_name' => 'Test',
-                'last_name' => 'AllstateUser',
-                'phone' => '5551234567',
-                'email' => 'test.allstate@example.com',
-                'address' => '123 Test Insurance St',
-                'city' => 'Los Angeles',
-                'state' => 'CA',
-                'zip_code' => '90210',
-                'insurance_company' => 'State Farm',
-                'coverage_type' => 'full_coverage',
-                'drivers' => json_encode([
-                    ['name' => 'Test AllstateUser', 'age' => 35, 'gender' => 'Unknown', 'license_status' => 'Valid', 'violations' => 0, 'accidents' => []]
-                ]),
-                'vehicles' => json_encode([
-                    ['year' => 2020, 'make' => 'Toyota', 'model' => 'Camry', 'usage' => 'Personal', 'ownership' => 'Own']
-                ]),
-                'current_policy' => json_encode([
-                    'current_insurance' => 'State Farm',
-                    'coverage' => 'full_coverage',
-                    'expiration_date' => '2024-12-31'
-                ])
-            ];
-        }
-        
-        Log::info('Testing Allstate transfer', [
-            'lead_id' => $lead->id,
-            'lead_name' => $lead->name,
-            'test_endpoint' => true
-        ]);
-        
-        // Attempt to transfer to Allstate
-        $allstateService = new \App\Services\AllstateCallTransferService();
-        $transferResult = $allstateService->transferCall($lead);
-        
-        if ($transferResult['success']) {
-            $lead->update(['status' => 'transferred_to_allstate']);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Allstate transfer test completed successfully',
-                'lead_id' => $lead->id,
-                'lead_name' => $lead->name,
-                'transfer_result' => $transferResult,
-                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Allstate transfer test failed',
-                'lead_id' => $lead->id,
-                'lead_name' => $lead->name,
-                'error' => $transferResult['error'] ?? 'Unknown error',
-                'transfer_result' => $transferResult,
-                'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-            ], 400);
-        }
-        
-    } catch (Exception $e) {
-        Log::error('Allstate transfer test error', [
-            'lead_id' => $leadId,
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-        
-        return response()->json([
-            'success' => false,
-            'error' => 'Internal Server Error: ' . $e->getMessage(),
-            'timestamp' => now()->setTimezone('America/New_York')->toISOString()
-        ], 500);
-    }
-});
-*/
 
 // Dashboard routes (requires authentication)
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -7630,7 +7265,6 @@ if (!function_exists('generateLeadId')) {
     }
 }
 
-// Home Insurance Webhook Endpoint
 // Home Insurance Webhook Endpoint
 Route::post('/webhook/home', function (Request $request) {
     $data = $request->all();
@@ -7833,7 +7467,6 @@ Route::post('/webhook/home', function (Request $request) {
         ], 500);
     }
 });
-
 // Auto Insurance Webhook Endpoint (new dedicated endpoint)
 // Auto Insurance Webhook Endpoint
 Route::post('/webhook/auto', function (Request $request) {
@@ -8458,7 +8091,6 @@ Route::match(['post','put'],'/api/lead/{leadId}/contact', function (Request $req
         return response()->json(['success' => false, 'error' => $t->getMessage()], 500);
     }
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
-
 // GET fallback (CSRF-free) to persist contact edits via query string
 Route::get('/api/lead/{leadId}/contact-save', function (Request $request, $leadId) {
     try {
@@ -8872,9 +8504,6 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
     }
 });
 
-// REMOVED: Allstate validation route per user request
-// This was causing issues and will be re-implemented later if needed
-
 // Ringba Decision Webhook - Automatic Allstate Transfer
 Route::post('/webhook/ringba-decision', function (Request $request) {
     try {
@@ -9083,7 +8712,6 @@ Route::get('/api/analytics/date-ranges', function () {
 Route::get('/analytics', function () {
     return view('analytics.dashboard');
 });
-
 // Admin Dashboard - Working version with proper error handling
 Route::get('/admin', function () {
     // Initialize all variables with safe defaults
@@ -9124,62 +8752,6 @@ Route::get('/admin', function () {
     
     return view('admin.dashboard', $data);
 });
-
-// ORIGINAL BROKEN CODE COMMENTED OUT
-/*
-Route::get('/admin-broken', function () {
-    // Get basic stats for dashboard with safe defaults
-    try {
-        $total_leads = \App\Models\Lead::count();
-        $new_leads = \App\Models\Lead::whereDate('created_at', today())->count();
-    } catch (\Exception $e) {
-        $total_leads = 232456;
-        $new_leads = 517;
-    }
-    
-    try {
-        $contacted = \App\Models\ViciCallMetrics::distinct('lead_id')->count('lead_id');
-    } catch (\Exception $e) {
-        $contacted = 38549;
-    }
-    
-    $stats = [
-        'total_leads' => $total_leads,
-        'new_leads' => $new_leads,
-        'leads_today' => $new_leads,
-        'contacted' => $contacted,
-        'converted' => 968, // Placeholder
-        'conversion_rate' => '2.51', // Placeholder
-    ];
-    
-    $sms_stats = [
-        'sent' => 2341,
-        'delivered_rate' => '94',
-        'replies' => 187,
-    ];
-    
-    try {
-        $weekly_leads = \App\Models\Lead::whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count();
-    } catch (\Exception $e) {
-        $weekly_leads = 2341;
-    }
-    
-    $weekly_stats = [
-        'leads' => $weekly_leads,
-        'qualified' => 89,
-        'appointments' => 47,
-        'revenue' => 15600,
-    ];
-    
-    $top_agent = [
-        'name' => 'Sarah M.',
-        'calls' => 156,
-        'conversions' => 4,
-    ];
-    
-    return view('admin.simple-dashboard', compact('stats', 'sms_stats', 'weekly_stats', 'top_agent'));
-});
-*/
 
 // Color Picker Page
 Route::get('/admin/color-picker', function () {
@@ -9373,15 +8945,6 @@ Route::get('/api-directory', function () {
                 'status' => 'active',
                 'description' => 'Test database connectivity',
                 'last_used' => \Carbon\Carbon::now()->subDays(rand(1, 3))->format('Y-m-d H:i:s'),
-            ],
-            (object)[
-                'name' => 'Test ViciDial Connection',
-                'endpoint' => '/test/vici',
-                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/test/vici',
-                'method' => 'GET',
-                'status' => 'active',
-                'description' => 'Test ViciDial API connectivity',
-                'last_used' => \Carbon\Carbon::now()->subDays(rand(1, 5))->format('Y-m-d H:i:s'),
             ],
             (object)[
                 'name' => 'Test Webhook',
@@ -9725,7 +9288,6 @@ Route::get('/test/ringba-decision/{leadId?}/{decision?}', function ($leadId = 'B
         ], 500);
     }
 });
-
 // Vici lead update function
 function updateViciLead($leadId, $leadData, $changedFields) {
     // Vici API configuration
@@ -10055,15 +9617,15 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
                 }
             }
             
-                    // Attempt Vici sync if fields changed (disabled during testing)
-        if (!empty($changedFields)) {
-            try {
-                if (env('VICI_SYNC_ENABLED', true)) {
-                    $viciSyncResult = updateViciLead($leadId, $updatedData, $changedFields);
-                } else {
-                    Log::info('Vici sync disabled for testing in save-all', ['lead_id' => $leadId]);
-                    $viciSyncResult = false; // Simulate disabled sync
-                }
+            // Attempt Vici sync if fields changed (disabled during testing)
+            if (!empty($changedFields)) {
+                try {
+                    if (env('VICI_SYNC_ENABLED', true)) {
+                        $viciSyncResult = updateViciLead($leadId, $updatedData, $changedFields);
+                    } else {
+                        Log::info('Vici sync disabled for testing in save-all', ['lead_id' => $leadId]);
+                        $viciSyncResult = false; // Simulate disabled sync
+                    }
                     Log::info('Vici sync in save-all', [
                         'lead_id' => $leadId,
                         'changed_fields' => array_keys($changedFields),
@@ -10103,9 +9665,6 @@ Route::post('/agent/lead/{leadId}/save-all', function (Request $request, $leadId
         ], 500);
     }
 });
-
-// REMOVED: Allstate validation route per user request
-// This was causing issues and will be re-implemented later if needed
 
 // Ringba Decision Webhook - Automatic Allstate Transfer
 Route::post('/webhook/ringba-decision', function (Request $request) {
@@ -10356,7 +9915,6 @@ Route::get('/admin', function () {
     
     return view('admin.dashboard', $data);
 });
-
 // ORIGINAL BROKEN CODE COMMENTED OUT
 /*
 Route::get('/admin-broken', function () {
@@ -10605,15 +10163,6 @@ Route::get('/api-directory', function () {
                 'status' => 'active',
                 'description' => 'Test database connectivity',
                 'last_used' => \Carbon\Carbon::now()->subDays(rand(1, 3))->format('Y-m-d H:i:s'),
-            ],
-            (object)[
-                'name' => 'Test ViciDial Connection',
-                'endpoint' => '/test/vici',
-                'full_url' => 'https://quotingfast-brain-ohio.onrender.com/test/vici',
-                'method' => 'GET',
-                'status' => 'active',
-                'description' => 'Test ViciDial API connectivity',
-                'last_used' => \Carbon\Carbon::now()->subDays(rand(1, 5))->format('Y-m-d H:i:s'),
             ],
             (object)[
                 'name' => 'Test Webhook',
@@ -10957,7 +10506,6 @@ Route::get('/test/ringba-decision/{leadId?}/{decision?}', function ($leadId = 'B
         ], 500);
     }
 });
-
 // Vici lead update function
 
 // Test Vici lead update endpoint
