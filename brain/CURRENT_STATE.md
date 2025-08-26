@@ -183,3 +183,11 @@ git push origin main
 
 ---
 *System actively receiving ~120 leads/hour from LeadsQuotingFast*
+
+## Duplicates cleanup (Aug 26, 2025)
+- Added Source and Received columns to the duplicates list to aid review.
+- Added top-level Bulk Cleanup button on `/duplicates` (admin-only) with CSRF token.
+- Fixed Unauthorized on forms by including `admin_key` in all POSTs.
+- How to run:
+  - Review: `/duplicates?admin=1&admin_key=QF-ADMIN-KEY-2025`
+  - Click “Bulk cleanup all duplicates” to keep best per group and delete others.

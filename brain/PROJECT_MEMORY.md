@@ -259,3 +259,9 @@ curl https://quotingfast-brain-ohio.onrender.com/health  # API health
 
 *This document represents the complete project state as of August 22, 2025, 11:30 PM EST*
 *System is LIVE and actively processing leads*
+
+#### Operational Notes – Duplicates Cleanup (Aug 26, 2025)
+- Admin review at `/duplicates?admin=1&admin_key=QF-ADMIN-KEY-2025`.
+- Columns now include Source and Received for quick auditing.
+- Bulk cleanup button posts to `/duplicates/cleanup-all` and keeps best-scored lead per group.
+- All admin forms include `admin_key` to avoid Unauthorized; CSRF token included to avoid 419.

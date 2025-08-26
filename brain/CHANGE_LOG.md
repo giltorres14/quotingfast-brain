@@ -318,3 +318,10 @@
 *This change log is maintained to ensure no progress is lost and all team members can understand the current state and history of modifications.*
 
 
+### 2025-08-26 — Duplicates UI + bulk cleanup reliability
+- Added Source and Received (created_at) columns to duplicates page.
+- Added admin-only Bulk cleanup button on `/duplicates`.
+- Fixed Unauthorized by including `admin_key` as hidden input in bulk/group/single delete forms.
+- Guidance: use `/duplicates?admin=1&admin_key=QF-ADMIN-KEY-2025` to reveal controls; bulk action keeps the highest-score lead per group and deletes the rest.
+
+
