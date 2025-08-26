@@ -4070,12 +4070,20 @@ Route::get('/admin/lead-duplicates', function (\Illuminate\Http\Request $request
 
 // NEW DUPLICATE QUEUE SYSTEM - Admin Interface
 Route::get('/admin/duplicates-incoming', function () {
-    $duplicates = \App\Models\DuplicateLeadQueue::with('originalLead')
-        ->where('status', 'pending')
-        ->orderBy('created_at', 'desc')
-        ->paginate(50);
-    
-    return view('admin.duplicates-incoming', compact('duplicates'));
+    try {
+        $duplicates = \App\Models\DuplicateLeadQueue::with('originalLead')
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
+        
+        return view('admin.duplicates-incoming', compact('duplicates'));
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ], 500);
+    }
 })->name('admin.duplicates-incoming');
 
 // API endpoints for duplicate queue actions
