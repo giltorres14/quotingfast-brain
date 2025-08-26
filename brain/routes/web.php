@@ -3485,6 +3485,7 @@ Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
             'notes' => $request->get('notes') ?? $request->get('comments') ?? ''
         ],
         'captureUrl' => url('/agent/lead/capture'),
+        'transferUrl' => url('/agent/lead/capture'), // Add missing transferUrl variable
     ]);
 });
 // Agent iframe endpoint - displays full lead data with transfer button
