@@ -290,6 +290,9 @@
                             <a href="/admin/lead-duplicates" class="dropdown-item">
                                 <span class="icon">🧩</span>Duplicate Finder
                             </a>
+                            <a href="/admin/duplicates-incoming" class="dropdown-item">
+                                <span class="icon">⏳</span>Duplicate Queue
+                            </a>
                         </div>
                         <div class="dropdown-section">
                             <div class="dropdown-title">Import & Export</div>

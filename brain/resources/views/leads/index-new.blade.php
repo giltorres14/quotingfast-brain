@@ -231,6 +231,13 @@
         <div class="stat-number" id="stat-conversion" style="color: #8b5cf6;">0%</div>
         <div class="stat-label">Conversion Rate</div>
     </div>
+    <div class="stat-card" style="{{ ($stats['pending_duplicates'] ?? 0) > 0 ? 'border: 2px solid #ef4444;' : '' }}">
+        <div class="stat-number" id="stat-duplicates" style="color: {{ ($stats['pending_duplicates'] ?? 0) > 0 ? '#ef4444' : '#10b981' }};">{{ number_format($stats['pending_duplicates'] ?? 0) }}</div>
+        <div class="stat-label">Pending Duplicates</div>
+        @if(($stats['pending_duplicates'] ?? 0) > 0)
+            <a href="/admin/duplicates-incoming" style="color: #ef4444; text-decoration: none; font-size: 0.8rem; margin-top: 0.5rem; display: block;">Review Now →</a>
+        @endif
+    </div>
 </div>
 
 <!-- Search and Filters -->
@@ -1460,6 +1467,7 @@
     }
 </script>
 @endsection
+
 
 
 

@@ -3261,6 +3261,9 @@ Route::get('/leads', function (Request $request) {
             $stats['total_leads'] = Lead::count();
             $stats['vici_sent'] = Lead::whereNotNull('vici_list_id')->where('vici_list_id', '>', 0)->count();
             $stats['allstate_sent'] = Lead::whereNotNull('allstate_lead_id')->count();
+            
+            // Get pending duplicates count
+            $stats['pending_duplicates'] = \App\Models\DuplicateLeadQueue::where('status', 'pending')->count();
         } catch (\Exception $statsError) {
             Log::warning('Statistics calculation failed, using defaults', ['error' => $statsError->getMessage()]);
         }
