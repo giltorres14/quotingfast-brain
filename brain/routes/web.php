@@ -4308,11 +4308,18 @@ Route::post('/agent/lead/{leadId}/qualify', function (Request $request, $leadId)
         }
 
         // Persist Top Questions answers in meta.qualification
-        $meta = json_decode($lead->meta ?? '{}', true) ?: [];
+        // Note: Lead model casts 'meta' to array, so avoid json_decode when already an array
+        $meta = [];
+        if (is_array($lead->meta)) {
+            $meta = $lead->meta;
+        } elseif (is_string($lead->meta) && strlen($lead->meta) > 0) {
+            $meta = json_decode($lead->meta, true) ?: [];
+        }
         $meta['qualification'] = array_merge($meta['qualification'] ?? [], $data, [
             'saved_at' => now()->toISOString()
         ]);
-        $lead->meta = json_encode($meta);
+        // Assign array; Eloquent will JSON-encode due to casts
+        $lead->meta = $meta;
         $lead->save();
 
         if ($request->boolean('as_json') || $request->ajax()) {
