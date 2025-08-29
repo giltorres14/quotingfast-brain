@@ -3473,6 +3473,8 @@ Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
     // Show capture with prefill
     return response()->view('agent.lead-not-found', [
         'leadId' => $idParam ?? 'UNKNOWN',
+            'transferUrl' => url('/agent/lead/capture'),
+            'apiBase' => url('/api'),
         'prefill' => [
             'first_name' => $request->get('first_name') ?? $request->get('fname') ?? '',
             'last_name' => $request->get('last_name') ?? $request->get('lname') ?? '',
@@ -3680,6 +3682,8 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
             // Real lead not found - show "Lead Not Found / Capture" page with prefill from Vici params
             return response()->view('agent.lead-not-found', [
                 'leadId' => $leadId,
+                'transferUrl' => url('/agent/lead/capture'),
+                'apiBase' => url('/api'),
                 'prefill' => [
                     'first_name' => request()->get('first_name') ?? request()->get('fname') ?? '',
                     'last_name' => request()->get('last_name') ?? request()->get('lname') ?? '',
