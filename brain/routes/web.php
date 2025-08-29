@@ -10723,3 +10723,152 @@ Route::get('/all-leads', function () {
 Route::get('/vici-command-center', function () {
     return redirect('/vici/command-center');
 });
+
+// Phone lookup route for Vici iframe fallback
+Route::get("/agent/lead-by-phone/{phone}", function($phone) {
+    // Clean the phone number
+    $cleanPhone = preg_replace("/[^0-9]/", "", $phone);
+    
+    try {
+        $pdo = new PDO(
+            "pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production",
+            "brain_user",
+            "KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ"
+        );
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // Check if we have a specific Vici lead ID to match
+        $viciLeadId = request()->get("vici_lead_id");
+        
+        // If we have a Vici lead ID, skip existing Brain leads and go straight to Vici lookup
+        if ($viciLeadId) {
+            // Skip existing Brain leads - go straight to Vici lookup
+            $leadData = null;
+        } else {
+            // Try to find lead by phone - use exact match first, then fallback to pattern
+            $stmt = $pdo->prepare("SELECT * FROM leads WHERE phone = :phone ORDER BY created_at DESC LIMIT 1");
+            $stmt->execute([":phone" => $cleanPhone]);
+            $leadData = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // If no exact match, try pattern match but be more specific
+            if (!$leadData) {
+                $stmt = $pdo->prepare("SELECT * FROM leads WHERE phone LIKE :phone_pattern AND LENGTH(phone) = 10 ORDER BY created_at DESC LIMIT 1");
+                $stmt->execute([":phone_pattern" => "%" . substr($cleanPhone, -10)]);
+                $leadData = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+        }
+        
+        if ($leadData) {
+            // Lead found - redirect to it
+            return redirect("/agent/lead/{$leadData["external_lead_id"]}?iframe=1");
+        }
+        
+        // No lead found in Brain - try to get data from Vici and create new lead
+        try {
+            // Use Vici proxy instead of direct database access (IP whitelist requirement)
+            $viciProxyUrl = "https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute";
+            $viciApiKey = "sk-KrtJqEUxCrUvYRQQQ8OKbMBmOa2OYnW5S5tPwPQJzIGBBgSZ";
+            
+            if ($viciLeadId) {
+                $viciQuery = "SELECT lead_id, first_name, last_name, phone_number, email, address1, city, state, postal_code FROM vicidial_list WHERE lead_id = \"{$viciLeadId}\" LIMIT 1";
+            } else {
+                $viciQuery = "SELECT lead_id, first_name, last_name, phone_number, email, address1, city, state, postal_code FROM vicidial_list WHERE phone_number = \"{$cleanPhone}\" ORDER BY lead_id DESC LIMIT 1";
+            }
+            
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $viciProxyUrl);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+                "command" => "mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p\"hkj7uAlV9wp9zOMr\" Q6hdjl67GRigMofv -e \"{$viciQuery}\""
+            ]));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                "Content-Type: application/json",
+                "X-API-Key: " . $viciApiKey
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            $viciLead = null;
+            if ($httpCode === 200 && $response) {
+                $result = json_decode($response, true);
+                if (isset($result["output"]) && !empty($result["output"])) {
+                    // Parse the tab-separated output
+                    $lines = explode("
+", trim($result["output"]));
+                    if (count($lines) > 1) { // Skip header line
+                        $headers = explode("	", $lines[0]);
+                        $data = explode("	", $lines[1]);
+                        $viciLead = array_combine($headers, $data);
+                    }
+                }
+            }
+            
+            if ($viciLead) {
+                // Create new Brain lead from Vici data
+                $extId = (string) round(microtime(true) * 1000);
+                
+                $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, \"auto\", \"vicidial-phone-lookup\", :meta, NOW(), NOW())");
+                
+                $name = trim(($viciLead["first_name"] ?? "") . " " . ($viciLead["last_name"] ?? ""));
+                $meta = json_encode(["vici_lead_id" => $viciLead["lead_id"]]);
+                
+                $stmt->execute([
+                    ":eid" => $extId,
+                    ":name" => $name,
+                    ":first" => $viciLead["first_name"] ?? "",
+                    ":last" => $viciLead["last_name"] ?? "",
+                    ":phone" => $cleanPhone,
+                    ":email" => $viciLead["email"] ?? "",
+                    ":addr" => $viciLead["address1"] ?? "",
+                    ":city" => $viciLead["city"] ?? "",
+                    ":state" => $viciLead["state"] ?? "",
+                    ":zip" => $viciLead["postal_code"] ?? "",
+                    ":meta" => $meta,
+                ]);
+                
+                // Update Vici with the Brain external_lead_id via proxy
+                $updateViciQuery = "UPDATE vicidial_list SET vendor_lead_code = \"{$extId}\" WHERE lead_id = \"{$viciLead["lead_id"]}\"";
+                
+                $ch_update = curl_init();
+                curl_setopt($ch_update, CURLOPT_URL, $viciProxyUrl);
+                curl_setopt($ch_update, CURLOPT_POST, true);
+                curl_setopt($ch_update, CURLOPT_POSTFIELDS, json_encode([
+                    "command" => "mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p\"hkj7uAlV9wp9zOMr\" Q6hdjl67GRigMofv -e \"{$updateViciQuery}\""
+                ]));
+                curl_setopt($ch_update, CURLOPT_HTTPHEADER, [
+                    "Content-Type: application/json",
+                    "X-API-Key: " . $viciApiKey
+                ]);
+                curl_setopt($ch_update, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch_update, CURLOPT_TIMEOUT, 30);
+                curl_exec($ch_update);
+                curl_close($ch_update);
+                
+                \Log::info("Created new Brain lead from Vici phone lookup and updated Vici", [
+                    "phone" => $cleanPhone,
+                    "vici_lead_id" => $viciLead["lead_id"],
+                    "brain_external_id" => $extId
+                ]);
+                
+                return redirect("/agent/lead/{$extId}?iframe=1");
+            }
+        } catch (Exception $e) {
+            \Log::error("Vici lookup failed: " . $e->getMessage());
+        }
+        
+        // If no Vici data, create minimal lead
+        $extId = (string) round(microtime(true) * 1000);
+        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, phone, type, source, created_at, updated_at) VALUES (:eid, \"Unknown\", :phone, \"auto\", \"vicidial-phone-lookup\", NOW(), NOW())");
+        $stmt->execute([":eid" => $extId, ":phone" => $cleanPhone]);
+        
+        return redirect("/agent/lead/{$extId}?iframe=1");
+        
+    } catch (Exception $e) {
+        \Log::error("Phone lookup route failed: " . $e->getMessage());
+        return redirect("/agent/lead/capture?phone={$cleanPhone}");
+    }
+})->name("agent.lead-by-phone");
