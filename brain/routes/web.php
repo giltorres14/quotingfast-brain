@@ -3520,6 +3520,38 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
         $leadData = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($leadData) {
+            // Lead found - update Vici with Brain external_lead_id if we have a Vici lead ID
+            if ($viciLeadId) {
+                try {
+                    $viciProxyUrl = "https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute";
+                    $viciApiKey = "sk-KrtJqEUxCrUvYRQQQ8OKbMBmOa2OYnW5S5tPwPQJzIGBBgSZ";
+                    
+                    $updateViciQuery = "UPDATE vicidial_list SET vendor_lead_code = \"{$leadData["external_lead_id"]}\" WHERE lead_id = \"{$viciLeadId}\"";
+                    
+                    $ch_update = curl_init();
+                    curl_setopt($ch_update, CURLOPT_URL, $viciProxyUrl);
+                    curl_setopt($ch_update, CURLOPT_POST, true);
+                    curl_setopt($ch_update, CURLOPT_POSTFIELDS, json_encode([
+                        "command" => "mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p\"hkj7uAlV9wp9zOMr\" Q6hdjl67GRigMofv -e \"{$updateViciQuery}\""
+                    ]));
+                    curl_setopt($ch_update, CURLOPT_HTTPHEADER, [
+                        "Content-Type: application/json",
+                        "X-API-Key: " . $viciApiKey
+                    ]);
+                    curl_setopt($ch_update, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch_update, CURLOPT_TIMEOUT, 30);
+                    curl_exec($ch_update);
+                    curl_close($ch_update);
+                    
+                    \Log::info("Updated Vici with existing Brain lead", [
+                        "phone" => $cleanPhone,
+                        "vici_lead_id" => $viciLeadId,
+                        "brain_external_id" => $leadData["external_lead_id"]
+                    ]);
+                } catch (Exception $e) {
+                    \Log::error("Failed to update Vici with existing lead: " . $e->getMessage());
+                }
+            }
             // Convert to object for compatibility with view
             $lead = (object) $leadData;
             
@@ -10759,6 +10791,38 @@ Route::get("/agent/lead-by-phone/{phone}", function($phone) {
         }
         
         if ($leadData) {
+            // Lead found - update Vici with Brain external_lead_id if we have a Vici lead ID
+            if ($viciLeadId) {
+                try {
+                    $viciProxyUrl = "https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute";
+                    $viciApiKey = "sk-KrtJqEUxCrUvYRQQQ8OKbMBmOa2OYnW5S5tPwPQJzIGBBgSZ";
+                    
+                    $updateViciQuery = "UPDATE vicidial_list SET vendor_lead_code = \"{$leadData["external_lead_id"]}\" WHERE lead_id = \"{$viciLeadId}\"";
+                    
+                    $ch_update = curl_init();
+                    curl_setopt($ch_update, CURLOPT_URL, $viciProxyUrl);
+                    curl_setopt($ch_update, CURLOPT_POST, true);
+                    curl_setopt($ch_update, CURLOPT_POSTFIELDS, json_encode([
+                        "command" => "mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p\"hkj7uAlV9wp9zOMr\" Q6hdjl67GRigMofv -e \"{$updateViciQuery}\""
+                    ]));
+                    curl_setopt($ch_update, CURLOPT_HTTPHEADER, [
+                        "Content-Type: application/json",
+                        "X-API-Key: " . $viciApiKey
+                    ]);
+                    curl_setopt($ch_update, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch_update, CURLOPT_TIMEOUT, 30);
+                    curl_exec($ch_update);
+                    curl_close($ch_update);
+                    
+                    \Log::info("Updated Vici with existing Brain lead", [
+                        "phone" => $cleanPhone,
+                        "vici_lead_id" => $viciLeadId,
+                        "brain_external_id" => $leadData["external_lead_id"]
+                    ]);
+                } catch (Exception $e) {
+                    \Log::error("Failed to update Vici with existing lead: " . $e->getMessage());
+                }
+            }
             // Lead found - redirect to it
             return redirect("/agent/lead/{$leadData["external_lead_id"]}?iframe=1");
         }
