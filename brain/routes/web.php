@@ -3427,6 +3427,56 @@ Route::get('/leads/{id}/edit', function ($id) {
     return redirect('/agent/lead/' . $id . '?mode=edit');
 });
 
+// Capture endpoint: create Brain lead and redirect to iframe edit (GET version to bypass CSRF)
+Route::get('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
+    try {
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        // Handle both GET and POST parameters
+        $first = trim((string)($request->input('first_name') ?? $request->query('first_name') ?? ''));
+        $last = trim((string)($request->input('last_name') ?? $request->query('last_name') ?? ''));
+        $name = trim($first . ' ' . $last);
+        $phone = trim((string)($request->input('phone') ?? $request->query('phone') ?? ''));
+        $email = trim((string)($request->input('email') ?? $request->query('email') ?? ''));
+        $address = trim((string)($request->input('address') ?? $request->query('address') ?? ''));
+        $city = trim((string)($request->input('city') ?? $request->query('city') ?? ''));
+        $state = trim((string)($request->input('state') ?? $request->query('state') ?? ''));
+        $zip = trim((string)($request->input('zip_code') ?? $request->query('zip_code') ?? $request->input('zip') ?? $request->query('zip') ?? ''));
+        $notes = trim((string)($request->input('notes') ?? $request->query('notes') ?? ''));
+        $extId = $request->input('external_lead_id') ?? $request->query('external_lead_id');
+        if (empty($extId)) { $extId = (string) round(microtime(true) * 1000); }
+
+        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, 'auto', 'vicidial-iframe-capture', :meta, NOW(), NOW()) ON CONFLICT (external_lead_id) DO NOTHING");
+        $meta = json_encode(['notes' => $notes]);
+        $stmt->execute([
+            ':eid' => $extId,
+            ':name' => $name,
+            ':first' => $first,
+            ':last' => $last,
+            ':phone' => $phone,
+            ':email' => $email,
+            ':addr' => $address,
+            ':city' => $city,
+            ':state' => $state,
+            ':zip' => $zip,
+            ':meta' => $meta,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'redirect' => url('/agent/lead/' . $extId . '?iframe=1&mode=edit'),
+            'external_lead_id' => $extId,
+        ]);
+    } catch (Throwable $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
 // Safety route: allow /agent/lead without an ID (fallback to phone or capture)
 Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
     $mode = $request->get('mode', 'agent');
@@ -3832,55 +3882,6 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
 });
 
 // Capture endpoint: create Brain lead and redirect to iframe edit (GET version to bypass CSRF)
-Route::get('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
-    try {
-        $pdo = new PDO(
-            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
-            'brain_user',
-            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
-        );
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        // Handle both GET and POST parameters
-        $first = trim((string)($request->input('first_name') ?? $request->query('first_name') ?? ''));
-        $last = trim((string)($request->input('last_name') ?? $request->query('last_name') ?? ''));
-        $name = trim($first . ' ' . $last);
-        $phone = trim((string)($request->input('phone') ?? $request->query('phone') ?? ''));
-        $email = trim((string)($request->input('email') ?? $request->query('email') ?? ''));
-        $address = trim((string)($request->input('address') ?? $request->query('address') ?? ''));
-        $city = trim((string)($request->input('city') ?? $request->query('city') ?? ''));
-        $state = trim((string)($request->input('state') ?? $request->query('state') ?? ''));
-        $zip = trim((string)($request->input('zip_code') ?? $request->query('zip_code') ?? $request->input('zip') ?? $request->query('zip') ?? ''));
-        $notes = trim((string)($request->input('notes') ?? $request->query('notes') ?? ''));
-        $extId = $request->input('external_lead_id') ?? $request->query('external_lead_id');
-        if (empty($extId)) { $extId = (string) round(microtime(true) * 1000); }
-
-        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, 'auto', 'vicidial-iframe-capture', :meta, NOW(), NOW()) ON CONFLICT (external_lead_id) DO NOTHING");
-        $meta = json_encode(['notes' => $notes]);
-        $stmt->execute([
-            ':eid' => $extId,
-            ':name' => $name,
-            ':first' => $first,
-            ':last' => $last,
-            ':phone' => $phone,
-            ':email' => $email,
-            ':addr' => $address,
-            ':city' => $city,
-            ':state' => $state,
-            ':zip' => $zip,
-            ':meta' => $meta,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'redirect' => url('/agent/lead/' . $extId . '?iframe=1&mode=edit'),
-            'external_lead_id' => $extId,
-        ]);
-    } catch (Throwable $e) {
-        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
-    }
-});
-
 // Human-readable payload viewer with copy button
 Route::get('/lead/{id}/payload-view', function ($id) {
     try {
