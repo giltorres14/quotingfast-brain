@@ -18,6 +18,7 @@
     </style>
     <script>
         async function createLead(e){
+            console.log('Create Lead function called');
             e.preventDefault();
             const f = e.target;
             const payload = {
@@ -33,14 +34,28 @@
                 notes: f.notes.value.trim(),
                 source: 'vicidial-iframe-capture'
             };
-            const res = await fetch('{{ $captureUrl }}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data && data.redirect) { window.location.href = data.redirect; return; }
-            alert(data.error || 'Failed to create lead');
+            console.log('Payload:', payload);
+            console.log('Capture URL:', '{{ $captureUrl }}');
+            
+            try {
+                const res = await fetch('{{ $captureUrl }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                console.log('Response status:', res.status);
+                const data = await res.json();
+                console.log('Response data:', data);
+                if (data && data.redirect) { 
+                    console.log('Redirecting to:', data.redirect);
+                    window.location.href = data.redirect; 
+                    return; 
+                }
+                alert(data.error || 'Failed to create lead');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error creating lead: ' + error.message);
+            }
         }
     </script>
     </head>
