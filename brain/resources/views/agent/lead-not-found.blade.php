@@ -21,7 +21,7 @@
             e.preventDefault();
             const f = e.target;
             const payload = {
-                external_lead_id: '{{ $leadId }}',
+                external_lead_id: Math.floor(Date.now() * 1000).toString(),
                 first_name: f.first_name.value.trim(),
                 last_name: f.last_name.value.trim(),
                 phone: f.phone.value.trim(),
