@@ -3563,7 +3563,7 @@ Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
     // Show capture with prefill
     return response()->view('agent.lead-not-found', [
         'leadId' => $idParam ?? 'UNKNOWN',
-            'transferUrl' => url('/agent/lead/capture'),
+            'transferUrl' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/capture',
             'apiBase' => url('/api'),
         'prefill' => [
             'first_name' => $request->get('first_name') ?? $request->get('fname') ?? '',
@@ -3576,8 +3576,8 @@ Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
             'zip' => $request->get('zip') ?? $request->get('zipcode') ?? '',
             'notes' => $request->get('notes') ?? $request->get('comments') ?? ''
         ],
-        'captureUrl' => url('/agent/lead/capture'),
-        'transferUrl' => url('/agent/lead/capture'), // Add missing transferUrl variable
+        'captureUrl' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/capture',
+        'transferUrl' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/capture', // Add missing transferUrl variable
     ]);
 });
 // Agent iframe endpoint - displays full lead data with transfer button
@@ -3785,7 +3785,7 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                     'zip' => request()->get('zip') ?? request()->get('zipcode') ?? '',
                     'notes' => request()->get('notes') ?? request()->get('comments') ?? ''
                 ],
-                'captureUrl' => url('/agent/lead/capture'),
+                'captureUrl' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/capture',
             ]);
         } elseif (!$lead && $isTestLead) {
             // Test lead - create mock data for testing
