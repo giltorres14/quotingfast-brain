@@ -3427,96 +3427,6 @@ Route::get('/leads/{id}/edit', function ($id) {
     return redirect('/agent/lead/' . $id . '?mode=edit');
 });
 
-// Test route to verify deployment
-Route::get('/test-deployment', function () {
-    return response()->json(['status' => 'deployment-test-' . time()]);
-});
-
-// Capture endpoint: create Brain lead and redirect to iframe edit (GET version to bypass CSRF)
-Route::get('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
-    try {
-        $pdo = new PDO(
-            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
-            'brain_user',
-            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
-        );
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        // Handle both GET and POST parameters
-        $first = trim((string)($request->input('first_name') ?? $request->query('first_name') ?? ''));
-        $last = trim((string)($request->input('last_name') ?? $request->query('last_name') ?? ''));
-        $name = trim($first . ' ' . $last);
-        $phone = trim((string)($request->input('phone') ?? $request->query('phone') ?? ''));
-        $email = trim((string)($request->input('email') ?? $request->query('email') ?? ''));
-        $address = trim((string)($request->input('address') ?? $request->query('address') ?? ''));
-        $city = trim((string)($request->input('city') ?? $request->query('city') ?? ''));
-        $state = trim((string)($request->input('state') ?? $request->query('state') ?? ''));
-        $zip = trim((string)($request->input('zip_code') ?? $request->query('zip_code') ?? $request->input('zip') ?? $request->query('zip') ?? ''));
-        $notes = trim((string)($request->input('notes') ?? $request->query('notes') ?? ''));
-        $extId = $request->input('external_lead_id') ?? $request->query('external_lead_id');
-        if (empty($extId)) { $extId = (string) round(microtime(true) * 1000); }
-
-        // Get Vici lead ID if available
-        $viciLeadId = $request->input('vici_lead_id') ?? $request->query('vici_lead_id') ?? $request->input('lead_id') ?? $request->query('lead_id');
-
-        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, tenant_id, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, 'auto', 'vicidial-iframe-capture', :meta, 1, NOW(), NOW())");
-        $meta = json_encode(['notes' => $notes]);
-        $stmt->execute([
-            ':eid' => $extId,
-            ':name' => $name,
-            ':first' => $first,
-            ':last' => $last,
-            ':phone' => $phone,
-            ':email' => $email,
-            ':addr' => $address,
-            ':city' => $city,
-            ':state' => $state,
-            ':zip' => $zip,
-            ':meta' => $meta,
-        ]);
-
-        // Update Vici with the new Brain external_lead_id if we have a Vici lead ID
-        if ($viciLeadId) {
-            try {
-                $viciProxyUrl = "https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute";
-                $viciApiKey = "sk-KrtJqEUxCrUvYRQQQ8OKbMBmOa2OYnW5S5tPwPQJzIGBBgSZ";
-                
-                $updateViciQuery = "UPDATE vicidial_list SET vendor_lead_code = \"{$extId}\" WHERE lead_id = \"{$viciLeadId}\"";
-                
-                $ch_update = curl_init();
-                curl_setopt($ch_update, CURLOPT_URL, $viciProxyUrl);
-                curl_setopt($ch_update, CURLOPT_POST, true);
-                curl_setopt($ch_update, CURLOPT_POSTFIELDS, json_encode([
-                    "command" => "mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p\"hkj7uAlV9wp9zOMr\" Q6hdjl67GRigMofv -e \"{$updateViciQuery}\""
-                ]));
-                curl_setopt($ch_update, CURLOPT_HTTPHEADER, [
-                    "Content-Type: application/json",
-                    "X-API-Key: " . $viciApiKey
-                ]);
-                curl_setopt($ch_update, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch_update, CURLOPT_TIMEOUT, 30);
-                curl_exec($ch_update);
-                curl_close($ch_update);
-                
-                \Log::info("Updated Vici with new Brain lead", [
-                    "vici_lead_id" => $viciLeadId,
-                    "brain_external_id" => $extId
-                ]);
-            } catch (Exception $e) {
-                \Log::error("Failed to update Vici with new lead: " . $e->getMessage());
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'redirect' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/' . $extId . '?iframe=1&mode=edit',
-            'external_lead_id' => $extId,
-        ]);
-    } catch (Throwable $e) {
-        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
-    }
-});
-
 // Safety route: allow /agent/lead without an ID (fallback to phone or capture)
 Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
     $mode = $request->get('mode', 'agent');
@@ -3563,7 +3473,7 @@ Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
     // Show capture with prefill
     return response()->view('agent.lead-not-found', [
         'leadId' => $idParam ?? 'UNKNOWN',
-            'transferUrl' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/capture',
+            'transferUrl' => url('/agent/lead/capture'),
             'apiBase' => url('/api'),
         'prefill' => [
             'first_name' => $request->get('first_name') ?? $request->get('fname') ?? '',
@@ -3576,8 +3486,8 @@ Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
             'zip' => $request->get('zip') ?? $request->get('zipcode') ?? '',
             'notes' => $request->get('notes') ?? $request->get('comments') ?? ''
         ],
-        'captureUrl' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/capture',
-        'transferUrl' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/capture', // Add missing transferUrl variable
+        'captureUrl' => url('/agent/lead/capture'),
+        'transferUrl' => url('/agent/lead/capture'), // Add missing transferUrl variable
     ]);
 });
 // Agent iframe endpoint - displays full lead data with transfer button
@@ -3785,7 +3695,7 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
                     'zip' => request()->get('zip') ?? request()->get('zipcode') ?? '',
                     'notes' => request()->get('notes') ?? request()->get('comments') ?? ''
                 ],
-                'captureUrl' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/capture',
+                'captureUrl' => url('/agent/lead/capture'),
             ]);
         } elseif (!$lead && $isTestLead) {
             // Test lead - create mock data for testing
@@ -3921,7 +3831,55 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
     }
 });
 
-// Capture endpoint: create Brain lead and redirect to iframe edit (GET version to bypass CSRF)
+// Capture endpoint: create Brain lead and redirect to iframe edit
+Route::post('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
+    try {
+        $pdo = new PDO(
+            'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
+            'brain_user',
+            'KoK8TYX26PShPKl8LISdhHOQsCrnzcCQ'
+        );
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $first = trim((string)$request->input('first_name', ''));
+        $last = trim((string)$request->input('last_name', ''));
+        $name = trim($first . ' ' . $last);
+        $phone = trim((string)$request->input('phone', ''));
+        $email = trim((string)$request->input('email', ''));
+        $address = trim((string)$request->input('address', ''));
+        $city = trim((string)$request->input('city', ''));
+        $state = trim((string)$request->input('state', ''));
+        $zip = trim((string)$request->input('zip_code', $request->input('zip', '')));
+        $notes = trim((string)$request->input('notes', ''));
+        $extId = $request->input('external_lead_id');
+        if (empty($extId)) { $extId = (string) round(microtime(true) * 1000); }
+
+        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, 'auto', 'vicidial-iframe-capture', :meta, NOW(), NOW()) ON CONFLICT (external_lead_id) DO NOTHING");
+        $meta = json_encode(['notes' => $notes]);
+        $stmt->execute([
+            ':eid' => $extId,
+            ':name' => $name,
+            ':first' => $first,
+            ':last' => $last,
+            ':phone' => $phone,
+            ':email' => $email,
+            ':addr' => $address,
+            ':city' => $city,
+            ':state' => $state,
+            ':zip' => $zip,
+            ':meta' => $meta,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'redirect' => url('/agent/lead/' . $extId . '?iframe=1&mode=edit'),
+            'external_lead_id' => $extId,
+        ]);
+    } catch (Throwable $e) {
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
 // Human-readable payload viewer with copy button
 Route::get('/lead/{id}/payload-view', function ($id) {
     try {
@@ -10903,27 +10861,12 @@ Route::get("/agent/lead-by-phone/{phone}", function($phone) {
                 if ($httpCode === 200 && $response) {
                     $result = json_decode($response, true);
                     if (isset($result["output"]) && !empty($result["output"])) {
-                        // Remove the SSH error messages and split by newlines
-                        $output = $result["output"];
-                        $lines = explode("\n", trim($output));
-                        
-                        // Find the line that starts with "lead_id" (the header)
-                        $headerLine = null;
-                        $dataLine = null;
-                        foreach ($lines as $line) {
-                            if (strpos($line, 'lead_id') === 0) {
-                                $headerLine = $line;
-                                $dataLine = next($lines);
-                                break;
-                            }
-                        }
-                        
-                        if ($headerLine && $dataLine) {
-                            $headers = explode("\t", $headerLine);
-                            $data = explode("\t", $dataLine);
-                            if (count($headers) === count($data)) {
-                                $viciData = array_combine($headers, $data);
-                            }
+                        $lines = explode("
+", trim($result["output"]));
+                        if (count($lines) > 1) {
+                            $headers = explode("	", $lines[0]);
+                            $data = explode("	", $lines[1]);
+                            $viciData = array_combine($headers, $data);
                         }
                     }
                 }
@@ -10932,28 +10875,86 @@ Route::get("/agent/lead-by-phone/{phone}", function($phone) {
             }
         }
         
-        // Redirect to capture form with Vici data pre-filled
-        $queryParams = [];
+        // Create a new Brain lead with Vici data
+        $extId = (string) round(microtime(true) * 1000);
+        
+        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, \"auto\", \"vicidial-phone-lookup\", :meta, NOW(), NOW())");
+        
+        $name = $viciData ? trim(($viciData["first_name"] ?? "") . " " . ($viciData["last_name"] ?? "")) : "Unknown";
+        $meta = $viciData ? json_encode(["vici_lead_id" => $viciData["lead_id"]]) : json_encode([]);
+        
+        $stmt->execute([
+            ":eid" => $extId,
+            ":name" => $name,
+            ":first" => $viciData["first_name"] ?? "",
+            ":last" => $viciData["last_name"] ?? "",
+            ":phone" => $cleanPhone,
+            ":email" => $viciData["email"] ?? "",
+            ":addr" => $viciData["address1"] ?? "",
+            ":city" => $viciData["city"] ?? "",
+            ":state" => $viciData["state"] ?? "",
+            ":zip" => $viciData["postal_code"] ?? "",
+            ":meta" => $meta,
+        ]);
+        
+        // Update Vici with the Brain external_lead_id
         if ($viciData) {
-            $queryParams = [
-                'first_name' => $viciData["first_name"] ?? '',
-                'last_name' => $viciData["last_name"] ?? '',
-                'phone' => $cleanPhone,
-                'email' => $viciData["email"] ?? '',
-                'address' => $viciData["address1"] ?? '',
-                'city' => $viciData["city"] ?? '',
-                'state' => $viciData["state"] ?? '',
-                'zip' => $viciData["postal_code"] ?? '',
-                'vici_lead_id' => $viciData["lead_id"] ?? '',
-                'notes' => 'Lead data from Vici phone lookup'
-            ];
+            try {
+                $updateViciQuery = "UPDATE vicidial_list SET vendor_lead_code = \"{$extId}\" WHERE lead_id = \"{$viciData["lead_id"]}\"";
+                
+                $ch_update = curl_init();
+                curl_setopt($ch_update, CURLOPT_URL, $viciProxyUrl);
+                curl_setopt($ch_update, CURLOPT_POST, true);
+                curl_setopt($ch_update, CURLOPT_POSTFIELDS, json_encode([
+                    "command" => "mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p\"hkj7uAlV9wp9zOMr\" Q6hdjl67GRigMofv -e \"{$updateViciQuery}\""
+                ]));
+                curl_setopt($ch_update, CURLOPT_HTTPHEADER, [
+                    "Content-Type: application/json",
+                    "X-API-Key: " . $viciApiKey
+                ]);
+                curl_setopt($ch_update, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch_update, CURLOPT_TIMEOUT, 30);
+                curl_exec($ch_update);
+                curl_close($ch_update);
+                
+                \Log::info("Created new Brain lead and updated Vici", [
+                    "phone" => $cleanPhone,
+                    "vici_lead_id" => $viciData["lead_id"],
+                    "brain_external_id" => $extId
+                ]);
+            } catch (Exception $e) {
+                \Log::error("Failed to update Vici: " . $e->getMessage());
+            }
         }
         
-        $queryString = http_build_query($queryParams);
-        return redirect("https://quotingfast-brain-ohio.onrender.com/agent/lead/capture?{$queryString}");
+        // Redirect to the new Brain lead edit page
+        return redirect("/agent/lead/{$extId}?iframe=1");
         
     } catch (Exception $e) {
         \Log::error("Phone lookup route failed: " . $e->getMessage());
         return redirect("/agent/lead/capture?phone={$cleanPhone}");
     }
 })->name("agent.lead-by-phone");
+
+
+// Smart lookup route that implements iframe script logic
+Route::get("/agent/lead-smart-lookup", function() {
+    $vendorCode = request()->get("vendor_lead_code");
+    $leadId = request()->get("lead_id");
+    $phoneNumber = request()->get("phone");
+    
+    // Step 1: Try vendor_lead_code (Brain external_lead_id)
+    if ($vendorCode && trim($vendorCode) !== "") {
+        return redirect("/agent/lead/{$vendorCode}?iframe=1");
+    }
+    
+    // Step 2: Try phone lookup with Vici lead ID
+    if ($phoneNumber && trim($phoneNumber) !== "") {
+        $cleanPhone = preg_replace("/[^0-9]/", "", $phoneNumber);
+        $viciLeadId = $leadId && trim($leadId) !== "" ? $leadId : "";
+        return redirect("/agent/lead-by-phone/{$cleanPhone}?vici_lead_id={$viciLeadId}");
+    }
+    
+    // Step 3: Final fallback
+    return redirect("/agent/lead/capture");
+})->name("agent.lead-smart-lookup");
