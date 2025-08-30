@@ -10903,12 +10903,27 @@ Route::get("/agent/lead-by-phone/{phone}", function($phone) {
                 if ($httpCode === 200 && $response) {
                     $result = json_decode($response, true);
                     if (isset($result["output"]) && !empty($result["output"])) {
-                        $lines = explode("
-", trim($result["output"]));
-                        if (count($lines) > 1) {
-                            $headers = explode("	", $lines[0]);
-                            $data = explode("	", $lines[1]);
-                            $viciData = array_combine($headers, $data);
+                        // Remove the SSH error messages and split by newlines
+                        $output = $result["output"];
+                        $lines = explode("\n", trim($output));
+                        
+                        // Find the line that starts with "lead_id" (the header)
+                        $headerLine = null;
+                        $dataLine = null;
+                        foreach ($lines as $line) {
+                            if (strpos($line, 'lead_id') === 0) {
+                                $headerLine = $line;
+                                $dataLine = next($lines);
+                                break;
+                            }
+                        }
+                        
+                        if ($headerLine && $dataLine) {
+                            $headers = explode("\t", $headerLine);
+                            $data = explode("\t", $dataLine);
+                            if (count($headers) === count($data)) {
+                                $viciData = array_combine($headers, $data);
+                            }
                         }
                     }
                 }
