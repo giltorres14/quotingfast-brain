@@ -3427,6 +3427,11 @@ Route::get('/leads/{id}/edit', function ($id) {
     return redirect('/agent/lead/' . $id . '?mode=edit');
 });
 
+// Test route to verify deployment
+Route::get('/test-deployment', function () {
+    return response()->json(['status' => 'deployment-test-' . time()]);
+});
+
 // Capture endpoint: create Brain lead and redirect to iframe edit (GET version to bypass CSRF)
 Route::get('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
     try {
@@ -3451,6 +3456,9 @@ Route::get('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
         $extId = $request->input('external_lead_id') ?? $request->query('external_lead_id');
         if (empty($extId)) { $extId = (string) round(microtime(true) * 1000); }
 
+        // Get Vici lead ID if available
+        $viciLeadId = $request->input('vici_lead_id') ?? $request->query('vici_lead_id') ?? $request->input('lead_id') ?? $request->query('lead_id');
+
         $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, tenant_id, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, 'auto', 'vicidial-iframe-capture', :meta, 1, NOW(), NOW())");
         $meta = json_encode(['notes' => $notes]);
         $stmt->execute([
@@ -3466,6 +3474,38 @@ Route::get('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
             ':zip' => $zip,
             ':meta' => $meta,
         ]);
+
+        // Update Vici with the new Brain external_lead_id if we have a Vici lead ID
+        if ($viciLeadId) {
+            try {
+                $viciProxyUrl = "https://quotingfast-brain-ohio.onrender.com/vici-proxy/execute";
+                $viciApiKey = "sk-KrtJqEUxCrUvYRQQQ8OKbMBmOa2OYnW5S5tPwPQJzIGBBgSZ";
+                
+                $updateViciQuery = "UPDATE vicidial_list SET vendor_lead_code = \"{$extId}\" WHERE lead_id = \"{$viciLeadId}\"";
+                
+                $ch_update = curl_init();
+                curl_setopt($ch_update, CURLOPT_URL, $viciProxyUrl);
+                curl_setopt($ch_update, CURLOPT_POST, true);
+                curl_setopt($ch_update, CURLOPT_POSTFIELDS, json_encode([
+                    "command" => "mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p\"hkj7uAlV9wp9zOMr\" Q6hdjl67GRigMofv -e \"{$updateViciQuery}\""
+                ]));
+                curl_setopt($ch_update, CURLOPT_HTTPHEADER, [
+                    "Content-Type: application/json",
+                    "X-API-Key: " . $viciApiKey
+                ]);
+                curl_setopt($ch_update, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch_update, CURLOPT_TIMEOUT, 30);
+                curl_exec($ch_update);
+                curl_close($ch_update);
+                
+                \Log::info("Updated Vici with new Brain lead", [
+                    "vici_lead_id" => $viciLeadId,
+                    "brain_external_id" => $extId
+                ]);
+            } catch (Exception $e) {
+                \Log::error("Failed to update Vici with new lead: " . $e->getMessage());
+            }
+        }
 
         return response()->json([
             'success' => true,

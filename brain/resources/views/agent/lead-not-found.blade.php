@@ -32,7 +32,8 @@
                 state: f.state.value.trim(),
                 zip_code: f.zip.value.trim(),
                 notes: f.notes.value.trim(),
-                source: 'vicidial-iframe-capture'
+                source: 'vicidial-iframe-capture',
+                vici_lead_id: '{{ $leadId }}' // Pass Vici lead ID back to update vendor_lead_code
             };
             console.log('Payload:', payload);
             console.log('Capture URL:', '{{ $captureUrl }}');
