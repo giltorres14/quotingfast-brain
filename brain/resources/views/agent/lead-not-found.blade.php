@@ -38,10 +38,11 @@
             console.log('Capture URL:', '{{ $captureUrl }}');
             
             try {
-                const res = await fetch('{{ $captureUrl }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                // Use GET request with query parameters to bypass CSRF
+                const queryParams = new URLSearchParams(payload).toString();
+                const res = await fetch('{{ $captureUrl }}?' + queryParams, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
                 });
                 console.log('Response status:', res.status);
                 const data = await res.json();

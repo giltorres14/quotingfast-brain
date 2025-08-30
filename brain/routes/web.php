@@ -3831,8 +3831,8 @@ Route::get('/agent/lead/{leadId}', function ($leadId) {
     }
 });
 
-// Capture endpoint: create Brain lead and redirect to iframe edit
-Route::post('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
+// Capture endpoint: create Brain lead and redirect to iframe edit (GET version to bypass CSRF)
+Route::get('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
     try {
         $pdo = new PDO(
             'pgsql:host=dpg-d277kvk9c44c7388opg0-a.ohio-postgres.render.com;port=5432;dbname=brain_production',
@@ -3841,17 +3841,18 @@ Route::post('/agent/lead/capture', function (\Illuminate\Http\Request $request) 
         );
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $first = trim((string)$request->input('first_name', ''));
-        $last = trim((string)$request->input('last_name', ''));
+        // Handle both GET and POST parameters
+        $first = trim((string)($request->input('first_name') ?? $request->query('first_name') ?? ''));
+        $last = trim((string)($request->input('last_name') ?? $request->query('last_name') ?? ''));
         $name = trim($first . ' ' . $last);
-        $phone = trim((string)$request->input('phone', ''));
-        $email = trim((string)$request->input('email', ''));
-        $address = trim((string)$request->input('address', ''));
-        $city = trim((string)$request->input('city', ''));
-        $state = trim((string)$request->input('state', ''));
-        $zip = trim((string)$request->input('zip_code', $request->input('zip', '')));
-        $notes = trim((string)$request->input('notes', ''));
-        $extId = $request->input('external_lead_id');
+        $phone = trim((string)($request->input('phone') ?? $request->query('phone') ?? ''));
+        $email = trim((string)($request->input('email') ?? $request->query('email') ?? ''));
+        $address = trim((string)($request->input('address') ?? $request->query('address') ?? ''));
+        $city = trim((string)($request->input('city') ?? $request->query('city') ?? ''));
+        $state = trim((string)($request->input('state') ?? $request->query('state') ?? ''));
+        $zip = trim((string)($request->input('zip_code') ?? $request->query('zip_code') ?? $request->input('zip') ?? $request->query('zip') ?? ''));
+        $notes = trim((string)($request->input('notes') ?? $request->query('notes') ?? ''));
+        $extId = $request->input('external_lead_id') ?? $request->query('external_lead_id');
         if (empty($extId)) { $extId = (string) round(microtime(true) * 1000); }
 
         $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, 'auto', 'vicidial-iframe-capture', :meta, NOW(), NOW()) ON CONFLICT (external_lead_id) DO NOTHING");
