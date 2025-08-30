@@ -10935,7 +10935,7 @@ Route::get("/agent/lead-by-phone/{phone}", function($phone) {
         }
         
         $queryString = http_build_query($queryParams);
-        return redirect("/agent/lead/capture?{$queryString}");
+        return redirect("https://quotingfast-brain-ohio.onrender.com/agent/lead/capture?{$queryString}");
         
     } catch (Exception $e) {
         \Log::error("Phone lookup route failed: " . $e->getMessage());
