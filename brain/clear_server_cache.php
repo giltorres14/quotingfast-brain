@@ -44,3 +44,4 @@ echo "The server should now use the latest templates.\n";
 
 
 
+

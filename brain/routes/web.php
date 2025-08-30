@@ -10958,3 +10958,9 @@ Route::get("/agent/lead-smart-lookup", function() {
     // Step 3: Final fallback
     return redirect("/agent/lead/capture");
 })->name("agent.lead-smart-lookup");
+
+
+// Simple iframe loader route that uses the existing iframe script logic
+Route::get("/agent/lead-iframe", function() {
+    return view("agent.lead-iframe");
+})->name("agent.lead-iframe");
