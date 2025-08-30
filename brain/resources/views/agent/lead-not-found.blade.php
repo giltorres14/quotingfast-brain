@@ -40,7 +40,9 @@
             try {
                 // Use GET request with query parameters to bypass CSRF
                 const queryParams = new URLSearchParams(payload).toString();
-                const res = await fetch('{{ $captureUrl }}?' + queryParams, {
+                const captureUrl = '{{ $captureUrl }}';
+                console.log('Full URL being called:', captureUrl + '?' + queryParams);
+                const res = await fetch(captureUrl + '?' + queryParams, {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' }
                 });
