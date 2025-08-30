@@ -3434,7 +3434,7 @@ Route::get('/agent/lead', function (\Illuminate\Http\Request $request) {
     view()->share('isIframe', $isIframe);
 
     // If vendor_lead_code or lead_id are present as query params, redirect to canonical path
-    $idParam = $request->get('vendor_lead_code') ?? $request->get('lead_id');
+    $idParam = $request->get('vendor_lead_code');
     if (!empty($idParam)) {
         $qs = $request->query(); unset($qs['vendor_lead_code'], $qs['lead_id']);
         $query = http_build_query($qs);
