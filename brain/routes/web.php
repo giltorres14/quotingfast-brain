@@ -3509,7 +3509,7 @@ Route::get('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
 
         return response()->json([
             'success' => true,
-            'redirect' => url('/agent/lead/' . $extId . '?iframe=1&mode=edit'),
+            'redirect' => 'https://quotingfast-brain-ohio.onrender.com/agent/lead/' . $extId . '?iframe=1&mode=edit',
             'external_lead_id' => $extId,
         ]);
     } catch (Throwable $e) {
@@ -10917,60 +10917,25 @@ Route::get("/agent/lead-by-phone/{phone}", function($phone) {
             }
         }
         
-        // Create a new Brain lead with Vici data
-        $extId = (string) round(microtime(true) * 1000);
-        
-        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, \"auto\", \"vicidial-phone-lookup\", :meta, NOW(), NOW())");
-        
-        $name = $viciData ? trim(($viciData["first_name"] ?? "") . " " . ($viciData["last_name"] ?? "")) : "Unknown";
-        $meta = $viciData ? json_encode(["vici_lead_id" => $viciData["lead_id"]]) : json_encode([]);
-        
-        $stmt->execute([
-            ":eid" => $extId,
-            ":name" => $name,
-            ":first" => $viciData["first_name"] ?? "",
-            ":last" => $viciData["last_name"] ?? "",
-            ":phone" => $cleanPhone,
-            ":email" => $viciData["email"] ?? "",
-            ":addr" => $viciData["address1"] ?? "",
-            ":city" => $viciData["city"] ?? "",
-            ":state" => $viciData["state"] ?? "",
-            ":zip" => $viciData["postal_code"] ?? "",
-            ":meta" => $meta,
-        ]);
-        
-        // Update Vici with the Brain external_lead_id
+        // Redirect to capture form with Vici data pre-filled
+        $queryParams = [];
         if ($viciData) {
-            try {
-                $updateViciQuery = "UPDATE vicidial_list SET vendor_lead_code = \"{$extId}\" WHERE lead_id = \"{$viciData["lead_id"]}\"";
-                
-                $ch_update = curl_init();
-                curl_setopt($ch_update, CURLOPT_URL, $viciProxyUrl);
-                curl_setopt($ch_update, CURLOPT_POST, true);
-                curl_setopt($ch_update, CURLOPT_POSTFIELDS, json_encode([
-                    "command" => "mysql -h localhost -P 20540 -u wS3Vtb7rJgAGePi5 -p\"hkj7uAlV9wp9zOMr\" Q6hdjl67GRigMofv -e \"{$updateViciQuery}\""
-                ]));
-                curl_setopt($ch_update, CURLOPT_HTTPHEADER, [
-                    "Content-Type: application/json",
-                    "X-API-Key: " . $viciApiKey
-                ]);
-                curl_setopt($ch_update, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch_update, CURLOPT_TIMEOUT, 30);
-                curl_exec($ch_update);
-                curl_close($ch_update);
-                
-                \Log::info("Created new Brain lead and updated Vici", [
-                    "phone" => $cleanPhone,
-                    "vici_lead_id" => $viciData["lead_id"],
-                    "brain_external_id" => $extId
-                ]);
-            } catch (Exception $e) {
-                \Log::error("Failed to update Vici: " . $e->getMessage());
-            }
+            $queryParams = [
+                'first_name' => $viciData["first_name"] ?? '',
+                'last_name' => $viciData["last_name"] ?? '',
+                'phone' => $cleanPhone,
+                'email' => $viciData["email"] ?? '',
+                'address' => $viciData["address1"] ?? '',
+                'city' => $viciData["city"] ?? '',
+                'state' => $viciData["state"] ?? '',
+                'zip' => $viciData["postal_code"] ?? '',
+                'vici_lead_id' => $viciData["lead_id"] ?? '',
+                'notes' => 'Lead data from Vici phone lookup'
+            ];
         }
         
-        // Redirect to the new Brain lead edit page
-        return redirect("/agent/lead/{$extId}?iframe=1");
+        $queryString = http_build_query($queryParams);
+        return redirect("/agent/lead/capture?{$queryString}");
         
     } catch (Exception $e) {
         \Log::error("Phone lookup route failed: " . $e->getMessage());
