@@ -40,6 +40,10 @@ class VerifyCsrfToken extends Middleware
         // Test endpoints
         'test-vici-connection',
         '/test-vici-connection',
+        
+        // Lead capture endpoint for iframe
+        'agent/lead/capture',
+        '/agent/lead/capture',
     ];
 }
 
