@@ -3451,7 +3451,7 @@ Route::get('/agent/lead/capture', function (\Illuminate\Http\Request $request) {
         $extId = $request->input('external_lead_id') ?? $request->query('external_lead_id');
         if (empty($extId)) { $extId = (string) round(microtime(true) * 1000); }
 
-        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, tenant_id, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, 'auto', 'vicidial-iframe-capture', :meta, 5, NOW(), NOW())");
+        $stmt = $pdo->prepare("INSERT INTO leads (external_lead_id, name, first_name, last_name, phone, email, address, city, state, zip_code, type, source, meta, tenant_id, created_at, updated_at) VALUES (:eid, :name, :first, :last, :phone, :email, :addr, :city, :state, :zip, 'auto', 'vicidial-iframe-capture', :meta, 1, NOW(), NOW())");
         $meta = json_encode(['notes' => $notes]);
         $stmt->execute([
             ':eid' => $extId,
